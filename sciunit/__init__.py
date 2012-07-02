@@ -66,6 +66,43 @@ class NormalizedMetricTest(Test):
     @classmethod
     def validate_score(cls, output):
         return 0.0 <= output <= 1.0
+    
+#
+# Test Suite
+#
+class TestSuite(object):
+    def __init__(self, tests):
+        for test in tests:
+            assert isinstance(test, Test)
+        self.tests = tests
+        
+    tests = None
+    """The sequence of tests that this suite contains."""
+    
+    def validate(self, model):
+        tests = self.tests
+        results = TestResults._init(dict(
+            (test, test.run_test(model)) for test in tests))
+        return results
+    
+class TestResults(object):
+    def __init__(self):
+        """Do not instantiate directly."""
+        pass
+    
+    @classmethod
+    def _init(cls, result_dict):
+        r = cls()
+        r.dict = result_dict
+        return r
+    
+    dict = None
+    """A dictionary mapping a test to a result."""
+    
+    def summarize(self):
+        """Summarizes these results and prints them as a string."""
+        # TODO: Implement this
+        raise NotImplementedError("summarize() not yet implemented.")
 
 #
 # Capabilities
@@ -88,3 +125,9 @@ def require(model, capabilities):
             raise LacksCapabilityError(capability, 
                 "Model lacks capability: %s." % capability.name)
 
+#
+# Models
+# 
+class Model(object):
+    """Abstract base class for sciunit models."""
+    
