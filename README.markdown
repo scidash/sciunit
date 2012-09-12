@@ -1,1 +1,1 @@
-Formal validation of scientific models.
+SciUnit: A Test-Driven Framework for Formally Validating Scientific Models Against Data
