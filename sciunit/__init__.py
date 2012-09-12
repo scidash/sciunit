@@ -58,6 +58,12 @@ class BooleanScore(Score):
         Score.__init__(self, score, related_data)
     
 #
+# Models
+# 
+class Model(object):
+    """Abstract base class for sciunit models."""
+    
+#
 # Capabilities
 #
 class Capability(object):
@@ -65,31 +71,55 @@ class Capability(object):
     @property
     def name(self):
         return self.__class__.__name__
-    
-class LacksCapabilityError(Error):
-    def __init__(self, capability, *args):
-        self.capability = capability
-        Error.__init__(self, *args)
-        
-def require(model, capabilities):
-    for capability in capabilities:
-        if not isinstance(model, capability):
-            raise LacksCapabilityError(capability, 
-                "Model lacks capability: %s." % capability.name)
 
-#
-# Models
-# 
-class Model(object):
-    """Abstract base class for sciunit models."""
+    @classmethod
+    def check(cls, model):
+        """Checks whether the provided model has this capability.
+
+        By default, uses isinstance.
+        """
+        return isinstance(model, cls)
     
+def check_capabilities(test, model):
+    assert isinstance(test, Test)
+    assert isinstance(model, Model)
+
+    for c in test.required_capabilities:
+        c.check(model)
+
 #
 # Running Tests
 #
-def run(self, t, m):
-    # TODO: implement this
-    pass
+def run(test, model):
+    """Runs the given test on the given model.
 
-class TestResults(object):
-    # TODO: implement this
-    pass
+    1. Runs check_capabilities(test, model)
+    2. Produces a score by calling the run_test method.
+    3. Returns a TestResult containing the score.
+    """
+    # Check capabilities
+    check_capabilities(test, model)
+
+    # Run test
+    score = test.run_test(model)
+    assert isinstance(score, Score)
+
+    # Return a TestResult wrapping the score
+    return TestResult(test, model, score)
+
+class TestResult(object):
+    """Represents the result of running a test on a model."""
+    def __init__(self, test, model, score):
+        assert isinstance(test, Test)
+        assert isinstance(model, Model)
+        assert isinstance(score, Score)
+        self.test, self.model, self.score = test, model, score
+
+    test = None
+    """The test taken."""
+
+    model = None
+    """The model tested."""
+
+    score = None 
+    """The score produced."""
