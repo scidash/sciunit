@@ -1,5 +1,3 @@
-# TODO: Licensing header
-# TODO: License files in repository root.
 """sciunit: A Framework for Formal Validation of Scientific Models"""
 
 #
@@ -23,6 +21,7 @@ class Test(object):
 #
 # Test Suites
 #
+
 class TestSuite(object):
     def __init__(self, tests):
         for test in tests:
@@ -35,6 +34,7 @@ class TestSuite(object):
 #
 # Scores
 #
+
 class InvalidScoreError(Exception):
     """Error raised when the score is invalid."""
 
@@ -60,12 +60,14 @@ class BooleanScore(Score):
 #
 # Models
 # 
+
 class Model(object):
     """Abstract base class for sciunit models."""
     
 #
 # Capabilities
 #
+
 class Capability(object):
     """Abstract base class for sciunit capabilities."""
     @property
@@ -90,6 +92,7 @@ def check_capabilities(test, model):
 #
 # Running Tests
 #
+
 def run(test, model):
     """Runs the given test on the given model.
 
