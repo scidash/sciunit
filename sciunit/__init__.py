@@ -6,6 +6,7 @@
 
 class Test(object):
     """Abstract base class for tests."""
+
     required_capabilities = ()
     """A sequence of capabilities that a model must have in order for the 
     test to be run. Defaults to empty."""
@@ -23,6 +24,8 @@ class Test(object):
 #
 
 class TestSuite(object):
+    """A collection of tests."""
+
     def __init__(self, tests):
         for test in tests:
             assert isinstance(test, Test)
@@ -36,7 +39,7 @@ class TestSuite(object):
 #
 
 class InvalidScoreError(Exception):
-    """Error raised when the score is invalid."""
+    """Error raised when the score provided in the constructor is invalid."""
 
 class Score(object):
     """Abstract base class for scores."""
@@ -51,15 +54,15 @@ class Score(object):
     """A dictionary of related data."""
 
 class BooleanScore(Score):
-    """A score with boolean value."""
+    """A boolean score."""
     def __init__(self, score, related_data):
         if not isinstance(score, bool):
-            raise InvalidScoreError("Score is not a boolean.")
+            raise InvalidScoreError("Score must be a boolean.")
         Score.__init__(self, score, related_data)
     
 #
 # Models
-# 
+#
 
 class Model(object):
     """Abstract base class for sciunit models."""
@@ -72,6 +75,9 @@ class Capability(object):
     """Abstract base class for sciunit capabilities."""
     @property
     def name(self):
+        """The name of the capability.
+
+        Defaults to the class name."""
         return self.__class__.__name__
 
     @classmethod
@@ -83,6 +89,10 @@ class Capability(object):
         return isinstance(model, cls)
     
 def check_capabilities(test, model):
+    """Checks that the capabilities required by `test` are implemented by `model`.
+
+    First checks that `test` is a `Test` and `model` is a `Model`.
+    """
     assert isinstance(test, Test)
     assert isinstance(model, Model)
 
@@ -94,9 +104,10 @@ def check_capabilities(test, model):
 #
 
 def run(test, model):
-    """Runs the given test on the given model.
+    """Runs the provided test on the provided model.
 
-    1. Runs check_capabilities(test, model)
+    Operates as follows:
+    1. Invokes check_capabilities(test, model).
     2. Produces a score by calling the run_test method.
     3. Returns a TestResult containing the score.
     """
@@ -111,7 +122,7 @@ def run(test, model):
     return TestResult(test, model, score)
 
 class TestResult(object):
-    """Represents the result of running a test on a model."""
+    """Pairs a score with the test and model that produced it."""
     def __init__(self, test, model, score):
         assert isinstance(test, Test)
         assert isinstance(model, Model)
