@@ -3,4 +3,5 @@
 *.pydevproject
 *.pyo
 *.pyc
+*.DS_Store
 
