@@ -18,7 +18,7 @@ class Test(object):
         No default implementation.
         """
         raise NotImplementedError("Must supply a run_test method.")
-    
+   
 #
 # Test Suites
 #
@@ -59,7 +59,7 @@ class BooleanScore(Score):
         if not isinstance(score, bool):
             raise InvalidScoreError("Score must be a boolean.")
         Score.__init__(self, score, related_data)
-    
+
 #
 # Models
 #
@@ -87,7 +87,22 @@ class Capability(object):
         By default, uses isinstance.
         """
         return isinstance(model, cls)
+
+class CapabilityError(Exception):
+    """Error raised when a required capability is not provided by a model."""
+    def __init__(self, model, capability):
+        self.model = model
+        self.capability = capability
+
+        Exception.__init__("Model does not provided required capability: %s"
+            % capability.name)
     
+    model = None
+    """The model that does not have the capability."""
+
+    capability = None
+    """The capability that is not provided."""
+
 def check_capabilities(test, model):
     """Checks that the capabilities required by `test` are implemented by `model`.
 
@@ -97,7 +112,10 @@ def check_capabilities(test, model):
     assert isinstance(model, Model)
 
     for c in test.required_capabilities:
-        c.check(model)
+        if not c.check(model):
+            raise CapabilityError(model, c)
+
+    return True
 
 #
 # Running Tests
