@@ -1,0 +1,14 @@
+Metadata-Version: 1.0
+Name: sciunit
+Version: 0.1.0
+Summary: A test-driven framework for formally validating scientific models against data.
+Home-page: http://pypi.python.org/pypi/sciunit/
+Author: Cyrus Omar
+Author-email: cyrus.omar@gmail.com
+License: LICENSE
+Description: SciUnit: A Test-Driven Framework for Formally Validating Scientific Models Against Data
+        
+        # License
+        SciUnit is released under the permissive MIT license, requiring only attribution in derivative works. See the LICENSE file for terms.
+        
+Platform: UNKNOWN
