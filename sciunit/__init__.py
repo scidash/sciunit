@@ -1,3 +1,5 @@
+from scipy.stats import norm
+
 """sciunit: A Framework for Formal Validation of Scientific Models"""
 
 #
@@ -34,6 +36,31 @@ class TestSuite(object):
     tests = None
     """The sequence of tests that this suite contains."""
     
+# 
+# Score Maps.  
+#
+
+class InvalidScoreMapError(Exception):
+    """Error raised when the score provided in the constructor is invalid."""
+
+class ScoreMap():
+    """Abstract base class for score maps."""
+    def __init__(self,stats,related_data):
+        self.stats = stats
+        self.related_data = related_data
+    def score(self):
+        """Turn the statistics into a score."""
+        raise NotImplementedError("No scoring function has been implemented.")
+
+class ZScoreMap(ScoreMap):
+    def __init__(self,stats,related_data):
+        if not isinstance(stats,tuple) or len(stats) is not 3:
+            raise InvalidScoreMapError("A tuple of value, mean, and standard deviation must be provided.")
+        ScoreMap.__init__(self,stats,related_data)
+    def score(self):
+        (value,mean_,std_) = self.stats
+        return norm.cdf(value,mean_,std_)
+        
 #
 # Scores
 #
@@ -60,13 +87,21 @@ class BooleanScore(Score):
             raise InvalidScoreError("Score must be a boolean.")
         Score.__init__(self, score, related_data)
 
+class ZScore(Score):
+    """A Z score."""
+    def __init__(self, score, related_data):
+        if not isinstance(score, float):
+            raise InvalidScoreError("Score must be a float.")
+        Score.__init__(self, score, related_data)
+
 #
 # Models
 #
 
 class Model(object):
     """Abstract base class for sciunit models."""
-    
+    def run(**kwargs):
+        raise NotImplementedError("Must supply a run method.")
 #
 # Capabilities
 #
