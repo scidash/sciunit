@@ -37,7 +37,8 @@ class TestSuite(object):
     """The sequence of tests that this suite contains."""
     
 # 
-# Score Maps.  
+# Score Maps  
+# These are responsible for converting statistical summaries of tests, e.g. mean and sd, into scores, e.g. pass/fail or 0-100.  
 #
 
 class InvalidScoreMapError(Exception):
@@ -48,18 +49,13 @@ class ScoreMap():
     def __init__(self,stats,related_data):
         self.stats = stats
         self.related_data = related_data
-    def score(self):
+
+    result_stats = None # Dictionary of statistics from e.g. model run(s).  
+    reference_stats = None # Dictionary of statistics from the reference model/data.  
+
+    def score(self,**kwargs):
         """Turn the statistics into a score."""
         raise NotImplementedError("No scoring function has been implemented.")
-
-class ZScoreMap(ScoreMap):
-    def __init__(self,stats,related_data):
-        if not isinstance(stats,tuple) or len(stats) is not 3:
-            raise InvalidScoreMapError("A tuple of value, mean, and standard deviation must be provided.")
-        ScoreMap.__init__(self,stats,related_data)
-    def score(self):
-        (value,mean_,std_) = self.stats
-        return norm.cdf(value,mean_,std_)
         
 #
 # Scores
@@ -79,20 +75,6 @@ class Score(object):
 
     related_data = None
     """A dictionary of related data."""
-
-class BooleanScore(Score):
-    """A boolean score."""
-    def __init__(self, score, related_data):
-        if not isinstance(score, bool):
-            raise InvalidScoreError("Score must be a boolean.")
-        Score.__init__(self, score, related_data)
-
-class ZScore(Score):
-    """A Z score."""
-    def __init__(self, score, related_data):
-        if not isinstance(score, float):
-            raise InvalidScoreError("Score must be a float.")
-        Score.__init__(self, score, related_data)
 
 #
 # Models
