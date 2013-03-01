@@ -9,6 +9,18 @@ from scipy.stats import norm
 class Test(object):
     """Abstract base class for tests."""
 
+    comparator = None
+    """Comparator from sciunit.Comparators."""
+
+    converter = None
+    """Optional Converter from sciunit.Comparators."""
+
+    conversion_params = {}
+    """Optional conversion parameters for the Converter."""
+    
+    reference_data = {}
+    """A dictionary of data that the tests references to compare model output against."""
+
     required_capabilities = ()
     """A sequence of capabilities that a model must have in order for the 
     test to be run. Defaults to empty."""
@@ -41,21 +53,42 @@ class TestSuite(object):
 # These are responsible for converting statistical summaries of tests, e.g. mean and sd, into scores, e.g. pass/fail or 0-100.  
 #
 
-class InvalidScoreMapError(Exception):
-    """Error raised when the score provided in the constructor is invalid."""
+class InvalidComparatorError(Exception):
+    """Error raised when the comparator provided in the constructor is invalid."""
 
-class ScoreMap():
-    """Abstract base class for score maps."""
-    def __init__(self,stats,related_data):
-        self.stats = stats
-        self.related_data = related_data
+class Comparator():
+    """Abstract base class for comparators."""
+    def __init__(self,model_stats,reference_stats):
+        if (type(model_stats),type(reference_stats)) is not (dict,dict):
+            raise InvalidComparatorError("model_stats and reference_stats must both be dictionaries.")
+        for key in required_model_stats:
+            if key not in model_stats.keys():
+                raise InvalidComparatorError("'%s' not found in the model_stats dictionary" % key)
+        for key in required_model_stats:
+            if key not in reference_stats.keys():
+                raise InvalidComparatorError("'%s' not found in the reference_stats dictionary" % key)
+        for key,value in locals().items():
+            self.__setattr__(key,value)
 
-    result_stats = None # Dictionary of statistics from e.g. model run(s).  
+    score_type = None # Primary score type for a comparator, before any conversion.  See sciunit.Scores.  
+    converter = None # Conversion to apply to primary score type.  See sciunit.Comparators.  
+    required_model_stats = ()
+    required_reference_stats = ()
+    model_stats = None # Dictionary of statistics from e.g. model run(s).  
     reference_stats = None # Dictionary of statistics from the reference model/data.  
 
-    def score(self,**kwargs):
-        """Turn the statistics into a score."""
-        raise NotImplementedError("No scoring function has been implemented.")
+    def compute(self,**kwargs):
+        """Computes a raw comparison statistic (e.g. a Z-score) from model_stats and reference_stats."""  
+        raise NotImplementedError("No Comparator computing function has been implemented.")
+
+    def score(self,**params):
+        """A converter can convert one (raw) score into another Score subclass.  
+        params are used by this converter to map scores appropriately."""
+        raw = self.compute()
+        score = self.score_type(raw)
+        if self.converter:
+            score = self.converter(score,params)
+        return score
         
 #
 # Scores
@@ -66,15 +99,17 @@ class InvalidScoreError(Exception):
 
 class Score(object):
     """Abstract base class for scores."""
-    def __init__(self, score, related_data):
+    def __init__(self, score):
         self.score = score
-        self.related_data = related_data
 
     score = None
     """The score itself."""
 
-    related_data = None
+    reference_data = None
     """A dictionary of related data."""
+
+    model_data = None
+    """A dictionary of model data."""
 
 #
 # Models
@@ -82,8 +117,10 @@ class Score(object):
 
 class Model(object):
     """Abstract base class for sciunit models."""
-    def run(**kwargs):
-        raise NotImplementedError("Must supply a run method.")
+    name = None # String containing name of the model.  
+
+    def __str__(self):
+        return u'%s' % self.name # Return names as unicode-encoded strings, always.  
 #
 # Capabilities
 #
