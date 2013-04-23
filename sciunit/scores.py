@@ -1,22 +1,36 @@
-from sciunit import Score
+import sciunit
+from numpy import bool_
 
-class BooleanScore(Score):
+class BooleanScore(sciunit.Score):
     """A boolean score."""
     def __init__(self, score):
-        if not isinstance(score, bool):
-            raise InvalidScoreError("Score must be a boolean.")
-        Score.__init__(self, score, related_data)
+        if not isinstance(score, bool) and not isinstance(score, bool_):
+            raise sciunit.InvalidScoreError("Score must be a boolean.")
+        super(BooleanScore,self).__init__(score)
+    def __str__(self):
+        if self.score == True:
+            return u'PASS'
+        elif self.score == False:
+            return u'FAIL'
+        else:
+            return u'N/A'
 
-class ZScore(Score):
+class ZScore(sciunit.Score):
     """A Z score."""
     def __init__(self, score):
         if not isinstance(score, float):
-            raise InvalidScoreError("Score must be a float.")
-        Score.__init__(self, score, related_data)
+            raise sciunit.InvalidScoreError("Score must be a float.")
+        super(ZScore,self).__init__(score)
+    def __str__(self):
+        return u'%.2f' % self.score
 
-class RatioScore(Score):
+class RatioScore(sciunit.Score):
     """A ratio score."""
     def __init__(self, score):
         if not isinstance(score, float):
-            raise InvalidScoreError("Score must be a float.")
-        Score.__init__(self, score, related_data)
+            raise sciunit.InvalidScoreError("Score must be a float.")
+        super(RatioScore,self).__init__(score)
+    def __str__(self):
+        return u'%.2f' % self.score
+
+        

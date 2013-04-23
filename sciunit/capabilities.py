@@ -1,21 +1,26 @@
 """Basic sciunit capabilities"""
-from sciunit import Capability
+import sciunit
 
-class Runnable(Capability):
+class ProducesNumber(sciunit.Capability):
+	"""An example capability for producing some generic number."""
+
+	def produce_data(self):
+		raise NotImplementedError("Must implement produce_data.")
+
+class Runnable(sciunit.Capability):
 	"""The ability to run, i.e. execute, the candidate as a program."""
-	def run(self,**kwargs):
-		"""kwargs contain arguments for candidate execution, e.g. time step."""
-		raise NotImplementedError()
-  
-class Cachable(Runnable):
-	"""The ability to cache the arguments to and results of a candidate run."""
-	def lookup(self,name,**kwargs):
-		"""Lookup a candidate run in the cache."""
-		raise NotImplementedError()
 	
-	def store(self,name,**kwargs):
-		"""Store a candidate run in the cache."""
-  		raise NotImplementedError()
+	"""Posix timestamp of the run, to set in run()."""
+	run_t = 0
+	
+	"""Name for the run, to set in run()."""
+	run_name = ""
+	
+	def run(self,name=""):
+		"""Run candidate with an optional name."""
+		raise NotImplementedError()
+  		
+
 
 
 

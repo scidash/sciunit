@@ -2,31 +2,9 @@
 
 import sciunit
 
-class ProducesNumber(sciunit.Capability):
-	"""An example capability for producing some generic number."""
+positivity_test = sciunit.tests.PositivityTest()
 
-	def produce_data(self):
-		raise NotImplementedError("Must implement produce_data.")
-
-class PositivityTest(sciunit.Test):
-	"""Checks whether the candidate produces a positive value."""
-
-	required_capabilities = (ProducesNumber,)
-
-	def run_test(self, candidate):
-		"""The main testing function."""
-		data = candidate.produce_data()
-		return sciunit.BooleanScore(data > 0, {"data": data})
-
-positivity_test = PositivityTest()
-
-class OneCandidate(sciunit.Candidate, ProducesNumber):
-	"""A candidate that always produces the number 1 as output."""
-
-	def produce_data(self):
-		return 1
-
-one_candidate = OneCandidate()
+one_candidate = sciunit.candidates.ConstCandidate(1)
 
 assert sciunit.check_capabilities(positivity_test, one_candidate)
 

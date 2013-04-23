@@ -1,30 +1,30 @@
-from sciunit import Comparator
-from sciunit.scores import BooleanScore,ZScore,RatioScore
+import sciunit
+import sciunit.scores
 from scipy.stats import norm
 
-class RatioComparator(Comparator):
+class RatioComparator(sciunit.Comparator):
     """Returns a score indicating the ratio of candidate to reference means."""  
     def __init__(self,*args,**kwargs):
+        super(RatioComparator,self).__init__(*args,**kwargs)
         self.required_candidate_stats += ('value',)
         self.required_reference_stats += ('mean',)
-        super(RatioComparator,self).__init__(*args,**kwargs)
-
-    score_type = RatioScore
+        
+    score_type = sciunit.scores.RatioScore
 
     def compute(self,**kwargs):
         m_value = self.candidate_stats['value']
         r_mean = self.reference_stats['mean']
         return (m_value+0.0)/r_mean
 
-class ZComparator(Comparator):
+class ZComparator(sciunit.Comparator):
     """Returns a score indicating the Z-score of the candidate value relative to the 
     reference mean and standard deviation."""  
     def __init__(self,*args,**kwargs):
+        super(ZComparator,self).__init__(*args,**kwargs)
         self.required_candidate_stats += ('value',)
         self.required_reference_stats += ('mean','std',)    
-        super(ZComparator,self).__init__(*args,**kwargs)
-
-    score_type = ZScore
+        
+    score_type = sciunit.scores.ZScore
 
     def compute(self,**kwargs):
         m_value = self.candidate_stats['value']
@@ -39,4 +39,5 @@ def ZScoreToBooleanScore(self,Z,params={'thresh':2}):
     """Converts a ZScore class to a BooleanScore class."""  
     thresh = params['thresh'] # +/- Threshold within which Z must stay to pass.  
     boolean = -thresh <= Z.score <= thresh
-    return BooleanScore(boolean)
+    return sciunit.scores.BooleanScore(boolean)
+    

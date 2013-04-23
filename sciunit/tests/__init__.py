@@ -1,20 +1,37 @@
 """SciUnit tests live in this module."""
-from sciunit import Test
-from sciunit.capabilities import Runnable
+import sciunit
+import sciunit.capabilities
 
-class RickTest(Test,Runnable):
-	"""The kind of test that Rick is going to use."""
-	def __init__(self,reference_data,candidate_args):
+class StandardTest(sciunit.Test):
+	"""A standard test class that encourages the use of Comparators."""
+	def __init__(self,comparator):
+		self.comparator = comparator()
+		"""Comparator from sciunit.Comparators."""
+
+class PositivityTest(sciunit.Test):
+	"""Checks whether the candidate produces a positive value."""
+
+	required_capabilities = (sciunit.capabilities.ProducesNumber,)
+
+	def run_test(self, candidate):
+		"""The main testing function."""
+		data = candidate.produce_data()
+		return BooleanScore(data > 0, {"data": data})
+
+class MyTest(StandardTest):
+	"""The first test class that will be useful."""
+	def __init__(self,reference_data,candidate_args,comparator):
 		"""reference_data are summary statistics of reference data.
 		candidate_args are arguments used by the candidate to run 
 		or fit itself."""
+		super(MyTest,self).__init__(comparator)
 		self.reference_data.update(reference_data) # Store reference data. 
 		self.candidate_args.update(candidate_args) # Store candidate arguments.  
-		self.required_capabilities += (Runnable,)
-	
+		self.required_capabilities += (sciunit.capabilities.Runnable,)
+		
 	def pre_checks(self):
 		"""Checks that the test has everything it needs to run properly."""
-		assert self.comparator is not None
+		assert sciunit.Comparator in self.comparator.__class__.mro()
 
 	def run_test(self,candidate,**kwargs):
 		"""Runs the test and returns a score."""
@@ -41,8 +58,7 @@ class RickTest(Test,Runnable):
 		"""Generate a score using some Comparator applied to the data."""
 		candidate_stats = self.get_candidate_stats(candidate_data)
 		reference_stats = self.get_reference_stats()
-		comparator = self.comparator(candidate_stats,reference_stats,converter=self.converter) # A Z-score.
-		score = comparator.score()
+		score = self.comparator.compare(candidate_stats,reference_stats)
 		score.candidate_data = candidate_data
 		score.reference_data = self.reference_data
 		return score
