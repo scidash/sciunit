@@ -2,7 +2,7 @@
 import sciunit
 import sciunit.capabilities
 
-class StandardTest(sciunit.Test):
+class ComparatorTest(sciunit.Test):
 	"""A standard test class that encourages the use of Comparators."""
 	def __init__(self,comparator):
 		self.comparator = comparator()
@@ -18,13 +18,13 @@ class PositivityTest(sciunit.Test):
 		data = candidate.produce_data()
 		return BooleanScore(data > 0, {"data": data})
 
-class MyTest(StandardTest):
+class StandardTest(ComparatorTest):
 	"""The first test class that will be useful."""
 	def __init__(self,reference_data,candidate_args,comparator):
 		"""reference_data are summary statistics of reference data.
 		candidate_args are arguments used by the candidate to run 
 		or fit itself."""
-		super(MyTest,self).__init__(comparator)
+		super(StandardTest,self).__init__(comparator)
 		self.reference_data.update(reference_data) # Store reference data. 
 		self.candidate_args.update(candidate_args) # Store candidate arguments.  
 		self.required_capabilities += (sciunit.capabilities.Runnable,)

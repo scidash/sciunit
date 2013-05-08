@@ -173,7 +173,7 @@ class Capability(object):
 
 		Defaults to the class name."""
 		return self.__class__.__name__
-
+	
 	@classmethod
 	def check(cls, candidate):
 		"""Checks whether the provided candidate has this capability.
@@ -183,13 +183,17 @@ class Capability(object):
 		return isinstance(candidate, cls)
 
 class CapabilityError(Exception):
-	"""Error raised when a required capability is not provided by a candidate."""
+	"""Error raised when a required capability is not 
+	provided by a candidate."""
 	def __init__(self, candidate, capability):
 		self.candidate = candidate
 		self.capability = capability
 
-		Exception.__init__("Candidate %s does not provided required capability: %s"
-			% (candidate.name,capability.name))
+		print capability
+		print capability.name
+		super(CapabilityError,self).__init__(\
+			"Candidate %s does not provide required capability: %s" % \
+			(candidate.name,capability().name))
 	
 	candidate = None
 	"""The candidate that does not have the capability."""
