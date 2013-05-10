@@ -36,7 +36,8 @@ class StandardTest(ComparatorTest):
 	def run_test(self,candidate,**kwargs):
 		"""Runs the test and returns a score."""
 		self.pre_checks()
-		candidate.run(**kwargs) # Run implementation guaranteed by Runnable capability.  
+		candidate.run(**kwargs)
+		# Run implementation guaranteed by Runnable capability.  
 		candidate_data = self.get_candidate_data(candidate)
 		return self.generate_score(candidate_data)
 		

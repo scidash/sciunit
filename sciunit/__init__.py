@@ -207,6 +207,7 @@ def check_capabilities(test, candidate):
 
 	First checks that `test` is a `Test` and `candidate` is a `Candidate`.
 	"""
+	print "Checking candidate capabilities."
 	assert isinstance(test, Test)
 	assert isinstance(candidate, Candidate)
 
@@ -232,6 +233,7 @@ def judge(test, candidate): # I want to reserve 'run' for the concept of runnabi
 	check_capabilities(test, candidate)
 
 	# Run test
+	print "Running test."
 	score = test.run_test(candidate)
 	assert isinstance(score, Score)
 
