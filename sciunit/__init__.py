@@ -66,6 +66,9 @@ class Score(object):
 	
 	score = None
 	"""The score itself."""
+
+	related_data = {}
+	"""Data specific to the result of a test run on a candidate."""
 	
 # 
 # Comparators

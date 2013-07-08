@@ -1,6 +1,7 @@
 """Utilities for implementation of candidate capabilities
 All of these are optional."""
 from datetime import now
+from sciunit.Capabilities import Runnable
 
 def run(self,**kwargs):
     """Run, i.e. simulate or fit, a candidate model."""
