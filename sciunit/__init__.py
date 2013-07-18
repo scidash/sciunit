@@ -66,6 +66,9 @@ class Score(object):
 	
 	score = None
 	"""The score itself."""
+
+	related_data = {}
+	"""Data specific to the result of a test run on a candidate."""
 	
 # 
 # Comparators
@@ -173,7 +176,7 @@ class Capability(object):
 
 		Defaults to the class name."""
 		return self.__class__.__name__
-
+	
 	@classmethod
 	def check(cls, candidate):
 		"""Checks whether the provided candidate has this capability.
@@ -183,13 +186,17 @@ class Capability(object):
 		return isinstance(candidate, cls)
 
 class CapabilityError(Exception):
-	"""Error raised when a required capability is not provided by a candidate."""
+	"""Error raised when a required capability is not 
+	provided by a candidate."""
 	def __init__(self, candidate, capability):
 		self.candidate = candidate
 		self.capability = capability
 
-		Exception.__init__("Candidate %s does not provided required capability: %s"
-			% (candidate.name,capability.name))
+		print capability
+		print capability.name
+		super(CapabilityError,self).__init__(\
+			"Candidate %s does not provide required capability: %s" % \
+			(candidate.name,capability().name))
 	
 	candidate = None
 	"""The candidate that does not have the capability."""
@@ -203,6 +210,7 @@ def check_capabilities(test, candidate):
 
 	First checks that `test` is a `Test` and `candidate` is a `Candidate`.
 	"""
+	print "Checking candidate capabilities."
 	assert isinstance(test, Test)
 	assert isinstance(candidate, Candidate)
 
@@ -228,6 +236,7 @@ def judge(test, candidate): # I want to reserve 'run' for the concept of runnabi
 	check_capabilities(test, candidate)
 
 	# Run test
+	print "Running test."
 	score = test.run_test(candidate)
 	assert isinstance(score, Score)
 
