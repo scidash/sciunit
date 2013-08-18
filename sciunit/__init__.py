@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-"""sciunit: A Framework for Formal Validation of Scientific candidates"""
+"""sciunit: A Framework for Formal Validation of Scientific Models"""
 
 from collections import Callable
 
@@ -12,13 +12,13 @@ class Test(object):
 	"""Abstract base class for tests."""
 	
 	reference_data = {}
-	"""A dictionary of data that the tests references to compare candidate output against."""
+	"""A dictionary of data that the tests references to compare model output against."""
 
-	candidate_args = {}
-	"""A dictionary of arguments the candidate might use at run-time."""
+	model_args = {}
+	"""A dictionary of arguments the model might use at run-time."""
 
 	required_capabilities = ()
-	"""A sequence of capabilities that a candidate must have in order for the 
+	"""A sequence of capabilities that a model must have in order for the 
 	test to be run. Defaults to empty."""
 
 	@property
@@ -28,10 +28,10 @@ class Test(object):
 		Defaults to the class name."""
 		return self.__class__.__name__
    
-	def run_test(self, candidate):
+	def run_test(self, model):
 		"""The main testing function.
 
-		Takes a Candidate as input and produces a Score as output. 
+		Takes a Model as input and produces a Score as output. 
 		No default implementation.
 		"""
 		raise NotImplementedError("Must supply a run_test method.")
@@ -68,7 +68,7 @@ class Score(object):
 	"""The score itself."""
 
 	related_data = {}
-	"""Data specific to the result of a test run on a candidate."""
+	"""Data specific to the result of a test run on a model."""
 	
 # 
 # Comparators
@@ -82,7 +82,7 @@ class InvalidComparatorError(Exception):
 class Comparator(object):
 	"""Abstract base class for comparators.
 	Comparators are used to compare statistical summaries of reference data
-	to statistical summaries of candidate data.  They issue a score indicating the
+	to statistical summaries of model data.  They issue a score indicating the
 	result of that comparison, e.g. a Z-score."""
 	def __init__(self,converter=None): 
 		if converter is not None and not isinstance(converter, Callable):
@@ -93,10 +93,10 @@ class Comparator(object):
 			"""Conversion to apply to primary score type.  
 			See sciunit.Comparators.""" 
 
-		for key in self.required_candidate_stats:
-			if key not in candidate_stats.keys():
+		for key in self.required_model_stats:
+			if key not in model_stats.keys():
 				raise InvalidComparatorError("'%s' not found in the \
-											 candidate_stats dictionary" % key)
+											 model_stats dictionary" % key)
 		for key in self.required_reference_stats:
 			if key not in reference_stats.keys():
 				raise InvalidComparatorError("'%s' not found in the \
@@ -110,26 +110,26 @@ class Comparator(object):
 	"""Primary score type for a comparator of this class, before any conversion.  
 	See sciunit.Scores."""  
 		
-	required_candidate_stats = ()
-	"""Statistics the test must extract from the candidate output for comparison 
+	required_model_stats = ()
+	"""Statistics the test must extract from the model output for comparison 
 	to the reference data to use a comparator of this class."""
 	
 	required_reference_stats = ()
 	"""Statistics the test must extract from the reference data for comparison 
-	to the candidate output to use a comparator of this class."""
+	to the model output to use a comparator of this class."""
 		
-	def compare(self,candidate_stats,reference_stats,**kwargs):
-		if type(candidate_stats) is not dict:
-			raise InvalidComparatorError("candidate_stats must be a dictionary.")
+	def compare(self,model_stats,reference_stats,**kwargs):
+		if type(model_stats) is not dict:
+			raise InvalidComparatorError("model_stats must be a dictionary.")
 		else:
-			self.candidate_stats = candidate_stats
-			"""Dictionary of statistics from e.g. candidate run(s)."""
+			self.model_stats = model_stats
+			"""Dictionary of statistics from e.g. model run(s)."""
 	
 		if type(reference_stats) is not dict:
 			raise InvalidComparatorError("reference_stats must be a dictionary.")
 		else:
 			self.reference_stats = reference_stats
-			"""Dictionary of statistics from the reference candidate/data."""
+			"""Dictionary of statistics from the reference model/data."""
 		try:
 			raw = self.compute(**kwargs)
 			return self.score(raw,**kwargs)
@@ -138,7 +138,7 @@ class Comparator(object):
 
 	def compute(self,**kwargs):
 		"""Computes a raw comparison statistic (e.g. a Z-score) from 
-		candidate_stats and reference_stats."""  
+		model_stats and reference_stats."""  
 		raise NotImplementedError("No Comparator computing function has \
 								   been implemented.")
 
@@ -152,14 +152,14 @@ class Comparator(object):
 		return score
 		
 #
-# candidates
+# Models
 #
 
-class Candidate(object):
-	"""Abstract base class for sciunit candidates."""
+class Model(object):
+	"""Abstract base class for sciunit models."""
 	@property
 	def name(self):
-		"""The name of the candidate.
+		"""The name of the model.
 
 		Defaults to the class name."""
 		return self.__class__.__name__
@@ -178,45 +178,45 @@ class Capability(object):
 		return self.__class__.__name__
 	
 	@classmethod
-	def check(cls, candidate):
-		"""Checks whether the provided candidate has this capability.
+	def check(cls, model):
+		"""Checks whether the provided model has this capability.
 
 		By default, uses isinstance.
 		"""
-		return isinstance(candidate, cls)
+		return isinstance(model, cls)
 
 class CapabilityError(Exception):
 	"""Error raised when a required capability is not 
-	provided by a candidate."""
-	def __init__(self, candidate, capability):
-		self.candidate = candidate
+	provided by a model."""
+	def __init__(self, model, capability):
+		self.model = model
 		self.capability = capability
 
 		print capability
 		print capability.name
 		super(CapabilityError,self).__init__(\
-			"Candidate %s does not provide required capability: %s" % \
-			(candidate.name,capability().name))
+			"Model %s does not provide required capability: %s" % \
+			(model.name,capability().name))
 	
-	candidate = None
-	"""The candidate that does not have the capability."""
+	model = None
+	"""The model that does not have the capability."""
 
 	capability = None
 	"""The capability that is not provided."""
 
-def check_capabilities(test, candidate):
+def check_capabilities(test, model):
 	"""Checks that the capabilities required by `test` are 
-	implemented by `candidate`.
+	implemented by `model`.
 
-	First checks that `test` is a `Test` and `candidate` is a `Candidate`.
+	First checks that `test` is a `Test` and `model` is a `Model`.
 	"""
-	print "Checking candidate capabilities."
+	print "Checking model capabilities."
 	assert isinstance(test, Test)
-	assert isinstance(candidate, Candidate)
+	assert isinstance(model, Model)
 
 	for c in test.required_capabilities:
-		if not c.check(candidate):
-			raise CapabilityError(candidate, c)
+		if not c.check(model):
+			raise CapabilityError(model, c)
 
 	return True
 
@@ -224,44 +224,44 @@ def check_capabilities(test, candidate):
 # Running Tests
 #
 
-def judge(test, candidate): # I want to reserve 'run' for the concept of runnability in a candidate.  
-	"""Makes the provided candidate take the provided test.
+def judge(test, model): # I want to reserve 'run' for the concept of runnability in a model.  
+	"""Makes the provided model take the provided test.
 
 	Operates as follows:
-	1. Invokes check_capabilities(test, candidate).
+	1. Invokes check_capabilities(test, model).
 	2. Produces a score by calling the run_test method.
 	3. Returns a TestResult containing the score.
 	"""
 	# Check capabilities
-	check_capabilities(test, candidate)
+	check_capabilities(test, model)
 
 	# Run test
 	print "Running test."
-	score = test.run_test(candidate)
+	score = test.run_test(model)
 	assert isinstance(score, Score)
 
 	# Return a TestResult wrapping the score
-	return TestResult(test, candidate, score)
+	return TestResult(test, model, score)
 
 class TestResult(object):
-	"""Pairs a score with the test and candidate that produced it."""
-	def __init__(self, test, candidate, score):
+	"""Pairs a score with the test and model that produced it."""
+	def __init__(self, test, model, score):
 		assert isinstance(test, Test)
-		assert isinstance(candidate, Candidate)
+		assert isinstance(model, Model)
 		assert isinstance(score, Score)
-		self.test, self.candidate, self.score = test, candidate, score
+		self.test, self.model, self.score = test, model, score
 
 	test = None
 	"""The test taken."""
 
-	candidate = None
-	"""The candidate tested."""
+	model = None
+	"""The model tested."""
 
 	score = None 
 	"""The score produced."""
 
 	def summarize(self):
-		"""Summarize the performance of a candidate on a test."""
-		print "Candidate '%s' achieved score %s on test '%s'." % (self.candidate.name,
+		"""Summarize the performance of a model on a test."""
+		print "Model '%s' achieved score %s on test '%s'." % (self.model.name,
 														  self.score,
 														  self.test.name)

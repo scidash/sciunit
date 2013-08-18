@@ -8,7 +8,7 @@ class ProducesNumber(sciunit.Capability):
 		raise NotImplementedError("Must implement produce_data.")
 
 class Runnable(sciunit.Capability):
-	"""The ability to run, i.e. execute, the candidate as a program."""
+	"""The ability to run, i.e. execute, the model as a program."""
 	
 	"""Posix timestamp of the run, to set in run()."""
 	run_t = 0
@@ -17,7 +17,7 @@ class Runnable(sciunit.Capability):
 	run_name = ""
 	
 	def run(self,name=""):
-		"""Run candidate with an optional name."""
+		"""Run model with an optional name."""
 		raise NotImplementedError()
   		
 
