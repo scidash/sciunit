@@ -21,12 +21,19 @@ class Test(object):
 	"""A sequence of capabilities that a model must have in order for the 
 	test to be run. Defaults to empty."""
 
+	def __init__(self, name=None):
+		if name is not None:
+			self._name = name
+
 	@property
 	def name(self):
 		"""The name of the test.
-
 		Defaults to the class name."""
-		return self.__class__.__name__
+
+		if(hasattr(self, '_name')):
+			return self._name
+		else:
+			return self.__class__.__name__
    
 	def run_test(self, model):
 		"""The main testing function.
@@ -44,10 +51,22 @@ class Test(object):
 class TestSuite(object):
 	"""A collection of tests."""
 
-	def __init__(self, tests):
+	def __init__(self, tests, name=None):
 		for test in tests:
 			assert isinstance(test, Test)
 		self.tests = tests
+		if name is not None:
+			self._name = name
+
+	@property
+	def name(self):
+		"""The name of the test suite.
+		Defaults to the class name."""
+
+		if(hasattr(self, '_name')):
+			return self._name
+		else:
+			return self.__class__.__name__
 		
 	tests = None
 	"""The sequence of tests that this suite contains."""
