@@ -71,6 +71,17 @@ class TestSuite(object):
 	tests = None
 	"""The sequence of tests that this suite contains."""
 
+	def run(self,model,summarize=True):
+		for test in self.tests:
+			record = judge(test,model,fail_silently=True)
+			if summarize:
+				if record:
+					record.summarize()
+				else:
+					print "Model '%s' could not take test '%s'." % \
+						(model.name,test.name)
+					# Alternatively, a record with a None score
+					# could be generated.  
 #
 # Scores
 #
@@ -211,8 +222,6 @@ class CapabilityError(Exception):
 		self.model = model
 		self.capability = capability
 
-		print capability
-		print capability.name
 		super(CapabilityError,self).__init__(\
 			"Model %s does not provide required capability: %s" % \
 			(model.name,capability().name))
@@ -243,16 +252,22 @@ def check_capabilities(test, model):
 # Running Tests
 #
 
-def judge(test, model): # I want to reserve 'run' for the concept of runnability in a model.  
+def judge(test, model, fail_silently=False): # I want to reserve 'run' for the concept of runnability in a model.  
 	"""Makes the provided model take the provided test.
 
 	Operates as follows:
 	1. Invokes check_capabilities(test, model).
 	2. Produces a score by calling the run_test method.
-	3. Returns a TestResult containing the score.
+	3. Returns a Record containing the score.
 	"""
 	# Check capabilities
-	check_capabilities(test, model)
+	try:
+		check_capabilities(test, model)
+	except CapabilityError,e:
+		if fail_silently:
+			return None
+		else:
+			raise e
 
 	# Run test
 	print "Running test."
@@ -260,9 +275,9 @@ def judge(test, model): # I want to reserve 'run' for the concept of runnability
 	assert isinstance(score, Score)
 
 	# Return a TestResult wrapping the score
-	return TestResult(test, model, score)
+	return Record(test, model, score)
 
-class TestResult(object):
+class Record(object):
 	"""Pairs a score with the test and model that produced it."""
 	def __init__(self, test, model, score):
 		assert isinstance(test, Test)
