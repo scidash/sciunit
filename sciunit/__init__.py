@@ -82,6 +82,8 @@ class TestSuite(object):
 						(model.name,test.name)
 					# Alternatively, a record with a None score
 					# could be generated.  
+			records.append(record)
+		return records
 #
 # Scores
 #
