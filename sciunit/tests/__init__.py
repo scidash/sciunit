@@ -9,58 +9,58 @@ class ComparatorTest(sciunit.Test):
 		"""Comparator from sciunit.Comparators."""
 
 class PositivityTest(sciunit.Test):
-	"""Checks whether the candidate produces a positive value."""
+	"""Checks whether the model produces a positive value."""
 
 	required_capabilities = (sciunit.capabilities.ProducesNumber,)
 
-	def run_test(self, candidate):
+	def run_test(self, model):
 		"""The main testing function."""
-		data = candidate.produce_data()
+		data = model.produce_data()
 		return BooleanScore(data > 0, {"data": data})
 
 class StandardTest(ComparatorTest):
 	"""The first test class that will be useful."""
-	def __init__(self,reference_data,candidate_args,comparator):
+	def __init__(self,reference_data,model_args,comparator):
 		"""reference_data are summary statistics of reference data.
-		candidate_args are arguments used by the candidate to run 
+		model_args are arguments used by the model to run 
 		or fit itself."""
 		super(StandardTest,self).__init__(comparator)
 		self.reference_data.update(reference_data) # Store reference data. 
-		self.candidate_args.update(candidate_args) # Store candidate arguments.  
+		self.model_args.update(model_args) # Store model arguments.  
 		self.required_capabilities += (sciunit.capabilities.Runnable,)
 		
 	def pre_checks(self):
 		"""Checks that the test has everything it needs to run properly."""
 		assert sciunit.Comparator in self.comparator.__class__.mro()
 
-	def run_test(self,candidate,**kwargs):
+	def run_test(self,model,**kwargs):
 		"""Runs the test and returns a score."""
 		self.pre_checks()
-		candidate.run(**kwargs)
+		model.run(**kwargs)
 		# Run implementation guaranteed by Runnable capability.  
-		candidate_data = self.get_candidate_data(candidate)
-		return self.generate_score(candidate_data)
+		model_data = self.get_model_data(model)
+		return self.generate_score(model_data)
 		
-	def get_candidate_data(self,candidate):
-		"""Extracts raw data from the candidate using Capabilities and returns it."""
-		candidate_data = {}
-		# Get candidate_data from the candidate...
-		return candidate_data
+	def get_model_data(self,model):
+		"""Extracts raw data from the model using Capabilities and returns it."""
+		model_data = {}
+		# Get model_data from the model...
+		return model_data
 
-	def get_candidate_stats(self,candidate_data):
-		"""Puts candidate stats in a form that the Comparator will understand."""
-		return {key:value for key,value in self.candidate_data} # This example is trivial.  
+	def get_model_stats(self,model_data):
+		"""Puts model stats in a form that the Comparator will understand."""
+		return {key:value for key,value in self.model_data} # This example is trivial.  
 		
 	def get_reference_stats(self):
 		"""Puts reference stats in a form that the Comparator will understand."""
 		return {key:value for key,value in self.reference_data} # This example is trivial.  
 		
-	def generate_score(self,candidate_data):
+	def generate_score(self,model_data):
 		"""Generate a score using some Comparator applied to the data."""
-		candidate_stats = self.get_candidate_stats(candidate_data)
+		model_stats = self.get_model_stats(model_data)
 		reference_stats = self.get_reference_stats()
-		score = self.comparator.compare(candidate_stats,reference_stats)
-		score.candidate_data = candidate_data
+		score = self.comparator.compare(model_stats,reference_stats)
+		score.model_data = model_data
 		score.reference_data = self.reference_data
 		return score
 	
