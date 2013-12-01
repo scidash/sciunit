@@ -117,15 +117,40 @@ class InvalidScoreError(Exception):
 	"""Error raised when the score provided in the constructor is invalid."""
 
 class Score(object):
-	"""Abstract base class for scores."""
-	def __init__(self, score):
-		self.score = score
+	"""Abstract base class for scores.
+	Pairs a score value with the test and model that produced it."""
+	
+	def __init__(self, test, model, score, related_data={}):
+		assert isinstance(test, Test)
+		assert isinstance(model, Model)
+		assert isinstance(score, Score)
+		self.test, self.model, self.score, self.related_data = \
+		test, model, score, related_data
 	
 	score = None
 	"""The score itself."""
 
 	related_data = {}
 	"""Data specific to the result of a test run on a model."""
+
+	test = None
+	"""The test taken."""
+
+	model = None
+	"""The model tested."""
+
+	score = None 
+	"""The score produced."""
+
+	@property
+	def summary(self):
+		"""Summarize the performance of a model on a test."""
+		return "Model '%s' achieved score %s on test '%s'." % (self.model.name,
+														  self.score,
+														  self.test.name)
+
+	def summarize(self):
+		print self.summary
 	
 # 
 # Comparators
@@ -278,25 +303,3 @@ def check_capabilities(test, model):
 	print "Model possesses required capabilities."
 	return True
 
-class Record(object):
-	"""Pairs a score with the test and model that produced it."""
-	def __init__(self, test, model, score):
-		assert isinstance(test, Test)
-		assert isinstance(model, Model)
-		assert isinstance(score, Score)
-		self.test, self.model, self.score = test, model, score
-
-	test = None
-	"""The test taken."""
-
-	model = None
-	"""The model tested."""
-
-	score = None 
-	"""The score produced."""
-
-	def summarize(self):
-		"""Summarize the performance of a model on a test."""
-		print "Model '%s' achieved score %s on test '%s'." % (self.model.name,
-														  self.score,
-														  self.test.name)
