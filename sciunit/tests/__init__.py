@@ -14,7 +14,7 @@ class PositivityTest(sciunit.Test):
 
 	required_capabilities = (sciunit.capabilities.ProducesNumber,)
 
-	def run_test(self, model):
+	def _judge(self, model):
 		"""The main testing function."""
 		data = model.produce_data()
 		return BooleanScore(data > 0, {"data": data})
@@ -36,7 +36,7 @@ class StandardTest(ComparatorTest):
 		"""Checks that the test has everything it needs to run properly."""
 		assert sciunit.Comparator in self.comparator.__class__.mro()
 
-	def run_test(self,model):
+	def _judge(self,model):
 		"""Runs the test and returns a score."""
 		self.pre_checks()
 		model.run()

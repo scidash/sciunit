@@ -35,13 +35,13 @@ class Test(object):
 		else:
 			return self.__class__.__name__
    
-	def run_test(self, model):
+	def _judge(self, model):
 		"""The main testing function.
 
 		Takes a Model as input and produces a Score as output. 
 		No default implementation.
 		"""
-		raise NotImplementedError("Must supply a run_test method.")
+		raise NotImplementedError("Must supply a _judge method.")
 
 	def judge(self, model, fail_silently=False): # I want to reserve 'run' for the concept of runnability in a model.  
 		"""Makes the provided model take the provided test.
@@ -62,7 +62,7 @@ class Test(object):
 
 		# Run test
 		print "Running test."
-		score = self.run_test(model)
+		score = self._judge(model)
 		assert isinstance(score, Score)
 
 		# Return a TestResult wrapping the score
