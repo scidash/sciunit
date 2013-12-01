@@ -43,6 +43,31 @@ class Test(object):
 		"""
 		raise NotImplementedError("Must supply a run_test method.")
 
+	def judge(self, model, fail_silently=False): # I want to reserve 'run' for the concept of runnability in a model.  
+		"""Makes the provided model take the provided test.
+
+		Operates as follows:
+		1. Invokes check_capabilities(test, model).
+		2. Produces a score by calling the run_test method.
+		3. Returns a Record containing the score.
+		"""
+		# Check capabilities
+		try:
+			check_capabilities(self, model)
+		except CapabilityError,e:
+			if fail_silently:
+				return None
+			else:
+				raise e
+
+		# Run test
+		print "Running test."
+		score = self.run_test(model)
+		assert isinstance(score, Score)
+
+		# Return a TestResult wrapping the score
+		return Record(test, model, score)
+
 
 #
 # Test Suites
@@ -252,35 +277,6 @@ def check_capabilities(test, model):
 
 	print "Model possesses required capabilities."
 	return True
-
-#
-# Running Tests
-#
-
-def judge(test, model, fail_silently=False): # I want to reserve 'run' for the concept of runnability in a model.  
-	"""Makes the provided model take the provided test.
-
-	Operates as follows:
-	1. Invokes check_capabilities(test, model).
-	2. Produces a score by calling the run_test method.
-	3. Returns a Record containing the score.
-	"""
-	# Check capabilities
-	try:
-		check_capabilities(test, model)
-	except CapabilityError,e:
-		if fail_silently:
-			return None
-		else:
-			raise e
-
-	# Run test
-	print "Running test."
-	score = test.run_test(model)
-	assert isinstance(score, Score)
-
-	# Return a TestResult wrapping the score
-	return Record(test, model, score)
 
 class Record(object):
 	"""Pairs a score with the test and model that produced it."""
