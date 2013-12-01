@@ -1,10 +1,9 @@
 import sciunit
-from numpy import bool_
 
 class BooleanScore(sciunit.Score):
     """A boolean score."""
     def __init__(self, score):
-        if not isinstance(score, bool) and not isinstance(score, bool_):
+        if not (isinstance(score, bool) or type(score).__name__ == 'bool_'):
             raise sciunit.InvalidScoreError("Score must be a boolean.")
         super(BooleanScore,self).__init__(score)
     def __str__(self):
