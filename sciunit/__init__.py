@@ -194,7 +194,10 @@ class Model(object):
 		"""The name of the model.
 
 		Defaults to the class name."""
-		return self.__class__.__name__
+		if(hasattr(self, '_name')):
+			return self._name
+		else:
+			return self.__class__.__name__
 
 #
 # Capabilities
@@ -240,7 +243,6 @@ def check_capabilities(test, model):
 
 	First checks that `test` is a `Test` and `model` is a `Model`.
 	"""
-	print "Checking model capabilities."
 	assert isinstance(test, Test)
 	assert isinstance(model, Model)
 
@@ -248,6 +250,7 @@ def check_capabilities(test, model):
 		if not c.check(model):
 			raise CapabilityError(model, c)
 
+	print "Model possesses required capabilities."
 	return True
 
 #
