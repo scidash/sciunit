@@ -1,6 +1,5 @@
 import sciunit
 import sciunit.scores
-from scipy.stats import norm
 
 class RatioComparator(sciunit.Comparator):
     """Returns a score indicating the ratio of model to reference means."""  
