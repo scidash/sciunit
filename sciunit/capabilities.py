@@ -16,8 +16,9 @@ class Runnable(sciunit.Capability):
 	"""Name for the run, to set in run()."""
 	run_name = ""
 	
-	def run(self,name=""):
-		"""Run model with an optional name."""
+	def run(self,**kwargs):
+		"""Run model with an optional name.
+		Should set run_t and run_name."""
 		raise NotImplementedError()
   		
 
