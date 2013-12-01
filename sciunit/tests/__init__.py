@@ -8,6 +8,7 @@ class ComparatorTest(sciunit.Test):
 		self.comparator = comparator()
 		"""Comparator from sciunit.Comparators."""
 
+
 class PositivityTest(sciunit.Test):
 	"""Checks whether the model produces a positive value."""
 
@@ -18,8 +19,10 @@ class PositivityTest(sciunit.Test):
 		data = model.produce_data()
 		return BooleanScore(data > 0, {"data": data})
 
+
 class StandardTest(ComparatorTest):
 	"""The first test class that will be useful."""
+	
 	def __init__(self,reference_data,model_args,comparator):
 		"""reference_data are summary statistics of reference data.
 		model_args are arguments used by the model to run 
@@ -33,10 +36,10 @@ class StandardTest(ComparatorTest):
 		"""Checks that the test has everything it needs to run properly."""
 		assert sciunit.Comparator in self.comparator.__class__.mro()
 
-	def run_test(self,model,**kwargs):
+	def run_test(self,model):
 		"""Runs the test and returns a score."""
 		self.pre_checks()
-		model.run(**kwargs)
+		model.run()
 		# Run implementation guaranteed by Runnable capability.  
 		model_data = self.get_model_data(model)
 		return self.generate_score(model_data)
@@ -49,11 +52,11 @@ class StandardTest(ComparatorTest):
 
 	def get_model_stats(self,model_data):
 		"""Puts model stats in a form that the Comparator will understand."""
-		return {key:value for key,value in self.model_data} # This example is trivial.  
+		return {key:value for key,value in model_data.items()} # This example is trivial.  
 		
 	def get_reference_stats(self):
 		"""Puts reference stats in a form that the Comparator will understand."""
-		return {key:value for key,value in self.reference_data} # This example is trivial.  
+		return {key:value for key,value in self.reference_data.items()} # This example is trivial.  
 		
 	def generate_score(self,model_data):
 		"""Generate a score using some Comparator applied to the data."""
