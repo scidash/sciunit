@@ -64,9 +64,7 @@ class Test(object):
 		print "Running test."
 		score = self._judge(model)
 		assert isinstance(score, Score)
-
-		# Return a TestResult wrapping the score
-		return Record(test, model, score)
+		return score
 
 
 #
@@ -120,12 +118,11 @@ class Score(object):
 	"""Abstract base class for scores.
 	Pairs a score value with the test and model that produced it."""
 	
-	def __init__(self, test, model, score, related_data={}):
+	def __init__(self, score, test, model, related_data={}):
 		assert isinstance(test, Test)
 		assert isinstance(model, Model)
-		assert isinstance(score, Score)
-		self.test, self.model, self.score, self.related_data = \
-		test, model, score, related_data
+		self.score, self.test, self.model, self.related_data = \
+		score, test, model, related_data
 	
 	score = None
 	"""The score itself."""
@@ -146,11 +143,14 @@ class Score(object):
 	def summary(self):
 		"""Summarize the performance of a model on a test."""
 		return "Model '%s' achieved score %s on test '%s'." % (self.model.name,
-														  self.score,
+														  self.__str__(),
 														  self.test.name)
 
 	def summarize(self):
 		print self.summary
+
+	def __str__(self):
+		return u'%s' % self.score
 	
 # 
 # Comparators
@@ -166,7 +166,10 @@ class Comparator(object):
 	Comparators are used to compare statistical summaries of reference data
 	to statistical summaries of model data.  They issue a score indicating the
 	result of that comparison, e.g. a Z-score."""
-	def __init__(self,converter=None): 
+	def __init__(self, converter=None): 
+		"""A comparator is instantiated with the test and model whose 
+		reference data (the test) and output (the model) will be compared."""
+
 		if converter is not None and not isinstance(converter, Callable):
 			raise InvalidComparatorError("converter must be a function or \
 										  instance method.")
@@ -174,15 +177,6 @@ class Comparator(object):
 			self.converter = converter
 			"""Conversion to apply to primary score type.  
 			See sciunit.Comparators.""" 
-
-		for key in self.required_model_stats:
-			if key not in model_stats.keys():
-				raise InvalidComparatorError("'%s' not found in the \
-											 model_stats dictionary" % key)
-		for key in self.required_reference_stats:
-			if key not in reference_stats.keys():
-				raise InvalidComparatorError("'%s' not found in the \
-											 reference_stats dictionary" % key) 
 
 		if Score not in self.score_type.mro():
 			raise InvalidComparatorError("Score attribute must be a descendant \
@@ -192,7 +186,7 @@ class Comparator(object):
 	"""Primary score type for a comparator of this class, before any conversion.  
 	See sciunit.Scores."""  
 		
-	required_model_stats = ()
+	required_output_stats = ()
 	"""Statistics the test must extract from the model output for comparison 
 	to the reference data to use a comparator of this class."""
 	
@@ -200,37 +194,67 @@ class Comparator(object):
 	"""Statistics the test must extract from the reference data for comparison 
 	to the model output to use a comparator of this class."""
 		
-	def compare(self,model_stats,reference_stats,**kwargs):
-		if type(model_stats) is not dict:
-			raise InvalidComparatorError("model_stats must be a dictionary.")
-		else:
-			self.model_stats = model_stats
-			"""Dictionary of statistics from e.g. model run(s)."""
-	
-		if type(reference_stats) is not dict:
-			raise InvalidComparatorError("reference_stats must be a dictionary.")
-		else:
-			self.reference_stats = reference_stats
-			"""Dictionary of statistics from the reference model/data."""
-		try:
-			raw = self.compute(**kwargs)
-			return self.score(raw,**kwargs)
-		except Exception,e:
-			raise e
+	def compare(self,
+				test,
+				model,
+				**kwargs):
+		"""Compare test reference stats and model output stats
+		to produce a score."""
 
-	def compute(self,**kwargs):
+		if not hasattr(model,'output_stats'):
+			raise InvalidComparatorError("model must have derived \
+										  attribute output_stats.")
+		
+		if not hasattr(test,'reference_stats'):
+			raise InvalidComparatorError("test must have derived \
+										  attribute output_stats.")
+			
+		if type(model.output_stats) is not dict:
+			"""Dictionary of statistics from e.g. model run(s)."""
+			raise InvalidComparatorError("output_stats must be a dict.")
+			
+		if type(test.reference_stats) is not dict:
+			"""Dictionary of statistics from the reference model/data."""
+			raise InvalidComparatorError("reference_stats must be a dict.")
+		
+		for key in self.required_output_stats:
+			if key not in model.output_stats.keys():
+				raise InvalidComparatorError("'%s' not found in the \
+											 model.output_stats dict." % key)
+		
+		for key in self.required_reference_stats:
+			if key not in test.reference_stats.keys():
+				raise InvalidComparatorError("'%s' not found in the \
+											 test.reference_stats dict." % key) 
+
+		raw = self.compute(test.reference_stats,model.output_stats,**kwargs)
+		return self.score(raw,test,model,**kwargs)
+		
+	def compute(self,
+				reference_stats,
+				output_stats,
+				**kwargs):
 		"""Computes a raw comparison statistic (e.g. a Z-score) from 
-		model_stats and reference_stats."""  
+		the model's output_stats and the test's reference_stats."""  
+		
 		raise NotImplementedError("No Comparator computing function has \
 								   been implemented.")
 
-	def score(self,raw,**params):
+	def score(self,
+			  raw,
+			  test,
+			  model,
+			  **params):
 		"""A converter can convert one (raw) score into another 
 		Score subclass.  
 		params are used by this converter to map scores appropriately."""
-		score = self.score_type(raw)
 		if self.converter:
-			score = self.converter(score,**params)
+			value = self.converter(raw,**params)
+		else:
+			value = raw
+		related_data = params['related_data'] \
+					   if 'related_data' in params.keys() else {}
+		score = self.score_type(value,test,model,related_data=related_data)
 		return score
 		
 #
@@ -239,6 +263,7 @@ class Comparator(object):
 
 class Model(object):
 	"""Abstract base class for sciunit models."""
+	
 	@property
 	def name(self):
 		"""The name of the model.
@@ -255,6 +280,7 @@ class Model(object):
 
 class Capability(object):
 	"""Abstract base class for sciunit capabilities."""
+	
 	@property
 	def name(self):
 		"""The name of the capability.
