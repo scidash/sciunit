@@ -4,5 +4,7 @@
 *.pyo
 *.pyc
 *.DS_Store
+*.class
+*~
 dist
 ignore

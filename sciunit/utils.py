@@ -1,10 +1,10 @@
-"""Utilities for implementation of candidate capabilities
+"""Utilities for implementation of model capabilities
 All of these are optional."""
 from datetime import now
 from sciunit.Capabilities import Runnable
 
 def run(self,**kwargs):
-    """Run, i.e. simulate or fit, a candidate model."""
+    """Run, i.e. simulate or fit, a model."""
     try:
       	result = self.execute(kwargs)
     except:
@@ -43,13 +43,13 @@ def cached_run(self,**kwargs):
 	return cached
 
 class Cachable(Runnable):
-  """The ability to cache the arguments to and results of a candidate run."""
+  """The ability to cache the arguments to and results of a model run."""
   def lookup(self,run_name="",run_t=0):
-    """Lookup a candidate run in the cache."""
+    """Lookup a model run in the cache."""
     raise NotImplementedError()
   
   def store(self):
-    """Store a candidate run in the cache."""
+    """Store a model run in the cache."""
       raise NotImplementedError()
 
 
