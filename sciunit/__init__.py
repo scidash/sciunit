@@ -10,9 +10,8 @@ class Test(object):
 	"""Abstract base class for tests."""
 	def __init__(self, name=None):
 			if name is None:
-				self.name = self.__class__.__name__
-			else:
-				self.name = name
+				name = self.__class__.__name__
+			self.name = Name
 
 			if self.description is None:
 				self.description = self.__class__.__doc__
@@ -70,38 +69,40 @@ class TestSuite(object):
 	"""A collection of tests."""
 
 	def __init__(self, tests, name=None):
-		for test in tests:
-			assert isinstance(test, Test)
-		self.tests = tests
-		if name is not None:
-			self._name = name
-
-	@property
-	def name(self):
-		"""The name of the test suite.
-		Defaults to the class name."""
-
-		if(hasattr(self, '_name')):
-			return self._name
+		# turn singleton test into a sequence
+		if isinstance(tests, Test):
+			tests = (tests,)
 		else:
-			return self.__class__.__name__
-		
+			for test in tests:
+				assert isinstance(test, Test)
+		self.tests = tests
+
+		if name is None:
+			name = self.__class__.__name__
+		self.name = name
+
+  name = None
+  """The name of the test suite. Defaults to the class name."""
+
+  description = None
+  """The description of the test suite. No default."""
+
 	tests = None
 	"""The sequence of tests that this suite contains."""
 
-	def run(self,model,summarize=True):
+	def judge(self,models,summarize=True):
+		"""Judges the provided models against each test in the test suite.
+
+		Returns a ScoreMatrix.
+		"""
+		if isinstance(models, Model):
+			models = (models,)
+		matrix = ScoreMatrix(self.tests, models)
 		for test in self.tests:
-			record = judge(test,model,fail_silently=True)
-			if summarize:
-				if record:
-					record.summarize()
-				else:
-					print "Model '%s' could not take test '%s'." % \
-						(model.name,test.name)
-					# Alternatively, a record with a None score
-					# could be generated.  
-			records.append(record)
-		return records
+			for model in models:
+				matrix[test, model] = test.judge(model)
+		return matrix
+
 #
 # Scores
 #
