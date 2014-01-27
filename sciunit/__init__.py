@@ -111,9 +111,6 @@ class TestSuite(object):
 # Scores
 #
 
-class InvalidScoreError(Exception):
-	"""Error raised when a score is invalid."""
-
 class Score(object):
 	"""Abstract base class for scores.
 
@@ -146,6 +143,9 @@ class Score(object):
 
 	def __str__(self):
 		return u'%s' % self.score
+
+class InvalidScoreError(Exception):
+	"""Error raised when a score is invalid."""
 
 def check_score(score):
 	if not isinstance(score, Score):
