@@ -42,7 +42,7 @@ class Test(object):
 		     If fail_silently is True, the method returns None when this fails.
 		     Otherwise, raises a CapabilityError.
 		2. Produces a score by calling the _judge method. Checks that the method
-		   actually returns a Score.
+		   actually returns a Score, raising an InvalidScoreError if not.
 
 		Do not override; override _judge only.
 		"""
@@ -58,7 +58,11 @@ class Test(object):
 		# Run test
 		print "Running test."
 		score = self._judge(model)
-		assert isinstance(score, Score)
+		check_score(score)
+		if score.test is None:
+			score.test = self
+		if score.model is None:
+			score.model = model
 		return score
 
 #
@@ -108,17 +112,15 @@ class TestSuite(object):
 #
 
 class InvalidScoreError(Exception):
-	"""Error raised when the score provided in the constructor is invalid."""
+	"""Error raised when a score is invalid."""
 
 class Score(object):
 	"""Abstract base class for scores.
+
 	Pairs a score value with the test and model that produced it."""
 	
-	def __init__(self, score, test, model, related_data={}):
-		assert isinstance(test, Test)
-		assert isinstance(model, Model)
-		self.score, self.test, self.model, self.related_data = \
-		score, test, model, related_data
+	def __init__(self, score, related_data={}):
+		self.score, self.related_data = score, related_data
 	
 	score = None
 	"""The score itself."""
@@ -127,13 +129,10 @@ class Score(object):
 	"""Data specific to the result of a test run on a model."""
 
 	test = None
-	"""The test taken."""
+	"""The test taken. Set automatically by Test.judge."""
 
 	model = None
-	"""The model tested."""
-
-	score = None 
-	"""The score produced."""
+	"""The model judged. Set automatically by Test.judge."""
 
 	@property
 	def summary(self):
@@ -147,7 +146,11 @@ class Score(object):
 
 	def __str__(self):
 		return u'%s' % self.score
-	
+
+def check_score(score):
+	if not isinstance(score, Score):
+		raise InvalidScoreError()
+
 # 
 # Comparators
 # These are responsible for converting statistical summaries of tests, 
