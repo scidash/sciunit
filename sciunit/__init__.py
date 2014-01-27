@@ -164,7 +164,61 @@ class Model(object):
 
 	name = None
 	"""The name of the model. Defaults to the class name."""
+
+#
+# Capabilities
+#
+
+class Capability(object):
+	"""Abstract base class for sciunit capabilities."""
+	def __init__(self, name=None):
+		if name is None:
+			name = self.__class__.__name__
+		self.name = name
+
+	name = None
+	"""The name of the capability. Defaults to the class name."""
+
+	@classmethod
+	def check(cls, model):
+		"""Checks whether the provided model has this capability.
+
+		By default, uses isinstance.
+		"""
+		return isinstance(model, cls)
+
+class CapabilityError(Exception):
+	"""Error raised when a required capability is not 
+	provided by a model."""
+	def __init__(self, model, capability):
+		self.model = model
+		self.capability = capability
+
+		super(CapabilityError,self).__init__(\
+			"Model %s does not provide required capability: %s" % \
+			(model.name,capability().name))
 	
+	model = None
+	"""The model that does not have the capability."""
+
+	capability = None
+	"""The capability that is not provided."""
+
+def check_capabilities(test, model):
+	"""Checks that the capabilities required by `test` are 
+	implemented by `model`.
+
+	First checks that `test` is a `Test` and `model` is a `Model`.
+	"""
+	assert isinstance(test, Test)
+	assert isinstance(model, Model)
+
+	for c in test.required_capabilities:
+		if not c.check(model):
+			raise CapabilityError(model, c)
+
+	return True
+
 # 
 # Comparators
 # These are responsible for converting statistical summaries of tests, 
@@ -270,58 +324,3 @@ class Comparator(object):
 		score = self.score_type(value,test,model,related_data=related_data)
 		return score
 		
-#
-# Capabilities
-#
-
-class Capability(object):
-	"""Abstract base class for sciunit capabilities."""
-	
-	@property
-	def name(self):
-		"""The name of the capability.
-
-		Defaults to the class name."""
-		return self.__class__.__name__
-	
-	@classmethod
-	def check(cls, model):
-		"""Checks whether the provided model has this capability.
-
-		By default, uses isinstance.
-		"""
-		return isinstance(model, cls)
-
-class CapabilityError(Exception):
-	"""Error raised when a required capability is not 
-	provided by a model."""
-	def __init__(self, model, capability):
-		self.model = model
-		self.capability = capability
-
-		super(CapabilityError,self).__init__(\
-			"Model %s does not provide required capability: %s" % \
-			(model.name,capability().name))
-	
-	model = None
-	"""The model that does not have the capability."""
-
-	capability = None
-	"""The capability that is not provided."""
-
-def check_capabilities(test, model):
-	"""Checks that the capabilities required by `test` are 
-	implemented by `model`.
-
-	First checks that `test` is a `Test` and `model` is a `Model`.
-	"""
-	assert isinstance(test, Test)
-	assert isinstance(model, Model)
-
-	for c in test.required_capabilities:
-		if not c.check(model):
-			raise CapabilityError(model, c)
-
-	print "Model possesses required capabilities."
-	return True
-
