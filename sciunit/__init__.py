@@ -151,6 +151,20 @@ def check_score(score):
 	if not isinstance(score, Score):
 		raise InvalidScoreError()
 
+#
+# Models
+#
+
+class Model(object):
+	"""Abstract base class for sciunit models."""
+	def __init__(self, name=None):
+		if name is None:
+			name = self.__class__.__name__
+		self.name = name
+
+	name = None
+	"""The name of the model. Defaults to the class name."""
+	
 # 
 # Comparators
 # These are responsible for converting statistical summaries of tests, 
@@ -256,23 +270,6 @@ class Comparator(object):
 		score = self.score_type(value,test,model,related_data=related_data)
 		return score
 		
-#
-# Models
-#
-
-class Model(object):
-	"""Abstract base class for sciunit models."""
-	
-	@property
-	def name(self):
-		"""The name of the model.
-
-		Defaults to the class name."""
-		if(hasattr(self, '_name')):
-			return self._name
-		else:
-			return self.__class__.__name__
-
 #
 # Capabilities
 #
