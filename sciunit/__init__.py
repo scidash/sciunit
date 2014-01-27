@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 """sciunit: A Framework for Formal Validation of Scientific Models"""
 
 from collections import Callable
@@ -10,46 +8,44 @@ from collections import Callable
 
 class Test(object):
 	"""Abstract base class for tests."""
-	
-	reference_data = {}
-	"""A dictionary of data that the tests references to compare model output against."""
+	def __init__(self, name=None):
+			if name is None:
+				self.name = self.__class__.__name__
+			else:
+				self.name = name
 
-	model_args = {}
-	"""A dictionary of arguments the model might use at run-time."""
+			if self.description is None:
+				self.description = self.__class__.__doc__
 
+	name = None
+	"""The name of the test. Defaults to the test class name."""
+
+	description = None
+	"""A description of the test. Defaults to the docstring for the test class."""
+  
 	required_capabilities = ()
 	"""A sequence of capabilities that a model must have in order for the 
 	test to be run. Defaults to empty."""
 
-	def __init__(self, name=None):
-		if name is not None:
-			self._name = name
-
-	@property
-	def name(self):
-		"""The name of the test.
-		Defaults to the class name."""
-
-		if(hasattr(self, '_name')):
-			return self._name
-		else:
-			return self.__class__.__name__
-   
 	def _judge(self, model):
 		"""The main testing function.
 
 		Takes a Model as input and produces a Score as output. 
-		No default implementation.
+		No default implementation. Must be provided by test implementor.
 		"""
 		raise NotImplementedError("Must supply a _judge method.")
 
-	def judge(self, model, fail_silently=False): # I want to reserve 'run' for the concept of runnability in a model.  
+	def judge(self, model, fail_silently=False):
 		"""Makes the provided model take the provided test.
 
 		Operates as follows:
-		1. Invokes check_capabilities(test, model).
-		2. Produces a score by calling the run_test method.
-		3. Returns a Record containing the score.
+		1. Invokes check_capabilities(test, model). 
+		     If fail_silently is True, the method returns None when this fails.
+		     Otherwise, raises a CapabilityError.
+		2. Produces a score by calling the _judge method. Checks that the method
+		   actually returns a Score.
+
+		Do not override; override _judge only.
 		"""
 		# Check capabilities
 		try:
@@ -65,7 +61,6 @@ class Test(object):
 		score = self._judge(model)
 		assert isinstance(score, Score)
 		return score
-
 
 #
 # Test Suites
