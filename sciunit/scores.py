@@ -3,39 +3,22 @@ import sciunit
 class BooleanScore(sciunit.Score):
     """A boolean score."""
     
-    def __init__(self, score, *args, **kwargs):
-        if not (isinstance(score, bool) or type(score).__name__ == 'bool_'):
-            raise sciunit.InvalidScoreError("Score must be a boolean.")
-        super(BooleanScore,self).__init__(score, *args, **kwargs)
-    
+    def __init__(self, score):
+        if not (score == True or score == False):
+            raise sciunit.InvalidScoreError("Score must be True or False.")
+        super(BooleanScore, self).__init__(score)
+
+    normalized = True
+
+    @property
+    def sort_key(self):
+        if self.score == True:
+            return 1.0
+        else:
+            return 0.0
+
     def __str__(self):
         if self.score == True:
-            return u'PASS'
+            return 'PASS'
         elif self.score == False:
-            return u'FAIL'
-        else:
-            return u'N/A'
-
-class ZScore(sciunit.Score):
-    """A Z score."""
-    
-    def __init__(self, score, *args, **kwargs):
-        if not isinstance(score, float):
-            raise sciunit.InvalidScoreError("Score must be a float.")
-        super(ZScore,self).__init__(score, *args, **kwargs)
-    
-    def __str__(self):
-        return u'%.2f' % self.score
-
-class RatioScore(sciunit.Score):
-    """A ratio score."""
-    
-    def __init__(self, score, *args, **kwargs):
-        if not isinstance(score, float):
-            raise sciunit.InvalidScoreError("Score must be a float.")
-        super(RatioScore,self).__init__(score, *args, **kwargs)
-    
-    def __str__(self):
-        return u'%.2f' % self.score
-
-        
+            return 'FAIL'

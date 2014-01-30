@@ -1,19 +1,26 @@
 """Basic tests for the core of sciunit."""
 
-import sciunit
+import sciunit, sciunit.capabilities, sciunit.models, sciunit.scores
 
-positivity_test = sciunit.tests.PositivityTest()
+class PositivityTest(sciunit.Test):
+  def __init__(self, name=None):
+    super(PositivityTest, self).__init__(None, name=name)
 
-one_candidate = sciunit.candidates.ConstCandidate(1)
+  required_capabilities = (sciunit.capabilities.ProducesNumber,)
+  def generate_prediction(self, model):
+    return model.produce_number()
 
-assert sciunit.check_capabilities(positivity_test, one_candidate)
+  score_type = sciunit.scores.BooleanScore
+  def score_prediction(self, observation, prediction):
+    return self.score_type(prediction > 0)
 
-result = sciunit.run(positivity_test, one_candidate)
-
-assert isinstance(result, sciunit.TestResult)
-assert result.test is positivity_test
-assert result.candidate is one_candidate
-assert result.score.score is True
-assert result.score.related_data == {"data": 1}
+positivity_test = PositivityTest()
+one_model = sciunit.models.ConstModel(4)
+assert sciunit.check_capabilities(positivity_test, one_model)
+score = positivity_test.judge(one_model)
+assert isinstance(score, sciunit.scores.BooleanScore)
+assert score.score == True
+assert score.test is positivity_test
+assert score.model is one_model
 
 print "Tests completed successfully."
