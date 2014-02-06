@@ -25,6 +25,7 @@ class PositivityTest(sciunit.Test):
 
 class ComparatorTest(sciunit.Test):
 	"""A test class that encourages the use of Comparators."""
+	
 	def __init__(self,comparator):
 		self._comparator = comparator
 		"""Comparator class from sciunit.Comparators."""
