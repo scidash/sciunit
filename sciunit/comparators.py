@@ -1,18 +1,17 @@
-import sciunit
-import sciunit.scores
+"""Functions for comparison of predictions and observations."""
 
-def ratio(output_stats,reference_stats):
+def ratio(observation, prediction):
     m_value = output_stats['value']
     r_mean = reference_stats['mean']
     result = (m_value+0.0)/r_mean
     return result
 
-def zscore(sciunit.Comparator):
-    m_value = output_stats['value']
-    r_mean = reference_stats['mean']
-    r_std = reference_stats['std']
+def zscore(observation, prediction):
+    p_value = prediction['mean']
+    o_mean = observation['mean']
+    o_std = observation['std']
     try:
-        result = (m_value - r_mean)/r_std
+        result = (p_value - o_mean)/o_std
     except TypeError,e:
         result = e
     return result
