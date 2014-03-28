@@ -1,7 +1,8 @@
 """SciUnit: A Test-Driven Framework for Validation of 
      Quantitative Scientific Models"""
-
+import string
 from collections import Callable
+from IPython.display import HTML # TODO: make this optional
 
 class Error(Exception):
   """Base class for errors in sciunit's core."""
@@ -93,13 +94,27 @@ class Test(object):
     score = self.score_prediction(observation, prediction)
     # 4.
     if not isinstance(score, self.score_type):
-      raise InvalidScoreError("Score for test %s is not of correct type.")
+      raise InvalidScoreError(
+        ("Score for test %s is not of correct type.\n" % str(self)) +
+        "Expected: %s" % str(self.score_type) + 
+        "Got: %s" % str(type(score)))
+
     # 5.
     score.model = model
     score.test = self
     score.prediction = prediction
     score.observation = observation
     return score
+
+  def __str__(self):
+    if self.params:
+      x = "%s, %s" % (str(self.observation), str(self.params))
+    else:
+      x = str(self.observation)
+    return "%s(%s)" % (self.name, x)
+
+  def __repr__(self):
+    return str(self)
 
 class ObservationError(Error):
   """Raised when an observation passed to a test is invalid."""
@@ -133,7 +148,7 @@ class TestSuite(object):
   tests = None
   """The sequence of tests that this suite contains."""
 
-  def judge(self,models,summarize=True):
+  def judge(self,models):
     """Judges the provided models against each test in the test suite.
 
     Returns a ScoreMatrix.
@@ -190,7 +205,10 @@ class Score(object):
     print self.summary
 
   def __str__(self):
-    return u'%s' % self.score
+    return '%s(%s)' % (self.__class__.__name__, self.score)
+
+  def __repr__(self):
+    return str(self)
 
 class InvalidScoreError(Exception):
   """Error raised when a score is invalid."""
@@ -225,18 +243,54 @@ class ScoreMatrix(object):
       r = { }
       matrix = self._matrix
       for test in self.tests:
-        r[test] = matrix[test][model]
+        r[test] = matrix[test][key]
       return r
     else:
       (test, model) = key
       return self._matrix[test][model]
 
-  def __setitem__(self, key):
+  def __setitem__(self, key, value):
     (test, model) = key
     if isinstance(test, Test) and isinstance(model, Model):
-      return self._matrix[test][model]
+      self._matrix[test][model] = value
     else:
       raise Error("Invalid index, expected (test, model).")
+
+  def view(self):
+    """Generates an HTML view suitable for display in the IPython notebook."""
+    scripts = self._view_scripts()
+    header = self._view_header()
+    body = self._view_body()
+    table = "<table>{header}{body}</table>".format(header=header, body=body)
+    return HTML(table)
+
+  def _view_scripts(self):
+    return ""
+    #return '''
+    #<script type="text/javascript" src="/path/to/jquery-latest.js"></script> 
+    #<script type="text/javascript" src="/path/to/jquery.tablesorter.js"></script> 
+    #'''
+
+  def _view_header(self):
+    columns = string.join(
+      "<th>%s</th>" % str(test)
+      for test in self.tests
+    )
+    return "<thead><tr><th></th>{columns}</tr></thead>".format(columns=columns)
+
+  def _view_body(self):
+    rows = string.join(
+      "<tr><td>{model}</td>{scores}</tr>".format(
+        model=str(model), 
+        scores=self._view_row(model))
+      for model in self.models
+    )
+    return "<tbody>{rows}</tbody>".format(rows=rows)
+
+  def _view_row(self, model):
+    return string.join(
+      "<td>{score}</td>".format(score=str(score))
+      for score in self[model].itervalues())
 
 #
 # Models
@@ -244,14 +298,24 @@ class ScoreMatrix(object):
 
 class Model(object):
   """Abstract base class for sciunit models."""
-  def __init__(self, name=None):
+  def __init__(self, name=None, **params):
     if name is None:
       name = self.__class__.__name__
     self.name = name
 
+    self.params = params
+
   name = None
   """The name of the model. Defaults to the class name."""
 
+  params = None
+  """The parameters to the model (a dictionary)."""
+
+  def __str__(self):
+    return "%s(%s)" % (self.name, str(self.params))
+
+  def __repr__(self):
+    return str(self)
 #
 # Capabilities
 #

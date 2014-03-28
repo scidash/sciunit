@@ -16,9 +16,3 @@ class BooleanScore(sciunit.Score):
             return 1.0
         else:
             return 0.0
-
-    def __str__(self):
-        if self.score == True:
-            return 'PASS'
-        elif self.score == False:
-            return 'FAIL'
