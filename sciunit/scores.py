@@ -12,8 +12,6 @@ class BooleanScore(Score):
         else:
             raise InvalidScoreError("Score must be True or False.")
         
-    normalized = True
-
     @property
     def sort_key(self):
         if self.score == True:

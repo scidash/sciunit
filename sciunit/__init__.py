@@ -1,14 +1,12 @@
 """SciUnit: A Test-Driven Framework for Validation of 
      Quantitative Scientific Models"""
-
-from collections import Callable
-import traceback
+import _tables
 
 class Error(Exception):
   """Base class for errors in sciunit's core."""
-  pass
+
 #
-# Test
+# Tests
 #
 class Test(object):
   """Abstract base class for tests."""
@@ -44,19 +42,37 @@ class Test(object):
     """(Optional) Implement to validate the observation provided to the 
     constructor.
 
-    Raises an ObservationError if invalid."""
+    Raises an ObservationError if invalid.
+    """
     return True
   
   required_capabilities = ()
   """A sequence of capabilities that a model must have in order for the 
   test to be run. Defaults to empty."""
 
+  def check_capabilities(self, model):
+    """Checks that the capabilities required by the test are 
+    implemented by `model`.
+
+    Raises an Error if model is not a Model.
+    Raises a CapabilityError if model does not have a capability.
+    """
+    if not isinstance(model, Model):
+      raise Error("Model %s is not a sciunit.Model." % str(model))
+
+    for c in self.required_capabilities:
+      if not c.check(model):
+        raise CapabilityError(model, c)
+
+    return True
+
   def generate_prediction(self, model):
     """Generates a prediction from a model using the required capabilities.
 
-    No default implementation."""
+    No default implementation.
+    """
     raise NotImplementedError("Test %s does not implement generate_prediction."
-       % self.name)
+       % str())
 
   score_type = None
 
@@ -66,8 +82,9 @@ class Test(object):
 
     Must generate a score of score_type.
 
-    No default implementation."""
-    raise NotImplementedError("Test %s does not implement score_prediction."
+    No default implementation.
+    """
+    raise NotImplementedError("Test %s does not implement compute_score."
       % self.name)
 
   def judge(self, model, stop_on_error=True):
@@ -84,11 +101,13 @@ class Test(object):
        c) A reference to the prediction, in attribute prediction.
        d) A reference to the observation, in attribute observation.
     6. Returns the score.
-    """
 
+    If stop_on_error is true (default), exceptions propagate upward. If false,
+    an ErrorScore is generated containing the exception.
+    """
     try:
       # 1.
-      check_capabilities(self, model)
+      self.check_capabilities(model)
       # 2.
       prediction = self.generate_prediction(model)
       # 3.
@@ -103,203 +122,24 @@ class Test(object):
       score.prediction = prediction
       score.observation = observation
     except Exception,e:
-      print traceback.format_exc()
       if stop_on_error:
         raise e
       else:
         score = ErrorScore(e)
     return score
 
+  def __str__(self):
+    if self.params:
+      x = "%s, %s" % (str(self.observation), str(self.params))
+    else:
+      x = str(self.observation)
+    return "%s(%s)" % (self.name, x)
+
+  def __repr__(self):
+    return str(self)
+
 class ObservationError(Error):
   """Raised when an observation passed to a test is invalid."""
-  pass
-#
-# Test Suites
-#
-
-class TestSuite(object):
-  """A collection of tests."""
-
-  def __init__(self, tests, name=None):
-    # turn singleton test into a sequence
-    if isinstance(tests, Test):
-      tests = (tests,)
-    else:
-      for test in tests:
-        assert isinstance(test, Test)
-    self.tests = tests
-
-    if name is None:
-      name = self.__class__.__name__
-    self.name = name
-
-  name = None
-  """The name of the test suite. Defaults to the class name."""
-
-  description = None
-  """The description of the test suite. No default."""
-
-  tests = None
-  """The sequence of tests that this suite contains."""
-
-  def judge(self,models,summarize=True):
-    """Judges the provided models against each test in the test suite.
-
-    Returns a ScoreMatrix.
-    """
-    if isinstance(models, Model):
-      models = (models,)
-    matrix = ScoreMatrix(self.tests, models)
-    for test in self.tests:
-      for model in models:
-        matrix[test, model] = test.judge(model)
-    return matrix
-
-#
-# Scores
-#
-
-class Score(object):
-  """Abstract base class for scores.
-  Pairs a score value with the test and model that produced it."""
-  
-  def __init__(self, score, related_data={}):
-    self.score, self.related_data = score, related_data
-  
-  score = None
-  """The score itself."""
-
-  related_data = {}
-  """Data specific to the result of a test run on a model."""
-
-  test = None
-  """The test taken. Set automatically by Test.judge."""
-
-  model = None
-  """The model judged. Set automatically by Test.judge."""
-
-  normalized = False
-  """Specifies whether the score is normalized or not."""
-
-  sort_key = None
-  """A floating point version of the score used for sorting. 
-
-  If normalized = True, this must be in the range 0.0 to 1.0 
-  (used for coloring table cells)."""
-
-  @property
-  def summary(self):
-    """Summarize the performance of a model on a test."""
-    return "=== Model '%s' achieved score %s on test '%s'. ===" % \
-                                    (self.model.name,
-                                     self.__str__(),
-                                     self.test.name)
-    
-  def summarize(self):
-    print self.summary
-
-  def __str__(self):
-    return u'%s' % self.score
-
-class ErrorScore(Score):
-    """A score returned when an error occurs during testing."""
-
-    def __init__(self, score, related_data={}):
-        if not isinstance(score, Exception):
-            raise InvalidScoreError("ErrorScore score must be an Exception.")
-        super(ErrorScore,self).__init__(score)
-
-    @property
-    def summary(self):
-      """Summarize the performance of a model on a test."""
-      return "=== Model did not complete test due to error '%s'. ===" % \
-                                     self.__str__()
-
-    def __str__(self):
-        return u'%s: %s' % (self.score.__class__.__name__,self.score)
-
-class InvalidScoreError(Exception):
-  """Error raised when a score is invalid."""
-  pass
-
-class ScoreMatrix(object):
-  """Represents a matrix of scores derived from a test suite.
-
-  Can use like this:
-
-    >>> sm[test]
-    { model_1: Score_1, ... model_n: score_n }
-    >>> sm[model]
-    { test_1: Score_1, ..., test_n: score_n }
-    >>> sm[test, model]
-    score
-    >>> sm[test, model] = score
-  """
-  def __init__(self, tests, models):
-    self.tests = tests
-    self.models = models
-
-    self._matrix = matrix = { }
-    for test in tests:
-      column = matrix[test] = { }
-      for model in models:
-        column[model] = None
-
-  def __getitem__(self, key):
-    if isinstance(key, Test):
-      return self._matrix[key]
-    elif isinstance(key, Model):
-      r = { }
-      matrix = self._matrix
-      for test in self.tests:
-        r[test] = matrix[test][model]
-      return r
-    else:
-      (test, model) = key
-      return self._matrix[test][model]
-
-  def __setitem__(self, key):
-    (test, model) = key
-    if isinstance(test, Test) and isinstance(model, Model):
-      return self._matrix[test][model]
-    else:
-      raise Error("Invalid index, expected (test, model).")
-
-#
-# Models
-#
-
-class Model(object):
-  """Abstract base class for sciunit models."""
-  def __init__(self, name=None):
-    if name is None:
-      name = self.__class__.__name__
-    self.name = name
-
-  name = None
-  """The name of the model. Defaults to the class name."""
-
-#
-# Capabilities
-#
-
-class Capability(object):
-  """Abstract base class for sciunit capabilities."""
-  def __init__(self, name=None):
-    if name is None:
-      name = self.__class__.__name__
-    self.name = name
-
-  name = None
-  """The name of the capability. Defaults to the class name."""
-
-  @classmethod
-  def check(cls, model):
-    """Checks whether the provided model has this capability.
-
-    By default, uses isinstance.
-    """
-    return isinstance(model, cls)
 
 class CapabilityError(Exception):
   """Error raised when a required capability is not 
@@ -318,17 +158,205 @@ class CapabilityError(Exception):
   capability = None
   """The capability that is not provided."""
 
-def check_capabilities(test, model):
-  """Checks that the capabilities required by `test` are 
-  implemented by `model`.
+class InvalidScoreError(Exception):
+  """Error raised when a score is invalid."""
 
-  First checks that `test` is a `Test` and `model` is a `Model`.
+#
+# Test Suites
+#
+class TestSuite(object):
+  """A collection of tests."""
+  def __init__(self, name, tests):
+    if isinstance(tests, Test):
+      # turn singleton test into a sequence
+      tests = (tests,)
+    else:
+      try:
+        for test in tests:
+          if not isinstance(test, Test):
+            raise Error("Test suite provided an iterable containing a non-Test.")
+      except TypeError:
+        raise Error("Test suite was not provided a test or iterable.")
+    self.tests = tests
+
+    if name is None:
+      raise Error("Suite name required.")
+    self.name = name
+
+  name = None
+  """The name of the test suite. Defaults to the class name."""
+
+  description = None
+  """The description of the test suite. No default."""
+
+  tests = None
+  """The sequence of tests that this suite contains."""
+
+  def judge(self, models, stop_on_error=True):
+    """Judges the provided models against each test in the test suite.
+
+    Returns a ScoreMatrix.
+    """
+    if isinstance(models, Model):
+      models = (models,)
+    else:
+      try:
+        for model in models:
+          if not isinstance(model, Model):
+            raise Error("Test suite's judge method provided an iterable containing a non-Model.")
+      except TypeError:
+        raise Error("Test suite's judge method not provided a model or iterable.""")
+
+    matrix = ScoreMatrix(self.tests, models)
+    for test in self.tests:
+      for model in models:
+        matrix[test, model] = test.judge(model, stop_on_error)
+    return matrix
+
+#
+# Scores
+#
+class Score(object):
+  """Abstract base class for scores."""
+  def __init__(self, score, related_data=None):
+    if related_data is None:
+      related_data = { }
+    self.score, self.related_data = score, related_data
+  
+  score = None
+  """The score itself."""
+
+  related_data = None
+  """Data specific to the result of a test run on a model."""
+
+  test = None
+  """The test taken. Set automatically by Test.judge."""
+
+  model = None
+  """The model judged. Set automatically by Test.judge."""
+
+  sort_key = None
+  """A floating point version of the score used for sorting. 
+
+  If normalized = True, this must be in the range 0.0 to 1.0,
+  where larger is better (used for sorting and coloring tables)."""
+
+  @property
+  def summary(self):
+    """Summarize the performance of a model on a test."""
+    return "=== Model %s achieved score %s on test '%s'. ===" % \
+      (str(self.model), str(self), self.test)
+    
+  def summarize(self):
+    print self.summary
+
+  def __str__(self):
+    return '%s(%s)' % (self.__class__.__name__, self.score)
+
+  def __repr__(self):
+    return str(self)
+
+class ErrorScore(Score):
+    """A score returned when an error occurs during testing."""
+    def __init__(self, exn, related_data=None):
+        super(ErrorScore,self).__init__(exn, related_data)
+
+    @property
+    def summary(self):
+      """Summarize the performance of a model on a test."""
+      return "=== Model %s did not complete test %s due to error %s. ===" % \
+        (str(self.model), str(self.test), str(self.score))
+
+#
+# Score Matrices
+#
+class ScoreMatrix(object):
+  """Represents a matrix of scores derived from a test suite.
+
+  Should generally not be created or modified manually.
+
+  Can use like this, assuming n tests and m models:
+
+    >>> sm[test, model]
+    score
+    >>> sm[test]
+    (score_1, ..., score_m)
+    >>> sm[model]
+    (score_1, ..., score_n)
   """
-  assert isinstance(test, Test)
-  assert isinstance(model, Model)
+  def __init__(self, tests, models):
+    self.tests = tests
+    self.models = models
 
-  for c in test.required_capabilities:
-    if not c.check(model):
-      raise CapabilityError(model, c)
+    self._matrix = matrix = { }
+    for test in tests:
+      column = matrix[test] = { }
+      for model in models:
+        column[model] = None
 
-  return True
+  def __getitem__(self, key):
+    _matrix = self._matrix
+    if isinstance(key, Test):
+      return tuple(
+        _matrix[key][model]
+        for model in self.models)
+    elif isinstance(key, Model):
+      return tuple(
+        _matrix[test][key]
+        for test in self.tests)
+    else:
+      (test, model) = key
+      return _matrix[test][model]
+
+  def __setitem__(self, key, value):
+    (test, model) = key
+    if isinstance(test, Test) and isinstance(model, Model) \
+       and isinstance(value, Score):
+      self._matrix[test][model] = value
+    else:
+      raise Error("Expected (test, model) = score.")
+
+  def view(self):
+    """Generates an IPython score table."""
+    return _tables.generate_ipy_table(self)
+
+  def table_src(self):
+    """Generates HTML source for the table view."""
+    return _tables.generate_table(self)
+
+#
+# Models
+#
+class Model(object):
+  """Abstract base class for sciunit models."""
+  def __init__(self, name=None, **params):
+    if name is None:
+      name = self.__class__.__name__
+    self.name = name
+
+    self.params = params
+
+  name = None
+  """The name of the model. Defaults to the class name."""
+
+  params = None
+  """The parameters to the model (a dictionary)."""
+
+  def __str__(self):
+    return "%s(%s)" % (self.name, str(self.params))
+
+  def __repr__(self):
+    return str(self)
+
+#
+# Capabilities
+#
+class Capability(object):
+  """Abstract base class for sciunit capabilities."""
+  @classmethod
+  def check(cls, model):
+    """Checks whether the provided model has this capability.
+
+    By default, uses isinstance.
+    """
+    return isinstance(model, cls)
