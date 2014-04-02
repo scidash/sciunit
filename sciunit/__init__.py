@@ -222,6 +222,8 @@ class Score(object):
     if related_data is None:
       related_data = { }
     self.score, self.related_data = score, related_data
+    if isinstance(score,Exception):
+        self.__class__ = ErrorScore # Set to error score to use its summarize().
   
   score = None
   """The score itself."""
