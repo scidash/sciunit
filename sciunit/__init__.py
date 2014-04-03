@@ -19,7 +19,7 @@ class Test(object):
         self.description = self.__class__.__doc__
       
       self.params = params
-
+      
       self.observation = observation
       self.validate_observation(observation)
 
@@ -87,6 +87,21 @@ class Test(object):
     raise NotImplementedError("Test %s does not implement compute_score."
       % self.name)
 
+  def check(self, model, stop_on_error=True):
+    """Like judge, but without actually running the test.
+    Just returns a Score indicating whether the model can take the test or not."""
+    e = None
+    try:
+      if self.check_capabilities(model):
+        score = TBDScore(None)
+      else:
+        score = NAScore(None)
+    except Exception,e:
+      score = ErrorScore(e)
+    if e and stop_on_error:
+      raise e
+    return score
+
   def judge(self, model, stop_on_error=True):
     """Generates a score for the provided model.
 
@@ -105,6 +120,7 @@ class Test(object):
     If stop_on_error is true (default), exceptions propagate upward. If false,
     an ErrorScore is generated containing the exception.
     """
+    e = None
     try:
       # 1.
       self.check_capabilities(model)
@@ -121,11 +137,12 @@ class Test(object):
       score.test = self
       score.prediction = prediction
       score.observation = observation
+    except CapabilityError,e:
+      score = NAScore(str(e))
     except Exception,e:
-      if stop_on_error:
-        raise e
-      else:
-        score = ErrorScore(e)
+      score = ErrorScore(e)
+    if e and stop_on_error:
+      raise e
     return score
 
   def __str__(self):
@@ -268,6 +285,30 @@ class ErrorScore(Score):
       """Summarize the performance of a model on a test."""
       return "=== Model %s did not complete test %s due to error %s. ===" % \
         (str(self.model), str(self.test), str(self.score))
+
+class NoneScore(Score):
+    """A None score.  Indicates that the model has not been checked to see if
+    it has the capabilities required by the test."""
+
+    def __init__(self, score, related_data={}):
+        if isinstance(score,Exception) or score is None:
+            super(NoneScore,self).__init__(score, related_data=related_data)
+        else:
+            raise InvalidScoreError("Score must be None.")
+
+class TBDScore(NoneScore):
+    """A TBD (to be determined) score. Indicates that the model has capabilities 
+    required by the test but has not yet taken it."""
+
+    def __init__(self, score, related_data={}):
+        super(TBDScore,self).__init__(score, related_data=related_data)
+        
+class NAScore(NoneScore):
+    """A N/A (not applicable) score. Indicates that the model doesn't have the 
+    capabilities that the test requires."""
+
+    def __init__(self, score, related_data={}):
+        super(NAScore,self).__init__(score, related_data=related_data)
 
 #
 # Score Matrices
