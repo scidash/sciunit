@@ -7,6 +7,10 @@ https://github.com/cyrus-/papers/raw/master/sciunit-icse14/sciunit-icse14.pdf
 # Usage
 See the examples in the sciunit/test folder.
 
+# Domain-specific libraries and information
+
+Neuron Electrophysiology: https://github.com/scidash/neuronunit
+
 # Mailing List
 There is a mailing list for announcements and discussion at:
 
