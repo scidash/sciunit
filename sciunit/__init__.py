@@ -102,7 +102,26 @@ class Test(object):
       raise e
     return score
 
-  def judge(self, model, stop_on_error=True):
+  def _judge(self, model):
+      # 1.
+      self.check_capabilities(model)
+      # 2.
+      prediction = self.generate_prediction(model)
+      # 3.
+      observation = self.observation
+      score = self.compute_score(observation, prediction)
+      # 4.
+      if not isinstance(score, self.score_type):
+        raise InvalidScoreError("Score for test '%s' is not of correct type." \
+                                % self.name)
+      # 5.
+      score.model = model
+      score.test = self
+      score.prediction = prediction
+      score.observation = observation
+      return score
+  
+  def judge(self, model, stop_on_error=True, deep_error=False):
     """Generates a score for the provided model.
 
     Operates as follows:
@@ -120,37 +139,27 @@ class Test(object):
     If stop_on_error is true (default), exceptions propagate upward. If false,
     an ErrorScore is generated containing the exception.
     """
-    e = None
-    try:
-      # 1.
-      self.check_capabilities(model)
-      # 2.
-      prediction = self.generate_prediction(model)
-      # 3.
-      observation = self.observation
-      score = self.compute_score(observation, prediction)
-      # 4.
-      if not isinstance(score, self.score_type):
-        raise InvalidScoreError("Score for test %s is not of correct type.")
-      # 5.
-      score.model = model
-      score.test = self
-      score.prediction = prediction
-      score.observation = observation
-    except CapabilityError,e:
-      score = NAScore(str(e))
-    except Exception,e:
-      score = ErrorScore(e)
-    if e and stop_on_error:
-      raise e
+    
+    if deep_error:
+      score = self._judge(model)
+    else:
+      try:
+        score = self._judge(model)
+      except CapabilityError,e:
+        score = NAScore(str(e))
+      except Exception,e:
+        score = ErrorScore(e)
+    if type(score) is ErrorScore and stop_on_error:
+      raise score.score # An exception.  
     return score
 
   def __str__(self):
-    if self.params:
-      x = "%s, %s" % (str(self.observation), str(self.params))
-    else:
-      x = str(self.observation)
-    return "%s(%s)" % (self.name, x)
+    #if self.params:
+    #  x = "%s, %s" % (str(self.observation), str(self.params))
+    #else:
+    #  x = str(self.observation)
+    #return "%s(%s)" % (self.name, x)
+    return "%s (%s)" % (self.name, self.__class__.__name__)
 
   def __repr__(self):
     return str(self)
@@ -167,7 +176,7 @@ class CapabilityError(Exception):
 
     super(CapabilityError,self).__init__(\
       "Model %s does not provide required capability: %s" % \
-      (model.name,capability().name))
+      (model.name,capability.name))
   
   model = None
   """The model that does not have the capability."""
@@ -403,3 +412,10 @@ class Capability(object):
     By default, uses isinstance.
     """
     return isinstance(model, cls)
+
+  class __metaclass__(type):
+      @property
+      def name(cls):
+        return cls.__name__
+
+  
