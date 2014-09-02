@@ -1,7 +1,9 @@
 from sciunit import Score,ErrorScore,InvalidScoreError
         
 class BooleanScore(Score):
-    """A boolean score. Must be True or False."""
+    """
+    A boolean score. Must be True or False.
+    """
     
     def __init__(self, score, related_data={}):
         if isinstance(score,Exception) or score in [True,False]:
@@ -28,16 +30,35 @@ class BooleanScore(Score):
 
 
 class ZScore(Score):
-    """A Z score. A float indicating standardized difference 
-    from a reference mean."""
+    """
+    A Z score. A float indicating standardized difference 
+    from a reference mean.
+    """
     
     def __init__(self, score, related_data={}):
-        if isinstance(score, Exception) or isinstance(score, float):
-            super(ZScore,self).__init__(score, related_data=related_data)
-        else:
+        if not isinstance(score, Exception) and not isinstance(score, float):
             raise InvalidScoreError("Score must be a float.")
+        else:
+            super(ZScore,self).__init__(score, related_data=related_data)
         
     def __str__(self):
-        return u'%.2f' % self.score
+        return u'Z = %.2f' % self.score
+
+class PercentScore(Score):
+    """
+    A percent score. A float in the range [0,0,100.0] where higher is better.
+    """
+
+    def __init__(self, score, related_data={}):
+        if not isinstance(score, Exception) and not isinstance(score, float):
+            raise InvalidScoreError("Score must be a float.")
+        elif score < 0.0 or score > 100.0:
+            raise InvalidScoreError("Score of %f must be in \
+                                     range 0.0-100.0" % score)
+        else:
+            super(PercentScore,self).__init__(score, related_data=related_data)
+        
+    def __str__(self):
+        return u'%.1f%%' % self.score
 
     
