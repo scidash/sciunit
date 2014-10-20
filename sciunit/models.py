@@ -1,4 +1,5 @@
 import sciunit
+import sciunit.capabilities
 from random import uniform
 from datetime import datetime
 
@@ -52,7 +53,9 @@ def runcache(by='value'):
 				model.__class__.cached_runs = {} # Create the run cache.  
 			cache = model.__class__.cached_runs
 			if by == 'value':
-				run_signature = hash(repr(model.__dict__)+repr(run_args)) # Hash key.
+				model_dict = {key:value for key,value in model.__dict__.items() \
+							  if key[0]!='_'}
+				run_signature = hash(repr(model_dict)+repr(run_args)) # Hash key.
 			elif by == 'instance':
 				run_signature = hash(repr(id(model))+repr(run_args)) # Hash key.
 			else:
@@ -68,35 +71,26 @@ def runcache(by='value'):
 		return decorate
 	return decorate_
 
-class CachingExample(UniformModel):
-	def __init__(self, a, b, name=None):
-		self.x = None
-		super(CachingExample, self).__init__(a, b, name=name)
+class PersistentUniformModel(UniformModel):
+	"""TODO"""
+	
+	def run(self):
+		self._x = uniform(self.a, self.b)
 
-	def run(self,**kwargs):
-		"""Example run method. Sets x to a random number."""
-		if 'b' in kwargs:
-			self.x = uniform(self.a, self.b)
+	def produce_number(self):
+		return self._x	
 
-class CachingExampleByInstance(CachingExample):
-	"""Example of a model with run caching. Each time this model is instantiated
-	with the same parameters and produce_number is called with the same 'run'
-	keyword argument, the result will be the same.  Otherwise, the result will
-	be a random number."""
-
+class CacheByInstancePersistentUniformModel(PersistentUniformModel):
+	"""TODO"""
+	
 	@runcache(by='instance')
-	def produce_number(self,**kwargs):
-		return self.x
+	def produce_number(self):
+		return self._x	
 
-class CachingExampleByValue(CachingExample):
-	"""Example of a model with run caching. Each time this model is instantiated
-	with the same parameters and produce_number is called with the same 'run'
-	keyword argument, the result will be the same.  Otherwise, the result will
-	be a random number."""
-
+class CacheByValuePersistentUniformModel(PersistentUniformModel):
+	"""TODO"""
+	
 	@runcache(by='value')
-	def produce_number(self,**kwargs):
-		return self.x
-
-
+	def produce_number(self):
+		return self._x	
 
