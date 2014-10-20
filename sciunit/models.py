@@ -2,6 +2,8 @@ import sciunit
 from random import uniform
 from datetime import datetime
 
+import cypy
+
 class ConstModel(sciunit.Model, 
 					 sciunit.capabilities.ProducesNumber):
 	"""A model that always produces a constant number as output."""
@@ -24,6 +26,14 @@ class UniformModel(sciunit.Model,
 	
 	def produce_number(self):
 		return uniform(self.a, self.b)
+
+@cypy.intern
+class SharedModel(sciunit.Model):
+	"""A model that, each time it is instantiated with the same parameters, will
+	return the same instance at the same locaiton in memory. 
+	Attributes should not be set post-instantiation
+	unless the goal is to set those attributes on all models of this class."""
+	pass
 
 def runcache(by='value'):
 	"""A decorator used on a model method which calls the model's run() method
