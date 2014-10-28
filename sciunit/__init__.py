@@ -1,3 +1,5 @@
+import inspect
+
 """SciUnit: A Test-Driven Framework for Validation of 
      Quantitative Scientific Models"""
 import _tables
@@ -23,7 +25,7 @@ class Test(object):
       self.observation = observation
       self.validate_observation(observation)
 
-      if not issubclass(self.score_type, Score):
+      if self.score_type is None or not issubclass(self.score_type, Score):
         raise Error("Test %s does not specify a score type." % self.name)
 
   name = None
@@ -238,6 +240,28 @@ class TestSuite(object):
       for model in models:
         matrix[test, model] = test.judge(model, stop_on_error)
     return matrix
+
+  @classmethod
+  def from_observations(cls, name, tests_info):
+    """Instantiate a test suite with name 'name' and information about tests
+    in 'tests_info', as [(TestClass1,observation1),(TestClass2,observation2),...].
+    The desired test name may appear as an optional third item in the tuple, e.g.
+    (TestClass1,observation1,"my_test").  The same test class may be used multiple 
+    times, e.g. [(TestClass1,observation1a),(TestClass1,observation1b),...].
+    """
+
+    tests = []
+    for test_info in tests_info:
+      test_class = test_info[0]
+      observation = test_info[1]
+      test_name = None if len(test_info)<3 else test_info[2]
+      assert inspect.isclass(test_class) and issubclass(test_class, Test), \
+        "First item in each tuple must be a Test class"
+      if test_name is not None:
+        assert type(test_name) is str, "Each test name must be a string"
+      tests.append(test_class(observation,name=test_name))
+    return cls(name, tests)
+
 
 #
 # Scores
