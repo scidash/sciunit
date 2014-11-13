@@ -1,5 +1,7 @@
 SciUnit: A Test-Driven Framework for Formally Validating Scientific Models Against Data
 
+![SciUnit Logo](https://raw.githubusercontent.com/scidash/assets/master/logos/sciunit.png)
+
 # Concept
 
 https://github.com/cyrus-/papers/raw/master/sciunit-icse14/sciunit-icse14.pdf
