@@ -8,6 +8,7 @@ install:
 # Setting up pre-requirements
 before_script:
   - cd .
+  - cd .
 
 # command to run tests, e.g. python setup.py test
 script: python sciunit/tests/example.py
