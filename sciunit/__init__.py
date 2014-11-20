@@ -1,3 +1,5 @@
+import inspect
+
 """SciUnit: A Test-Driven Framework for Validation of 
      Quantitative Scientific Models"""
 import _tables
@@ -19,11 +21,11 @@ class Test(object):
         self.description = self.__class__.__doc__
       
       self.params = params
-
+      
       self.observation = observation
       self.validate_observation(observation)
 
-      if not issubclass(self.score_type, Score):
+      if self.score_type is None or not issubclass(self.score_type, Score):
         raise Error("Test %s does not specify a score type." % self.name)
 
   name = None
@@ -87,7 +89,41 @@ class Test(object):
     raise NotImplementedError("Test %s does not implement compute_score."
       % self.name)
 
-  def judge(self, model, stop_on_error=True):
+  def check(self, model, stop_on_error=True):
+    """Like judge, but without actually running the test.
+    Just returns a Score indicating whether the model can take the test or not."""
+    e = None
+    try:
+      if self.check_capabilities(model):
+        score = TBDScore(None)
+      else:
+        score = NAScore(None)
+    except Exception,e:
+      score = ErrorScore(e)
+    if e and stop_on_error:
+      raise e
+    return score
+
+  def _judge(self, model):
+      # 1.
+      self.check_capabilities(model)
+      # 2.
+      prediction = self.generate_prediction(model)
+      # 3.
+      observation = self.observation
+      score = self.compute_score(observation, prediction)
+      # 4.
+      if not isinstance(score, self.score_type):
+        raise InvalidScoreError("Score for test '%s' is not of correct type." \
+                                % self.name)
+      # 5.
+      score.model = model
+      score.test = self
+      score.prediction = prediction
+      score.observation = observation
+      return score
+  
+  def judge(self, model, stop_on_error=True, deep_error=False):
     """Generates a score for the provided model.
 
     Operates as follows:
@@ -105,35 +141,27 @@ class Test(object):
     If stop_on_error is true (default), exceptions propagate upward. If false,
     an ErrorScore is generated containing the exception.
     """
-    try:
-      # 1.
-      self.check_capabilities(model)
-      # 2.
-      prediction = self.generate_prediction(model)
-      # 3.
-      observation = self.observation
-      score = self.compute_score(observation, prediction)
-      # 4.
-      if not isinstance(score, self.score_type):
-        raise InvalidScoreError("Score for test %s is not of correct type.")
-      # 5.
-      score.model = model
-      score.test = self
-      score.prediction = prediction
-      score.observation = observation
-    except Exception,e:
-      if stop_on_error:
-        raise e
-      else:
+    
+    if deep_error:
+      score = self._judge(model)
+    else:
+      try:
+        score = self._judge(model)
+      except CapabilityError,e:
+        score = NAScore(str(e))
+      except Exception,e:
         score = ErrorScore(e)
+    if type(score) is ErrorScore and stop_on_error:
+      raise score.score # An exception.  
     return score
 
   def __str__(self):
-    if self.params:
-      x = "%s, %s" % (str(self.observation), str(self.params))
-    else:
-      x = str(self.observation)
-    return "%s(%s)" % (self.name, x)
+    #if self.params:
+    #  x = "%s, %s" % (str(self.observation), str(self.params))
+    #else:
+    #  x = str(self.observation)
+    #return "%s(%s)" % (self.name, x)
+    return "%s (%s)" % (self.name, self.__class__.__name__)
 
   def __repr__(self):
     return str(self)
@@ -150,7 +178,7 @@ class CapabilityError(Exception):
 
     super(CapabilityError,self).__init__(\
       "Model %s does not provide required capability: %s" % \
-      (model.name,capability().name))
+      (model.name,capability.name))
   
   model = None
   """The model that does not have the capability."""
@@ -213,6 +241,28 @@ class TestSuite(object):
         matrix[test, model] = test.judge(model, stop_on_error)
     return matrix
 
+  @classmethod
+  def from_observations(cls, name, tests_info):
+    """Instantiate a test suite with name 'name' and information about tests
+    in 'tests_info', as [(TestClass1,observation1),(TestClass2,observation2),...].
+    The desired test name may appear as an optional third item in the tuple, e.g.
+    (TestClass1,observation1,"my_test").  The same test class may be used multiple 
+    times, e.g. [(TestClass1,observation1a),(TestClass1,observation1b),...].
+    """
+
+    tests = []
+    for test_info in tests_info:
+      test_class = test_info[0]
+      observation = test_info[1]
+      test_name = None if len(test_info)<3 else test_info[2]
+      assert inspect.isclass(test_class) and issubclass(test_class, Test), \
+        "First item in each tuple must be a Test class"
+      if test_name is not None:
+        assert type(test_name) is str, "Each test name must be a string"
+      tests.append(test_class(observation,name=test_name))
+    return cls(name, tests)
+
+
 #
 # Scores
 #
@@ -222,6 +272,8 @@ class Score(object):
     if related_data is None:
       related_data = { }
     self.score, self.related_data = score, related_data
+    if isinstance(score,Exception):
+        self.__class__ = ErrorScore # Set to error score to use its summarize().
   
   score = None
   """The score itself."""
@@ -266,6 +318,30 @@ class ErrorScore(Score):
       """Summarize the performance of a model on a test."""
       return "=== Model %s did not complete test %s due to error %s. ===" % \
         (str(self.model), str(self.test), str(self.score))
+
+class NoneScore(Score):
+    """A None score.  Indicates that the model has not been checked to see if
+    it has the capabilities required by the test."""
+
+    def __init__(self, score, related_data={}):
+        if isinstance(score,Exception) or score is None:
+            super(NoneScore,self).__init__(score, related_data=related_data)
+        else:
+            raise InvalidScoreError("Score must be None.")
+
+class TBDScore(NoneScore):
+    """A TBD (to be determined) score. Indicates that the model has capabilities 
+    required by the test but has not yet taken it."""
+
+    def __init__(self, score, related_data={}):
+        super(TBDScore,self).__init__(score, related_data=related_data)
+        
+class NAScore(NoneScore):
+    """A N/A (not applicable) score. Indicates that the model doesn't have the 
+    capabilities that the test requires."""
+
+    def __init__(self, score, related_data={}):
+        super(NAScore,self).__init__(score, related_data=related_data)
 
 #
 # Score Matrices
@@ -360,3 +436,10 @@ class Capability(object):
     By default, uses isinstance.
     """
     return isinstance(model, cls)
+
+  class __metaclass__(type):
+      @property
+      def name(cls):
+        return cls.__name__
+
+  

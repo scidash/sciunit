@@ -11,12 +11,12 @@ class PositivityTest(sciunit.Test):
     return model.produce_number()
 
   score_type = sciunit.scores.BooleanScore
-  def score_prediction(self, observation, prediction):
+  def compute_score(self, observation, prediction):
     return self.score_type(prediction > 0)
 
 positivity_test = PositivityTest()
 one_model = sciunit.models.ConstModel(4)
-assert sciunit.check_capabilities(positivity_test, one_model)
+assert positivity_test.check_capabilities(one_model)
 score = positivity_test.judge(one_model)
 assert isinstance(score, sciunit.scores.BooleanScore)
 assert score.score == True
