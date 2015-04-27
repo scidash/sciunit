@@ -6,7 +6,7 @@ setup(
 	author='Cyrus Omar',
 	author_email='cyrus.omar@gmail.com',
 	packages=['sciunit', 'sciunit.tests'],
-	url='http://github.com/cyrus-/sciunit',
+	url='http://github.com/scidash/sciunit',
 	license='MIT',
 	description='A test-driven framework for formally validating scientific models against data.',
 	long_description="",
