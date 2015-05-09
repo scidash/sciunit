@@ -23,4 +23,4 @@ assert score.score == True
 assert score.test is positivity_test
 assert score.model is one_model
 
-print "Tests completed successfully."
+print("Tests completed successfully.")

@@ -53,7 +53,7 @@ def runcache(by='value'):
 				model.__class__.cached_runs = {} # Create the run cache.  
 			cache = model.__class__.cached_runs
 			if by == 'value':
-				model_dict = {key:value for key,value in model.__dict__.items() \
+				model_dict = {key:value for key,value in list(model.__dict__.items()) \
 							  if key[0]!='_'}
 				run_signature = hash(repr(model_dict)+repr(run_args)) # Hash key.
 			elif by == 'instance':
@@ -61,11 +61,11 @@ def runcache(by='value'):
 			else:
 				raise ValueError("Cache type must be 'value' or 'instance'")
 			if run_signature not in cache:
-				print "Run with this signature not found in the cache. Running..."
+				print("Run with this signature not found in the cache. Running...")
 				model.run(**run_args)
 				cache[run_signature] = (datetime.now(),model.__dict__.copy())
 			else:
-				print "Run with this signature found in the cache. Restoring..."
+				print("Run with this signature found in the cache. Restoring...")
 				model.__dict__.update(cache[run_signature][1])
 			return func(*args, **kwargs)
 		return decorate

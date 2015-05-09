@@ -30,14 +30,14 @@ else:
 
   def _generate_header(sm):
     return "<thead><tr><th></th>{columns}</tr></thead>".format(
-    	columns=string.join(
+    	columns='\r'.join(
           "<th>%s</th>" % str(test)
           for test in sm.tests
         ))
 
   def _generate_body(sm):
     return "<tbody>{rows}</tbody>".format(
-      rows = string.join(
+      rows = '\r'.join(
         "<tr><td>{model}</td>{scores}</tr>".format(
           model=str(model), 
           scores=_generate_row(sm, model))
@@ -45,6 +45,6 @@ else:
     ))
 
   def _generate_row(sm, model):
-    return string.join(
+    return '\r'.join(
       "<td>{score}</td>".format(score=str(score))
       for score in sm[model])

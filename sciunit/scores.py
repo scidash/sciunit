@@ -42,7 +42,7 @@ class ZScore(Score):
             super(ZScore,self).__init__(score, related_data=related_data)
         
     def __str__(self):
-        return u'Z = %.2f' % self.score
+        return 'Z = %.2f' % self.score
 
 class PercentScore(Score):
     """
@@ -59,6 +59,6 @@ class PercentScore(Score):
             super(PercentScore,self).__init__(score, related_data=related_data)
         
     def __str__(self):
-        return u'%.1f%%' % self.score
+        return '%.1f%%' % self.score
 
     

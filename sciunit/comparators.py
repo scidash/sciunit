@@ -12,7 +12,7 @@ def zscore(observation, prediction):
     o_std = observation['std']
     try:
         result = (p_value - o_mean)/o_std
-    except TypeError,e:
+    except TypeError as e:
         result = e
     return result
 

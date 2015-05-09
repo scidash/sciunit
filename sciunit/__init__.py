@@ -2,7 +2,7 @@ import inspect
 
 """SciUnit: A Test-Driven Framework for Validation of 
      Quantitative Scientific Models"""
-import _tables
+import sciunit._tables as _tables
 
 class Error(Exception):
   """Base class for errors in sciunit's core."""
@@ -98,7 +98,7 @@ class Test(object):
         score = TBDScore(None)
       else:
         score = NAScore(None)
-    except Exception,e:
+    except Exception as e:
       score = ErrorScore(e)
     if e and stop_on_error:
       raise e
@@ -147,9 +147,9 @@ class Test(object):
     else:
       try:
         score = self._judge(model)
-      except CapabilityError,e:
+      except CapabilityError as e:
         score = NAScore(str(e))
-      except Exception,e:
+      except Exception as e:
         score = ErrorScore(e)
     if type(score) is ErrorScore and stop_on_error:
       raise score.score # An exception.  
@@ -300,7 +300,7 @@ class Score(object):
       (str(self.model), str(self), self.test)
     
   def summarize(self):
-    print self.summary
+    print((self.summary))
 
   def __str__(self):
     return '%s(%s)' % (self.__class__.__name__, self.score)
@@ -409,17 +409,21 @@ class Model(object):
     if name is None:
       name = self.__class__.__name__
     self.name = name
-
     self.params = params
 
   name = None
   """The name of the model. Defaults to the class name."""
 
   params = None
-  """The parameters to the model (a dictionary)."""
+  """The parameters to the model (a dictionary).
+  These distinguish one model of a class from another."""
+
+  run_args = None
+  """These are the run-time arguments for the model.
+  Execution of run() should make use of these arguments."""
 
   def __str__(self):
-    return "%s(%s)" % (self.name, str(self.params))
+    return "%s (%s)" % (self.name, self.__class__.__name__)
 
   def __repr__(self):
     return str(self)
