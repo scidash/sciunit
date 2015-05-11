@@ -13,7 +13,7 @@ class ProducesNumber(sciunit.Capability):
 class UniqueRandomNumberModel(sciunit.Model,ProducesNumber):
     """An example model to ProducesNumber."""
 
-    def produce_random_number(self):
+    def produce_number(self):
         """Each call to this method will produce a different random number."""
         return random.random()
 
@@ -21,7 +21,7 @@ class RepeatedRandomNumberModel(sciunit.Model,ProducesNumber):
     """An example model to demonstrate ProducesNumber with cypy.lazy."""
 
     @memoize
-    def produce_random_number(self):
+    def produce_number(self):
         """Each call to this method will produce the same random number as
         was returned in the first call, ensuring reproducibility and
         eliminating computational overhead."""
