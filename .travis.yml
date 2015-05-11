@@ -7,7 +7,10 @@ install:
 
 # Setting up pre-requirements
 before_script:
-  - cd .
+  - pwd
+  - cd ..
+  - export PYTHONPATH=$PYTHONPATH:.
+  - cd sciunit
 
 # command to run tests, e.g. python setup.py test
 script: python sciunit/tests/example.py
