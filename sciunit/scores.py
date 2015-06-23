@@ -44,6 +44,7 @@ class ZScore(Score):
     def __str__(self):
         return 'Z = %.2f' % self.score
 
+
 class PercentScore(Score):
     """
     A percent score. A float in the range [0,0,100.0] where higher is better.
@@ -60,5 +61,20 @@ class PercentScore(Score):
         
     def __str__(self):
         return '%.1f%%' % self.score
+
+
+class FloatScore(Score):
+    """
+    A float score. A float with any value.
+    """
+
+    def __init__(self, score, related_data={}):
+        if not isinstance(score, Exception) and not isinstance(score, float):
+            raise InvalidScoreError("Score must be a float.")
+        else:
+            super(FloatScore,self).__init__(score, related_data=related_data)
+        
+    def __str__(self):
+        return '%.3g%%' % self.score
 
     
