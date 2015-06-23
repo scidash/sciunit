@@ -2,7 +2,13 @@
 CHANGES.txt
 LICENSE
 README.markdown
+requirements.txt
 setup.py
 sciunit/__init__.py
-sciunit/test/__init__.py
-sciunit/test/basic_test.py
+sciunit/_tables.py
+sciunit/capabilities.py
+sciunit/comparators.py
+sciunit/models.py
+sciunit/scores.py
+sciunit/tests/__init__.py
+sciunit/tests/example.py
