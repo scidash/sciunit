@@ -109,6 +109,7 @@ class Test(object):
       self.check_capabilities(model)
       # 2.
       prediction = self.generate_prediction(model)
+      self.last_model = model
       # 3.
       observation = self.observation
       score = self.compute_score(observation, prediction)
@@ -277,6 +278,13 @@ class Score(object):
   
   score = None
   """The score itself."""
+
+  description = ''
+  """A description of this score, i.e. how to interpret it."""
+
+  value = None
+  """A raw number arising in a test's compute_score, 
+  used to determine this score."""
 
   related_data = None
   """Data specific to the result of a test run on a model."""
