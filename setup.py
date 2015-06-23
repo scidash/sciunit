@@ -2,9 +2,9 @@ from distutils.core import setup
 
 setup(
 	name='sciunit',
-	version='0.1.1',
-	author='Cyrus Omar',
-	author_email='cyrus.omar@gmail.com',
+	version='0.1.2',
+	author='Rick Gerkin',
+	author_email='rgerkin@asu.edu',
 	packages=['sciunit', 'sciunit.tests'],
 	url='http://github.com/scidash/sciunit',
 	license='MIT',
