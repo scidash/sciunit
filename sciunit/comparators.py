@@ -1,18 +1,33 @@
+from quantities.dimensionality import Dimensionality
+from quantities.quantity import Quantity
+
 """Functions for comparison of predictions and observations."""
 
+def dimensionless(value):
+    """Test for dimensionless of input."""
+    if type(value) is Quantity:
+        if value.dimensionality == Dimensionality({}):
+            value = value.base.item()
+        else:
+            raise TypeError("Score value %s must be dimensionless" % value)
+    return value
+
 def ratio(observation, prediction):
-    m_value = output_stats['value']
-    r_mean = reference_stats['mean']
+    """Computes a ratio from an observation and a prediction."""
+    m_value = prediction['value']
+    r_mean = observation['mean']
     result = (m_value+0.0)/r_mean
     return result
 
 def zscore(observation, prediction):
+    """Computes a z-score from an observation and a prediction."""
     p_value = prediction['mean']
     o_mean = observation['mean']
     o_std = observation['std']
     try:
         result = (p_value - o_mean)/o_std
-    except TypeError as e:
+        result = dimensionless(result)
+    except (TypeError,AssertionError) as e:
         result = e
     return result
 
