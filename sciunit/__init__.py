@@ -306,9 +306,14 @@ class Score(object):
     """Summarize the performance of a model on a test."""
     return "=== Model %s achieved score %s on test '%s'. ===" % \
       (str(self.model), str(self), self.test)
-    
+
   def summarize(self):
     print((self.summary))
+
+  def describe(self):
+    if self.score is not None:
+        print("The score was computed according to '%s' with raw value %s" % \
+                 (self.description, self.value))
 
   def __str__(self):
     return '%s(%s)' % (self.__class__.__name__, self.score)
