@@ -308,12 +308,12 @@ class Score(object):
       (str(self.model), str(self), self.test)
 
   def summarize(self):
-    print((self.summary))
+    if self.score is not None:
+      print("%s" % self.summary)
 
   def describe(self):
     if self.score is not None:
-        print("The score was computed according to '%s' with raw value %s" % \
-                 (self.description, self.value))
+      print("%s" % self.description)
 
   def __str__(self):
     return '%s(%s)' % (self.__class__.__name__, self.score)
@@ -386,13 +386,15 @@ class ScoreMatrix(object):
   def __getitem__(self, key):
     _matrix = self._matrix
     if isinstance(key, Test):
-      return tuple(
-        _matrix[key][model]
-        for model in self.models)
+      sm = ScoreMatrix([key], self.models)
+      for model in self.models:
+        sm[key,model] = self[key,model]
+      return sm
     elif isinstance(key, Model):
-      return tuple(
-        _matrix[test][key]
-        for test in self.tests)
+      sm = ScoreMatrix(self.tests, [key])
+      for test in self.tests:
+        sm[test,key] = self[test,key]
+      return sm
     else:
       (test, model) = key
       return _matrix[test][model]
@@ -405,6 +407,15 @@ class ScoreMatrix(object):
     else:
       raise Error("Expected (test, model) = score.")
 
+  @property
+  def scores(self):
+    if len(self.models) == 1:
+      return [self[test,self.models[0]] for test in self.tests]
+    elif len(self.tests) == 1:
+      return [self[self.tests[0],model] for model in self.models]
+    else:
+      return [[self[test,model] for model in self.models] for test in self.tests]
+ 
   def view(self):
     """Generates an IPython score table."""
     return _tables.generate_ipy_table(self)
