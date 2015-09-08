@@ -11,6 +11,9 @@ class BooleanScore(Score):
         else:
             raise InvalidScoreError("Score must be True or False.")
         
+    description = ('True if the observation and prediction were '
+                   'sufficiently similar; False otherwise')
+
     @property
     def sort_key(self):
         if self.score == True:
@@ -40,7 +43,11 @@ class ZScore(Score):
             raise InvalidScoreError("Score must be a float.")
         else:
             super(ZScore,self).__init__(score, related_data=related_data)
-        
+
+    description = ('The difference between the means of the observation and '
+                   'prediction divided by the standard deviation of the '
+                   ' observation')
+
     def __str__(self):
         return 'Z = %.2f' % self.score
 
@@ -58,6 +65,10 @@ class PercentScore(Score):
                                      range 0.0-100.0" % score)
         else:
             super(PercentScore,self).__init__(score, related_data=related_data)
+
+    description = ('100.0 is considered perfect agreement between the '
+                   'observation and the prediction. 0.0 is the worst possible '
+                   'agreement')
         
     def __str__(self):
         return '%.1f%%' % self.score
@@ -73,6 +84,10 @@ class FloatScore(Score):
             raise InvalidScoreError("Score must be a float.")
         else:
             super(FloatScore,self).__init__(score, related_data=related_data)
+
+    description = ('There is no canonical mapping between this score type and '
+                   'a measure of agreement between the observation and the '
+                   'prediction')
         
     def __str__(self):
         return '%.3g%%' % self.score
