@@ -47,4 +47,4 @@ else:
   def _generate_row(sm, model):
     return '\r'.join(
       "<td>{score}</td>".format(score=str(score))
-      for score in sm[model])
+      for score in sm[model].scores)
