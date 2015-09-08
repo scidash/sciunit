@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
 	name='sciunit',
-	version='0.1.3.2',
+	version='0.1.3.3',
 	author='Rick Gerkin',
 	author_email='rgerkin@asu.edu',
 	packages=['sciunit', 'sciunit.tests'],
