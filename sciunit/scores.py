@@ -46,7 +46,7 @@ class ZScore(Score):
 
     description = ('The difference between the means of the observation and '
                    'prediction divided by the standard deviation of the '
-                   ' observation')
+                   'observation')
 
     def __str__(self):
         return 'Z = %.2f' % self.score
