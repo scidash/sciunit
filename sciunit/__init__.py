@@ -149,7 +149,7 @@ class Test(object):
       try:
         score = self._judge(model)
       except CapabilityError as e:
-        score = NAScore(str(e))
+        score = NAScore(e)
       except Exception as e:
         score = ErrorScore(e)
     if type(score) is ErrorScore and stop_on_error:
@@ -179,7 +179,7 @@ class CapabilityError(Exception):
 
     super(CapabilityError,self).__init__(\
       "Model %s does not provide required capability: %s" % \
-      (model.name,capability.name))
+      (model.name,capability.__name__))
   
   model = None
   """The model that does not have the capability."""
@@ -340,7 +340,7 @@ class NoneScore(Score):
         if isinstance(score,Exception) or score is None:
             super(NoneScore,self).__init__(score, related_data=related_data)
         else:
-            raise InvalidScoreError("Score must be None.")
+            raise InvalidScoreError("Score must an Exception string or None.")
 
 class TBDScore(NoneScore):
     """A TBD (to be determined) score. Indicates that the model has capabilities 
@@ -457,6 +457,7 @@ class Model(object):
 #
 class Capability(object):
   """Abstract base class for sciunit capabilities."""
+  
   @classmethod
   def check(cls, model):
     """Checks whether the provided model has this capability.
