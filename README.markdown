@@ -8,6 +8,9 @@ SciUnit: A Test-Driven Framework for Formally Validating Scientific Models Again
 
 https://github.com/cyrus-/papers/raw/master/sciunit-icse14/sciunit-icse14.pdf
 
+# Documentation
+https://github.com/scidash/sciunit/blob/master/docs/chapter1.ipynb
+
 # Usage
 See the examples in the sciunit/test folder.
 
@@ -24,7 +27,7 @@ Please join it if you are at all interested!
 
 # Contributors
  * Cyrus Omar - http://cs.cmu.edu/~comar
- * Rick Gerkin
+ * Rick Gerkin - http://rick.gerk.in
 
 # License
 SciUnit is released under the permissive MIT license, requiring only attribution in derivative works. See the LICENSE file for terms.
