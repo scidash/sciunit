@@ -4,11 +4,11 @@
 # SciUnit: A Test-Driven Framework for Formally Validating Scientific Models Against Data
 
 ## Concept
-
-https://github.com/cyrus-/papers/raw/master/sciunit-icse14/sciunit-icse14.pdf
+[The conference paper](https://github.com/cyrus-/papers/raw/master/sciunit-icse14/sciunit-icse14.pdf)
 
 ## Documentation
-https://github.com/scidash/sciunit/blob/master/docs/chapter1.ipynb
+[Chapter 1](https://github.com/scidash/sciunit/blob/master/docs/chapter1.ipynb) / 
+[Chapter 2](https://github.com/scidash/sciunit/blob/master/docs/chapter2.ipynb)
 
 ## Usage
 See the examples in the sciunit/test folder.
@@ -18,15 +18,12 @@ See the examples in the sciunit/test folder.
 Neuron Electrophysiology: https://github.com/scidash/neuronunit
 
 ## Mailing List
-There is a mailing list for announcements and discussion at:
-
-  https://groups.google.com/forum/?fromgroups#!forum/sciunit
-
+There is a [mailing list](https://groups.google.com/forum/?fromgroups#!forum/sciunit) for announcements and discussion.
 Please join it if you are at all interested!
 
 ## Contributors
- * Cyrus Omar - http://cs.cmu.edu/~comar
- * Rick Gerkin - http://rick.gerk.in
+ * [Cyrus Omar](http://cs.cmu.edu/~comar), Carnegie Mellon University (Dept. of Computer Science)
+ * [Rick Gerkin](http://rick.gerk.in), Arizona State University (School of Life Science)
 
 ## License
-SciUnit is released under the permissive MIT license, requiring only attribution in derivative works. See the LICENSE file for terms.
+SciUnit is released under the permissive [MIT license](https://opensource.org/licenses/MIT), requiring only attribution in derivative works. See the LICENSE file for terms.
