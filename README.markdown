@@ -15,7 +15,7 @@ See the examples in the sciunit/test folder.
 
 ## Domain-specific libraries and information
 
-Neuron Electrophysiology: https://github.com/scidash/neuronunit
+[NeuronUnit](https://github.com/scidash/neuronunit) for neuron and ion channel physiology
 
 ## Mailing List
 There is a [mailing list](https://groups.google.com/forum/?fromgroups#!forum/sciunit) for announcements and discussion.
