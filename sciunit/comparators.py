@@ -4,7 +4,7 @@ from quantities.quantity import Quantity
 """Functions for comparison of predictions and observations."""
 
 def dimensionless(value):
-    """Test for dimensionless of input."""
+    """Test for dimensionlessness of input."""
     if type(value) is Quantity:
         if value.dimensionality == Dimensionality({}):
             value = value.base.item()
@@ -21,7 +21,13 @@ def ratio(observation, prediction):
 
 def zscore(observation, prediction):
     """Computes a z-score from an observation and a prediction."""
-    p_value = prediction['mean']
+    try:
+        p_value = prediction['mean']
+    except (TypeError,KeyError):
+        try:
+            p_value = prediction['value']
+        except TypeError:
+            p_value = prediction
     o_mean = observation['mean']
     o_std = observation['std']
     try:
