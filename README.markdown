@@ -10,8 +10,12 @@
 [Chapter 1](https://github.com/scidash/sciunit/blob/master/docs/chapter1.ipynb) / 
 [Chapter 2](https://github.com/scidash/sciunit/blob/master/docs/chapter2.ipynb)
 
-## Usage
-See the examples in the sciunit/test folder.
+## Basic Usage
+```python
+my_model = MyModel(**my_args) # Instantiate a class that wraps your model of interest.  
+my_test = MyTest(**my_params) # Instantiate a test that you write.  
+score = my_test.judge() # Runs the test and return a rich score containing test results and more.  
+```
 
 ## Domain-specific libraries and information
 
