@@ -1,8 +1,11 @@
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 setup(
 	name='sciunit',
-	version='0.1.3.4',
+	version='0.1.4',
 	author='Rick Gerkin',
 	author_email='rgerkin@asu.edu',
 	packages=['sciunit', 'sciunit.tests'],
