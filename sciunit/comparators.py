@@ -1,45 +1,54 @@
-from quantities.dimensionality import Dimensionality
-from quantities.quantity import Quantity
+from .scores import BooleanScore,RatioScore,ZScore,FloatScore
+from .utils import assert_dimensionless
 
-"""Functions for comparison of predictions and observations."""
+"""
+Each 'compute' function takes and observation and a prediction
+and returns a score.
+"""
 
-def dimensionless(value):
-    """Test for dimensionlessness of input."""
-    if type(value) is Quantity:
-        if value.dimensionality == Dimensionality({}):
-            value = value.base.item()
-        else:
-            raise TypeError("Score value %s must be dimensionless" % value)
-    return value
+def compute_equality(observation,prediction):
+    """
+    Computes whether the observation and prediction are equal.
+    """
+    value = observation==prediction
+    return BooleanScore(value)
 
-def ratio(observation, prediction):
-    """Computes a ratio from an observation and a prediction."""
+
+def compute_ratio(observation, prediction):
+    """
+    Computes a ratio from an observation and a prediction.
+    """
     m_value = prediction['value']
     r_mean = observation['mean']
-    result = (m_value+0.0)/r_mean
-    return result
+    
+    value = (m_value+0.0)/r_mean
+    return RatioScore(value)
 
-def zscore(observation, prediction):
-    """Computes a z-score from an observation and a prediction."""
+
+def compute_zscore(observation, prediction):
+    """
+    Computes a z-score from an observation and a prediction.
+    """
     try:
-        p_value = prediction['mean']
-    except (TypeError,KeyError):
+        p_value = prediction['mean'] # Use the prediction's mean.  
+    except (TypeError,KeyError): # If there isn't one...
         try:
-            p_value = prediction['value']
-        except TypeError:
-            p_value = prediction
+            p_value = prediction['value'] # Use the prediction's value.  
+        except TypeError: # If there isn't one...
+            p_value = prediction # Use the prediction (assume it is numeric).
     o_mean = observation['mean']
     o_std = observation['std']
-    try:
-        result = (p_value - o_mean)/o_std
-        result = dimensionless(result)
-    except (TypeError,AssertionError) as e:
-        result = e
-    return result
-
-def z_to_boolean(z,params={'thresh':2}):
-    """Converts a raw ZScore to a raw BooleanScore."""  
-    thresh = params['thresh'] # +/- Threshold within which Z must stay to pass.  
-    boolean = -thresh <= Z.score <= thresh
-    return boolean
     
+    value = (p_value - o_mean)/o_std
+    value = assert_dimensionless(value)
+    return ZScore(value)
+
+def compute_ssd(observation, prediction):
+    """
+    Computes a sum-squared difference from an observation and a prediction.
+    """
+    value = sum((observation - prediction)**2) # The sum of the 
+                                               # squared differences.
+    return FloatScore(value)
+        
+
