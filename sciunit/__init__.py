@@ -86,23 +86,29 @@ class Test(object):
 
     No default implementation.
     """
-    raise NotImplementedError("Test %s does not implement compute_score."
-      % self.name)
-
-  def check(self, model, stop_on_error=True):
-    """Like judge, but without actually running the test.
-    Just returns a Score indicating whether the model can take the test or not."""
-    e = None
     try:
-      if self.check_capabilities(model):
-        score = TBDScore(None)
-      else:
-        score = NAScore(None)
-    except Exception as e:
-      score = ErrorScore(e)
-    if e and stop_on_error:
-      raise e
-    return score
+      score = self.comparator(observation,prediction)
+      return score
+    except:
+      raise NotImplementedError(("Test %s neither provides a comparator "
+                                 "nor implements its own "
+                                 "compute_score method." % self.name))
+
+  def _bind_score(self,score,model,observation,prediction):
+      """
+      Binds some useful attributes to the score.
+      """
+      score.model = model
+      score.test = self
+      score.prediction = prediction
+      score.observation = observation
+      return score
+
+  def bind_score(self,score,model,observation,prediction):
+      """
+      For the user to bind addition features to the score.
+      """
+      pass
 
   def _judge(self, model):
       # 1.
@@ -113,15 +119,19 @@ class Test(object):
       # 3.
       observation = self.observation
       score = self.compute_score(observation, prediction)
+      if hasattr(self,'converter'):
+        score = self.converter.convert(score)
       # 4.
       if not isinstance(score, self.score_type):
-        raise InvalidScoreError("Score for test '%s' is not of correct type." \
-                                % self.name)
+        raise InvalidScoreError(("Score for test '%s' is not of correct type. "
+                                 "The test requires type %s but %s "
+                                 "was provided." % (self.name,
+                                                    self.score_type.__name__,
+                                                    score.__class__.__name__)))
       # 5.
-      score.model = model
-      score.test = self
-      score.prediction = prediction
-      score.observation = observation
+      score = self._bind_score(score,model,observation,prediction)
+      score = self.bind_score(score,model,observation,prediction)
+
       return score
   
   def judge(self, model, stop_on_error=True, deep_error=False):
@@ -154,6 +164,21 @@ class Test(object):
         score = ErrorScore(e)
     if type(score) is ErrorScore and stop_on_error:
       raise score.score # An exception.  
+    return score
+
+  def check(self, model, stop_on_error=True):
+    """Like judge, but without actually running the test.
+    Just returns a Score indicating whether the model can take the test or not."""
+    e = None
+    try:
+      if self.check_capabilities(model):
+        score = TBDScore(None)
+      else:
+        score = NAScore(None)
+    except Exception as e:
+      score = ErrorScore(e)
+    if e and stop_on_error:
+      raise e
     return score
 
   def __str__(self):
@@ -279,8 +304,13 @@ class Score(object):
   score = None
   """The score itself."""
 
+  _description = ''
+  """A description of this score, i.e. how to interpret it.
+  Provided in the score definition"""
+
   description = ''
-  """A description of this score, i.e. how to interpret it."""
+  """A description of this score, i.e. how to interpret it.
+  For the user to set in bind_score"""
 
   value = None
   """A raw number arising in a test's compute_score, 
@@ -313,10 +343,23 @@ class Score(object):
 
   def describe(self):
     if self.score is not None:
-      print("%s" % self.description)
+      if len(self.description):
+        print("%s" % self.description)
+      else:
+        try:
+           s1 = self.test.comparator.__doc__.strip().replace('\n','')
+           s2 = self.test.converter.description
+           s3 = self._description
+           print('%s\n%s\n%s' % (s1,s2,s3))
+        except:
+          print("No description available")
 
   def __str__(self):
-    return '%s(%s)' % (self.__class__.__name__, self.score)
+    if hasattr(self,'string'):
+      score = self.string
+    else:
+      score = self.score
+    return '%s(%s)' % (self.__class__.__name__, score)
 
   def __repr__(self):
     return str(self)
