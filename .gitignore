@@ -11,3 +11,4 @@ ignore
 .ipynb_checkpoints
 build
 *.bak
+*.egg-info
