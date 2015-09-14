@@ -19,10 +19,21 @@ class Converter(object):
         s = t.safe_substitute(self.__dict__)
         return s
 
-    def convert(self,z):
-        return NotImplementedError(("The 'convert' method for %s "
+    def _convert(self,score):
+        """
+        Takes the score attribute of a score instance
+        and recasts it as instance of another score type.  
+        """
+        NotImplementedError(("The '_convert' method for %s "
                                     "it not implemented." %
                                     self.__class__.__name__))
+
+    def convert(self,score):
+        new_score = self._convert(score.score)
+        for key,value in score.__dict__.items():
+            if key != 'score':
+                setattr(new_score,key,value)
+        return new_score
 
 
 class NoConversion(Converter):
@@ -30,9 +41,7 @@ class NoConversion(Converter):
     Applies no conversion.
     """    
 
-    
-
-    def convert(self,score):
+    def _convert(self,score):
         return score
 
 
@@ -42,13 +51,9 @@ class AtMostToBoolean(Converter):
     """
     def __init__(self,cutoff):
         self.cutoff = cutoff
-
-    @property
-    def description(self):
-        return "Passes if the score is <=%.3g" % self.cutoff
-        
-    def convert(self,score):
-        return BooleanScore(score.score <= self.cutoff)
+    
+    def _convert(self,score):
+        return BooleanScore(score <= self.cutoff)
 
 
 class AtLeastToBoolean(Converter):
@@ -57,13 +62,9 @@ class AtLeastToBoolean(Converter):
     """
     def __init__(self,cutoff):
         self.cutoff = cutoff
-
-    @property
-    def description(self):
-        return "Passes if the score is >=%.3g" % self.cutoff
-        
-    def convert(self,score):
-        return BooleanScore(score.score >= self.cutoff)
+    
+    def _convert(self,score):
+        return BooleanScore(score >= self.cutoff)
 
 
 class RangeToBoolean(Converter):
@@ -75,12 +76,7 @@ class RangeToBoolean(Converter):
         self.low_cutoff = low_cutoff
         self.high_cutoff = high_cutoff
 
-    @property
-    def description(self):
-        return "Passes if the score is >=%.3g and <=%.3g" % \
-            (self.low_cutoff, self.high_cutoff)
-
-    def convert(self,score):
-        return BooleanScore(self.low_cutoff <= score.score <= self.high_cutoff)
+    def _convert(self,score):
+        return BooleanScore(self.low_cutoff <= score <= self.high_cutoff)
 
     
