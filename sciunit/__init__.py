@@ -108,7 +108,7 @@ class Test(object):
       """
       For the user to bind addition features to the score.
       """
-      pass
+      return score
 
   def _judge(self, model):
       # 1.
