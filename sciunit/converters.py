@@ -14,7 +14,7 @@ class Converter(object):
 
     @property
     def description(self):
-        s = self.__doc__.strip().replace('\n','')
+        s = ' '.join([si.strip() for si in self.__doc__.split('\n')]).strip()
         t = Template(s)
         s = t.safe_substitute(self.__dict__)
         return s
