@@ -102,6 +102,8 @@ class Test(object):
       score.test = self
       score.prediction = prediction
       score.observation = observation
+      score.related_data = score.related_data.copy() # Don't let scores 
+                                                     # share related_data.
       return score
 
   def bind_score(self,score,model,observation,prediction):
@@ -122,7 +124,9 @@ class Test(object):
       if hasattr(self,'converter'):
         score = self.converter.convert(score)
       # 4.
-      if not isinstance(score, self.score_type):
+      if not (isinstance(score, self.score_type) or \
+              isinstance(score,NoneScore) or \
+              isinstance(score,ErrorScore)):
         raise InvalidScoreError(("Score for test '%s' is not of correct type. "
                                  "The test requires type %s but %s "
                                  "was provided." % (self.name,
@@ -182,11 +186,6 @@ class Test(object):
     return score
 
   def __str__(self):
-    #if self.params:
-    #  x = "%s, %s" % (str(self.observation), str(self.params))
-    #else:
-    #  x = str(self.observation)
-    #return "%s(%s)" % (self.name, x)
     return "%s (%s)" % (self.name, self.__class__.__name__)
 
   def __repr__(self):
@@ -194,6 +193,7 @@ class Test(object):
 
 class ObservationError(Error):
   """Raised when an observation passed to a test is invalid."""
+  pass
 
 class CapabilityError(Exception):
   """Error raised when a required capability is not 
@@ -264,7 +264,8 @@ class TestSuite(object):
     matrix = ScoreMatrix(self.tests, models)
     for test in self.tests:
       for model in models:
-        matrix[test, model] = test.judge(model, stop_on_error)
+        score = test.judge(model, stop_on_error)
+        matrix[test, model] = score
     return matrix
 
   @classmethod
@@ -327,7 +328,6 @@ class Score(object):
 
   sort_key = None
   """A floating point version of the score used for sorting. 
-
   If normalized = True, this must be in the range 0.0 to 1.0,
   where larger is better (used for sorting and coloring tables)."""
 
@@ -364,6 +364,7 @@ class Score(object):
   def __repr__(self):
     return str(self)
 
+
 class ErrorScore(Score):
     """A score returned when an error occurs during testing."""
     def __init__(self, exn, related_data=None):
@@ -375,9 +376,10 @@ class ErrorScore(Score):
       return "=== Model %s did not complete test %s due to error %s. ===" % \
         (str(self.model), str(self.test), str(self.score))
 
+
 class NoneScore(Score):
-    """A None score.  Indicates that the model has not been checked to see if
-    it has the capabilities required by the test."""
+    """A None score.  Usually indicates that the model has not been 
+    checked to see if it has the capabilities required by the test."""
 
     def __init__(self, score, related_data={}):
         if isinstance(score,Exception) or score is None:
@@ -385,12 +387,14 @@ class NoneScore(Score):
         else:
             raise InvalidScoreError("Score must an Exception string or None.")
 
+
 class TBDScore(NoneScore):
     """A TBD (to be determined) score. Indicates that the model has capabilities 
     required by the test but has not yet taken it."""
 
     def __init__(self, score, related_data={}):
         super(TBDScore,self).__init__(score, related_data=related_data)
+
         
 class NAScore(NoneScore):
     """A N/A (not applicable) score. Indicates that the model doesn't have the 
@@ -440,15 +444,18 @@ class ScoreMatrix(object):
       return sm
     else:
       (test, model) = key
-      return _matrix[test][model]
-
+      if isinstance(test, Test) and isinstance(model, Model):
+        return _matrix[test][model]
+      else:
+        raise TypeError("Expected (test, model) = score.")
+      
   def __setitem__(self, key, value):
     (test, model) = key
     if isinstance(test, Test) and isinstance(model, Model) \
        and isinstance(value, Score):
       self._matrix[test][model] = value
     else:
-      raise Error("Expected (test, model) = score.")
+      raise TypeError("Expected (test, model) = score.")
 
   @property
   def scores(self):
@@ -458,7 +465,15 @@ class ScoreMatrix(object):
       return [self[self.tests[0],model] for model in self.models]
     else:
       return [[self[test,model] for model in self.models] for test in self.tests]
- 
+
+  @property
+  def related_data(self):
+      result = {}
+      for test in self.tests:
+        for model in self.models:
+          result.update(self._matrix[test][model].related_data)
+      return result
+       
   def view(self):
     """Generates an IPython score table."""
     return _tables.generate_ipy_table(self)
