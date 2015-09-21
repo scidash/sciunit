@@ -38,7 +38,6 @@ def compute_zscore(observation, prediction):
             p_value = prediction # Use the prediction (assume it is numeric).
     o_mean = observation['mean']
     o_std = observation['std']
-    
     value = (p_value - o_mean)/o_std
     value = assert_dimensionless(value)
     return ZScore(value)
