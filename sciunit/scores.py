@@ -1,5 +1,14 @@
-from sciunit import Score,ErrorScore,InvalidScoreError
+from sciunit import Score,ErrorScore,NoneScore,InvalidScoreError
         
+class InsufficientDataScore(NoneScore):
+    """A score returned when the model or test data 
+    is insufficient to score the test."""
+    
+    def __init__(self, score, related_data={}):
+        super(InsufficientDataScore,self).__init__(score, 
+                                                   related_data=related_data)
+
+
 class BooleanScore(Score):
     """
     A boolean score. Must be True or False.
