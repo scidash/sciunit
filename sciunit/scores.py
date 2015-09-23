@@ -1,5 +1,14 @@
-from sciunit import Score,ErrorScore,InvalidScoreError
+from sciunit import Score,ErrorScore,NoneScore,InvalidScoreError
         
+class InsufficientDataScore(NoneScore):
+    """A score returned when the model or test data 
+    is insufficient to score the test."""
+    
+    def __init__(self, score, related_data={}):
+        super(InsufficientDataScore,self).__init__(score, 
+                                                   related_data=related_data)
+
+
 class BooleanScore(Score):
     """
     A boolean score. Must be True or False.
@@ -11,7 +20,7 @@ class BooleanScore(Score):
         else:
             raise InvalidScoreError("Score must be True or False.")
         
-    description = ('True if the observation and prediction were '
+    _description = ('True if the observation and prediction were '
                    'sufficiently similar; False otherwise')
 
     @property
@@ -44,12 +53,30 @@ class ZScore(Score):
         else:
             super(ZScore,self).__init__(score, related_data=related_data)
 
-    description = ('The difference between the means of the observation and '
+    _description = ('The difference between the means of the observation and '
                    'prediction divided by the standard deviation of the '
                    'observation')
 
     def __str__(self):
         return 'Z = %.2f' % self.score
+
+
+class RatioScore(Score):
+    """
+    A ratio of two numbers score. Usually the observation divided by
+    the prediction.  
+    """
+
+    def __init__(self, score, related_data={}):
+        if not isinstance(score, Exception) and not isinstance(score, float):
+            raise InvalidScoreError("Score must be a float.")
+        else:
+            super(RatioScore,self).__init__(score, related_data=related_data)
+
+    _description = ('The ratio between the observation and the prediction')
+
+    def __str__(self):
+        return 'Ratio = %.2f' % self.score
 
 
 class PercentScore(Score):
@@ -66,7 +93,7 @@ class PercentScore(Score):
         else:
             super(PercentScore,self).__init__(score, related_data=related_data)
 
-    description = ('100.0 is considered perfect agreement between the '
+    _description = ('100.0 is considered perfect agreement between the '
                    'observation and the prediction. 0.0 is the worst possible '
                    'agreement')
         
@@ -85,7 +112,7 @@ class FloatScore(Score):
         else:
             super(FloatScore,self).__init__(score, related_data=related_data)
 
-    description = ('There is no canonical mapping between this score type and '
+    _description = ('There is no canonical mapping between this score type and '
                    'a measure of agreement between the observation and the '
                    'prediction')
         

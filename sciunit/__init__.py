@@ -86,23 +86,31 @@ class Test(object):
 
     No default implementation.
     """
-    raise NotImplementedError("Test %s does not implement compute_score."
-      % self.name)
-
-  def check(self, model, stop_on_error=True):
-    """Like judge, but without actually running the test.
-    Just returns a Score indicating whether the model can take the test or not."""
-    e = None
     try:
-      if self.check_capabilities(model):
-        score = TBDScore(None)
-      else:
-        score = NAScore(None)
-    except Exception as e:
-      score = ErrorScore(e)
-    if e and stop_on_error:
-      raise e
-    return score
+      score = self.comparator(observation,prediction)
+      return score
+    except:
+      raise NotImplementedError(("Test %s neither provides a comparator "
+                                 "nor implements its own "
+                                 "compute_score method." % self.name))
+
+  def _bind_score(self,score,model,observation,prediction):
+      """
+      Binds some useful attributes to the score.
+      """
+      score.model = model
+      score.test = self
+      score.prediction = prediction
+      score.observation = observation
+      score.related_data = score.related_data.copy() # Don't let scores 
+                                                     # share related_data.
+      return score
+
+  def bind_score(self,score,model,observation,prediction):
+      """
+      For the user to bind addition features to the score.
+      """
+      return score
 
   def _judge(self, model):
       # 1.
@@ -113,15 +121,21 @@ class Test(object):
       # 3.
       observation = self.observation
       score = self.compute_score(observation, prediction)
+      if hasattr(self,'converter'):
+        score = self.converter.convert(score)
       # 4.
-      if not isinstance(score, self.score_type):
-        raise InvalidScoreError("Score for test '%s' is not of correct type." \
-                                % self.name)
+      if not (isinstance(score, self.score_type) or \
+              isinstance(score,NoneScore) or \
+              isinstance(score,ErrorScore)):
+        raise InvalidScoreError(("Score for test '%s' is not of correct type. "
+                                 "The test requires type %s but %s "
+                                 "was provided." % (self.name,
+                                                    self.score_type.__name__,
+                                                    score.__class__.__name__)))
       # 5.
-      score.model = model
-      score.test = self
-      score.prediction = prediction
-      score.observation = observation
+      score = self._bind_score(score,model,observation,prediction)
+      score = self.bind_score(score,model,observation,prediction)
+
       return score
   
   def judge(self, model, stop_on_error=True, deep_error=False):
@@ -156,12 +170,22 @@ class Test(object):
       raise score.score # An exception.  
     return score
 
+  def check(self, model, stop_on_error=True):
+    """Like judge, but without actually running the test.
+    Just returns a Score indicating whether the model can take the test or not."""
+    e = None
+    try:
+      if self.check_capabilities(model):
+        score = TBDScore(None)
+      else:
+        score = NAScore(None)
+    except Exception as e:
+      score = ErrorScore(e)
+    if e and stop_on_error:
+      raise e
+    return score
+
   def __str__(self):
-    #if self.params:
-    #  x = "%s, %s" % (str(self.observation), str(self.params))
-    #else:
-    #  x = str(self.observation)
-    #return "%s(%s)" % (self.name, x)
     return "%s (%s)" % (self.name, self.__class__.__name__)
 
   def __repr__(self):
@@ -169,6 +193,7 @@ class Test(object):
 
 class ObservationError(Error):
   """Raised when an observation passed to a test is invalid."""
+  pass
 
 class CapabilityError(Exception):
   """Error raised when a required capability is not 
@@ -239,7 +264,8 @@ class TestSuite(object):
     matrix = ScoreMatrix(self.tests, models)
     for test in self.tests:
       for model in models:
-        matrix[test, model] = test.judge(model, stop_on_error)
+        score = test.judge(model, stop_on_error)
+        matrix[test, model] = score
     return matrix
 
   @classmethod
@@ -279,8 +305,13 @@ class Score(object):
   score = None
   """The score itself."""
 
+  _description = ''
+  """A description of this score, i.e. how to interpret it.
+  Provided in the score definition"""
+
   description = ''
-  """A description of this score, i.e. how to interpret it."""
+  """A description of this score, i.e. how to interpret it.
+  For the user to set in bind_score"""
 
   value = None
   """A raw number arising in a test's compute_score, 
@@ -297,7 +328,6 @@ class Score(object):
 
   sort_key = None
   """A floating point version of the score used for sorting. 
-
   If normalized = True, this must be in the range 0.0 to 1.0,
   where larger is better (used for sorting and coloring tables)."""
 
@@ -313,13 +343,27 @@ class Score(object):
 
   def describe(self):
     if self.score is not None:
-      print("%s" % self.description)
+      if len(self.description):
+        print("%s" % self.description)
+      else:
+        try:
+           s1 = self.test.comparator.__doc__.strip().replace('\n','')
+           s2 = self.test.converter.description
+           s3 = self._description
+           print('%s\n%s\n%s' % (s1,s2,s3))
+        except:
+          print("No description available")
 
   def __str__(self):
-    return '%s(%s)' % (self.__class__.__name__, self.score)
+    if hasattr(self,'string'):
+      score = self.string
+    else:
+      score = self.score
+    return '%s(%s)' % (self.__class__.__name__, score)
 
   def __repr__(self):
     return str(self)
+
 
 class ErrorScore(Score):
     """A score returned when an error occurs during testing."""
@@ -332,9 +376,10 @@ class ErrorScore(Score):
       return "=== Model %s did not complete test %s due to error %s. ===" % \
         (str(self.model), str(self.test), str(self.score))
 
+
 class NoneScore(Score):
-    """A None score.  Indicates that the model has not been checked to see if
-    it has the capabilities required by the test."""
+    """A None score.  Usually indicates that the model has not been 
+    checked to see if it has the capabilities required by the test."""
 
     def __init__(self, score, related_data={}):
         if isinstance(score,Exception) or score is None:
@@ -342,12 +387,14 @@ class NoneScore(Score):
         else:
             raise InvalidScoreError("Score must an Exception string or None.")
 
+
 class TBDScore(NoneScore):
     """A TBD (to be determined) score. Indicates that the model has capabilities 
     required by the test but has not yet taken it."""
 
     def __init__(self, score, related_data={}):
         super(TBDScore,self).__init__(score, related_data=related_data)
+
         
 class NAScore(NoneScore):
     """A N/A (not applicable) score. Indicates that the model doesn't have the 
@@ -397,15 +444,18 @@ class ScoreMatrix(object):
       return sm
     else:
       (test, model) = key
-      return _matrix[test][model]
-
+      if isinstance(test, Test) and isinstance(model, Model):
+        return _matrix[test][model]
+      else:
+        raise TypeError("Expected (test, model) = score.")
+      
   def __setitem__(self, key, value):
     (test, model) = key
     if isinstance(test, Test) and isinstance(model, Model) \
        and isinstance(value, Score):
       self._matrix[test][model] = value
     else:
-      raise Error("Expected (test, model) = score.")
+      raise TypeError("Expected (test, model) = score.")
 
   @property
   def scores(self):
@@ -415,7 +465,15 @@ class ScoreMatrix(object):
       return [self[self.tests[0],model] for model in self.models]
     else:
       return [[self[test,model] for model in self.models] for test in self.tests]
- 
+
+  @property
+  def related_data(self):
+      result = {}
+      for test in self.tests:
+        for model in self.models:
+          result.update(self._matrix[test][model].related_data)
+      return result
+       
   def view(self):
     """Generates an IPython score table."""
     return _tables.generate_ipy_table(self)
