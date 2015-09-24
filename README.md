@@ -8,7 +8,8 @@
 
 ## Documentation
 [Chapter 1](https://github.com/scidash/sciunit/blob/master/docs/chapter1.ipynb) / 
-[Chapter 2](https://github.com/scidash/sciunit/blob/master/docs/chapter2.ipynb)
+[Chapter 2](https://github.com/scidash/sciunit/blob/master/docs/chapter2.ipynb) /
+[Chapter 3](https://github.com/scidash/sciunit/blob/master/docs/chapter3.ipynb) /
 
 ## Basic Usage
 ```python
