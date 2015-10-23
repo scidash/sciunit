@@ -2,6 +2,7 @@
 Utility functions for SciUnit.
 """
 
+from __future__ import print_function
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 
