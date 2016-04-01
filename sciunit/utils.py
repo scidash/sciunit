@@ -24,6 +24,7 @@ def assert_dimensionless(value):
     bare value.  If it not, it raised an error.
     """
     if type(value) is Quantity:
+        value = value.simplified
         if value.dimensionality == Dimensionality({}):
             value = value.base.item()
         else:

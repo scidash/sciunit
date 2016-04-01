@@ -7,11 +7,11 @@ class PositivityTest(sciunit.Test):
     super(PositivityTest, self).__init__(None, name=name)
 
   required_capabilities = (sciunit.capabilities.ProducesNumber,)
-  def generate_prediction(self, model):
+  def generate_prediction(self, model, verbose=False):
     return model.produce_number()
 
   score_type = sciunit.scores.BooleanScore
-  def compute_score(self, observation, prediction):
+  def compute_score(self, observation, prediction, verbose=False):
     return self.score_type(prediction > 0)
 
 positivity_test = PositivityTest()
