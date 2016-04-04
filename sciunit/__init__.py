@@ -629,7 +629,7 @@ class ScoreMatrix(pd.DataFrame):
     rank = 1 + vals.index(self[test,model].sort_key)
     return rank
 
-  def to_html(self, *args, show_mean=None, sortable=None, colorize=True, 
+  def to_html(self, show_mean=None, sortable=None, colorize=True, *args, 
               **kwargs):
     if show_mean is None:
       show_mean = self.show_mean
