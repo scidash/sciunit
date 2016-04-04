@@ -31,7 +31,7 @@ before_install:
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: 
-  - pip install cypy
+  - pip install git+https://github.com/cyrus-/cypy.git
   - pip install pandas
   - pip install quantities
   - pip install bs4
