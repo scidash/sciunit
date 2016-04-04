@@ -14,5 +14,5 @@ setup(
 	description='A test-driven framework for formally validating scientific models against data.',
 	long_description="",
 	install_requires=['cypy','quantities','pandas','ipython','bs4'],
-	dependency_links = ['git+http://github.com/cyrus-/cypy'],
+	dependency_links = ['git+http://github.com/rgerkin/cypy'],
 )
