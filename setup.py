@@ -13,5 +13,5 @@ setup(
 	license='MIT',
 	description='A test-driven framework for formally validating scientific models against data.',
 	long_description="",
-	install_requires=['cypy','quantities','pandas','numpy','bs4']
+	install_requires=['cypy','quantities','pandas','bs4']
 )
