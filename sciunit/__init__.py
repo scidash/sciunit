@@ -223,7 +223,7 @@ class Test(object):
     """
 
     if type(model) in (list,tuple,set): # If a collection of models is provided
-      suite = TestSuite(self)           # then test them using a one-test suite.  
+      suite = TestSuite(self.name, self) # then test them using a one-test suite.  
       return suite.judge(model, stop_on_error=stop_on_error, 
                                 deep_error=deep_error, verbose=verbose)
 
@@ -305,7 +305,7 @@ class TestSuite(object):
   tests = None
   """The sequence of tests that this suite contains."""
 
-  def judge(self, models, stop_on_error=True, verbose=False):
+  def judge(self, models, stop_on_error=True, deep_error=False, verbose=False):
     """Judges the provided models against each test in the test suite.
 
     Returns a ScoreMatrix.
@@ -323,7 +323,8 @@ class TestSuite(object):
     sm = ScoreMatrix(self.tests, models)
     for test in self.tests:
       for model in models:
-        score = test.judge(model, stop_on_error=stop_on_error, verbose=verbose)
+        score = test.judge(model, stop_on_error=stop_on_error, 
+                           deep_error=deep_error, verbose=verbose)
         sm.loc[model, test] = score
     return sm
 
@@ -400,9 +401,9 @@ class Score(object):
 
   def summarize(self):
     if self.score is not None:
-      return "%s" % self.summary
+      print("%s" % self.summary)
 
-  def describe(self):
+  def _describe(self):
     result = "No description available"
     if self.score is not None:
       if len(self.description):
@@ -419,6 +420,9 @@ class Score(object):
         except:
           pass
     return result
+
+  def describe(self):
+    print(self._describe())
 
   def __str__(self):
     return '%s' % self.score
