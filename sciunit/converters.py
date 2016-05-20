@@ -4,7 +4,7 @@ to the value required for particular score type.
 """
 
 from string import Template
-from .scores import BooleanScore
+import sciunit.scores as scores
 
 class Converter(object):
     """
@@ -53,7 +53,7 @@ class AtMostToBoolean(Converter):
         self.cutoff = cutoff
     
     def _convert(self,score):
-        return BooleanScore(score <= self.cutoff)
+        return scores.BooleanScore(score <= self.cutoff)
 
 
 class AtLeastToBoolean(Converter):
@@ -64,7 +64,7 @@ class AtLeastToBoolean(Converter):
         self.cutoff = cutoff
     
     def _convert(self,score):
-        return BooleanScore(score >= self.cutoff)
+        return scores.BooleanScore(score >= self.cutoff)
 
 
 class RangeToBoolean(Converter):
@@ -77,6 +77,6 @@ class RangeToBoolean(Converter):
         self.high_cutoff = high_cutoff
 
     def _convert(self,score):
-        return BooleanScore(self.low_cutoff <= score <= self.high_cutoff)
+        return scores.BooleanScore(self.low_cutoff <= score <= self.high_cutoff)
 
-    
+
