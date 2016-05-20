@@ -167,7 +167,7 @@ class RatioScore(sciunit.Score):
     _description = ('The ratio between the prediction and the observation')
 
     @classmethod
-    def compute(cls, observation, prediction):
+    def compute(cls, observation, prediction, key=None):
         """
         Computes a ratio from an observation and a prediction.
         """
@@ -178,14 +178,17 @@ class RatioScore(sciunit.Score):
             values = {}
             for name,data in [('observation',observation),
                               ('prediction',prediction)]:
-                try:
-                    values[name] = data['mean'] # Use the ean.  
-                except KeyError: # If there isn't a mean...
+                if key is not None:
+                    values[name] = data[key]
+                else:
                     try:
-                        values[name] = data['value'] # Use the value.  
-                    except KeyError:
-                        raise KeyError(("%s has neither a mean nor a single "
-                                        "value" % name))
+                        values[name] = data['mean'] # Use the mean.  
+                    except KeyError: # If there isn't a mean...
+                        try:
+                            values[name] = data['value'] # Use the value.  
+                        except KeyError:
+                            raise KeyError(("%s has neither a mean nor a single "
+                                            "value" % name))
             return values['observation'], values['prediction']
 
         pred, obs = extract_mean_or_value(observation, prediction)

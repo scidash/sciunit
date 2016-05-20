@@ -1,4 +1,5 @@
 """Code for generating table views of score matrices."""
+"""DEPRECATED"""
 #import sciunit.scores
 
 try:

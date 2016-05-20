@@ -279,7 +279,10 @@ class Test(object):
 
 class TestSuite(object):
   """A collection of tests."""
-  def __init__(self, name, tests):
+  def __init__(self, name, tests, hooks=None):
+    if name is None:
+      raise Error("Suite name required.")
+    self.name = name
     if isinstance(tests, Test):
       # turn singleton test into a sequence
       tests = (tests,)
@@ -291,10 +294,7 @@ class TestSuite(object):
       except TypeError:
         raise Error("Test suite was not provided a test or iterable.")
     self.tests = tests
-
-    if name is None:
-      raise Error("Suite name required.")
-    self.name = name
+    self.hooks = hooks
 
   name = None
   """The name of the test suite. Defaults to the class name."""
@@ -321,11 +321,20 @@ class TestSuite(object):
         raise Error("Test suite's judge method not provided a model or iterable.""")
 
     sm = ScoreMatrix(self.tests, models)
-    for test in self.tests:
-      for model in models:
+    for model in models:
+      for test in self.tests:
+        if True:#verbose:
+          print('Executing %s on %s' % (test,model))
         score = test.judge(model, stop_on_error=stop_on_error, 
                            deep_error=deep_error, verbose=verbose)
         sm.loc[model, test] = score
+        if self.hooks and test in self.hooks:
+          f = self.hooks[test]['f']
+          if 'kwargs' in self.hooks[test]:
+            kwargs = self.hooks[test]['kwargs']
+          else:
+            kwargs = {}
+          f(test, self.tests, score, **kwargs)
     return sm
 
   @classmethod
@@ -670,7 +679,7 @@ class ScoreMatrix(pd.DataFrame):
             j_ = j-bool(show_mean)
             score = self[self.models[i],self.tests[j_]]
             value = score.sort_key
-            cell['title'] = score.describe()
+            cell['title'] = score._describe()
           if value is not None and not np.isnan(value):
             rgb = (255,int(255 * value),int(255 * value))
           else:
