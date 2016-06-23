@@ -15,6 +15,8 @@ class Model(object):
       name = self.__class__.__name__
     self.name = name
     self.params = params
+    if params is None:
+      params = {}
 
   name = None
   """The name of the model. Defaults to the class name."""
@@ -77,8 +79,9 @@ class Test(object):
       if self.description is None:
         self.description = self.__class__.__doc__
       
-      if params:
-        self.params = params
+      self.params = params
+      if params is None:
+        params = {}
       
       self.observation = observation
       self.validate_observation(observation)
@@ -433,6 +436,12 @@ class Score(object):
   def describe(self):
     print(self._describe())
 
+  def raw(self):
+    string = '%.4g' % self.value
+    if hasattr(self.value,'magnitude'):
+      string += ' %s' % str(self.value.units)[4:]
+    return string
+
   def __str__(self):
     return '%s' % self.score
 
@@ -586,6 +595,9 @@ class ScoreArray(pd.Series):
     vals = sorted(self.sort_keys)
     rank = 1 + vals.index(self[test,model].sort_key)
     return rank
+
+  def view(self):
+    return self
 
 
 class ScoreMatrix(pd.DataFrame):

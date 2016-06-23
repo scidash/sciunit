@@ -1,5 +1,7 @@
 import math
 
+import quantities as pq
+
 import sciunit
 import sciunit.utils as utils
 
@@ -216,8 +218,8 @@ class PercentScore(sciunit.Score):
         if not isinstance(score, Exception) and not isinstance(score, float):
             raise sciunit.InvalidScoreError("Score must be a float.")
         elif score < 0.0 or score > 100.0:
-            raise sciunit.InvalidScoreError("Score of %f must be in \
-                                     range 0.0-100.0" % score)
+            raise sciunit.InvalidScoreError(("Score of %f must be in "
+                                             "range 0.0-100.0" % score))
         else:
             super(PercentScore,self).__init__(score, related_data=related_data)
 
@@ -242,7 +244,9 @@ class FloatScore(sciunit.Score):
     """
 
     def __init__(self, score, related_data={}):
-        if not isinstance(score, Exception) and not isinstance(score, float):
+        if not isinstance(score, Exception) and \
+           not isinstance(score, float) and \
+           not (isinstance(score, pq.Quantity) and score.size==1):
             raise sciunit.InvalidScoreError("Score must be a float.")
         else:
             super(FloatScore,self).__init__(score, related_data=related_data)
@@ -257,9 +261,11 @@ class FloatScore(sciunit.Score):
         """
         Computes a sum-squared difference from an observation and a prediction.
         """
-        value = sum((observation - prediction)**2) # The sum of the 
-                                                   # squared differences.
-        return FloatScore(value)
+        value = ((observation - prediction)**2).sum() # The sum of the 
+                                                      # squared differences.
+        score = FloatScore(value)
+        score.value = value
+        return score
      
     def __str__(self):
         return '%.3g' % self.score
