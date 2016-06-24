@@ -172,11 +172,12 @@ class Test(object):
       score.observation = observation
       score.related_data = score.related_data.copy() # Don't let scores 
                                                      # share related_data.
+      score = self.bind_score(score,model,observation,prediction)
       return score
 
   def bind_score(self,score,model,observation,prediction):
       """
-      For the user to bind addition features to the score.
+      For the user to bind additional features to the score.
       """
       return score
 
@@ -202,8 +203,7 @@ class Test(object):
                                                     score.__class__.__name__)))
       # 5.
       score = self._bind_score(score,model,observation,prediction)
-      score = self.bind_score(score,model,observation,prediction)
-
+      
       return score
   
   def judge(self, model, stop_on_error=True, deep_error=False, verbose=False):
