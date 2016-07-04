@@ -15,6 +15,8 @@ class Model(object):
       name = self.__class__.__name__
     self.name = name
     self.params = params
+    if params is None:
+      params = {}
 
   name = None
   """The name of the model. Defaults to the class name."""
@@ -77,8 +79,9 @@ class Test(object):
       if self.description is None:
         self.description = self.__class__.__doc__
       
-      if params:
-        self.params = params
+      self.params = params
+      if params is None:
+        params = {}
       
       self.observation = observation
       self.validate_observation(observation)
@@ -169,11 +172,12 @@ class Test(object):
       score.observation = observation
       score.related_data = score.related_data.copy() # Don't let scores 
                                                      # share related_data.
+      score = self.bind_score(score,model,observation,prediction)
       return score
 
   def bind_score(self,score,model,observation,prediction):
       """
-      For the user to bind addition features to the score.
+      For the user to bind additional features to the score.
       """
       return score
 
@@ -199,8 +203,7 @@ class Test(object):
                                                     score.__class__.__name__)))
       # 5.
       score = self._bind_score(score,model,observation,prediction)
-      score = self.bind_score(score,model,observation,prediction)
-
+      
       return score
   
   def judge(self, model, stop_on_error=True, deep_error=False, verbose=False):
@@ -433,6 +436,12 @@ class Score(object):
   def describe(self):
     print(self._describe())
 
+  def raw(self):
+    string = '%.4g' % self.value
+    if hasattr(self.value,'magnitude'):
+      string += ' %s' % str(self.value.units)[4:]
+    return string
+
   def __str__(self):
     return '%s' % self.score
 
@@ -586,6 +595,9 @@ class ScoreArray(pd.Series):
     vals = sorted(self.sort_keys)
     rank = 1 + vals.index(self[test,model].sort_key)
     return rank
+
+  def view(self):
+    return self
 
 
 class ScoreMatrix(pd.DataFrame):
