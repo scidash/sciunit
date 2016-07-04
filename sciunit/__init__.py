@@ -223,6 +223,9 @@ class Test(object):
 
     If stop_on_error is true (default), exceptions propagate upward. If false,
     an ErrorScore is generated containing the exception.
+
+    If deep_error is true (not default), the traceback will contain the actual
+    code execution error, instead of the content of an ErrorScore.   
     """
 
     if type(model) in (list,tuple,set): # If a collection of models is provided
