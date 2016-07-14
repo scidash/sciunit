@@ -32,6 +32,14 @@ class Model(object):
   """These are the run-time arguments for the model.
   Execution of run() should make use of these arguments."""
 
+  @property
+  def capabilities(self):
+    capabilities = []
+    for cls in self.__class__.mro():
+      if Capability in cls.mro() and cls is not Capability:
+        capabilities.append(cls.__name__)
+    return capabilities 
+
   def describe(self):
     result = "No description available"
     if len(self.description):
@@ -44,6 +52,9 @@ class Model(object):
       except:
         pass
     return result
+
+  def curr_method(self, back=0):
+    return(inspect.stack()[1+back][3])
 
   def __str__(self):
     return '%s' % self.name
@@ -62,6 +73,12 @@ class Capability(object):
     By default, uses isinstance.
     """
     return isinstance(model, cls)
+
+
+  def unimplemented():
+    raise NotImplementedError(("The method %s promised by capability %s is not"
+                               " implemented") % \
+                                (inspect.stack()[1][3],self.name))
 
   class __metaclass__(type):
       @property
@@ -119,7 +136,7 @@ class Test(object):
   """A sequence of capabilities that a model must have in order for the 
   test to be run. Defaults to empty."""
 
-  def check_capabilities(self, model):
+  def check_capabilities(self, model, skip_incapable=True):
     """Checks that the capabilities required by the test are 
     implemented by `model`.
 
@@ -129,11 +146,13 @@ class Test(object):
     if not isinstance(model, Model):
       raise Error("Model %s is not a sciunit.Model." % str(model))
 
+    capable = True
     for c in self.required_capabilities:
       if not c.check(model):
+        capable = False
         raise CapabilityError(model, c)
 
-    return True
+    return capable
 
   def generate_prediction(self, model, verbose=False):
     """Generates a prediction from a model using the required capabilities.
@@ -181,7 +200,7 @@ class Test(object):
       """
       return score
 
-  def _judge(self, model, verbose=False):
+  def _judge(self, model, skip_incapable=True, verbose=False):
       # 1.
       self.check_capabilities(model)
       # 2.
@@ -206,11 +225,13 @@ class Test(object):
       
       return score
   
-  def judge(self, model, stop_on_error=True, deep_error=False, verbose=False):
+  def judge(self, model, skip_incapable=True, stop_on_error=True, 
+                  deep_error=False, verbose=False):
     """Generates a score for the provided model.
 
     Operates as follows:
-    1. Checks if the model has all the required capabilities.
+    1. Checks if the model has all the required capabilities. If a model does 
+       not, and skip_incapable=False, then a CapabilityError is raised.
     2. Calls generate_prediction to generate a prediction.
     3. Calls score_prediction to generate a score.
     4. Checks that the score is of score_type, raising an InvalidScoreError.
@@ -230,28 +251,31 @@ class Test(object):
 
     if type(model) in (list,tuple,set): # If a collection of models is provided
       suite = TestSuite(self.name, self) # then test them using a one-test suite.  
-      return suite.judge(model, stop_on_error=stop_on_error, 
+      return suite.judge(model, skip_incapable=skip_incapable, 
+                                stop_on_error=stop_on_error, 
                                 deep_error=deep_error, verbose=verbose)
 
     if deep_error:
-      score = self._judge(model, verbose=verbose)
+      score = self._judge(model, skip_incapable=skip_incapable, 
+                                 verbose=verbose)
     else:
       try:
-        score = self._judge(model, verbose=verbose)
+        score = self._judge(model, skip_incapable=skip_incapable, 
+                                   verbose=verbose)
       except CapabilityError as e:
-        score = NAScore(e)
+        score = NAScore(str(e))
       except Exception as e:
         score = ErrorScore(e)
-    if type(score) is ErrorScore and stop_on_error:
+    if isinstance(score,ErrorScore) and stop_on_error:
       raise score.score # An exception.  
     return score
 
-  def check(self, model, stop_on_error=True):
+  def check(self, model, skip_incapable=True, stop_on_error=True):
     """Like judge, but without actually running the test.
     Just returns a Score indicating whether the model can take the test or not."""
     e = None
     try:
-      if self.check_capabilities(model):
+      if self.check_capabilities(model, skip_incapable=skip_incapable):
         score = TBDScore(None)
       else:
         score = NAScore(None)
@@ -311,7 +335,8 @@ class TestSuite(object):
   tests = None
   """The sequence of tests that this suite contains."""
 
-  def judge(self, models, stop_on_error=True, deep_error=False, verbose=False):
+  def judge(self, models, skip_incapable=True, stop_on_error=True, 
+                          deep_error=False, verbose=False):
     """Judges the provided models against each test in the test suite.
 
     Returns a ScoreMatrix.
@@ -331,8 +356,11 @@ class TestSuite(object):
       for test in self.tests:
         if True:#verbose:
           print('Executing %s on %s' % (test,model))
-        score = test.judge(model, stop_on_error=stop_on_error, 
-                           deep_error=deep_error, verbose=verbose)
+        score = test.judge(model, skip_incapable=skip_incapable, 
+                                  stop_on_error=stop_on_error, 
+                                  deep_error=deep_error, verbose=verbose)
+        if True:
+          print('Score is %s' % score)
         sm.loc[model, test] = score
         if self.hooks and test in self.hooks:
           f = self.hooks[test]['f']
@@ -363,6 +391,12 @@ class TestSuite(object):
         assert type(test_name) is str, "Each test name must be a string"
       tests.append(test_class(observation,name=test_name))
     return cls(name, tests)
+
+  def __str__(self):
+    return '%s' % self.name
+
+  def __repr__(self):
+    return str(self)
 
 
 #
@@ -506,10 +540,11 @@ class NoneScore(Score):
     checked to see if it has the capabilities required by the test."""
 
     def __init__(self, score, related_data={}):
-        if isinstance(score,Exception) or score is None:
+        if isinstance(score,str) or score is None:
             super(NoneScore,self).__init__(score, related_data=related_data)
         else:
-            raise InvalidScoreError("Score must an Exception string or None.")
+            raise InvalidScoreError(("Score must an (e.g. exception) string "
+                                     "or None."))
 
     @property
     def sort_key(self):
@@ -727,6 +762,7 @@ class ScorePanel(pd.Panel):
 
 class Error(Exception):
   """Base class for errors in sciunit's core."""
+  pass
 
 
 class ObservationError(Error):
@@ -741,8 +777,8 @@ class CapabilityError(Exception):
     self.model = model
     self.capability = capability
 
-    super(CapabilityError,self).__init__(\
-      "Model %s does not provide required capability: %s" % \
+    super(CapabilityError, self).__init__(\
+      "Model '%s' does not provide required capability: '%s'" % \
       (model.name,capability.__name__))
   
   model = None
