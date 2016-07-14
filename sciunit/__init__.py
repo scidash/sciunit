@@ -580,7 +580,6 @@ class NAScore(NoneScore):
     def sort_key(self):
         return None
 
-
     def __str__(self):
         return 'N/A'
 
