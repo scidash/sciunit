@@ -788,5 +788,24 @@ class CapabilityError(Exception):
   """The capability that is not provided."""
 
 
+class PredictionError(Exception):
+  """Raised when a tests's generate_prediction chokes on a model's method"""
+  def __init__(self, model, method, **args):
+    self.model = model
+    self.method = method
+    self.args = args
+
+    super(PredictionError, self).__init__(\
+      ("During prediction, model '%s' could not successfully execute method "
+       "'%s' with arguments %s") % (model.name,method,args))
+
+  model = None
+  """The model that does not have the capability."""
+
+  argument = None
+  """The argument that could not be handled."""
+
+
 class InvalidScoreError(Exception):
   """Error raised when a score is invalid."""
+  pass

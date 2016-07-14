@@ -173,14 +173,17 @@ class RatioScore(sciunit.Score):
         """
         Computes a ratio from an observation and a prediction.
         """
-        assert type(observation) is dict
-        assert type(prediction) is dict
+        
+        assert type(observation) in [dict,float,int,pq.Quantity]
+        assert type(prediction) in [dict,float,int,pq.Quantity]
 
         def extract_mean_or_value(observation, prediction):
             values = {}
             for name,data in [('observation',observation),
                               ('prediction',prediction)]:
-                if key is not None:
+                if type(data) is not dict:
+                    values[name] = data
+                elif key is not None:
                     values[name] = data[key]
                 else:
                     try:
@@ -193,7 +196,7 @@ class RatioScore(sciunit.Score):
                                             "value" % name))
             return values['observation'], values['prediction']
 
-        pred, obs = extract_mean_or_value(observation, prediction)
+        obs, pred = extract_mean_or_value(observation, prediction)
         value = pred / obs
         value = utils.assert_dimensionless(value)
         return RatioScore(value)
