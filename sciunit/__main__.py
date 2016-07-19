@@ -10,7 +10,7 @@ def main(args=None):
         args = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", help="create, check, or run")
+    parser.add_argument("action", help="create, check, run, or make_nb")
     parser.add_argument("--directory", "-dir", default=os.getcwd(), 
                         help="path to directory with a .sciunit file")
     parser.add_argument("--stop", "-s", default=True, 
@@ -26,6 +26,9 @@ def main(args=None):
     elif args.action == 'run':
         config = parse(file_path)
         run(config, path=args.directory, stop_on_error=args.stop)
+    elif args.action == 'make_nb':
+        config = parse(file_path)
+        make_nb(config, path=args.directory, stop_on_error=args.stop)
     else:
         raise NameError('No such action %s' % args.action)
 
@@ -98,11 +101,60 @@ def run(config, path=None, stop_on_error=True):
 
     for test in tests.tests:
         score_array = test.judge(models.models, stop_on_error=stop_on_error)
-        print('Test %s:\n%s' % (test,score_array))
+        print('\nTest %s:\n%s\n' % (test,score_array))
 
     for suite in suites.suites:
         score_matrix = suite.judge(models.models, stop_on_error=stop_on_error)
-        print('Suite %s:\n%s' % (suite,score_matrix))
+        print('\nSuite %s:\n%s\n' % (suite,score_matrix))
+
+
+def make_nb(config, path=None, stop_on_error=True):
+    """Create a Jupyter notebook sciunit tests for the given configuration"""
+
+    from nbformat.v4.nbbase import new_notebook,new_markdown_cell
+    import nbformat
+    import codecs
+    
+    
+    if path is None:
+        path = os.getcwd()
+    root = config.get('root','path')
+    root = os.path.join(path,root)
+    nb_name = config.get('misc','nb-name')
+    
+    cells = [new_markdown_cell('## Sciunit Testing Notebook for %s' % \
+                               os.path.split(os.path.realpath(root))[1])]
+    add_code_cell(cells, (
+        "from IPython.display import display\n"
+        "import sys\n"
+        "if sys.path[0] != '%s':\n"
+        "  sys.path.insert(0,'%s')") % (root,root))
+    add_code_cell(cells, (
+        "import models, tests, suites"))
+    add_code_cell(cells, (
+        "for test in tests.tests:\n"
+        "  score_array = test.judge(models.models, stop_on_error=%r)\n"
+        "  display(score_array)") % stop_on_error)
+    add_code_cell(cells, (
+        "for suite in suites.suites:\n"
+        "  score_matrix = suite.judge(models.models, stop_on_error=%r)\n"
+        "  display(score_matrix)") % stop_on_error)
+
+    nb = new_notebook(cells=cells,
+        metadata={
+            'language': 'python',
+            })
+        
+    nb_path = os.path.join(path,'%s.ipynb' % nb_name)
+    with codecs.open(nb_path, encoding='utf-8', mode='w') as nb_file:
+        nbformat.write(nb, nb_file, 4)
+    
+
+def add_code_cell(cells, source):
+    from nbformat.v4.nbbase import new_code_cell
+    n_code_cells = len([c for c in cells if c['cell_type']=='code'])
+    cells.append(new_code_cell(source=source,execution_count=n_code_cells+1))
+
 
 if __name__ == '__main__':
     main()
