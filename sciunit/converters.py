@@ -30,9 +30,9 @@ class Converter(object):
 
     def convert(self, score):
         new_score = self._convert(score.score)
-        new_score.raw = score.score
+        new_score._raw = score.score
         for key,value in score.__dict__.items():
-            if key not in ['score','raw']:
+            if key not in ['score','_raw']:
                 setattr(new_score,key,value)
         return new_score
 
