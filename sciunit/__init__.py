@@ -355,7 +355,7 @@ class TestSuite(object):
     for model in models:
       for test in self.tests:
         if True:#verbose:
-          print('Executing %s on %s' % (test,model))
+          print('Executing %s on %s' % (test,model), end="... ")
         score = test.judge(model, skip_incapable=skip_incapable, 
                                   stop_on_error=stop_on_error, 
                                   deep_error=deep_error, verbose=verbose)
@@ -473,10 +473,18 @@ class Score(object):
   def describe(self):
     print(self._describe())
 
+  _raw = None
+  """Optional value that can be set for reporting a raw value determined in
+  Test.compute_score before any transformation e.g. by a Converter"""
+
+  @property
   def raw(self):
-    string = '%.4g' % self.value
-    if hasattr(self.value,'magnitude'):
-      string += ' %s' % str(self.value.units)[4:]
+    if self._raw is not None:
+      string = '%.4g' % self.value
+    else:
+      string = '%.4g' % self.value
+      if hasattr(self.value,'magnitude'):
+        string += ' %s' % str(self.value.units)[4:]
     return string
 
   def __str__(self):
