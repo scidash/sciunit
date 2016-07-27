@@ -3,6 +3,9 @@ import os
 import argparse
 import configparser
 import io
+import codecs
+
+NB_VERSION = 4
 
 def main(args=None):
     """The main routine."""
@@ -10,7 +13,7 @@ def main(args=None):
         args = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", help="create, check, run, or make_nb")
+    parser.add_argument("action", help="create, check, run, make-nb, or run-nb")
     parser.add_argument("--directory", "-dir", default=os.getcwd(), 
                         help="path to directory with a .sciunit file")
     parser.add_argument("--stop", "-s", default=True, 
@@ -26,9 +29,12 @@ def main(args=None):
     elif args.action == 'run':
         config = parse(file_path)
         run(config, path=args.directory, stop_on_error=args.stop)
-    elif args.action == 'make_nb':
+    elif args.action == 'make-nb':
         config = parse(file_path)
         make_nb(config, path=args.directory, stop_on_error=args.stop)
+    elif args.action == 'run-nb':
+        config = parse(file_path)
+        run_nb(config, path=args.directory, stop_on_error=args.stop)
     else:
         raise NameError('No such action %s' % args.action)
 
@@ -113,8 +119,6 @@ def make_nb(config, path=None, stop_on_error=True):
 
     from nbformat.v4.nbbase import new_notebook,new_markdown_cell
     import nbformat
-    import codecs
-    
     
     if path is None:
         path = os.getcwd()
@@ -147,8 +151,31 @@ def make_nb(config, path=None, stop_on_error=True):
         
     nb_path = os.path.join(path,'%s.ipynb' % nb_name)
     with codecs.open(nb_path, encoding='utf-8', mode='w') as nb_file:
-        nbformat.write(nb, nb_file, 4)
+        nbformat.write(nb, nb_file, NB_VERSION)
+    print('Created Jupyter notebook at:\n%s' % nb_path)
+
+
+def run_nb(config, path=None, stop_on_error=True):
+    if path is None:
+        path = os.getcwd()
+    root = config.get('root','path')
+    root = os.path.join(path,root)
+    nb_name = config.get('misc','nb-name')
+    nb_path = os.path.join(path,'%s.ipynb' % nb_name)
+    if not os.path.exists(nb_path):
+        print(("No notebook found at %s. "
+               "Create the notebook first with make-nb?") % path)
+        sys.exit(0)
     
+    import nbformat
+    from nbconvert.preprocessors import ExecutePreprocessor
+    with codecs.open(nb_path, encoding='utf-8', mode='r') as nb_file:
+        nb = nbformat.read(nb_file, as_version=NB_VERSION)
+    ep = ExecutePreprocessor(timeout=600)#, kernel_name='python3')
+    ep.preprocess(nb, {'metadata': {'path': root}})
+    with codecs.open(nb_path, encoding='utf-8', mode='w') as nb_file:
+        nbformat.write(nb, nb_file, NB_VERSION)
+
 
 def add_code_cell(cells, source):
     from nbformat.v4.nbbase import new_code_cell
