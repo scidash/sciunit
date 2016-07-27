@@ -1,6 +1,13 @@
 from __future__ import print_function
 import inspect
 from datetime import datetime
+import sys
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+KERNEL = ('ipykernel' in sys.modules)
+LOGGING = True
 
 import numpy as np
 import pandas as pd
@@ -9,6 +16,20 @@ from IPython.display import HTML,Javascript,display
 
 """SciUnit: A Test-Driven Framework for Validation of 
    Quantitative Scientific Models"""
+
+
+def log(*args, **kwargs):
+    if LOGGING:
+        if not KERNEL:
+            args = [bs4.soup(x).text for x in args]
+            print(*args, **kwargs)
+        else:
+            with StringIO() as f:
+                kwargs['file'] = f
+                print(*args, **kwargs)
+                output = f.getvalue()
+                display(HTML(output))
+
 
 class Model(object):
     """Abstract base class for sciunit models."""
@@ -360,14 +381,13 @@ class TestSuite(object):
         sm = ScoreMatrix(self.tests, models)
         for model in models:
             for test in self.tests:
-                if True:#verbose:
-                    print('Executing %s on %s' % (test,model), end="... ")
+                log('Executing <i>%s</i> on <i>%s</i>' % (test,model), end="... ")
                 score = test.judge(model, skip_incapable=skip_incapable, 
                                           stop_on_error=stop_on_error, 
                                           deep_error=deep_error, 
                                           verbose=verbose)
-                if True:
-                    print('Score is %s' % score)
+                log('Score is <a style="color: rgb(%d,%d,%d)">' % score.color()
+                  + '%s</a>' % score)
                 sm.loc[model, test] = score
                 if self.hooks and test in self.hooks:
                     f = self.hooks[test]['f']
@@ -449,6 +469,16 @@ class Score(object):
         If normalized = True, this must be in the range 0.0 to 1.0,
         where larger is better (used for sorting and coloring tables)."""
         return self.score
+
+    def color(self, value=None):
+        if value is None:
+            value = self.sort_key
+        if value is None:
+            rgb = (128,128,128)
+        else:
+            import matplotlib.cm as cm
+            rgb = tuple([x*256 for x in cm.RdYlGn(int(180*value+38))[:3]])
+        return rgb
 
     @property
     def summary(self):
@@ -746,7 +776,8 @@ class ScoreMatrix(pd.DataFrame):
                         value = score.sort_key
                         cell['title'] = score._describe()
                     if value is not None and not np.isnan(value):
-                        rgb = (255,int(255 * value),int(255 * value))
+                        #rgb = (255,int(255 * value),int(255 * value))
+                        rgb = score.color(value=value)
                     else:
                         rgb = (128,128,128)
                     cell['style'] = 'background-color: rgb(%d,%d,%d);' % rgb
