@@ -37,6 +37,7 @@ def main(args=None):
         run_nb(config, path=args.directory, stop_on_error=args.stop)
     else:
         raise NameError('No such action %s' % args.action)
+    cleanup(config, path=args.directory)
 
 
 def create(file_path):
@@ -124,15 +125,18 @@ def make_nb(config, path=None, stop_on_error=True):
         path = os.getcwd()
     root = config.get('root','path')
     root = os.path.join(path,root)
+    root = os.path.realpath(root)
     nb_name = config.get('misc','nb-name')
+    mpl_style = config.get('misc','matplotlib',fallback='inline')
     
     cells = [new_markdown_cell('## Sciunit Testing Notebook for %s' % \
                                os.path.split(os.path.realpath(root))[1])]
     add_code_cell(cells, (
+        "%%matplotlib %s\n"
         "from IPython.display import display\n"
         "import sys\n"
         "if sys.path[0] != '%s':\n"
-        "  sys.path.insert(0,'%s')") % (root,root))
+        "  sys.path.insert(0,'%s')") % (mpl_style,root,root))
     add_code_cell(cells, (
         "import models, tests, suites"))
     add_code_cell(cells, (
@@ -149,7 +153,7 @@ def make_nb(config, path=None, stop_on_error=True):
             'language': 'python',
             })
         
-    nb_path = os.path.join(path,'%s.ipynb' % nb_name)
+    nb_path = os.path.join(root,'%s.ipynb' % nb_name)
     with codecs.open(nb_path, encoding='utf-8', mode='w') as nb_file:
         nbformat.write(nb, nb_file, NB_VERSION)
     print('Created Jupyter notebook at:\n%s' % nb_path)
@@ -161,7 +165,7 @@ def run_nb(config, path=None, stop_on_error=True):
     root = config.get('root','path')
     root = os.path.join(path,root)
     nb_name = config.get('misc','nb-name')
-    nb_path = os.path.join(path,'%s.ipynb' % nb_name)
+    nb_path = os.path.join(root,'%s.ipynb' % nb_name)
     if not os.path.exists(nb_path):
         print(("No notebook found at %s. "
                "Create the notebook first with make-nb?") % path)
@@ -181,6 +185,17 @@ def add_code_cell(cells, source):
     from nbformat.v4.nbbase import new_code_cell
     n_code_cells = len([c for c in cells if c['cell_type']=='code'])
     cells.append(new_code_cell(source=source,execution_count=n_code_cells+1))
+
+
+def cleanup(config=None, path=None):
+    if config is None:
+        config = parse()
+    if path is None:
+        path = os.getcwd()
+    root = config.get('root','path')
+    root = os.path.join(path,root)
+    if sys.path[0] == root:
+        sys.path.remove(root)
 
 
 if __name__ == '__main__':
