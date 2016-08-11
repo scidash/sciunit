@@ -2,6 +2,7 @@ from __future__ import print_function
 import inspect
 from datetime import datetime
 import sys
+from fnmatch import fnmatchcase
 try:
     from StringIO import StringIO
 except ImportError:
@@ -21,7 +22,7 @@ from IPython.display import HTML,Javascript,display
 def log(*args, **kwargs):
     if LOGGING:
         if not KERNEL:
-            args = [bs4.soup(x).text for x in args]
+            args = [bs4.BeautifulSoup(x).text for x in args]
             print(*args, **kwargs)
         else:
             with StringIO() as f:
@@ -333,7 +334,8 @@ class Test(object):
 
 class TestSuite(object):
     """A collection of tests."""
-    def __init__(self, name, tests, hooks=None):
+    def __init__(self, name, tests, include_models=[], skip_models=[], 
+                 hooks=None):
         if name is None:
             raise Error("Suite name required.")
         self.name = name
@@ -350,6 +352,8 @@ class TestSuite(object):
                 raise TypeError(("Test suite was not provided with "
                                  "a test or iterable."))
         self.tests = tests
+        self.include_models = include_models
+        self.skip_models = skip_models
         self.hooks = hooks
 
     name = None
@@ -360,6 +364,14 @@ class TestSuite(object):
 
     tests = None
     """The sequence of tests that this suite contains."""
+
+    include_models = []
+    """List of names or instances of models to judge 
+    (all passed to judge are judged by default)."""
+
+    skip_models = []
+    """List of names or instances of models to not judge 
+    (all passed to judge are judged by default)."""
 
     def judge(self, models, skip_incapable=True, stop_on_error=True, 
                             deep_error=False, verbose=False):
@@ -381,7 +393,30 @@ class TestSuite(object):
         sm = ScoreMatrix(self.tests, models)
         for model in models:
             for test in self.tests:
-                log('Executing <i>%s</i> on <i>%s</i>' % (test,model), end="... ")
+                # Possibly skip model
+                skip = False # Don't skip by default
+                if len(self.include_models):
+                    skip = True # Skip unless found in include_models
+                    for include_model in self.include_models:
+                        if model == include_model or \
+                           (type(include_model) is str and \
+                           fnmatchcase(model.name, include_model)):
+                           # Found by instance or name
+                           skip = False
+                           break
+                for skip_model in self.skip_models:
+                    if model == skip_model or \
+                       (type(skip_model) is str and \
+                           fnmatchcase(model.name, include_model)):
+                        # Found by instance or name
+                        skip = True
+                        break
+                if skip:
+                    sm.loc[model,test] = NoneScore(None)          
+                    continue
+                # Judge model and put score in the ScoreMatrix
+                log('Executing test <i>%s</i> on model <i>%s</i>' % (test,model), 
+                    end="... ")
                 score = test.judge(model, skip_incapable=skip_incapable, 
                                           stop_on_error=stop_on_error, 
                                           deep_error=deep_error, 
