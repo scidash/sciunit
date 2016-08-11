@@ -5,7 +5,7 @@ except ImportError:
 
 setup(
     name='sciunit',
-    version='0.1.5.4',
+    version='0.1.5.5',
     author='Rick Gerkin',
     author_email='rgerkin@asu.edu',
     packages=['sciunit', 'sciunit.tests'],
