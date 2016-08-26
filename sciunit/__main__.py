@@ -18,6 +18,8 @@ def main(args=None):
                         help="path to directory with a .sciunit file")
     parser.add_argument("--stop", "-s", default=True, 
                         help="stop and raise errors, halting the program")
+    parser.add_argument("--tests", "-t", default=False, 
+                        help="runs tests instead of suites")
     args = parser.parse_args()
     #args.directory = os.getcwd() if args.directory is None else args.directory
     file_path = os.path.join(args.directory,'.sciunit')
@@ -28,10 +30,12 @@ def main(args=None):
         print("\nNo configuration errors reported.")
     elif args.action == 'run':
         config = parse(file_path)
-        run(config, path=args.directory, stop_on_error=args.stop)
+        run(config, path=args.directory, 
+            stop_on_error=args.stop, just_tests=args.tests)
     elif args.action == 'make-nb':
         config = parse(file_path)
-        make_nb(config, path=args.directory, stop_on_error=args.stop)
+        make_nb(config, path=args.directory, 
+                stop_on_error=args.stop, just_tests=args.tests)
     elif args.action == 'run-nb':
         config = parse(file_path)
         run_nb(config, path=args.directory, stop_on_error=args.stop)
@@ -87,11 +91,13 @@ def prep(config=None, path=None):
         path = os.getcwd()
     root = config.get('root','path')
     root = os.path.join(path,root)
+    root = os.path.realpath(root)
+    os.environ['SCIDASH_HOME'] = root
     if sys.path[0] != root:
         sys.path.insert(0,root)
 
 
-def run(config, path=None, stop_on_error=True):
+def run(config, path=None, stop_on_error=True, just_tests=False):
     """Run sciunit tests for the given configuration"""
     
     if path is None:
@@ -102,20 +108,22 @@ def run(config, path=None, stop_on_error=True):
     tests = __import__('tests')
     suites = __import__('suites')
 
+    print('\n')
     for x in ['models','tests','suites']:
         module = __import__(x)
         assert hasattr(module,x), "'%s' module requires attribute '%s'" % (x,x)     
 
-    for test in tests.tests:
-        score_array = test.judge(models.models, stop_on_error=stop_on_error)
-        print('\nTest %s:\n%s\n' % (test,score_array))
+    if just_tests:
+        for test in tests.tests:
+            score_array = test.judge(models.models, stop_on_error=stop_on_error)
+            print('\nTest %s:\n%s\n' % (test,score_array))
+    else:
+        for suite in suites.suites:
+            score_matrix = suite.judge(models.models, stop_on_error=stop_on_error)
+            print('\nSuite %s:\n%s\n' % (suite,score_matrix))
 
-    for suite in suites.suites:
-        score_matrix = suite.judge(models.models, stop_on_error=stop_on_error)
-        print('\nSuite %s:\n%s\n' % (suite,score_matrix))
 
-
-def make_nb(config, path=None, stop_on_error=True):
+def make_nb(config, path=None, stop_on_error=True, just_tests=False):
     """Create a Jupyter notebook sciunit tests for the given configuration"""
 
     from nbformat.v4.nbbase import new_notebook,new_markdown_cell
@@ -134,19 +142,22 @@ def make_nb(config, path=None, stop_on_error=True):
     add_code_cell(cells, (
         "%%matplotlib %s\n"
         "from IPython.display import display\n"
-        "import sys\n"
+        "import os,sys\n"
         "if sys.path[0] != '%s':\n"
-        "  sys.path.insert(0,'%s')") % (mpl_style,root,root))
+        "  sys.path.insert(0,'%s')\n"
+        "os.environ['SCIDASH_HOME'] = %s") % (mpl_style,root,root,root))
     add_code_cell(cells, (
         "import models, tests, suites"))
-    add_code_cell(cells, (
-        "for test in tests.tests:\n"
-        "  score_array = test.judge(models.models, stop_on_error=%r)\n"
-        "  display(score_array)") % stop_on_error)
-    add_code_cell(cells, (
-        "for suite in suites.suites:\n"
-        "  score_matrix = suite.judge(models.models, stop_on_error=%r)\n"
-        "  display(score_matrix)") % stop_on_error)
+    if just_tests:
+        add_code_cell(cells, (
+            "for test in tests.tests:\n"
+            "  score_array = test.judge(models.models, stop_on_error=%r)\n"
+            "  display(score_array)") % stop_on_error)
+    else:
+        add_code_cell(cells, (
+            "for suite in suites.suites:\n"
+            "  score_matrix = suite.judge(models.models, stop_on_error=%r)\n"
+            "  display(score_matrix)") % stop_on_error)
 
     nb = new_notebook(cells=cells,
         metadata={

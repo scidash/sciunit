@@ -77,7 +77,6 @@ class ZScore(sciunit.Score):
         Computes a z-score from an observation and a prediction.
         """
         assert type(observation) is dict
-        assert type(prediction) is dict
         try:
             p_value = prediction['mean'] # Use the prediction's mean.  
         except (TypeError,KeyError): # If there isn't one...
