@@ -1,7 +1,10 @@
 import sys
 import os
 import argparse
-import configparser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 import io
 import codecs
 
