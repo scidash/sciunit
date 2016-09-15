@@ -13,7 +13,7 @@ setup(
     license='MIT',
     description='A test-driven framework for formally validating scientific models against data.',
     long_description="",
-    install_requires=['cypy>=0.2','quantities','pandas','ipython','bs4','lxml'],
+    install_requires=['cypy>=0.2','quantities','pandas','ipython','bs4','lxml','nbformat'],
     dependency_links = ['git+http://github.com/rgerkin/cypy'],
     entry_points={
         'console_scripts': [
