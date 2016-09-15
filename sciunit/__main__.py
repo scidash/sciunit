@@ -10,7 +10,7 @@ import codecs
 try:
     import matplotlib
     matplotlib.use('Agg') # Anticipate possible headless environments
-except ImportError
+except ImportError:
     pass
 
 NB_VERSION = 4
