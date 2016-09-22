@@ -3,7 +3,10 @@ import inspect
 from datetime import datetime
 import sys
 from fnmatch import fnmatchcase
-from io import StringIO
+try:
+   from io import StringIO
+except:
+   from StringIO import StringIO
 KERNEL = ('ipykernel' in sys.modules)
 LOGGING = True
 
