@@ -513,10 +513,15 @@ class Score(object):
     def color(self, value=None):
         if value is None:
             value = self.sort_key
-        if value is None:
+        rgb = Score.value_color(value)
+        return rgb
+
+    @classmethod
+    def value_color(cls, value):
+        import matplotlib.cm as cm
+        if value is None or np.isnan(value):
             rgb = (128,128,128)
         else:
-            import matplotlib.cm as cm
             rgb = tuple([x*256 for x in cm.RdYlGn(int(180*value+38))[:3]])
         return rgb
 
@@ -815,11 +820,7 @@ class ScoreMatrix(pd.DataFrame):
                         score = self[self.models[i],self.tests[j_]]
                         value = score.sort_key
                         cell['title'] = score._describe()
-                    if value is not None and not np.isnan(value):
-                        #rgb = (255,int(255 * value),int(255 * value))
-                        rgb = score.color(value=value)
-                    else:
-                        rgb = (128,128,128)
+                    rgb = Score.value_color(value)
                     cell['style'] = 'background-color: rgb(%d,%d,%d);' % rgb
 
         table = soup.find('table')

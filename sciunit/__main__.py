@@ -145,7 +145,7 @@ def make_nb(config, path=None, stop_on_error=True, just_tests=False):
         "import os,sys\n"
         "if sys.path[0] != '%s':\n"
         "  sys.path.insert(0,'%s')\n"
-        "os.environ['SCIDASH_HOME'] = %s") % (mpl_style,root,root,root))
+        "os.environ['SCIDASH_HOME'] = '%s'") % (mpl_style,root,root,root))
     add_code_cell(cells, (
         "import models, tests, suites"))
     if just_tests:
