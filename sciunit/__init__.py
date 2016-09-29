@@ -4,9 +4,9 @@ from datetime import datetime
 import sys
 from fnmatch import fnmatchcase
 try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+   from io import StringIO
+except:
+   from StringIO import StringIO
 KERNEL = ('ipykernel' in sys.modules)
 LOGGING = True
 
@@ -23,13 +23,19 @@ def log(*args, **kwargs):
     if LOGGING:
         if not KERNEL:
             args = [bs4.BeautifulSoup(x,"lxml").text for x in args]
-            print(*args, **kwargs)
+            try:
+               print(*args, **kwargs)
+            except:
+               print(args)
         else:
             with StringIO() as f:
-                kwargs['file'] = f
-                print(*args, **kwargs)
-                output = f.getvalue()
-                display(HTML(output))
+               kwargs['file'] = f
+               try:
+                  print(*args, **kwargs)
+               except:
+                  print(args)
+               output = f.getvalue()
+               display(HTML(output))
 
 
 class Model(object):
