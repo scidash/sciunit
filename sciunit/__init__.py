@@ -710,24 +710,28 @@ class ScoreArray(pd.Series):
         setattr(self,self.index_type,tests_or_models)
 
     def __getattr__(self, name):
-        if name in ['score','sort_key','related_data']:
+        if name in ['score','sort_keys','related_data']:
             return self.apply(lambda x: getattr(x,name))
         else:
             return super(ScoreArray,self).__getattr__(name)
    
+    @property   
+    def sort_keys(self):
+        return [x.sort_key for x in list(self.data)]
+
     def mean(self):
         """Computes a total score for each model over all the tests, 
         using the sort_key, since otherwise direct comparison across different
         kinds of scores would not be possible."""
 
-        return self.sort_key.mean()
+        return np.mean(self.sort_keys)
 
-    def rank(self, test, model):
+    def rank(self, test_or_model):
         """Computes the relative rank of a model on a test compared to other models 
         that were asked to take the test."""
 
         vals = sorted(self.sort_keys)
-        rank = 1 + vals.index(self[test,model].sort_key)
+        rank = 1 + vals.index(self[test_or_model].sort_key)
         return rank
 
     def view(self):
