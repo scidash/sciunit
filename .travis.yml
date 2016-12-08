@@ -45,4 +45,6 @@ before_script:
   - cd sciunit
 
 # command to run tests, e.g. python setup.py test
-script: python sciunit/tests/example.py
+script: 
+  - python sciunit/tests/example.py
+  - python -m unittest
