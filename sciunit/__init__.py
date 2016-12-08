@@ -717,7 +717,7 @@ class ScoreArray(pd.Series):
    
     @property   
     def sort_keys(self):
-        return [x.sort_key for x in list(self.data)]
+        return self.map(lambda x: x.sort_key)
 
     def mean(self):
         """Computes a total score for each model over all the tests, 
@@ -783,6 +783,10 @@ class ScoreMatrix(pd.DataFrame):
             return self.applymap(lambda x: getattr(x,name))
         else:
             return super(ScoreMatrix,self).__getattr__(name)
+
+    @property   
+    def sort_keys(self):
+        return self.applymap(lambda x: x.sort_key)
        
     def rank(self, test, model):
         """Computes the relative rank of a model on a test compared to other models 
