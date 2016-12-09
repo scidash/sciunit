@@ -40,7 +40,7 @@ install:
 # Setting up pre-requirements
 before_script:
   - pwd
-  - pip install nbconvert nbformat jupyter-client
+  - pip install nbconvert ipykernel
   - cd ..
   - export PYTHONPATH=$PYTHONPATH:.
   - cd sciunit
