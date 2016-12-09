@@ -1,7 +1,7 @@
 language: python
 python:
   - "2.7"
-  - "3.4"
+  - "3.5"
 
 # Setup anaconda just to get fast binary installation of common packages
 before_install:
@@ -40,6 +40,7 @@ install:
 # Setting up pre-requirements
 before_script:
   - pwd
+  - pip install nbconvert ipykernel
   - cd ..
   - export PYTHONPATH=$PYTHONPATH:.
   - cd sciunit
