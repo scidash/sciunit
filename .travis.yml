@@ -40,6 +40,7 @@ install:
 # Setting up pre-requirements
 before_script:
   - pwd
+  - pip install nbconvert nbformat
   - cd ..
   - export PYTHONPATH=$PYTHONPATH:.
   - cd sciunit
