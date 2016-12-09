@@ -27,6 +27,9 @@ class DocumentationTestCase(unittest.TestCase):
         self.assertTrue(True)
 
     def test_chapter1(self):
+        print(sys.path)
+        sys.path.append(os.getcwd())
+        print(sys.path)
         self.execute_notebook('chapter1')
     
     def test_chapter2(self):
