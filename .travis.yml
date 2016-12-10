@@ -32,15 +32,19 @@ before_install:
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: 
   - pip install cypy>=0.2
-  - pip install pandas
+  - pip install pandas>=0.18
+  - pip install matplotlib
   - pip install quantities
   - pip install bs4
-  - pip install ipython
+  - pip install ipython>=5.1
+  - pip install lxml
+  - pip install nbconvert
+  - pip install ipykernel
+  - pip install nbformat
 
 # Setting up pre-requirements
 before_script:
   - pwd
-  - pip install nbconvert ipykernel
   - cd ..
   - export PYTHONPATH=$PYTHONPATH:.
   - cd sciunit
