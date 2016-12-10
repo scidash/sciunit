@@ -5,12 +5,12 @@ except ImportError:
 
 setup(
     name='sciunit',
-    version='0.1.5.5',
+    version='0.1.5.6',
     author='Rick Gerkin',
     author_email='rgerkin@asu.edu',
     packages=['sciunit', 
               'sciunit.tests'],
-    url='http://github.com/scidash/sciunit',
+    url='http://sciunit.scidash.org',
     license='MIT',
     description='A test-driven framework for formally validating scientific models against data.',
     long_description="",
@@ -23,7 +23,7 @@ setup(
                       'nbconvert',
                       'ipykernel',
                       'nbformat',],
-    dependency_links = ['git+http://github.com/rgerkin/cypy'],
+    dependency_links = [],
     entry_points={
         'console_scripts': [
             'sciunit = sciunit.__main__:main'
