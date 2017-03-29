@@ -37,8 +37,23 @@ def log(*args, **kwargs):
                output = f.getvalue()
                display(HTML(output))
 
+class SciUnit(object):
+    """Abstract base class for models, tests, and scores."""
+    def __init__(self):
+        self.unpicklable = [] # Attributes that cannot or should not be pickled.
+        
+    def __getstate__(self):
+        # Copy the object's state from self.__dict__ which contains
+        # all our instance attributes. Always use the dict.copy()
+        # method to avoid modifying the original state.
+        state = self.__dict__.copy()
+        # Remove the unpicklable entries.
+        for key in self.unpicklable:
+            del state[key]
+        return state
 
-class Model(object):
+
+class Model(SciUnit):
     """Abstract base class for sciunit models."""
     def __init__(self, name=None, **params):
         if name is None:
@@ -47,6 +62,7 @@ class Model(object):
         self.params = params
         if params is None:
             params = {}
+        super(Model,self).__init__()
 
     name = None
     """The name of the model. Defaults to the class name."""
@@ -114,7 +130,7 @@ class Capability(object):
             return cls.__name__
 
 
-class Test(object):
+class Test(SciUnit):
     """Abstract base class for tests."""
     def __init__(self, observation, name=None, **params):
         if name is None:
@@ -128,12 +144,14 @@ class Test(object):
             params = {}    
         self.verbose = params.pop('verbose',1)
         self.params.update(params)
-      
+        
         self.observation = observation
         self.validate_observation(observation)
 
         if self.score_type is None or not issubclass(self.score_type, Score):
             raise Error("Test %s does not specify a score type." % self.name)
+
+        super(Test,self).__init__()
 
     name = None
     """The name of the test. Defaults to the test class name."""
@@ -476,7 +494,7 @@ class TestSuite(object):
 #
 # Scores
 #
-class Score(object):
+class Score(SciUnit):
     """Abstract base class for scores."""
     def __init__(self, score, related_data=None):
         if related_data is None:
@@ -484,6 +502,7 @@ class Score(object):
         self.score, self.related_data = score, related_data
         if isinstance(score,Exception):
             self.__class__ = ErrorScore # Set to error score to use its summarize().
+        super(Score,self).__init__()
   
     score = None
     """The score itself."""
