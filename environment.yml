@@ -7,7 +7,6 @@ dependencies:
 - nbconvert
 - ipykernel
 - nbformat
-- sphinx>=1.5.1
 - pip:
   - cypy>=0.2
   - quantities
