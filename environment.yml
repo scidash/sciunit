@@ -1,6 +1,6 @@
-name: sciunit
+name: sciunit_docs
 dependencies:
-- python>=3.5
+- python==3.5
 - pandas>=0.18
 - ipython>=5.1
 - lxml
