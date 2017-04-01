@@ -1,12 +1,13 @@
 name: sciunit
 dependencies:
-- python==3.5
+- python>=3.5
 - pandas>=0.18
 - ipython>=5.1
 - lxml
 - nbconvert
 - ipykernel
 - nbformat
+- sphinx>=1.5
 - pip:
   - cypy>=0.2
   - quantities
