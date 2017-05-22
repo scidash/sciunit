@@ -146,7 +146,7 @@ class CohenDScore(sciunit.Score):
         """Returns 1.0 for a D of 0, falling to 0.0 for extremely positive
         or negative values."""
 
-        cdf = (1.0 + math.erf(self.score / sqrt(2.0))) / 2.0
+        cdf = (1.0 + math.erf(self.score / math.sqrt(2.0))) / 2.0
         return 1 - 2*math.fabs(0.5 - cdf)
 
     def __str__(self):

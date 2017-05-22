@@ -5,7 +5,6 @@ try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
-import io
 import codecs
 try:
     import matplotlib
@@ -74,7 +73,7 @@ def create(file_path):
 def parse(file_path=None, show=False):
     """Parse a .sciunit config file"""
     if file_path is None:
-        path = os.path.join(os.getcwd(),'.sciunit')
+        file_path = os.path.join(os.getcwd(),'.sciunit')
     if not os.path.exists(file_path):
         raise IOError('No .sciunit file was found at %s' % file_path)
 

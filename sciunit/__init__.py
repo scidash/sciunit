@@ -119,7 +119,7 @@ class Capability(object):
         """
         return isinstance(model, cls)
 
-    def unimplemented():
+    def unimplemented(self):
         raise NotImplementedError(("The method %s promised by capability %s "
                                    "is not implemented") % \
                                   (inspect.stack()[1][3],self.name))
