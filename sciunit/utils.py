@@ -23,7 +23,7 @@ def assert_dimensionless(value):
     If input is dimensionless but expressed as a Quantity, it returns the 
     bare value.  If it not, it raised an error.
     """
-    if type(value) is Quantity:
+    if isinstance(value,Quantity):
         value = value.simplified
         if value.dimensionality == Dimensionality({}):
             value = value.base.item()

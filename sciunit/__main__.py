@@ -45,7 +45,7 @@ def main(args=None):
                 stop_on_error=args.stop, just_tests=args.tests)
     elif args.action == 'run-nb':
         config = parse(file_path)
-        run_nb(config, path=args.directory, stop_on_error=args.stop)
+        run_nb(config, path=args.directory)
     else:
         raise NameError('No such action %s' % args.action)
     cleanup(config, path=args.directory)
@@ -174,10 +174,10 @@ def make_nb(config, path=None, stop_on_error=True, just_tests=False):
     nb_path = os.path.join(root,'%s.ipynb' % nb_name)
     with codecs.open(nb_path, encoding='utf-8', mode='w') as nb_file:
         nbformat.write(nb, nb_file, NB_VERSION)
-    print('Created Jupyter notebook at:\n%s' % nb_path)
+    print("Created Jupyter notebook at:\n%s" % nb_path)
 
 
-def run_nb(config, path=None, stop_on_error=True):
+def run_nb(config, path=None):
     if path is None:
         path = os.getcwd()
     root = config.get('root','path')
@@ -218,4 +218,3 @@ def cleanup(config=None, path=None):
 
 if __name__ == '__main__':
     main()
-

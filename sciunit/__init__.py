@@ -1,22 +1,24 @@
+"""SciUnit: A Test-Driven Framework for Validation 
+of Quantitative Scientific Models
+"""
+
 from __future__ import print_function
 import inspect
 from datetime import datetime
 import sys
 from fnmatch import fnmatchcase
 try:
-   from io import StringIO
-except:
-   from StringIO import StringIO
-KERNEL = ('ipykernel' in sys.modules)
-LOGGING = True
+    from io import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 import numpy as np
 import pandas as pd
 import bs4
 from IPython.display import HTML,Javascript,display
 
-"""SciUnit: A Test-Driven Framework for Validation of 
-   Quantitative Scientific Models"""
+KERNEL = ('ipykernel' in sys.modules)
+LOGGING = True
 
 
 def log(*args, **kwargs):
@@ -24,18 +26,18 @@ def log(*args, **kwargs):
         if not KERNEL:
             args = [bs4.BeautifulSoup(x,"lxml").text for x in args]
             try:
-               print(*args, **kwargs)
-            except:
-               print(args)
+                print(*args, **kwargs)
+            except SyntaxError: # Python 2
+                print(args)
         else:
             with StringIO() as f:
-               kwargs['file'] = f
-               try:
-                  print(*args, **kwargs)
-               except:
-                  print(args)
-               output = f.getvalue()
-               display(HTML(output))
+                kwargs['file'] = f
+                try:
+                    print(*args, **kwargs)
+                except SyntaxError: # Python 2
+                    print(args)
+                output = f.getvalue()
+                display(HTML(output))
 
 class SciUnit(object):
     """Abstract base class for models, tests, and scores."""
@@ -88,15 +90,13 @@ class Model(SciUnit):
 
     def describe(self):
         result = "No description available"
-        if len(self.description):
+        if self.description:
             result = "%s" % self.description
         else:
-            try:
+            if self.__doc__:
                 s = []
                 s += [self.__doc__.strip().replace('\n','').replace('    ','')]
                 result = '\n'.join(s)
-            except:
-                pass
         return result
 
     def curr_method(self, back=0):
@@ -179,7 +179,7 @@ class Test(SciUnit):
         constructor.
         Raises an ObservationError if invalid.
         """
-        return True
+        assert observation, "Observation is empty."
   
     required_capabilities = ()
     """A sequence of capabilities that a model must have in order for the 
@@ -199,7 +199,8 @@ class Test(SciUnit):
         for c in self.required_capabilities:
             if not c.check(model):
                 capable = False
-                raise CapabilityError(model, c)
+                if not skip_incapable:
+                    raise CapabilityError(model, c)
 
         return capable
 
@@ -252,7 +253,7 @@ class Test(SciUnit):
 
     def _judge(self, model, skip_incapable=True):
         # 1.
-        self.check_capabilities(model)
+        self.check_capabilities(model, skip_incapable=skip_incapable)
         # 2.
         prediction = self.generate_prediction(model)
         self.last_model = model
@@ -262,9 +263,7 @@ class Test(SciUnit):
         if self.converter:
             score = self.converter.convert(score)
         # 4.
-        if not (isinstance(score, self.score_type) or \
-                isinstance(score,NoneScore) or \
-                isinstance(score,ErrorScore)):
+        if not isinstance(score,(self.score_type,NoneScore,ErrorScore)):
             raise InvalidScoreError(("Score for test '%s' is not of correct "
                                      "type. The test requires type %s but %s "
                                      "was provided.") \
@@ -299,7 +298,7 @@ class Test(SciUnit):
         actual code execution error, instead of the content of an ErrorScore.   
         """
 
-        if type(model) in (list,tuple,set): 
+        if isinstance(model,(list,tuple,set)): 
             # If a collection of models is provided
             suite = TestSuite(self.name, self) 
             # then test them using a one-test suite.  
@@ -324,7 +323,6 @@ class Test(SciUnit):
         """Like judge, but without actually running the test.
         Just returns a Score indicating whether the model can take 
         the test or not."""
-        e = None
         try:
             if self.check_capabilities(model, skip_incapable=skip_incapable):
                 score = TBDScore(None)
@@ -332,23 +330,21 @@ class Test(SciUnit):
                 score = NAScore(None)
         except Exception as e:
             score = ErrorScore(e)
-        if e and stop_on_error:
-            raise e
+            if stop_on_error:
+                raise e
         return score
 
     def describe(self):
         result = "No description available"
-        if len(self.description):
+        if self.description:
             result = "%s" % self.description
         else:
-            try:
+            if self.__doc__:
                 s = []
                 s += [self.__doc__.strip().replace('\n','').replace('    ','')]
                 if self.test.converter:
                     s += [self.converter.description]
                 result = '\n'.join(s)
-            except:
-                pass
         return result
 
     def __str__(self):
@@ -358,9 +354,9 @@ class Test(SciUnit):
         return str(self)
 
 
-class TestSuite(object):
+class TestSuite(SciUnit):
     """A collection of tests."""
-    def __init__(self, name, tests, include_models=[], skip_models=[], 
+    def __init__(self, name, tests, include_models=None, skip_models=None, 
                  hooks=None):
         if name is None:
             raise Error("Suite name required.")
@@ -378,9 +374,10 @@ class TestSuite(object):
                 raise TypeError(("Test suite was not provided with "
                                  "a test or iterable."))
         self.tests = tests
-        self.include_models = include_models
-        self.skip_models = skip_models
+        self.include_models = [] if include_models is None else include_models
+        self.skip_models = [] if skip_models is None else skip_models
         self.hooks = hooks
+        super(TestSuite,self).__init__()
 
     name = None
     """The name of the test suite. Defaults to the class name."""
@@ -399,8 +396,8 @@ class TestSuite(object):
     """List of names or instances of models to not judge 
     (all passed to judge are judged by default)."""
 
-    def judge(self, models, skip_incapable=True, stop_on_error=True, 
-                            deep_error=False):
+    def judge(self, models, 
+              skip_incapable=True, stop_on_error=True, deep_error=False):
         """Judges the provided models against each test in the test suite.
            Returns a ScoreMatrix.
         """
@@ -418,45 +415,59 @@ class TestSuite(object):
 
         sm = ScoreMatrix(self.tests, models)
         for model in models:
+            skip = self.is_skipped(model)
             for test in self.tests:
-                # Possibly skip model
-                skip = False # Don't skip by default
-                if len(self.include_models):
-                    skip = True # Skip unless found in include_models
-                    for include_model in self.include_models:
-                        if model == include_model or \
-                           (type(include_model) is str and \
-                           fnmatchcase(model.name, include_model)):
-                           # Found by instance or name
-                           skip = False
-                           break
-                for skip_model in self.skip_models:
-                    if model == skip_model or \
-                       (type(skip_model) is str and \
-                           fnmatchcase(model.name, include_model)):
-                        # Found by instance or name
-                        skip = True
-                        break
                 if skip:
-                    sm.loc[model,test] = NoneScore(None)          
-                    continue
-                # Judge model and put score in the ScoreMatrix
-                log('Executing test <i>%s</i> on model <i>%s</i>' % (test,model), 
-                    end="... ")
-                score = test.judge(model, skip_incapable=skip_incapable, 
-                                          stop_on_error=stop_on_error, 
-                                          deep_error=deep_error)
-                log('Score is <a style="color: rgb(%d,%d,%d)">' % score.color()
-                  + '%s</a>' % score)
-                sm.loc[model, test] = score
-                if self.hooks and test in self.hooks:
-                    f = self.hooks[test]['f']
-                    if 'kwargs' in self.hooks[test]:
-                        kwargs = self.hooks[test]['kwargs']
-                    else:
-                        kwargs = {}
-                    f(test, self.tests, score, **kwargs)
+                    sm.loc[model,test] = NoneScore(None)
+                else:
+                    score = self.judge_one(model,test,sm,skip_incapable,
+                                           stop_on_error,deep_error)
+                self.set_hooks(test,score)
         return sm
+
+    def is_skipped(self, model):
+        # Possibly skip model
+        skip = False # Don't skip by default
+        if self.include_models:
+            skip = True # Skip unless found in include_models
+            for include_model in self.include_models:
+                if model == include_model or \
+                   (isinstance(include_model,str) and \
+                   fnmatchcase(model.name, include_model)):
+                   # Found by instance or name
+                    skip = False
+                    break
+        for skip_model in self.skip_models:
+            if model == skip_model or \
+               (isinstance(skip_model,str) and \
+                fnmatchcase(model.name, skip_model)):
+                # Found by instance or name
+                skip = True
+                break
+        return skip 
+        
+    def judge_one(self, model, test, sm, 
+                  skip_incapable=True, stop_on_error=True, deep_error=False):
+        """Judge model and put score in the ScoreMatrix"""
+        log('Executing test <i>%s</i> on model <i>%s</i>' % (test,model), 
+            end="... ")
+        score = test.judge(model, skip_incapable=skip_incapable, 
+                                  stop_on_error=stop_on_error, 
+                                  deep_error=deep_error)
+        log('Score is <a style="color: rgb(%d,%d,%d)">' % score.color()
+          + '%s</a>' % score)
+        sm.loc[model, test] = score
+        return score
+
+    def set_hooks(self, test, score):
+        if self.hooks and test in self.hooks:
+            f = self.hooks[test]['f']
+            if 'kwargs' in self.hooks[test]:
+                kwargs = self.hooks[test]['kwargs']
+            else:
+                kwargs = {}
+            f(test, self.tests, score, **kwargs)
+        
 
     def set_verbose(self, verbose):
         for test in self.tests:
@@ -480,7 +491,7 @@ class TestSuite(object):
                    and issubclass(test_class, Test), \
                    "First item in each tuple must be a Test class"
             if test_name is not None:
-                assert type(test_name) is str, "Each test name must be a string"
+                assert isinstance(test_name,str), "Each test name must be a string"
             tests.append(test_class(observation,name=test_name))
         return cls(name, tests)
 
@@ -497,8 +508,9 @@ class TestSuite(object):
 class Score(SciUnit):
     """Abstract base class for scores."""
     def __init__(self, score, related_data=None):
+        self.check_score(score)
         if related_data is None:
-            related_data = { }
+            related_data = {}
         self.score, self.related_data = score, related_data
         if isinstance(score,Exception):
             self.__class__ = ErrorScore # Set to error score to use its summarize().
@@ -507,11 +519,17 @@ class Score(SciUnit):
     score = None
     """The score itself."""
 
-    _description = ''
+    _allowed_types = None
+    """List of allowed types for the score argument"""
+
+    _allowed_types_message = "Score is not one of the allowed types: %s"
+    """Error message when score argument is not one of these types"""
+
+    _description = ""
     """A description of this score, i.e. how to interpret it.
     Provided in the score definition"""
 
-    description = ''
+    description = ""
     """A description of this score, i.e. how to interpret it.
     For the user to set in bind_score"""
 
@@ -527,6 +545,18 @@ class Score(SciUnit):
 
     model = None
     """The model judged. Set automatically by Test.judge."""
+
+    def check_score(self, score):
+        if self._allowed_types and \
+        not isinstance(score,self._allowed_types+(Exception,)):
+            raise InvalidScoreError(self._allowed_types_message % \
+                                    self._allowed_types)
+        self._check_score(score)
+
+    def _check_score(self,score):
+        """A method for each Score subclass to impose additional constraints
+        on the score, e.g. the range of the allowed score"""
+        pass
 
     @property
     def sort_key(self):
@@ -563,23 +593,25 @@ class Score(SciUnit):
     def _describe(self):
         result = "No description available"
         if self.score is not None:
-            if len(self.description):
+            if self.description:
                 result = "%s" % self.description
             else:
-                try:
-                    s = []
+                s = []
+                if self.test.score_type.__doc__:    
                     s += [self.test.score_type.__doc__.strip().\
                           replace('\n','').replace('    ','')]
                     if self.test.converter:
                         s += [self.test.converter.description]
                     s += [self._description]
-                    result = '\n'.join(s)
-                except:
-                    pass
+                result = '\n'.join(s)
         return result
 
-    def describe(self):
-        print(self._describe())
+    def describe(self, quiet=False):
+        d = self._describe()
+        if quiet:
+            return d
+        else:
+            print(d)
 
     _raw = None
     """Optional value that can be set for reporting a raw value determined in
@@ -594,6 +626,9 @@ class Score(SciUnit):
             if hasattr(self.value,'magnitude'):
                 string += ' %s' % str(self.value.units)[4:]
         return string
+
+    def set_raw(self, raw):
+        self._raw = raw
 
     def __str__(self):
         return '%s' % self.score
@@ -634,9 +669,7 @@ class Score(SciUnit):
 
 class ErrorScore(Score):
     """A score returned when an error occurs during testing."""
-    def __init__(self, exn, related_data=None):
-        super(ErrorScore,self).__init__(exn, related_data)
-
+    
     @property
     def sort_key(self):
         return 0.0
@@ -655,7 +688,7 @@ class NoneScore(Score):
     """A None score.  Usually indicates that the model has not been 
     checked to see if it has the capabilities required by the test."""
 
-    def __init__(self, score, related_data={}):
+    def __init__(self, score, related_data=None):
         if isinstance(score,str) or score is None:
             super(NoneScore,self).__init__(score, related_data=related_data)
         else:
@@ -674,7 +707,7 @@ class TBDScore(NoneScore):
     """A TBD (to be determined) score. Indicates that the model has capabilities 
     required by the test but has not yet taken it."""
 
-    def __init__(self, score, related_data={}):
+    def __init__(self, score, related_data=None):
         super(TBDScore,self).__init__(score, related_data=related_data)
 
     @property
@@ -689,7 +722,7 @@ class NAScore(NoneScore):
     """A N/A (not applicable) score. Indicates that the model doesn't have the 
     capabilities that the test requires."""
 
-    def __init__(self, score, related_data={}):
+    def __init__(self, score, related_data=None):
         super(NAScore,self).__init__(score, related_data=related_data)
 
     @property
@@ -730,9 +763,10 @@ class ScoreArray(pd.Series):
 
     def __getattr__(self, name):
         if name in ['score','sort_keys','related_data']:
-            return self.apply(lambda x: getattr(x,name))
+            attr = self.apply(lambda x: getattr(x,name))
         else:
-            return super(ScoreArray,self).__getattr__(name)
+            attr = super(ScoreArray,self).__getattr__(name)
+        return attr
    
     @property   
     def sort_keys(self):
@@ -745,7 +779,7 @@ class ScoreArray(pd.Series):
 
         return np.mean(self.sort_keys)
 
-    def rank(self, test_or_model):
+    def stature(self, test_or_model):
         """Computes the relative rank of a model on a test compared to other models 
         that were asked to take the test."""
 
@@ -753,8 +787,8 @@ class ScoreArray(pd.Series):
         rank = 1 + vals.index(self[test_or_model].sort_key)
         return rank
 
-    def view(self):
-        return self
+#    def view(self):
+#        return self
 
 
 class ScoreMatrix(pd.DataFrame):
@@ -790,7 +824,7 @@ class ScoreMatrix(pd.DataFrame):
                               scores=super(ScoreMatrix,self).__getitem__(item))
         elif isinstance(item, Model):
             return ScoreArray(self.tests, scores=self.loc[item,:])
-        elif type(item) in (list,tuple) and len(item)==2:
+        elif isinstance(item,(list,tuple)) and len(item)==2:
             if isinstance(item[0], Test) and isinstance(item[1], Model):
                 return self.loc[item[1],item[0]]
             elif isinstance(item[1], Test) and isinstance(item[0], Model):
@@ -799,15 +833,16 @@ class ScoreMatrix(pd.DataFrame):
   
     def __getattr__(self, name):
         if name in ['score','sort_key','related_data']:
-            return self.applymap(lambda x: getattr(x,name))
+            attr = self.applymap(lambda x: getattr(x,name))
         else:
-            return super(ScoreMatrix,self).__getattr__(name)
+            attr = super(ScoreMatrix,self).__getattr__(name)
+        return attr
 
     @property   
     def sort_keys(self):
         return self.applymap(lambda x: x.sort_key)
        
-    def rank(self, test, model):
+    def stature(self, test, model):
         """Computes the relative rank of a model on a test compared to other models 
         that were asked to take the test."""
 
@@ -852,7 +887,7 @@ class ScoreMatrix(pd.DataFrame):
                         j_ = j-bool(show_mean)
                         score = self[self.models[i],self.tests[j_]]
                         value = score.sort_key
-                        cell['title'] = score._describe()
+                        cell['title'] = score.describe(quiet=True)
                     rgb = Score.value_color(value)
                     cell['style'] = 'background-color: rgb(%d,%d,%d);' % rgb
 
@@ -867,9 +902,9 @@ class ScoreMatrix(pd.DataFrame):
             display(js)
         return html
     
-    def view(self, *args, **kwargs):
-        html = self.to_html(*args, **kwargs)
-        return HTML(html)
+#    def view(self, *args, **kwargs):
+#        html = self.to_html(*args, **kwargs)
+#        return HTML(html)
 
 
 class ScorePanel(pd.Panel):

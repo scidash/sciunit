@@ -4,7 +4,7 @@ to the value required for particular score type.
 """
 
 from string import Template
-import sciunit.scores as scores
+from sciunit.scores import BooleanScore
 
 class Converter(object):
     """
@@ -14,9 +14,12 @@ class Converter(object):
 
     @property
     def description(self):
-        s = ' '.join([si.strip() for si in self.__doc__.split('\n')]).strip()
-        t = Template(s)
-        s = t.safe_substitute(self.__dict__)
+        if self.__doc__:
+            s = ' '.join([si.strip() for si in self.__doc__.split('\n')]).strip()
+            t = Template(s)
+            s = t.safe_substitute(self.__dict__)
+        else:
+            s = "No description available"
         return s
 
     def _convert(self, score):
@@ -24,13 +27,13 @@ class Converter(object):
         Takes the score attribute of a score instance
         and recasts it as instance of another score type.  
         """
-        NotImplementedError(("The '_convert' method for %s "
-                                    "it not implemented." %
-                                    self.__class__.__name__))
+        raise NotImplementedError(("The '_convert' method for %s "
+                                   "it not implemented." %
+                                   self.__class__.__name__))
 
     def convert(self, score):
         new_score = self._convert(score.score)
-        new_score._raw = score.score
+        new_score.set_raw(score.score)
         for key,value in score.__dict__.items():
             if key not in ['score','_raw']:
                 setattr(new_score,key,value)
@@ -66,7 +69,7 @@ class AtMostToBoolean(Converter):
         self.cutoff = cutoff
     
     def _convert(self, score):
-        return scores.BooleanScore(score <= self.cutoff)
+        return BooleanScore(score <= self.cutoff)
 
 
 class AtLeastToBoolean(Converter):
@@ -77,7 +80,7 @@ class AtLeastToBoolean(Converter):
         self.cutoff = cutoff
     
     def _convert(self, score):
-        return scores.BooleanScore(score >= self.cutoff)
+        return BooleanScore(score >= self.cutoff)
 
 
 class RangeToBoolean(Converter):
@@ -90,6 +93,4 @@ class RangeToBoolean(Converter):
         self.high_cutoff = high_cutoff
 
     def _convert(self, score):
-        return scores.BooleanScore(self.low_cutoff <= score <= self.high_cutoff)
-
-
+        return BooleanScore(self.low_cutoff <= score <= self.high_cutoff)

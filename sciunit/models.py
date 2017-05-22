@@ -93,4 +93,3 @@ class CacheByValuePersistentUniformModel(PersistentUniformModel):
 	@runcache(by='value')
 	def produce_number(self):
 		return self._x	
-
