@@ -1,40 +1,27 @@
+"""Unit tests for SciUnit"""
+
+# Run with any of:  
+# python test_all.py
+# python -m unittest test_all.py
+
+# coverage run --source . test_all.py
+
 import unittest
-import sys
-import os
-import warnings
 
-import nbformat
-from nbconvert.preprocessors import ExecutePreprocessor
+from sciunit.utils import NotebookTools
 
-class DocumentationTestCase(unittest.TestCase):
-    def load_notebook(self,name):
-        f = open('docs/%s.ipynb' % name)
-        nb = nbformat.read(f, as_version=4)
-        return f,nb
+class DocumentationTestCase(NotebookTools,unittest.TestCase):
 
-    def run_notebook(self,nb):
-        if (sys.version_info >= (3, 0)):
-            kernel_name = 'python3'
-        else:
-            kernel_name = 'python2'
-        ep = ExecutePreprocessor(timeout=600, kernel_name=kernel_name)
-        ep.preprocess(nb, {'metadata': {'path': '.'}})
-        
-    def execute_notebook(self,name):
-        warnings.filterwarnings("ignore", category=DeprecationWarning) 
-        f,nb = self.load_notebook(name)
-        self.run_notebook(nb)
-        f.close()
-        self.assertTrue(True)
+    path = 'docs'
 
     def test_chapter1(self):
-        self.execute_notebook('chapter1')
+        self.do_notebook('chapter1')
     
     def test_chapter2(self):
-        self.execute_notebook('chapter2')
+        self.do_notebook('chapter2')
     
     def test_chapter3(self):
-        self.execute_notebook('chapter3')
+        self.do_notebook('chapter3')
 
 if __name__ == '__main__':
     unittest.main()
