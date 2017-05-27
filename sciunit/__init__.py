@@ -3,9 +3,10 @@ of Quantitative Scientific Models
 """
 
 from __future__ import print_function
-import inspect
-from datetime import datetime
 import sys
+import inspect
+from copy import copy
+from datetime import datetime
 from fnmatch import fnmatchcase
 try:
     from io import StringIO
@@ -522,7 +523,8 @@ class Score(SciUnit):
     _allowed_types = None
     """List of allowed types for the score argument"""
 
-    _allowed_types_message = "Score is not one of the allowed types: %s"
+    _allowed_types_message = ("Score of type %s is not an instance "
+                              "of one of the allowed types: %s")
     """Error message when score argument is not one of these types"""
 
     _description = ""
@@ -533,9 +535,11 @@ class Score(SciUnit):
     """A description of this score, i.e. how to interpret it.
     For the user to set in bind_score"""
 
-    value = None
+    _raw = None
     """A raw number arising in a test's compute_score, 
-    used to determine this score."""
+    used to determine this score. Can be set for reporting a raw value 
+    determined in Test.compute_score before any transformation, 
+    e.g. by a Converter"""
 
     related_data = None
     """Data specific to the result of a test run on a model."""
@@ -550,7 +554,7 @@ class Score(SciUnit):
         if self._allowed_types and \
         not isinstance(score,self._allowed_types+(Exception,)):
             raise InvalidScoreError(self._allowed_types_message % \
-                                    self._allowed_types)
+                                    (type(score),self._allowed_types))
         self._check_score(score)
 
     def _check_score(self,score):
@@ -613,19 +617,17 @@ class Score(SciUnit):
         else:
             print(d)
 
-    _raw = None
-    """Optional value that can be set for reporting a raw value determined in
-    Test.compute_score before any transformation e.g. by a Converter"""
-
     @property
     def raw(self):
-        if self._raw is not None:
-            string = '%.4g' % self.value
-        else:
-            string = '%.4g' % self.value
-            if hasattr(self.value,'magnitude'):
-                string += ' %s' % str(self.value.units)[4:]
+        value = self._raw if self._raw else self.score
+        string = '%.4g' % value
+        if hasattr(value,'magnitude'):
+            string += ' %s' % str(value.units)[4:]
         return string
+
+    def get_raw(self):
+        value = copy(self._raw) if self._raw else copy(self.score)
+        return value
 
     def set_raw(self, raw):
         self._raw = raw

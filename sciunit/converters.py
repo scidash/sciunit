@@ -6,6 +6,7 @@ to the value required for particular score type.
 from string import Template
 from sciunit.scores import BooleanScore
 
+
 class Converter(object):
     """
     Base converter class.  
@@ -33,7 +34,7 @@ class Converter(object):
 
     def convert(self, score):
         new_score = self._convert(score.score)
-        new_score.set_raw(score.score)
+        new_score.set_raw(score.get_raw())
         for key,value in score.__dict__.items():
             if key not in ['score','_raw']:
                 setattr(new_score,key,value)
@@ -69,7 +70,7 @@ class AtMostToBoolean(Converter):
         self.cutoff = cutoff
     
     def _convert(self, score):
-        return BooleanScore(score <= self.cutoff)
+        return BooleanScore(bool(score <= self.cutoff))
 
 
 class AtLeastToBoolean(Converter):

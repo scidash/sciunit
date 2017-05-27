@@ -1,8 +1,8 @@
-import sciunit
-import sciunit.capabilities
 from random import uniform
 from datetime import datetime
 
+import sciunit
+import sciunit.capabilities
 import cypy
 
 class ConstModel(sciunit.Model, 
