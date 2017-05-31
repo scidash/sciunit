@@ -243,14 +243,13 @@ class Test(SciUnit):
         score.observation = observation
         score.related_data = score.related_data.copy() # Don't let scores 
                                                      # share related_data.
-        score = self.bind_score(score,model,observation,prediction)
-        return score
-
+        self.bind_score(score,model,observation,prediction)
+        
     def bind_score(self,score,model,observation,prediction):
         """
         For the user to bind additional features to the score.
         """
-        return score
+        pass
 
     def _judge(self, model, skip_incapable=True):
         # 1.
@@ -271,7 +270,7 @@ class Test(SciUnit):
                                     % (self.name, self.score_type.__name__,
                                        score.__class__.__name__))
         # 5.
-        score = self._bind_score(score,model,observation,prediction)
+        self._bind_score(score,model,observation,prediction)
       
         return score
   
@@ -763,6 +762,15 @@ class ScoreArray(pd.Series):
                                   else 'models'
         setattr(self,self.index_type,tests_or_models)
 
+    def __getitem__(self, item):
+        if isinstance(item,str):
+            for test_or_model in self.index:
+                if test_or_model.name == item:
+                    return self.__getitem__(test_or_model)
+            raise KeyError("No model or test with name '%s'" % item)
+        else:
+            return super(ScoreArray,self).__getitem__(item)
+
     def __getattr__(self, name):
         if name in ['score','sort_keys','related_data']:
             attr = self.apply(lambda x: getattr(x,name))
@@ -826,11 +834,21 @@ class ScoreMatrix(pd.DataFrame):
                               scores=super(ScoreMatrix,self).__getitem__(item))
         elif isinstance(item, Model):
             return ScoreArray(self.tests, scores=self.loc[item,:])
+        elif isinstance(item,str):
+            for model in self.models:
+                if model.name == item:
+                    return self.__getitem__(model)
+            for test in self.tests:
+                if test.name == item:
+                    return self.__getitem__(test)
+            raise KeyError("No model or test with name '%s'" % item)
         elif isinstance(item,(list,tuple)) and len(item)==2:
             if isinstance(item[0], Test) and isinstance(item[1], Model):
                 return self.loc[item[1],item[0]]
             elif isinstance(item[1], Test) and isinstance(item[0], Model):
                 return self.loc[item[0],item[1]]
+            elif isinstance(item[0],str):
+                return self.__getitem__(item[0]).__getitem__(item[1])
         raise TypeError("Expected test; model; test,model; or model,test")
   
     def __getattr__(self, name):
