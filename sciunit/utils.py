@@ -47,11 +47,15 @@ class NotebookTools:
     path = ''
 
     def load_notebook(self, name):
+        """Loads a notebook file into memory."""
+        
         with open(os.path.join(self.path,'%s.ipynb'%name)) as f:
             nb = nbformat.read(f, as_version=4)
         return nb
 
     def run_notebook(self, nb):
+        """Runs a loaded notebook file."""
+        
         if (sys.version_info >= (3, 0)):
             kernel_name = 'python3'
         else:
@@ -60,25 +64,65 @@ class NotebookTools:
         ep.preprocess(nb, {'metadata': {'path': '.'}})
         
     def execute_notebook(self, name):
+        """Loads and then runs a notebook file."""
+        
         warnings.filterwarnings("ignore", category=DeprecationWarning) 
         nb = self.load_notebook(name)
         self.run_notebook(nb)
         self.assertTrue(True)
 
     def convert_notebook(self, name):
+        """Converts a notebook into a python file."""
+        
         subprocess.run(["jupyter","nbconvert","--to","python",
                         os.path.join(self.path,'%s.ipynb'%name)])
+        self.clean_code(name, ['get_ipython'])    
 
     def convert_and_execute_notebook(self, name):
+        """Converts a notebook into a python file and then runs it."""
+        
         self.convert_notebook(name)
+        code = self.read_code(name)
+        exec(code,globals())
+
+    def read_code(self, name):
+        """Reads code from a python file called 'name'"""
+
         with open(os.path.join(self.path,'%s.py'%name)) as f:
             code = f.read()
-        exec(code,globals())
-        self.assertTrue(True)
+        return code
+
+    def write_code(self, name, code):
+        """Writes code to a python file called 'name', 
+        erasing the previous contents."""
+
+        with open(os.path.join(self.path,'%s.py'%name),'r+') as f:
+            f.seek(0)
+            f.write(code)
+            f.truncate()
+
+    def clean_code(self, name, forbidden):
+        """Remove lines containing items in forbidden from the code.
+        Helpful for executing converted notebooks that still retain IPython
+        magic commands.
+        """
+        
+        code = self.read_code(name)
+        code = code.split('\n')
+        new_code = []
+        for i,line in enumerate(code):
+            if not [bad for bad in forbidden if bad in line]:
+                new_code.append(line)
+        new_code = '\n'.join(new_code)
+        self.write_code(name, new_code)
 
     def do_notebook(self, name):
+        """Runs a notebook file after optionally 
+        converting it to a python file."""
+        
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS',True))
         if CONVERT_NOTEBOOKS:
             self.convert_and_execute_notebook(name)
         else:
             self.execute_notebook(name)
+        self.assertTrue(True)
