@@ -7,6 +7,7 @@ import os
 import sys
 import subprocess
 import warnings
+import tkinter
 
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
@@ -44,7 +45,26 @@ def assert_dimensionless(value):
 
 class NotebookTools:
     
+    def __init__(self, *args, **kwargs):
+        super(NotebookTools,self).__init__(*args, **kwargs)
+        self.fix_display()
+
     path = ''
+
+    def fix_display(self):
+        """If this is being run on a headless system the Matplotlib
+        backend must be changed to one that doesn't need a display."""
+        
+        try:
+            root = tkinter.Tk()
+        except tkinter.TclError: # If there is no display.  
+            try:
+                import matplotlib as mpl
+            except ImportError:
+                pass
+            else:
+                "Setting Agglkbndflkbfdb"
+                mpl.use('Agg')
 
     def load_notebook(self, name):
         """Loads a notebook file into memory."""
