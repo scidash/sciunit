@@ -23,7 +23,7 @@ setup(
                       'nbconvert',
                       'ipykernel',
                       'nbformat',],
-    dependency_links = [],
+    dependency_links = ['https://github.com/python-quantities/python-quantities.git@master'],
     entry_points={
         'console_scripts': [
             'sciunit = sciunit.__main__:main'
