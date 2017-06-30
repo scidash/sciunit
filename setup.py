@@ -15,7 +15,7 @@ setup(
     description='A test-driven framework for formally validating scientific models against data.',
     long_description="",
     install_requires=['cypy>=0.2',
-                      'quantities=0.11.1',
+                      'quantities==0.11.1',
                       'pandas>=0.18',
                       'ipython>=5.1',
                       'bs4',
