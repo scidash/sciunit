@@ -23,7 +23,7 @@ setup(
                       'nbconvert',
                       'ipykernel',
                       'nbformat',],
-    dependency_links = ['https://github.com/python-quantities/python-quantities/tarball/master#egg=quantities-0.11.1'],
+    dependency_links = ['https://github.com/scidash/python-quantities/tarball/master#egg=quantities-0.11.1'],
     entry_points={
         'console_scripts': [
             'sciunit = sciunit.__main__:main'
