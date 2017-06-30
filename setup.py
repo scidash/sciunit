@@ -15,7 +15,7 @@ setup(
     description='A test-driven framework for formally validating scientific models against data.',
     long_description="",
     install_requires=['cypy>=0.2',
-                      'quantities',
+                      'quantities==999',
                       'pandas>=0.18',
                       'ipython>=5.1',
                       'bs4',
@@ -23,7 +23,7 @@ setup(
                       'nbconvert',
                       'ipykernel',
                       'nbformat',],
-    dependency_links = ['https://github.com/python-quantities/python-quantities/tarball/master##egg=quantities'],
+    dependency_links = ['https://github.com/python-quantities/python-quantities/tarball/master#egg=quantities-999'],
     entry_points={
         'console_scripts': [
             'sciunit = sciunit.__main__:main'
