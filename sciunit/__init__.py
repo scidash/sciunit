@@ -44,7 +44,9 @@ class SciUnit(object):
     """Abstract base class for models, tests, and scores."""
     def __init__(self):
         self.unpicklable = [] # Attributes that cannot or should not be pickled.
-        
+     
+    unpicklable = []
+       
     def __getstate__(self):
         # Copy the object's state from self.__dict__ which contains
         # all our instance attributes. Always use the dict.copy()
