@@ -68,6 +68,7 @@ class Model(SciUnit):
         if params is None:
             params = {}
         super(Model,self).__init__()
+        self.check_params()
 
     name = None
     """The name of the model. Defaults to the class name."""
@@ -104,6 +105,14 @@ class Model(SciUnit):
 
     def curr_method(self, back=0):
         return(inspect.stack()[1+back][3])
+
+    def check_params(self):
+        """Check model parameters to see if they are reasonable.
+        e.g. they would check self.params to see if a particular value
+        was within an acceptable range.  This should be implemented
+        as needed by specific model classes.
+        """
+        pass
 
     def __str__(self):
         return '%s' % self.name
@@ -821,6 +830,10 @@ class ScoreMatrix(pd.DataFrame):
     """
 
     def __init__(self, tests, models, scores=None):
+        if isinstance(tests,sciunit.Test):
+            tests = [tests]
+        if isinstance(models,sciunit.Model):
+            models = [models]
         if scores is None:
             scores = [[NoneScore for test in tests] for model in models]
         super(ScoreMatrix,self).__init__(data=scores, index=models, columns=tests)
@@ -948,7 +961,7 @@ class ObservationError(Error):
     pass
 
 
-class CapabilityError(Exception):
+class CapabilityError(Error):
     """Error raised when a required capability is not 
     provided by a model."""
     def __init__(self, model, capability):
@@ -966,7 +979,7 @@ class CapabilityError(Exception):
     """The capability that is not provided."""
 
 
-class PredictionError(Exception):
+class PredictionError(Error):
     """Raised when a tests's generate_prediction chokes on a model's method"""
     def __init__(self, model, method, **args):
         self.model = model
@@ -984,6 +997,16 @@ class PredictionError(Exception):
     """The argument that could not be handled."""
 
 
-class InvalidScoreError(Exception):
+class InvalidScoreError(Error):
     """Error raised when a score is invalid."""
     pass
+
+class BadParameterValueError(Error):
+    """Error raised when a model parameter value is unreasonable."""
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+        self.args = args
+
+        super(BadParameterValueError, self).__init__(\
+        "Parameter %s has unreasonable value of %s"  % (name,value))
