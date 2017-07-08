@@ -830,9 +830,9 @@ class ScoreMatrix(pd.DataFrame):
     """
 
     def __init__(self, tests, models, scores=None):
-        if isinstance(tests,sciunit.Test):
+        if isinstance(tests,Test):
             tests = [tests]
-        if isinstance(models,sciunit.Model):
+        if isinstance(models,Model):
             models = [models]
         if scores is None:
             scores = [[NoneScore for test in tests] for model in models]
