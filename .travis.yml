@@ -1,14 +1,29 @@
+#### Quick miniconda with numpy, scipy, etc. from ####
+# https://conda.io/docs/travis.html               ####
 language: python
 python:
+  # We don't actually use the Travis Python, but this keeps it organized.
   - "2.7"
   - "3.5"
-sudo: required
-services:
-  - docker
-  
-before_script:
-  - docker pull scidash/scipy-notebook-plus
-  - docker build . -t scidash/sciunit
+install:
+  - sudo apt-get update
+  # We do this conditionally because it saves us some downloading if the
+  # version is the same.
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - pip install --no-cache-dir --process-dependency-links . 
+######################################################
 
 script: 
-  - docker run -it scidash/sciunit python -m unittest test_*
+  - python -m unittest unit_test/core_tests.py
+  
