@@ -7,7 +7,11 @@ import os
 import sys
 import subprocess
 import warnings
-import tkinter
+try: # Python 3
+    import tkinter
+except ImportError: # Python 2
+    import Tkinter as tkinter
+import inspect
 
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
@@ -49,7 +53,12 @@ class NotebookTools:
         super(NotebookTools,self).__init__(*args, **kwargs)
         self.fix_display()
 
-    path = ''
+    path = '' # Relative path to the parent directory of the notebook.
+
+    def get_path(self):
+        class_path = inspect.getfile(self.__class__)
+        parent_path = os.path.dirname(class_path)
+        return os.path.join(parent_path,self.path)
 
     def fix_display(self):
         """If this is being run on a headless system the Matplotlib
@@ -63,13 +72,13 @@ class NotebookTools:
             except ImportError:
                 pass
             else:
-                "Setting Agglkbndflkbfdb"
+                "Setting matplotlib backend to Agg"
                 mpl.use('Agg')
 
     def load_notebook(self, name):
         """Loads a notebook file into memory."""
         
-        with open(os.path.join(self.path,'%s.ipynb'%name)) as f:
+        with open(os.path.join(self.get_path(),'%s.ipynb'%name)) as f:
             nb = nbformat.read(f, as_version=4)
         return nb
 
@@ -95,7 +104,7 @@ class NotebookTools:
         """Converts a notebook into a python file."""
         
         subprocess.run(["jupyter","nbconvert","--to","python",
-                        os.path.join(self.path,'%s.ipynb'%name)])
+                        os.path.join(self.get_path(),'%s.ipynb'%name)])
         self.clean_code(name, ['get_ipython'])    
 
     def convert_and_execute_notebook(self, name):
@@ -108,7 +117,7 @@ class NotebookTools:
     def read_code(self, name):
         """Reads code from a python file called 'name'"""
 
-        with open(os.path.join(self.path,'%s.py'%name)) as f:
+        with open(os.path.join(self.get_path(),'%s.py'%name)) as f:
             code = f.read()
         return code
 
@@ -116,7 +125,7 @@ class NotebookTools:
         """Writes code to a python file called 'name', 
         erasing the previous contents."""
 
-        with open(os.path.join(self.path,'%s.py'%name),'r+') as f:
+        with open(os.path.join(self.get_path(),'%s.py'%name),'r+') as f:
             f.seek(0)
             f.write(code)
             f.truncate()
