@@ -13,7 +13,7 @@ from sciunit.utils import NotebookTools
 
 class DocumentationTestCase(NotebookTools,unittest.TestCase):
 
-    path = 'docs'
+    path = '../docs'
 
     def test_chapter1(self):
         self.do_notebook('chapter1')
