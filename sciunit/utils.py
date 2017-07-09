@@ -47,7 +47,7 @@ def assert_dimensionless(value):
     return value
 
 
-class NotebookTools:
+class NotebookTools(object):
     
     def __init__(self, *args, **kwargs):
         super(NotebookTools,self).__init__(*args, **kwargs)
