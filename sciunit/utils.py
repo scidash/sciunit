@@ -55,10 +55,10 @@ class NotebookTools(object):
 
     path = '' # Relative path to the parent directory of the notebook.
 
-    def get_path(self):
+    def get_path(self, file):
         class_path = inspect.getfile(self.__class__)
         parent_path = os.path.dirname(class_path)
-        return os.path.join(parent_path,self.path)
+        return os.path.join(parent_path,self.path,file)
 
     def fix_display(self):
         """If this is being run on a headless system the Matplotlib
@@ -78,7 +78,7 @@ class NotebookTools(object):
     def load_notebook(self, name):
         """Loads a notebook file into memory."""
         
-        with open(os.path.join(self.get_path(),'%s.ipynb'%name)) as f:
+        with open(self.get_path('%s.ipynb'%name)) as f:
             nb = nbformat.read(f, as_version=4)
         return nb
 
@@ -103,8 +103,8 @@ class NotebookTools(object):
     def convert_notebook(self, name):
         """Converts a notebook into a python file."""
         
-        subprocess.run(["jupyter","nbconvert","--to","python",
-                        os.path.join(self.get_path(),'%s.ipynb'%name)])
+        subprocess.call(["jupyter","nbconvert","--to","python",
+                        self.get_path('%s.ipynb'%name)])
         self.clean_code(name, ['get_ipython'])    
 
     def convert_and_execute_notebook(self, name):
@@ -117,7 +117,7 @@ class NotebookTools(object):
     def read_code(self, name):
         """Reads code from a python file called 'name'"""
 
-        with open(os.path.join(self.get_path(),'%s.py'%name)) as f:
+        with open(self.get_path('%s.py'%name)) as f:
             code = f.read()
         return code
 
@@ -125,7 +125,7 @@ class NotebookTools(object):
         """Writes code to a python file called 'name', 
         erasing the previous contents."""
 
-        with open(os.path.join(self.get_path(),'%s.py'%name),'r+') as f:
+        with open(self.get_path('%s.py'%name),'r+') as f:
             f.seek(0)
             f.write(code)
             f.truncate()
