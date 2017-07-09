@@ -25,5 +25,6 @@ install:
 ######################################################
 
 script: 
-  - python -m unittest unit_test/core_tests.py
+  - cd unit_test
+  - python -m unittest core_tests.py
   
