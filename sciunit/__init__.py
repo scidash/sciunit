@@ -53,8 +53,9 @@ class SciUnit(object):
         # method to avoid modifying the original state.
         state = self.__dict__.copy()
         # Remove the unpicklable entries.
-        for key in self.unpicklable:
-            del state[key]
+        if hasattr(self,'unpicklable'):
+            for key in self.unpicklable:
+                del state[key]
         return state
 
 
