@@ -186,7 +186,9 @@ class RatioScore(sciunit.Score):
         """Returns 1.0 for a ratio of 1, falling to 0.0 for extremely small
         or large values."""
 
-        return 1 - min(1,math.fabs(math.log10(self.score)))
+        score = math.log10(self.score)
+        cdf = (1.0 + math.erf(score / math.sqrt(2.0))) / 2.0
+        return 1 - 2*math.fabs(0.5 - cdf)
 
     def __str__(self):
         return 'Ratio = %.2f' % self.score
