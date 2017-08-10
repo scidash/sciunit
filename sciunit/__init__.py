@@ -120,7 +120,7 @@ class Model(SciUnit):
         return '%s' % self.name
 
 
-class Capability(Sciunit):
+class Capability(SciUnit):
     """Abstract base class for sciunit capabilities."""
   
     @classmethod
