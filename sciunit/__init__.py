@@ -55,7 +55,8 @@ class SciUnit:
         # Remove the unpicklable entries.
         if hasattr(self,'unpicklable'):
             for key in self.unpicklable:
-                del state[key]
+                if key in state:
+                    del state[key]
         return state
 
 
