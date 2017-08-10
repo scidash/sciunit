@@ -40,7 +40,7 @@ def log(*args, **kwargs):
                 output = f.getvalue()
                 display(HTML(output))
 
-class SciUnit:
+class SciUnit(object):
     """Abstract base class for models, tests, and scores."""
     def __init__(self):
         self.unpicklable = [] # Attributes that cannot or should not be pickled.
@@ -120,7 +120,7 @@ class Model(SciUnit):
         return '%s' % self.name
 
 
-class Capability:
+class Capability(Sciunit):
     """Abstract base class for sciunit capabilities."""
   
     @classmethod
