@@ -40,7 +40,7 @@ def log(*args, **kwargs):
                 output = f.getvalue()
                 display(HTML(output))
 
-class SciUnit(object):
+class SciUnit:
     """Abstract base class for models, tests, and scores."""
     def __init__(self):
         self.unpicklable = [] # Attributes that cannot or should not be pickled.
@@ -118,11 +118,8 @@ class Model(SciUnit):
     def __str__(self):
         return '%s' % self.name
 
-    def __repr__(self):
-        return str(self)
 
-
-class Capability(object):
+class Capability:
     """Abstract base class for sciunit capabilities."""
   
     @classmethod
@@ -353,6 +350,10 @@ class Test(SciUnit):
                 raise e
         return score
 
+    def optimize(self, model):
+        raise NotImplementedError(("Optimization not implemented "
+                                   "for Test '%s'" % self))
+
     def describe(self):
         result = "No description available"
         if self.description:
@@ -368,9 +369,6 @@ class Test(SciUnit):
 
     def __str__(self):
         return '%s' % self.name
-
-    def __repr__(self):
-        return str(self)
 
 
 class TestSuite(SciUnit):
@@ -478,6 +476,10 @@ class TestSuite(SciUnit):
         sm.loc[model, test] = score
         return score
 
+    def optimize(self, model):
+        raise NotImplementedError(("Optimization not implemented "
+                                   "for TestSuite '%s'" % self))
+
     def set_hooks(self, test, score):
         if self.hooks and test in self.hooks:
             f = self.hooks[test]['f']
@@ -516,9 +518,6 @@ class TestSuite(SciUnit):
 
     def __str__(self):
         return '%s' % self.name
-
-    def __repr__(self):
-        return str(self)
 
 
 #
@@ -652,9 +651,6 @@ class Score(SciUnit):
 
     def __str__(self):
         return '%s' % self.score
-
-    def __repr__(self):
-        return str(self)
 
     def __eq__(self, other):
         return self.sort_key == other.sort_key
