@@ -5,6 +5,12 @@ try:
 except ImportError:
     from distutils.core import setup
 
+# IPython 6.0+ does not support Python 2.6, 2.7, 3.0, 3.1, or 3.2
+if sys.version_info < (3,3):
+    ipython = "ipython>=5.1,<6.0"
+else:
+    ipython = "ipython>=5.1"    
+    
 setup(
     name='sciunit',
     version='0.1.5.8',
@@ -15,13 +21,7 @@ setup(
     url='http://sciunit.scidash.org',
     license='MIT',
     description='A test-driven framework for formally validating scientific models against data.',
-    long_description="",
-    
-    # IPython 6.0+ does not support Python 2.6, 2.7, 3.0, 3.1, or 3.2
-    if sys.version_info < (3,3):
-        ipython = "ipython>=5.1,<6.0"
-    else:
-        ipython = "ipython>=5.1"
+    long_description="",      
     
     install_requires=['cypy>=0.2',
                       'quantities==999',
