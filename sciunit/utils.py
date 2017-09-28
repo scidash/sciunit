@@ -12,8 +12,16 @@ try: # Python 3
 except ImportError: # Python 2
     import Tkinter as tkinter
 import inspect
+from io import TextIOWrapper,StringIO
+try:
+    import unittest.mock
+    mock = True
+except ImportError:
+    mock = False
+mock = False # mock is probably obviated by the unittest -b flag.  
 
 import nbformat
+import nbconvert
 from nbconvert.preprocessors import ExecutePreprocessor
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
@@ -80,9 +88,9 @@ class NotebookTools(object):
         
         with open(self.get_path('%s.ipynb'%name)) as f:
             nb = nbformat.read(f, as_version=4)
-        return nb
+        return nb,f
 
-    def run_notebook(self, nb):
+    def run_notebook(self, nb, f):
         """Runs a loaded notebook file."""
         
         if (sys.version_info >= (3, 0)):
@@ -90,21 +98,34 @@ class NotebookTools(object):
         else:
             kernel_name = 'python2'
         ep = ExecutePreprocessor(timeout=600, kernel_name=kernel_name)
-        ep.preprocess(nb, {'metadata': {'path': '.'}})
-        
+        try:
+            out = ep.preprocess(nb, {'metadata': {'path': '.'}})
+        except CellExecutionError:
+            out = None
+            msg = 'Error executing the notebook "%s".\n\n' % f.name
+            msg += 'See notebook "%s" for the traceback.' % f.name
+            print(msg)
+            raise
+        finally:
+            nbformat.write(nb, f)
+
     def execute_notebook(self, name):
         """Loads and then runs a notebook file."""
         
         warnings.filterwarnings("ignore", category=DeprecationWarning) 
-        nb = self.load_notebook(name)
-        self.run_notebook(nb)
+        nb,f = self.load_notebook(name)
+        self.run_notebook(nb,f)
         self.assertTrue(True)
 
     def convert_notebook(self, name):
         """Converts a notebook into a python file."""
         
-        subprocess.call(["jupyter","nbconvert","--to","python",
-                        self.get_path('%s.ipynb'%name)])
+        #subprocess.call(["jupyter","nbconvert","--to","python",
+        #                self.get_path("%s.ipynb"%name)])
+        exporter = nbconvert.exporters.python.PythonExporter()
+        file_name = self.get_path("%s.ipynb"%name)
+        code = exporter.from_filename(file_name)[0]
+        self.write_code(name, code)
         self.clean_code(name, ['get_ipython'])    
 
     def convert_and_execute_notebook(self, name):
@@ -150,8 +171,27 @@ class NotebookTools(object):
         converting it to a python file."""
         
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS',True))
-        if CONVERT_NOTEBOOKS:
+        s = StringIO()
+        if mock:
+            with unittest.mock.patch('sys.stdout', new=MockDevice(s)) as fake_out:
+                with unittest.mock.patch('sys.stderr', new=MockDevice(s)) as fake_out:    
+                    self._do_notebook(name, CONVERT_NOTEBOOKS)
+        else:
+            self._do_notebook(name, CONVERT_NOTEBOOKS)
+        self.assertTrue(True)
+
+    def _do_notebook(self, name, convert_notebooks=False):
+        s = StringIO()
+        if convert_notebooks:
             self.convert_and_execute_notebook(name)
         else:
-            self.execute_notebook(name)
-        self.assertTrue(True)
+            self.execute_notebook(name)    
+
+class MockDevice(TextIOWrapper):
+    """A mock device to temporarily suppress output to stdout
+    Similar to UNIX /dev/null.
+    """
+
+    def write(self, s): 
+        if s.startswith('[') and s.endswith(']'):
+            super(MockDevice,self).write(s)
