@@ -7,6 +7,8 @@ import os
 import sys
 import subprocess
 import warnings
+import pkgutil
+import importlib
 try: # Python 3
     import tkinter
 except ImportError: # Python 2
@@ -188,6 +190,7 @@ class NotebookTools(object):
         else:
             self.execute_notebook(name)    
 
+
 class MockDevice(TextIOWrapper):
     """A mock device to temporarily suppress output to stdout
     Similar to UNIX /dev/null.
@@ -196,3 +199,18 @@ class MockDevice(TextIOWrapper):
     def write(self, s): 
         if s.startswith('[') and s.endswith(']'):
             super(MockDevice,self).write(s)
+
+
+def import_all_modules(package):
+    """Recursively imports all subpackages, modules, and submodules of a 
+    given package.
+    'package' should be an imported package, not a string.
+    """
+
+    for importer, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
+                                                          onerror=lambda x: None):
+        print(modname,ispkg)
+        if ispkg:
+            subpackage = importlib.import_module('%s.%s' % \
+                                                 (package.__name__,modname))
+            import_all_modules(subpackage)
