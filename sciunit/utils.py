@@ -66,7 +66,8 @@ class NotebookTools(object):
     def get_path(self, file):
         class_path = inspect.getfile(self.__class__)
         parent_path = os.path.dirname(class_path)
-        return os.path.join(parent_path,self.path,file)
+        path = os.path.join(parent_path,self.path,file)
+        return os.path.realpath(path)
 
     def fix_display(self):
         """If this is being run on a headless system the Matplotlib
@@ -123,8 +124,8 @@ class NotebookTools(object):
         #subprocess.call(["jupyter","nbconvert","--to","python",
         #                self.get_path("%s.ipynb"%name)])
         exporter = nbconvert.exporters.python.PythonExporter()
-        file_name = self.get_path("%s.ipynb"%name)
-        code = exporter.from_filename(file_name)[0]
+        file_path = self.get_path("%s.ipynb"%name)
+        code = exporter.from_filename(file_path)[0]
         self.write_code(name, code)
         self.clean_code(name, ['get_ipython'])    
 
@@ -138,7 +139,8 @@ class NotebookTools(object):
     def read_code(self, name):
         """Reads code from a python file called 'name'"""
 
-        with open(self.get_path('%s.py'%name)) as f:
+        file_path = self.get_path('%s.py'%name)
+        with open(file_path) as f:
             code = f.read()
         return code
 
@@ -146,11 +148,10 @@ class NotebookTools(object):
         """Writes code to a python file called 'name', 
         erasing the previous contents."""
 
-        with open(self.get_path('%s.py'%name),'r+') as f:
-            f.seek(0)
+        file_path = self.get_path('%s.py'%name)
+        with open(file_path,'w') as f:
             f.write(code)
-            f.truncate()
-
+            
     def clean_code(self, name, forbidden):
         """Remove lines containing items in forbidden from the code.
         Helpful for executing converted notebooks that still retain IPython
