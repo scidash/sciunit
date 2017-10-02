@@ -26,5 +26,5 @@ install:
 
 script: 
   - cd unit_test
-  - python -m unittest -b core_tests
+  - python -m unittest -bv core_tests
   
