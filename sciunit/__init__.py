@@ -374,8 +374,8 @@ class Test(SciUnit):
 
 class TestSuite(SciUnit):
     """A collection of tests."""
-    def __init__(self, name, tests, include_models=None, skip_models=None, 
-                 hooks=None):
+    def __init__(self, name, tests, weights=None, include_models=None, 
+                 skip_models=None, hooks=None):
         if name is None:
             raise Error("Suite name required.")
         self.name = name
@@ -392,6 +392,9 @@ class TestSuite(SciUnit):
                 raise TypeError(("Test suite was not provided with "
                                  "a test or iterable."))
         self.tests = tests
+        n = len(self.tests)
+        self.weights = [1.0]*n if weights is None else weights
+        self.weights = self.weights/sum(self.weights) # Normalize
         self.include_models = [] if include_models is None else include_models
         self.skip_models = [] if skip_models is None else skip_models
         self.hooks = hooks
@@ -431,7 +434,7 @@ class TestSuite(SciUnit):
                 raise TypeError(("Test suite's judge method not provided with "
                                  "a model or iterable."))
 
-        sm = ScoreMatrix(self.tests, models)
+        sm = ScoreMatrix(self.tests, models, weights=self.weights)
         for model in models:
             skip = self.is_skipped(model)
             for test in self.tests:
@@ -767,9 +770,11 @@ class ScoreArray(pd.Series):
     (score_1, ..., score_n)
     """
 
-    def __init__(self, tests_or_models, scores=None):
+    def __init__(self, tests_or_models, scores=None, weights=None):
         if scores is None:
             scores = [NoneScore for tom in tests_or_models]
+        self.weights = [1.0]*len(tests_or_models) if weights is None else weights
+        self.weights = self.weights/sum(self.weights)
         assert all([isinstance(tom,Test) for tom in tests_or_models]) or \
                all([isinstance(tom,Model) for tom in tests_or_models]), \
                "A ScoreArray may be indexed by only test or models"
@@ -803,8 +808,8 @@ class ScoreArray(pd.Series):
         using the sort_key, since otherwise direct comparison across different
         kinds of scores would not be possible."""
 
-        return np.mean(self.sort_keys)
-
+        return np.dot(np.array(self.sort_keys),np.array(self.weights))
+        
     def stature(self, test_or_model):
         """Computes the relative rank of a model on a test compared to other models 
         that were asked to take the test."""
@@ -834,7 +839,7 @@ class ScoreMatrix(pd.DataFrame):
     (score_1, ..., score_n)
     """
 
-    def __init__(self, tests, models, scores=None):
+    def __init__(self, tests, models, scores=None, weights=None):
         if isinstance(tests,Test):
             tests = [tests]
         if isinstance(models,Model):
@@ -844,6 +849,8 @@ class ScoreMatrix(pd.DataFrame):
         super(ScoreMatrix,self).__init__(data=scores, index=models, columns=tests)
         self.tests = tests
         self.models = models
+        self.weights = [1.0]*len(tests_or_models) if weights is None else weights
+        self.weights = self.weights/sum(self.weights)
 
     show_mean = False
     sortable = False
@@ -851,9 +858,12 @@ class ScoreMatrix(pd.DataFrame):
     def __getitem__(self, item):
         if isinstance(item, Test):
             return ScoreArray(self.models, 
-                              scores=super(ScoreMatrix,self).__getitem__(item))
+                              scores=super(ScoreMatrix,self).__getitem__(item),
+                              weights=self.weights)
         elif isinstance(item, Model):
-            return ScoreArray(self.tests, scores=self.loc[item,:])
+            return ScoreArray(self.tests, 
+                              scores=self.loc[item,:],
+                              weights=self.weights)
         elif isinstance(item,str):
             for model in self.models:
                 if model.name == item:
