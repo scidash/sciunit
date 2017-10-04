@@ -393,8 +393,8 @@ class TestSuite(SciUnit):
                                  "a test or iterable."))
         self.tests = tests
         n = len(self.tests)
-        self.weights = [1.0]*n if weights is None else weights
-        self.weights = self.weights/sum(self.weights) # Normalize
+        self.weights = np.ones(n) if weights is None else np.array(weights)
+        self.weights /= self.weights.sum() # Normalize
         self.include_models = [] if include_models is None else include_models
         self.skip_models = [] if skip_models is None else skip_models
         self.hooks = hooks
@@ -773,8 +773,9 @@ class ScoreArray(pd.Series):
     def __init__(self, tests_or_models, scores=None, weights=None):
         if scores is None:
             scores = [NoneScore for tom in tests_or_models]
-        self.weights = [1.0]*len(tests_or_models) if weights is None else weights
-        self.weights = self.weights/sum(self.weights)
+        n = len(tests_or_models)
+        self.weights = np.ones(n) if weights is None else np.array(weights)
+        self.weights /= self.weights.sum() # Normalize
         assert all([isinstance(tom,Test) for tom in tests_or_models]) or \
                all([isinstance(tom,Model) for tom in tests_or_models]), \
                "A ScoreArray may be indexed by only test or models"
@@ -808,7 +809,7 @@ class ScoreArray(pd.Series):
         using the sort_key, since otherwise direct comparison across different
         kinds of scores would not be possible."""
 
-        return np.dot(np.array(self.sort_keys),np.array(self.weights))
+        return np.dot(np.array(self.sort_keys),self.weights)
         
     def stature(self, test_or_model):
         """Computes the relative rank of a model on a test compared to other models 
