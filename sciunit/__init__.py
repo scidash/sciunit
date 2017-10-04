@@ -797,7 +797,7 @@ class ScoreArray(pd.Series):
         if name in ['score','sort_keys','related_data']:
             attr = self.apply(lambda x: getattr(x,name))
         else:
-            attr = super(ScoreArray,self).__getattr__(name)
+            attr = super(ScoreArray,self).__getattribute__(name)
         return attr
    
     @property   
@@ -886,7 +886,7 @@ class ScoreMatrix(pd.DataFrame):
         if name in ['score','sort_key','related_data']:
             attr = self.applymap(lambda x: getattr(x,name))
         else:
-            attr = super(ScoreMatrix,self).__getattr__(name)
+            attr = super(ScoreMatrix,self).__getattribute__(name)
         return attr
 
     @property   
