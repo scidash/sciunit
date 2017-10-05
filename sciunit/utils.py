@@ -9,6 +9,7 @@ import subprocess
 import warnings
 import pkgutil
 import importlib
+import pickle
 try: # Python 3
     import tkinter
 except ImportError: # Python 2
@@ -214,3 +215,7 @@ def import_all_modules(package):
             subpackage = importlib.import_module('%s.%s' % \
                                                  (package.__name__,modname))
             import_all_modules(subpackage)
+
+
+def dict_hash(d):
+    return hash(pickle.dumps([(key,x[key]) for key in sorted(d)]))
