@@ -24,7 +24,7 @@ setup(
     long_description="",      
     
     install_requires=['cypy>=0.2',
-                      'quantities==0.12.1'
+                      'quantities==0.12.1',
                       #'quantities==999',
                       'pandas>=0.18',
                       ipython,
