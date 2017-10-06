@@ -18,6 +18,8 @@ import pandas as pd
 import bs4
 from IPython.display import HTML,Javascript,display
 
+from .utils import dict_hash
+
 KERNEL = ('ipykernel' in sys.modules)
 LOGGING = True
 
@@ -115,6 +117,11 @@ class Model(SciUnit):
         as needed by specific model classes.
         """
         pass
+
+    @property
+    def state(self):
+        """A unique numeric identifier of the current model state"""
+        return dict_hash(self.__dict__)
 
     def __str__(self):
         return '%s' % self.name

@@ -10,6 +10,7 @@ import warnings
 import pkgutil
 import importlib
 import pickle
+import hashlib
 try: # Python 3
     import tkinter
 except ImportError: # Python 2
@@ -218,4 +219,5 @@ def import_all_modules(package):
 
 
 def dict_hash(d):
-    return hash(pickle.dumps([(key,x[key]) for key in sorted(d)]))
+    pickled = pickle.dumps([(key,d[key]) for key in sorted(d)])
+    return hashlib.sha224(pickled).hexdigest()
