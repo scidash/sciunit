@@ -24,7 +24,8 @@ setup(
     long_description="",      
     
     install_requires=['cypy>=0.2',
-                      'quantities==999',
+                      'quantities==0.12.1'
+                      #'quantities==999',
                       'pandas>=0.18',
                       ipython,
                       'matplotlib',
@@ -33,7 +34,7 @@ setup(
                       'nbconvert',
                       'ipykernel',
                       'nbformat',],
-    dependency_links = ['git+https://github.com/python-quantities/python-quantities.git@master#egg=quantities-999'],
+    #dependency_links = ['git+https://github.com/python-quantities/python-quantities.git@master#egg=quantities-999'],
     entry_points={
         'console_scripts': [
             'sciunit = sciunit.__main__:main'
