@@ -25,9 +25,7 @@ install:
   - pip install coveralls
 ######################################################
 before_script:
-  - cd ..
-  - git clone -b cosmosuite http://github.com/scidash/scidash cosmosuite
-  - cd ../sciunit
+  - git clone -b cosmosuite http://github.com/scidash/scidash ../scidash
 script: 
   - coverage run --source=. setup.py test  
 after_success:
