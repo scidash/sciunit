@@ -6,6 +6,7 @@
 
 # coverage run --source . test_all.py
 
+import os
 import unittest
 
 from sciunit.utils import NotebookTools, import_all_modules
