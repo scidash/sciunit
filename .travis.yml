@@ -27,3 +27,5 @@ install:
 
 script: 
   - coverage run --source=. setup.py test  
+after_success:
+  - coveralls
