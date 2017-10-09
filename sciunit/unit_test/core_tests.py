@@ -7,6 +7,7 @@
 # coverage run --source . test_all.py
 
 import os
+import platform
 import unittest
 
 from sciunit.utils import NotebookTools, import_all_modules
@@ -70,6 +71,8 @@ class CommandLineTestCase(unittest.TestCase):
     def test_scidash_make_nb(self):
         self.main('--directory',self.cosmosuite_path,'make-nb')
 
+    # Skip for python versions that don't have importlib.machinery
+    @unittest.skipIf(platform.python_version()<'3.3')
     def test_scidash_run_nb(self):
         self.main('--directory',self.cosmosuite_path,'run-nb')
 
