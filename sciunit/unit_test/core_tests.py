@@ -72,7 +72,8 @@ class CommandLineTestCase(unittest.TestCase):
         self.main('--directory',self.cosmosuite_path,'make-nb')
 
     # Skip for python versions that don't have importlib.machinery
-    @unittest.skipIf(platform.python_version()<'3.3')
+    @unittest.skipIf(platform.python_version()<'3.3',
+                     "run-nb not supported on Python < 3.3")
     def test_scidash_run_nb(self):
         self.main('--directory',self.cosmosuite_path,'run-nb')
 
