@@ -21,7 +21,7 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - pip install --no-cache-dir --process-dependency-links . 
+  - pip install --process-dependency-links . 
   - pip install coveralls
 ######################################################
 before_script:
