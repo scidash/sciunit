@@ -203,7 +203,7 @@ class Test(SciUnit):
     """A sequence of capabilities that a model must have in order for the 
     test to be run. Defaults to empty."""
 
-    def check_capabilities(self, model, skip_incapable=True):
+    def check_capabilities(self, model, skip_incapable=False):
         """Checks that the capabilities required by the test are 
         implemented by `model`.
 
@@ -212,7 +212,6 @@ class Test(SciUnit):
         """
         if not isinstance(model, Model):
             raise Error("Model %s is not a sciunit.Model." % str(model))
-
         capable = True
         for c in self.required_capabilities:
             if not c.check(model):
@@ -298,7 +297,7 @@ class Test(SciUnit):
       
         return score
   
-    def judge(self, model, skip_incapable=True, stop_on_error=True, 
+    def judge(self, model, skip_incapable=False, stop_on_error=True, 
                   deep_error=False):
         """Generates a score for the provided model.
 
@@ -337,8 +336,12 @@ class Test(SciUnit):
                 score = self._judge(model, skip_incapable=skip_incapable)
             except CapabilityError as e:
                 score = NAScore(str(e))
+                score.model = model
+                score.test = self
             except Exception as e:
                 score = ErrorScore(e)
+                score.model = model
+                score.test = self
         if isinstance(score,ErrorScore) and stop_on_error:
             raise score.score # An exception.  
         return score
@@ -425,7 +428,7 @@ class TestSuite(SciUnit):
     (all passed to judge are judged by default)."""
 
     def judge(self, models, 
-              skip_incapable=True, stop_on_error=True, deep_error=False):
+              skip_incapable=False, stop_on_error=True, deep_error=False):
         """Judges the provided models against each test in the test suite.
            Returns a ScoreMatrix.
         """
@@ -620,7 +623,7 @@ class Score(SciUnit):
 
     def summarize(self):
         if self.score is not None:
-            print("%s" % self.summary)
+            log("%s" % self.summary)
 
     def _describe(self):
         result = "No description available"
@@ -643,7 +646,7 @@ class Score(SciUnit):
         if quiet:
             return d
         else:
-            print(d)
+            log(d)
 
     @property
     def raw(self):

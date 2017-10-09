@@ -1,6 +1,7 @@
 import sys
 import os
 import argparse
+import re
 try:
     import configparser
 except ImportError:
@@ -14,22 +15,22 @@ except ImportError:
 
 NB_VERSION = 4
 
-def main(args=None):
+def main(*args):
     """The main routine."""
-    if args is None:
-        args = sys.argv[1:]
-
     parser = argparse.ArgumentParser()
     parser.add_argument("action", help="create, check, run, make-nb, or run-nb")
     parser.add_argument("--directory", "-dir", default=os.getcwd(), 
-                        help="path to directory with a .sciunit file")
+                    help="path to directory with a .sciunit file")
     parser.add_argument("--stop", "-s", default=True, 
-                        help="stop and raise errors, halting the program")
+                    help="stop and raise errors, halting the program")
     parser.add_argument("--tests", "-t", default=False, 
-                        help="runs tests instead of suites")
-    args = parser.parse_args()
-    #args.directory = os.getcwd() if args.directory is None else args.directory
+                    help="runs tests instead of suites")
+    if len(args):
+        args = parser.parse_args(args)
+    else:
+        args = parser.parse_args()
     file_path = os.path.join(args.directory,'.sciunit')
+    config = None
     if args.action == 'create':
         create(file_path)
     elif args.action == 'check':
@@ -48,7 +49,8 @@ def main(args=None):
         run_nb(config, path=args.directory)
     else:
         raise NameError('No such action %s' % args.action)
-    cleanup(config, path=args.directory)
+    if config:
+        cleanup(config, path=args.directory)
 
 
 def create(file_path):
@@ -59,6 +61,8 @@ def create(file_path):
         config = configparser.ConfigParser()
         config.add_section('misc')
         config.set('misc', 'config-version', '1.0')
+        default_nb_name = os.path.split(os.path.dirname(file_path))[1]
+        config.set('misc', 'nb-name', default_nb_name)
         config.add_section('root')
         config.set('root', 'path', '.')
         config.add_section('models')
@@ -141,30 +145,35 @@ def make_nb(config, path=None, stop_on_error=True, just_tests=False):
     root = config.get('root','path')
     root = os.path.join(path,root)
     root = os.path.realpath(root)
-    nb_name = config.get('misc','nb-name')
+    default_nb_name = os.path.split(os.path.realpath(root))[1]
+    nb_name = config.get('misc','nb-name',fallback=default_nb_name)
+    clean = lambda varStr: re.sub('\W|^(?=\d)','_', varStr)
+    name = clean(nb_name)
     mpl_style = config.get('misc','matplotlib',fallback='inline')
     
-    cells = [new_markdown_cell('## Sciunit Testing Notebook for %s' % \
-                               os.path.split(os.path.realpath(root))[1])]
+    cells = [new_markdown_cell('## Sciunit Testing Notebook for %s' % nb_name)]
     add_code_cell(cells, (
         "%%matplotlib %s\n"
         "from IPython.display import display\n"
-        "import os,sys\n"
-        "if sys.path[0] != '%s':\n"
-        "  sys.path.insert(0,'%s')\n"
-        "os.environ['SCIDASH_HOME'] = '%s'") % (mpl_style,root,root,root))
-    add_code_cell(cells, (
-        "import models, tests, suites"))
+        "from importlib.machinery import SourceFileLoader\n"
+        "%s = SourceFileLoader('scidash', '%s/__init__.py').load_module()") % \
+        (mpl_style,name,root))
+        #"import os,sys\n"
+        #"if sys.path[0] != '%s':\n"
+        #"  sys.path.insert(0,'%s')\n"
+        #"os.environ['SCIDASH_HOME'] = '%s'") % (mpl_style,root,root,root))
+    #add_code_cell(cells, (
+    #    "import models, tests, suites"))
     if just_tests:
         add_code_cell(cells, (
-            "for test in tests.tests:\n"
-            "  score_array = test.judge(models.models, stop_on_error=%r)\n"
-            "  display(score_array)") % stop_on_error)
+            "for test in %s.tests.tests:\n"
+            "  score_array = test.judge(%s.models.models, stop_on_error=%r)\n"
+            "  display(score_array)") % (name,name,stop_on_error))
     else:
         add_code_cell(cells, (
-            "for suite in suites.suites:\n"
-            "  score_matrix = suite.judge(models.models, stop_on_error=%r)\n"
-            "  display(score_matrix)") % stop_on_error)
+            "for suite in %s.suites.suites:\n"
+            "  score_matrix = suite.judge(%s.models.models, stop_on_error=%r)\n"
+            "  display(score_matrix)") % (name,name,stop_on_error))
 
     nb = new_notebook(cells=cells,
         metadata={

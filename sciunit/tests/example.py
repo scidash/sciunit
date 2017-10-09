@@ -3,8 +3,9 @@
 import sciunit, sciunit.capabilities, sciunit.models, sciunit.scores
 
 class PositivityTest(sciunit.Test):
-  def __init__(self, name=None):
-    super(PositivityTest, self).__init__(None, name=name)
+  def __init__(self, name=None, observation=True):
+    super(PositivityTest, self).__init__(name=name, 
+    									 observation=observation)
 
   required_capabilities = (sciunit.capabilities.ProducesNumber,)
   def generate_prediction(self, model):

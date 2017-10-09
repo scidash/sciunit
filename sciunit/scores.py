@@ -143,10 +143,10 @@ class RatioScore(sciunit.Score):
     _description = ('The ratio between the prediction and the observation')
 
     def _check_score(self, score):
-        if score <= 0.0:
+        if score < 0.0:
             raise sciunit.InvalidScoreError(("RatioScore was initialized with "
                                              "a score of %f, but a RatioScore "
-                                             "must be positive.") % score)
+                                             "must be non-negative.") % score)
 
     @classmethod
     def compute(cls, observation, prediction, key=None):
