@@ -2,6 +2,10 @@
 
 [![Build Status](https://travis-ci.org/scidash/sciunit.svg?branch=dev)](https://travis-ci.org/scidash/sciunit) (dev)
 
+[![Documentation Status](https://readthedocs.org/projects/sciunit/badge/?version=latest)](http://sciunit.readthedocs.io/en/latest/?badge=latest)
+
+[![Coverage Status](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=dev)](https://coveralls.io/github/scidash/sciunit?branch=dev) (dev)
+
 ![SciUnit Logo](https://raw.githubusercontent.com/scidash/assets/master/logos/sciunit.png)
 # SciUnit: A Test-Driven Framework for Formally Validating Scientific Models Against Data
 
