@@ -58,23 +58,23 @@ class CommandLineTestCase(unittest.TestCase):
         SCIDASH_HOME = os.path.dirname(os.path.dirname(sciunit.__path__[0]))
         self.cosmosuite_path = os.path.join(SCIDASH_HOME,'scidash')
 
-    def test_scidash_create(self):
+    def test_sciunit_create(self):
         try:
             self.main('--directory',self.cosmosuite_path,'create')
-        except OSError as e:
+        except Exception as e:
             if 'There is already a configuration file' not in str(e):
                 raise e
 
-    def test_scidash_run(self):
+    def test_sciunit_run(self):
         self.main('--directory',self.cosmosuite_path,'run')
 
-    def test_scidash_make_nb(self):
+    def test_sciunit_make_nb(self):
         self.main('--directory',self.cosmosuite_path,'make-nb')
 
     # Skip for python versions that don't have importlib.machinery
     @unittest.skipIf(platform.python_version()<'3.3',
                      "run-nb not supported on Python < 3.3")
-    def test_scidash_run_nb(self):
+    def test_sciunit_run_nb(self):
         self.main('--directory',self.cosmosuite_path,'run-nb')
 
 
