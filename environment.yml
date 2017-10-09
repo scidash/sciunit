@@ -10,5 +10,5 @@ dependencies:
 - sphinx>=1.5
 - pip:
   - cypy>=0.2
-  - quantities
+  - quantities==0.12.1
   - bs4
