@@ -22,9 +22,8 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
   - pip install --no-cache-dir --process-dependency-links . 
+  - pip install coveralls
 ######################################################
 
 script: 
-  - cd unit_test
-  - python -m unittest -bv core_tests
-  
+  - coverage run --source=. setup.py test  

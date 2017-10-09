@@ -21,8 +21,8 @@ setup(
     url='http://sciunit.scidash.org',
     license='MIT',
     description='A test-driven framework for formally validating scientific models against data.',
-    long_description="",      
-    
+    long_description="",  
+    test_suite="sciunit.unit_test.core_tests",    
     install_requires=['cypy>=0.2',
                       'quantities==0.12.1',
                       #'quantities==999',
