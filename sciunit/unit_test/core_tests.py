@@ -198,8 +198,6 @@ class InitTestCase(unittest.TestCase):
         sm1 = t.judge([m1,m2])
         sm2 = t.judge([m2,m1])
         sp = ScorePanel(data={1:sm1,2:sm2})
-        print(hash(sm1.to_bytes()))
-        print(hash(sp[1].to_bytes()))
         self.assertTrue(sp[1].equals(sm1))
         self.assertTrue(sp[2].equals(sm2))  
 
@@ -300,7 +298,7 @@ class ScoresTestCase(unittest.TestCase):
         self.assertEqual(score.score,0.5)
 
         score = PercentScore(42)
-        self.assertTrue(score.sort_key,0.42)
+        self.assertEqual(score.sort_key,0.42)
 
         ZScore(0.7)
         score = ZScore.compute({'mean':3,'std':1},{'value':2})
