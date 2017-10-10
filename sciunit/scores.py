@@ -212,7 +212,7 @@ class PercentScore(sciunit.Score):
     def sort_key(self):
         """Returns 1.0 for a percent score of 100, and 0.0 for 0."""
 
-        return self.score/100
+        return float(self.score)/100
         
     def __str__(self):
         return '%.1f%%' % self.score
