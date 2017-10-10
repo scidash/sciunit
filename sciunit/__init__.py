@@ -92,7 +92,8 @@ class Model(SciUnit):
     def capabilities(self):
         capabilities = []
         for cls in self.__class__.mro():
-            if Capability in cls.mro() and cls is not Capability:
+            if issubclass(cls,Capability) and cls is not Capability \
+            and not issubclass(cls,Model):
                 capabilities.append(cls.__name__)
         return capabilities 
 
@@ -367,13 +368,14 @@ class Test(SciUnit):
 
     def describe(self):
         result = "No description available"
+        print(self)
         if self.description:
             result = "%s" % self.description
         else:
             if self.__doc__:
                 s = []
                 s += [self.__doc__.strip().replace('\n','').replace('    ','')]
-                if self.test.converter:
+                if self.converter:
                     s += [self.converter.description]
                 result = '\n'.join(s)
         return result
@@ -449,7 +451,7 @@ class TestSuite(SciUnit):
             skip = self.is_skipped(model)
             for test in self.tests:
                 if skip:
-                    sm.loc[model,test] = NoneScore(None)
+                    sm.loc[model,test] = score = NoneScore(None)
                 else:
                     score = self.judge_one(model,test,sm,skip_incapable,
                                            stop_on_error,deep_error)
@@ -667,34 +669,46 @@ class Score(SciUnit):
         return '%s' % self.score
 
     def __eq__(self, other):
-        return self.sort_key == other.sort_key
+        if isinstance(other,Score):
+            result = self.sort_key == other.sort_key
+        else:
+            result = self.score == other
+        return result
 
     def __ne__(self, other):
-        return self.sort_key != other.sort_key
+        if isinstance(other,Score):
+            result = self.sort_key != other.sort_key
+        else:
+            result = self.score != other
+        return result
 
     def __gt__(self, other):
-        try:
-            return self.sort_key > other.sort_key
-        except TypeError:
-            return 0
+        if isinstance(other,Score):
+            result = self.sort_key > other.sort_key
+        else:
+            result = self.score > other
+        return result
 
     def __ge__(self, other):
-        try:
-            return self.sort_key >= other.sort_key
-        except TypeError:
-            return 0
+        if isinstance(other,Score):
+            result = self.sort_key >= other.sort_key
+        else:
+            result = self.score >= other
+        return result
 
     def __lt__(self, other):
-        try:
-            return self.sort_key < other.sort_key
-        except TypeError:
-            return 0
+        if isinstance(other,Score):
+            result = self.sort_key < other.sort_key
+        else:
+            result = self.score < other
+        return result
 
     def __le__(self, other):
-        try:
-            return self.sort_key <= other.sort_key
-        except TypeError:
-            return 0
+        if isinstance(other,Score):
+            result = self.sort_key <= other.sort_key
+        else:
+            result = self.score <= other
+        return result
 
 
 class ErrorScore(Score):

@@ -42,6 +42,9 @@ def printd(*args, **kwargs):
     global PRINT_DEBUG_STATE
     if PRINT_DEBUG_STATE:
         print(*args, **kwargs)
+        return True
+    else:
+        return False
 
 
 def assert_dimensionless(value):

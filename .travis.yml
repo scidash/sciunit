@@ -28,6 +28,6 @@ install:
 before_script:
   - git clone -b cosmosuite http://github.com/scidash/scidash ../scidash
 script: 
-  - coverage run --source=. setup.py test  
+  - coverage run --source=. --omit=*unit_test* setup.py test  
 after_success:
   - coveralls

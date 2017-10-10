@@ -33,7 +33,7 @@ class Converter(object):
                                    self.__class__.__name__))
 
     def convert(self, score):
-        new_score = self._convert(score.score)
+        new_score = self._convert(score)
         new_score.set_raw(score.get_raw())
         for key,value in score.__dict__.items():
             if key not in ['score','_raw']:
@@ -59,7 +59,7 @@ class LambdaConversion(Converter):
         self.f = f
 
     def _convert(self, score):
-        return self.f(score)
+        return score.__class__(self.f(score))
         
 
 class AtMostToBoolean(Converter):
