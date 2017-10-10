@@ -14,7 +14,10 @@ import hashlib
 try: # Python 3
     import tkinter
 except ImportError: # Python 2
-    import Tkinter as tkinter
+    try:
+        import Tkinter as tkinter
+    except ImportError:
+        pass    #handled in fix_display()
 import inspect
 from io import TextIOWrapper,StringIO
 try:
@@ -22,7 +25,7 @@ try:
     mock = True
 except ImportError:
     mock = False
-mock = False # mock is probably obviated by the unittest -b flag.  
+mock = False # mock is probably obviated by the unittest -b flag.
 
 import nbformat
 import nbconvert
@@ -30,7 +33,7 @@ from nbconvert.preprocessors import ExecutePreprocessor
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 
-PRINT_DEBUG_STATE = False # printd does nothing by default.  
+PRINT_DEBUG_STATE = False # printd does nothing by default.
 
 
 def printd_set(state):
@@ -50,7 +53,7 @@ def printd(*args, **kwargs):
 def assert_dimensionless(value):
     """
     Tests for dimensionlessness of input.
-    If input is dimensionless but expressed as a Quantity, it returns the 
+    If input is dimensionless but expressed as a Quantity, it returns the
     bare value.  If it not, it raised an error.
     """
     if isinstance(value,Quantity):
@@ -63,7 +66,7 @@ def assert_dimensionless(value):
 
 
 class NotebookTools(object):
-    
+
     def __init__(self, *args, **kwargs):
         super(NotebookTools,self).__init__(*args, **kwargs)
         self.fix_display()
@@ -79,10 +82,10 @@ class NotebookTools(object):
     def fix_display(self):
         """If this is being run on a headless system the Matplotlib
         backend must be changed to one that doesn't need a display."""
-        
+
         try:
             root = tkinter.Tk()
-        except tkinter.TclError: # If there is no display.  
+        except (tkinter.TclError, NameError): # If there is no display.
             try:
                 import matplotlib as mpl
             except ImportError:
@@ -93,14 +96,14 @@ class NotebookTools(object):
 
     def load_notebook(self, name):
         """Loads a notebook file into memory."""
-        
+
         with open(self.get_path('%s.ipynb'%name)) as f:
             nb = nbformat.read(f, as_version=4)
         return nb,f
 
     def run_notebook(self, nb, f):
         """Runs a loaded notebook file."""
-        
+
         if (sys.version_info >= (3, 0)):
             kernel_name = 'python3'
         else:
@@ -119,26 +122,26 @@ class NotebookTools(object):
 
     def execute_notebook(self, name):
         """Loads and then runs a notebook file."""
-        
-        warnings.filterwarnings("ignore", category=DeprecationWarning) 
+
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         nb,f = self.load_notebook(name)
         self.run_notebook(nb,f)
         self.assertTrue(True)
 
     def convert_notebook(self, name):
         """Converts a notebook into a python file."""
-        
+
         #subprocess.call(["jupyter","nbconvert","--to","python",
         #                self.get_path("%s.ipynb"%name)])
         exporter = nbconvert.exporters.python.PythonExporter()
         file_path = self.get_path("%s.ipynb"%name)
         code = exporter.from_filename(file_path)[0]
         self.write_code(name, code)
-        self.clean_code(name, ['get_ipython'])    
+        self.clean_code(name, ['get_ipython'])
 
     def convert_and_execute_notebook(self, name):
         """Converts a notebook into a python file and then runs it."""
-        
+
         self.convert_notebook(name)
         code = self.read_code(name)
         exec(code,globals())
@@ -152,19 +155,19 @@ class NotebookTools(object):
         return code
 
     def write_code(self, name, code):
-        """Writes code to a python file called 'name', 
+        """Writes code to a python file called 'name',
         erasing the previous contents."""
 
         file_path = self.get_path('%s.py'%name)
         with open(file_path,'w') as f:
             f.write(code)
-            
+
     def clean_code(self, name, forbidden):
         """Remove lines containing items in forbidden from the code.
         Helpful for executing converted notebooks that still retain IPython
         magic commands.
         """
-        
+
         code = self.read_code(name)
         code = code.split('\n')
         new_code = []
@@ -175,14 +178,14 @@ class NotebookTools(object):
         self.write_code(name, new_code)
 
     def do_notebook(self, name):
-        """Runs a notebook file after optionally 
+        """Runs a notebook file after optionally
         converting it to a python file."""
-        
+
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS',True))
         s = StringIO()
         if mock:
             with unittest.mock.patch('sys.stdout', new=MockDevice(s)) as fake_out:
-                with unittest.mock.patch('sys.stderr', new=MockDevice(s)) as fake_out:    
+                with unittest.mock.patch('sys.stderr', new=MockDevice(s)) as fake_out:
                     self._do_notebook(name, CONVERT_NOTEBOOKS)
         else:
             self._do_notebook(name, CONVERT_NOTEBOOKS)
@@ -193,7 +196,7 @@ class NotebookTools(object):
         if convert_notebooks:
             self.convert_and_execute_notebook(name)
         else:
-            self.execute_notebook(name)    
+            self.execute_notebook(name)
 
 
 class MockDevice(TextIOWrapper):
@@ -201,13 +204,13 @@ class MockDevice(TextIOWrapper):
     Similar to UNIX /dev/null.
     """
 
-    def write(self, s): 
+    def write(self, s):
         if s.startswith('[') and s.endswith(']'):
             super(MockDevice,self).write(s)
 
 
 def import_all_modules(package):
-    """Recursively imports all subpackages, modules, and submodules of a 
+    """Recursively imports all subpackages, modules, and submodules of a
     given package.
     'package' should be an imported package, not a string.
     """
