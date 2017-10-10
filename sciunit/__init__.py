@@ -384,6 +384,239 @@ class Test(SciUnit):
         return '%s' % self.name
 
 
+class Test_M2M(SciUnit):
+    """Abstract base class for tests."""
+    def __init__(self, name=None, **params):
+        if name is None:
+            name = self.__class__.__name__
+        self.name = name
+
+        if self.description is None:
+            self.description = self.__class__.__doc__
+
+        if params is None:
+            params = {}
+        self.verbose = params.pop('verbose',1)
+        self.params.update(params)
+
+        if self.score_type is None or not issubclass(self.score_type, Score):
+            raise Error("Test %s does not specify a score type." % self.name)
+
+        super(Test_M2M,self).__init__()
+
+    name = None
+    """The name of the test. Defaults to the test class name."""
+
+    description = None
+    """A description of the test. Defaults to the docstring for the class."""
+
+    params = {}
+    """A dictionary containing the parameters to the test."""
+
+    score_type = None
+    """A score type for this test's `judge` method to return."""
+
+    converter = None
+    """A conversion to be done on the score after it is computed."""
+
+    verbose = 1
+    """A verbosity level for printing information."""
+
+    required_capabilities = ()
+    """A sequence of capabilities that a model must have in order for the
+    test to be run. Defaults to empty."""
+
+    def check_capabilities(self, model, skip_incapable=False):
+        """Checks that the capabilities required by the test are
+        implemented by `model`.
+
+        Raises an Error if model is not a Model.
+        Raises a CapabilityError if model does not have a capability.
+        """
+        if not isinstance(model, Model):
+            raise Error("Model %s is not a sciunit.Model." % str(model))
+        capable = True
+        for c in self.required_capabilities:
+            if not c.check(model):
+                capable = False
+                if not skip_incapable:
+                    raise CapabilityError(model, c)
+
+        return capable
+
+    def generate_prediction(self, model):
+        """Generates a prediction from a model using the required capabilities.
+
+        No default implementation.
+        """
+        raise NotImplementedError(("Test %s does not implement "
+                                   "generate_prediction.") % str())
+
+    score_type = None
+
+    def check_prediction(self, prediction):
+        """Checks the prediction for acceptable values.
+        No default implementation.
+        """
+        pass
+
+    def compute_score(self, prediction_M1, prediction_M2, prediction):
+        """Generates a score given the predictions generated
+        by generate_prediction for the two models.
+
+        Must generate a score of score_type.
+
+        No default implementation.
+        """
+        try:
+            # After some processing of the predictions.
+            score = self.score_type.compute(prediction_M1,prediction_M2)
+            return score
+        except:
+            raise NotImplementedError(("Test %s either implements no "
+                                       "compute_score method or provides no "
+                                       "score_type with a compute method.") \
+                                       % self.name)
+
+    def _bind_score(self,score,model_M1,model_M2,prediction_M1,prediction_M2):
+        """
+        Binds some useful attributes to the score.
+        """
+        score.model_M1 = model_M1
+        score.model_M2 = model_M2
+        score.test = self
+        score.prediction_M1 = prediction_M1
+        score.prediction_M2 = prediction_M2
+        score.related_data = score.related_data.copy() # Don't let scores
+                                                     # share related_data.
+        self.bind_score(score,model_M1,model_M2,prediction_M1,prediction_M2)
+
+    def bind_score(self,score,model_M1,model_M2,prediction_M1,prediction_M2):
+        """
+        For the user to bind additional features to the score.
+        """
+        pass
+
+    def _judge(self, model_M1, model_M2, skip_incapable=True):
+        # 1.
+        self.check_capabilities(model_M1, skip_incapable=skip_incapable)
+        self.check_capabilities(model_M2, skip_incapable=skip_incapable)
+        # 2.
+        prediction_M1 = self.generate_prediction(model_M1)
+        self.check_prediction(prediction_M1)
+        prediction_M2 = self.generate_prediction(model_M2)
+        self.check_prediction(prediction_M2)
+        #self.last_model = model    # Not sure if required
+        # 3.
+        score = self.compute_score(prediction_M1, prediction_M2)
+        if self.converter:
+            score = self.converter.convert(score)
+        # 4.
+        if not isinstance(score,(self.score_type,NoneScore,ErrorScore)):
+            raise InvalidScoreError(("Score for test '%s' is not of correct "
+                                     "type. The test requires type %s but %s "
+                                     "was provided.") \
+                                    % (self.name, self.score_type.__name__,
+                                       score.__class__.__name__))
+        # 5.
+        self._bind_score(score,model_M1,model_M2,prediction_M1,prediction_M2)
+
+        return score
+
+    def judge(self, model_M1, model_M2, skip_incapable=False, stop_on_error=True,
+                  deep_error=False):
+        """Generates a score for the provided models.
+
+        Operates as follows:
+        1. Checks if both the models have all the required capabilities. If a model
+           does not, and skip_incapable=False, then a CapabilityError is raised.
+        2. Calls generate_prediction to generate the predictions.
+        3. Calls score_prediction to generate a score.
+        4. Checks that the score is of score_type, raising an InvalidScoreError.
+        5. Equips the score with metadata:
+           a) A reference to model 1, in attribute model_M1.
+           b) A reference to model 2, in attribute model_M2.
+           c) A reference to the test, in attribute test.
+           d) A reference to prediction from model 1, in attribute prediction_M1.
+           e) A reference to prediction from model 2, in attribute prediction_M2.
+        6. Returns the score.
+
+        If stop_on_error is true (default), exceptions propagate upward. If
+        false, an ErrorScore is generated containing the exception.
+
+        If deep_error is true (not default), the traceback will contain the
+        actual code execution error, instead of the content of an ErrorScore.
+        """
+
+        """
+        # TODO: see if this needs to be updated and provided:
+        if isinstance(model,(list,tuple,set)):
+            # If a collection of models is provided
+            suite = TestSuite(self.name, self)
+            # then test them using a one-test suite.
+            return suite.judge(model, skip_incapable=skip_incapable,
+                                      stop_on_error=stop_on_error,
+                                      deep_error=deep_error)
+        """
+        if deep_error:
+            score = self._judge(model_M1, model_M2, skip_incapable=skip_incapable)
+        else:
+            try:
+                score = self._judge(model_M1, model_M2, skip_incapable=skip_incapable)
+            except CapabilityError as e:
+                score = NAScore(str(e))
+                score.model_M1 = model_M1
+                score.model_M2 = model_M2
+                score.test = self
+            except Exception as e:
+                score = ErrorScore(e)
+                score.model_M1 = model_M1
+                score.model_M2 = model_M2
+                score.test = self
+        if isinstance(score,ErrorScore) and stop_on_error:
+            raise score.score # An exception.
+        return score
+
+    def check(self, model, skip_incapable=True, stop_on_error=True):
+        """Like judge, but without actually running the test.
+        Just returns a Score indicating whether the model can take
+        the test or not."""
+        try:
+            if self.check_capabilities(model, skip_incapable=skip_incapable):
+                score = TBDScore(None)
+            else:
+                score = NAScore(None)
+        except Exception as e:
+            score = ErrorScore(e)
+            if stop_on_error:
+                raise e
+        return score
+
+    """
+    # TODO: see if this needs to be updated and provided:
+    def optimize(self, model):
+        raise NotImplementedError(("Optimization not implemented "
+                                   "for Test '%s'" % self))
+    """
+
+    def describe(self):
+        result = "No description available"
+        print(self)
+        if self.description:
+            result = "%s" % self.description
+        else:
+            if self.__doc__:
+                s = []
+                s += [self.__doc__.strip().replace('\n','').replace('    ','')]
+                if self.converter:
+                    s += [self.converter.description]
+                result = '\n'.join(s)
+        return result
+
+    def __str__(self):
+        return '%s' % self.name
+
+
 class TestSuite(SciUnit):
     """A collection of tests."""
     def __init__(self, name, tests, weights=None, include_models=None, 
