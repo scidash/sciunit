@@ -839,9 +839,7 @@ class ScoreArray(pd.Series):
         """Computes the relative rank of a model on a test compared to other models 
         that were asked to take the test."""
 
-        vals = sorted(self.sort_keys)
-        rank = 1 + vals.index(self[test_or_model].sort_key)
-        return rank
+        return self.sort_keys.rank(ascending=False)[test_or_model]
 
 #    def view(self):
 #        return self
@@ -874,8 +872,9 @@ class ScoreMatrix(pd.DataFrame):
         super(ScoreMatrix,self).__init__(data=scores, index=models, columns=tests)
         self.tests = tests
         self.models = models
-        self.weights = [1.0]*len(tests_or_models) if weights is None else weights
-        self.weights = self.weights/sum(self.weights)
+        n = len(tests)
+        self.weights = np.ones(n) if weights is None else np.array(weights)
+        self.weights /= self.weights.sum()
 
     show_mean = False
     sortable = False
@@ -921,9 +920,7 @@ class ScoreMatrix(pd.DataFrame):
         """Computes the relative rank of a model on a test compared to other models 
         that were asked to take the test."""
 
-        vals = sorted([x.sort_key for x in self[model].scores])
-        rank = 1 + vals.index(self[test,model].sort_key)
-        return rank
+        return self[test].stature(model)
 
     def to_html(self, show_mean=None, sortable=None, colorize=True, *args, 
                       **kwargs):
@@ -983,7 +980,7 @@ class ScoreMatrix(pd.DataFrame):
 
 
 class ScorePanel(pd.Panel):
-    def __getitem__(self,item):
+    def __getitem__(self, item):
         df = super(ScorePanel,self).__getitem__(item)
         assert isinstance(df,pd.DataFrame), \
             "Only Score Matrices can be accessed by attribute from Score Panels"
@@ -1046,7 +1043,6 @@ class BadParameterValueError(Error):
     def __init__(self, name, value):
         self.name = name
         self.value = value
-        self.args = args
-
+        
         super(BadParameterValueError, self).__init__(\
         "Parameter %s has unreasonable value of %s"  % (name,value))

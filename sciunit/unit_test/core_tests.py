@@ -12,6 +12,7 @@ import unittest
 import tempfile
 
 import numpy as np
+from IPython.display import display
 
 from sciunit.utils import NotebookTools, import_all_modules
 
@@ -47,6 +48,12 @@ class ImportTestCase(unittest.TestCase):
 class InitTestCase(unittest.TestCase):
     """Unit tests for the sciunit module"""
 
+    def setUp(self):
+        from sciunit.tests.example import RangeTest
+        from sciunit.models import UniformModel
+        self.M = UniformModel
+        self.T = RangeTest
+
     def test_log(self):
         from sciunit import log
         
@@ -60,55 +67,151 @@ class InitTestCase(unittest.TestCase):
         self.assertEqual(m.__dict__,state)
 
     def test_get_model_capabilities(self):
-        from sciunit.models import UniformModel
         from sciunit.capabilities import ProducesNumber
         
-        m = UniformModel(2,3)
+        m = self.M(2,3)
         self.assertEqual(m.capabilities,['ProducesNumber'])
 
     def test_get_model_description(self):
         from sciunit.models import UniformModel
         
-        m = UniformModel(2,3)
+        m = self.M(2,3)
         m.describe()
         m.description = "Lorem Ipsum"
         m.describe()
 
     def test_get_test_description(self):
-        from sciunit.tests.example import PositivityTest
-        
-        t = PositivityTest()
+        t = self.T([2,3])
         t.describe()
         t.description = "Lorem Ipsum"
         t.describe()
 
-        class MyTest(PositivityTest):
+        class MyTest(self.T):
             """Lorem Ipsum"""
             pass
-        t = MyTest()
+
+        t = MyTest([2,3])
         t.description = None
         self.assertEqual(t.describe(),"Lorem Ipsum")
 
     def test_check_model_capabilities(self):
-        from sciunit.tests.example import PositivityTest
-        from sciunit.models import UniformModel
-
-        t = PositivityTest()
-        m = UniformModel(2,3)
+        t = self.T([2,3])
+        m = self.M(2,3)
         t.check(m)
 
     def test_testsuite(self):
         from sciunit import TestSuite
-        from sciunit.tests.example import PositivityTest
-        from sciunit.models import UniformModel
-        t1 = PositivityTest()
-        t2 = PositivityTest()
-        m1 = UniformModel(2,3)
-        m2 = UniformModel(5,6)
+        
+        t1 = self.T([2,3])
+        t2 = self.T([5,6])
+        m1 = self.M(2,3)
+        m2 = self.M(5,6)
         t = TestSuite("MySuite",[t1,t2])
         t.judge([m1,m2])
         t = TestSuite("MySuite",[t1,t2],skip_models=[m1],include_models=[m2])
         t.judge([m1,m2])
+
+    def test_testsuite_hooks(self):
+        from sciunit import TestSuite
+        
+        t1 = self.T([2,3])
+        t1.hook_called = False
+        t2 = self.T([5,6])
+        m = self.M(2,3)
+        def f(test, tests, score, a=None):
+            self.assertEqual(score,True)
+            self.assertEqual(a,1)
+            t1.hook_called = True
+        t = TestSuite("MySuite",[t1,t2],
+                      hooks={t1:
+                                {'f':f,
+                                 'kwargs':{'a':1}}
+                            })
+        t.judge(m)
+        self.assertEqual(t1.hook_called,True)
+
+    def test_testsuite_from_observations(self):
+        from sciunit import TestSuite
+        
+        m = self.M(2,3)
+        t = TestSuite.from_observations("MySuite",
+                                        [(self.T,[2,3]),
+                                         (self.T,[5,6])])
+        t.judge(m)
+
+
+    def test_testsuite_set_verbose(self):
+        from sciunit import TestSuite
+
+        t1 = self.T([2,3])
+        t2 = self.T([5,6])
+        t = TestSuite("MySuite",[t1,t2])
+        t.set_verbose(True)
+        self.assertEqual(t1.verbose,True)
+        self.assertEqual(t2.verbose,True)
+
+    def prep_models_and_tests(self):
+        from sciunit import TestSuite
+        
+        t1 = self.T([2,3],name='test1')
+        t2 = self.T([5,6])
+        m1 = self.M(2,3)
+        m2 = self.M(5,6)
+        t = TestSuite("MySuite",[t1,t2])
+        return (t,t1,t2,m1,m2)
+
+    def test_score_matrix(self):
+        from sciunit import ScoreMatrix
+        
+        t,t1,t2,m1,m2 = self.prep_models_and_tests()
+        sm = t.judge(m1)
+        self.assertTrue(type(sm) is ScoreMatrix)
+        self.assertTrue(sm[t1][m1].score)
+        self.assertTrue(sm['test1'][m1].score)
+        self.assertTrue(sm[m1]['test1'].score)
+        self.assertFalse(sm[t2][m1].score)  
+        self.assertEqual(sm[(m1,t1)].score,True)
+        self.assertEqual(sm[(m1,t2)].score,False)
+        sm = t.judge([m1,m2])
+        self.assertEqual(sm.stature(t1,m1),1)
+        self.assertEqual(sm.stature(t1,m2),2)
+        display(sm)
+
+    def test_score_arrays(self):
+        from sciunit import ScoreArray
+        
+        t,t1,t2,m1,m2 = self.prep_models_and_tests()
+        sm = t.judge(m1)
+        sa = sm[m1]
+        self.assertTrue(type(sa) is ScoreArray)
+        self.assertEqual(list(sa.sort_keys.values),[1.0,0.0])      
+        self.assertEqual(sa.stature(t1),1)
+        self.assertEqual(sa.stature(t2),2)
+        self.assertEqual(sa.stature(t1),1)
+        display(sa)
+
+    @unittest.skip("Currently failing because ScorePanel just stores sm1 twice")
+    def test_score_panel(self):
+        from sciunit import ScorePanel
+        
+        t,t1,t2,m1,m2 = self.prep_models_and_tests()
+        sm1 = t.judge([m1,m2])
+        sm2 = t.judge([m2,m1])
+        sp = ScorePanel(data={1:sm1,2:sm2})
+        print(hash(sm1.to_bytes()))
+        print(hash(sp[1].to_bytes()))
+        self.assertTrue(sp[1].equals(sm1))
+        self.assertTrue(sp[2].equals(sm2))  
+
+    def test_error_types(self):
+        from sciunit import CapabilityError, BadParameterValueError,\
+                            PredictionError, InvalidScoreError, \
+                            Model, Capability
+
+        CapabilityError(Model(),Capability)
+        PredictionError(Model(),'foo')
+        InvalidScoreError()
+        BadParameterValueError('x',3)
 
 
 class CapabilitiesTestCase(unittest.TestCase):
@@ -171,6 +274,7 @@ class ScoresTestCase(unittest.TestCase):
     def test_regular_score_types(self):
         from sciunit.scores import BooleanScore,FloatScore,RatioScore,\
                                    ZScore,CohenDScore,PercentScore
+        from sciunit.tests.example import RangeTest
         
         BooleanScore(True)
         BooleanScore(False)
@@ -178,6 +282,12 @@ class ScoresTestCase(unittest.TestCase):
         self.assertEqual(score.sort_key,1)
         score = BooleanScore.compute(4,5)
         self.assertEqual(score.sort_key,0)
+        
+        t = RangeTest([2,3])
+        score.test = t
+        score.describe()
+        score.description = "Lorem Ipsum"
+        score.describe()
 
         score = FloatScore(3.14)
         obs = np.array([1.0,2.0,3.0])
@@ -186,7 +296,7 @@ class ScoresTestCase(unittest.TestCase):
         self.assertEqual(score.score,1.0)
         
         RatioScore(1.2)
-        score = RatioScore.compute({'mean':4,'std':1},{'value':2})
+        score = RatioScore.compute({'mean':4.,'std':1.},{'value':2.})
         self.assertEqual(score.score,0.5)
 
         score = PercentScore(42)
@@ -239,6 +349,7 @@ class ConvertersTestCase(unittest.TestCase):
         self.assertEqual(new_score,BooleanScore(True))
         new_score = RangeToBoolean(3,5).convert(old_score)
         self.assertEqual(new_score,BooleanScore(False))
+        self.assertEqual(new_score.raw,str(old_score.score))
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -307,7 +418,7 @@ class CommandLineTestCase(unittest.TestCase):
         self.main('--directory',self.cosmosuite_path,'make-nb')
 
     # Skip for python versions that don't have importlib.machinery
-    @unittest.skipIf(platform.python_version()<'3.9',
+    @unittest.skipIf(platform.python_version()<'3.3',
                      "run-nb not supported on Python < 3.3")
     def test_sciunit_5run_nb(self):
         self.main('--directory',self.cosmosuite_path,'run-nb')
