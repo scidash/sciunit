@@ -301,11 +301,11 @@ class ScoresTestCase(unittest.TestCase):
         self.assertEqual(score.sort_key,0.42)
 
         ZScore(0.7)
-        score = ZScore.compute({'mean':3,'std':1},{'value':2})
-        self.assertEqual(score.score,-1)
+        score = ZScore.compute({'mean':3.,'std':1.},{'value':2.})
+        self.assertEqual(score.score,-1.)
 
         CohenDScore(-0.3)
-        score = CohenDScore.compute({'mean':3,'std':1},{'mean':2,'std':1})
+        score = CohenDScore.compute({'mean':3.,'std':1.},{'mean':2.,'std':1.})
         self.assertTrue(-0.708 < score.score < -0.707)
 
     def test_irregular_score_types(self):
