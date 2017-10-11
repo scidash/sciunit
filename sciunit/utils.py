@@ -263,7 +263,7 @@ def method_cache(by='value',method='run'):
                 cache[method_signature] = (datetime.now(),model.__dict__.copy())
             else:
                 print("Method with this signature found in the cache. Restoring...")
-                timestamp,attrs = cache[run_signature]
+                timestamp,attrs = cache[method_signature]
                 model.__dict__.update(attrs)
             return func(*args, **kwargs)
         return decorate
