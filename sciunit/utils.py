@@ -29,6 +29,7 @@ import nbconvert
 from nbconvert.preprocessors import ExecutePreprocessor
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
+import cypy
 
 PRINT_DEBUG_STATE = False # printd does nothing by default.  
 
@@ -224,3 +225,45 @@ def import_all_modules(package):
 def dict_hash(d):
     pickled = pickle.dumps([(key,d[key]) for key in sorted(d)])
     return hashlib.sha224(pickled).hexdigest()
+
+
+def method_cache(by='value',method='run'):
+    """A decorator used on any model method which calls the model's 'method' 
+    method if that latter method has not been called using the current 
+    arguments or simply sets model attributes to match the run results if 
+    it has."""  
+    
+    def decorate_(func):
+        def decorate(*args, **kwargs):
+            model = args[0] # Assumed to be self.  
+            assert hasattr(model,method), "Model must have a '%s' method."%method
+            if func.__name__ == method: # Run itself.  
+                method_args = kwargs
+            else: # Any other method.  
+                method_args = kwargs[method] if method in kwargs else {}
+            if not hasattr(model.__class__,'cached_runs'): # If there is no run cache.  
+                model.__class__.cached_runs = {} # Create the method cache.  
+            cache = model.__class__.cached_runs
+            if by == 'value':
+                model_dict = {key:value for key,value in list(model.__dict__.items()) \
+                              if key[0]!='_'}
+                method_signature = dict_hash({'attrs':model_dict,'args':method_args}) # Hash key.
+            elif by == 'instance':
+                method_signature = dict_hash({'id':id(model),'args':method_args}) # Hash key.
+            else:
+                raise ValueError("Cache type must be 'value' or 'instance'")
+            if method_signature not in cache:
+                print("Method with this signature not found in the cache. Running...")
+                f = getattr(model,method)
+                f(**method_args)
+                cache[method_signature] = (datetime.now(),model.__dict__.copy())
+            else:
+                print("Method with this signature found in the cache. Restoring...")
+                timestamp,attrs = cache[run_signature]
+                model.__dict__.update(attrs)
+            return func(*args, **kwargs)
+        return decorate
+    return decorate_
+
+class_intern = cypy.intern
+method_memoize = cypy.memoize
