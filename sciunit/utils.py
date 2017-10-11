@@ -11,7 +11,7 @@ import pkgutil
 import importlib
 import pickle
 import hashlib
-import datetime
+from datetime import datetime
 try: # Python 3
     import tkinter
 except ImportError: # Python 2
