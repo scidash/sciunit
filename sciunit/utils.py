@@ -225,6 +225,25 @@ def import_all_modules(package):
             import_all_modules(subpackage)
 
 
+def import_module_from_path(module_path, name=None):
+    directory,file_name = os.path.split(module_path)
+    if name is None:
+        name = file_name.rstrip('.py')
+        if name == '__init__':
+            name = os.path.split(directory)[1]
+    try:
+        from importlib.machinery import SourceFileLoader
+        sfl = SourceFileLoader(name, module_path)
+        module = sfl.load_module()
+    except ImportError:
+        sys.path.append(directory)
+        from importlib import import_module
+        module_name = file_name.rstrip('.py')
+        module = import_module(module_name)
+        sys.path.pop(directory)
+    return module
+
+
 def dict_hash(d):
     pickled = pickle.dumps([(key,d[key]) for key in sorted(d)])
     return hashlib.sha224(pickled).hexdigest()
