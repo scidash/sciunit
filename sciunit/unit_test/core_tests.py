@@ -387,7 +387,7 @@ class UtilsTestCase(unittest.TestCase):
     def test_import_module_from_path(self):
         from sciunit.utils import import_module_from_path
         
-        temp_file = tempfile.mkstemp(suffix='.py')
+        temp_file = tempfile.mkstemp(suffix='.py')[1]
         with open(temp_file,'w') as f:
             f.write('value = 42')
         module = import_module_from_path(temp_file)
