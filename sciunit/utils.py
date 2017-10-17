@@ -241,7 +241,7 @@ def import_module_from_path(module_path, name=None):
         from importlib import import_module
         module_name = file_name.rstrip('.py')
         module = import_module(module_name)
-        sys.path.pop(directory)
+        sys.path.pop() # Remove the directory that was just added.  
     return module
 
 
