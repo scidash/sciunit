@@ -5,10 +5,10 @@ import random
 from cypy import memoize # Decorator for caching of capability method results.  
 
 class ProducesNumber(sciunit.Capability):
-	"""An example capability for producing some generic number."""
+    """An example capability for producing some generic number."""
 
-	def produce_number(self):
-		raise NotImplementedError("Must implement produce_number.")
+    def produce_number(self):
+        raise NotImplementedError("Must implement produce_number.")
 
 class UniqueRandomNumberModel(sciunit.Model,ProducesNumber):
     """An example model to ProducesNumber."""
@@ -26,4 +26,4 @@ class RepeatedRandomNumberModel(sciunit.Model,ProducesNumber):
         was returned in the first call, ensuring reproducibility and
         eliminating computational overhead."""
         return random.random()
-
+        

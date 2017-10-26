@@ -12,3 +12,6 @@ ignore
 build
 *.bak
 *.egg-info
+docs/chapter*.py
+.coverage
+htmlcov

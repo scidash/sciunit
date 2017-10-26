@@ -1,15 +1,17 @@
+#### Quick miniconda with numpy, scipy, etc. from ####
+# https://conda.io/docs/travis.html               ####
 language: python
 python:
+  # We don't actually use the Travis Python, but this keeps it organized.
   - "2.7"
-  - "3.4"
-
-# Setup anaconda just to get fast binary installation of common packages
-before_install:
+  - "3.5"
+  - "3.6"
+install:
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
     else
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
@@ -20,29 +22,12 @@ before_install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  #- wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
-  #- chmod +x miniconda.sh
-  #- ./miniconda.sh -b
-  #- export PATH=/home/travis/miniconda/bin:$PATH
-  #- conda update --yes conda
-  # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
-  - sudo rm -rf /dev/shm
-  - sudo ln -s /run/shm /dev/shm
-
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: 
-  - pip install cypy>=0.2
-  - pip install pandas
-  - pip install quantities
-  - pip install bs4
-  - pip install ipython
-
-# Setting up pre-requirements
+  - pip install --process-dependency-links . 
+  - pip install coveralls
+######################################################
 before_script:
-  - pwd
-  - cd ..
-  - export PYTHONPATH=$PYTHONPATH:.
-  - cd sciunit
-
-# command to run tests, e.g. python setup.py test
-script: python sciunit/tests/example.py
+  - git clone -b cosmosuite http://github.com/scidash/scidash ../scidash
+script: 
+  - coverage run --source=. --omit=*unit_test*,setup.py,.eggs setup.py test  
+after_success:
+  - coveralls

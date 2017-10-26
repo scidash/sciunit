@@ -2,25 +2,37 @@
 
 import sciunit, sciunit.capabilities, sciunit.models, sciunit.scores
 
-class PositivityTest(sciunit.Test):
-  def __init__(self, name=None):
-    super(PositivityTest, self).__init__(None, name=name)
+class RangeTest(sciunit.Test):
+  """Test if the model generates a number with a certain signn"""
+
+  def __init__(self, observation, name=None):
+    super(RangeTest, self).__init__(observation,
+    								name=name)
 
   required_capabilities = (sciunit.capabilities.ProducesNumber,)
-  def generate_prediction(self, model, verbose=False):
-    return model.produce_number()
-
   score_type = sciunit.scores.BooleanScore
-  def compute_score(self, observation, prediction, verbose=False):
-    return self.score_type(prediction > 0)
+  
+  def validate_observation(self, observation):
+  	assert type(observation) in (tuple,list,set)
+  	assert len(observation)==2
+  	assert observation[1]>observation[0]
 
-positivity_test = PositivityTest()
-one_model = sciunit.models.ConstModel(4)
-assert positivity_test.check_capabilities(one_model)
-score = positivity_test.judge(one_model)
+  def generate_prediction(self, model):
+    return model.produce_number()
+  
+  def compute_score(self, observation, prediction):
+    low = observation[0]
+    high = observation[1]
+    return self.score_type(low < prediction < high)
+
+	
+range_2_3_test = RangeTest(observation=[2,3])
+one_model = sciunit.models.ConstModel(2.5)
+assert range_2_3_test.check_capabilities(one_model)
+score = range_2_3_test.judge(one_model)
 assert isinstance(score, sciunit.scores.BooleanScore)
 assert score.score == True
-assert score.test is positivity_test
+assert score.test is range_2_3_test
 assert score.model is one_model
 
 print("Tests completed successfully.")

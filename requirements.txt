@@ -1,5 +1,0 @@
-cypy>=0.2
-pandas
-quantities
-bs4
-ipython
