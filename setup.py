@@ -16,7 +16,7 @@ setup(
     version='0.19',
     author='Rick Gerkin',
     author_email='rgerkin@asu.edu',
-    packages=['sciunit', 
+    packages=['sciunit',
               'sciunit.tests',
               'sciunit.unit_test'],
     url='http://sciunit.scidash.org',
