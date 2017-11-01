@@ -302,16 +302,27 @@ class Versioned(object):
     Provided by Andrew Davison in issue #53.
     """
 
-    def get_version(self):
+    def get_repo(self):
         module = sys.modules[self.__module__]
         # We use module.__file__ instead of module.__path__[0]
         # to include modules without a __path__ attribute.
         path = os.path.realpath(module.__file__)
         repo = git.Repo(path, search_parent_directories=True)
+        return repo
+    
+    def get_version(self):
+        repo = self.get_repo()
         head = repo.head
         version = head.commit.hexsha
         if repo.is_dirty():
             version += "*"
         return version
     version = property(get_version)
-
+    
+    def get_remote_url(self, remote='origin'):
+        repo = self.get_repo()
+        remotes = {r.name:r for r in repo.remotes}
+        r = repo.remotes[0] if remote not in r else remotes[remote]
+        url = list(r.urls)[0]
+        return url
+    remote_url = property(get_remote_url)
