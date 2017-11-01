@@ -322,7 +322,7 @@ class Versioned(object):
     def get_remote_url(self, remote='origin'):
         repo = self.get_repo()
         remotes = {r.name:r for r in repo.remotes}
-        r = repo.remotes[0] if remote not in r else remotes[remote]
+        r = repo.remotes[0] if remote not in remotes else remotes[remote]
         url = list(r.urls)[0]
         return url
     remote_url = property(get_remote_url)
