@@ -34,6 +34,7 @@ from nbconvert.preprocessors import ExecutePreprocessor
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 import cypy
+import git
 
 PRINT_DEBUG_STATE = False # printd does nothing by default.
 
@@ -292,4 +293,25 @@ def method_cache(by='value',method='run'):
 class_intern = cypy.intern
 
 method_memoize = cypy.memoize
+
+
+class Versioned(object):
+    """
+    A Mixin class for SciUnit model instances, which provides a version string
+    based on the Git repository where the model is tracked.
+    Provided by Andrew Davison in issue #53.
+    """
+
+    def get_version(self):
+        module = sys.modules[self.__module__]
+        # We use module.__file__ instead of module.__path__[0]
+        # to include modules without a __path__ attribute.
+        path = os.path.realpath(module.__file__)
+        repo = git.Repo(path, search_parent_directories=True)
+        head = repo.head
+        version = head.commit.hexsha
+        if repo.is_dirty():
+            version += "*"
+        return version
+    version = property(get_version)
 

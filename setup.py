@@ -34,7 +34,8 @@ setup(
                       'lxml',
                       'nbconvert',
                       'ipykernel',
-                      'nbformat',],
+                      'nbformat',
+                      'gitpython'],
     #dependency_links = ['git+https://github.com/python-quantities/python-quantities.git@master#egg=quantities-999'],
     entry_points={
         'console_scripts': [
