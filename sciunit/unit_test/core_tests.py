@@ -1,6 +1,6 @@
 """Unit tests for SciUnit"""
 
-# Run with any of:
+# Run with any of:  
 # python test_all.py
 # python -m unittest test_all.py
 
@@ -24,10 +24,10 @@ class DocumentationTestCase(NotebookTools,unittest.TestCase):
 
     def test_chapter1(self):
         self.do_notebook('chapter1')
-
+    
     def test_chapter2(self):
         self.do_notebook('chapter2')
-
+    
     def test_chapter3(self):
         self.do_notebook('chapter3')
 
@@ -40,7 +40,7 @@ class ImportTestCase(unittest.TestCase):
 
     def test_import_everything(self):
         import sciunit
-
+        
         # Recursively import all submodules
         import_all_modules(sciunit)
 
@@ -56,25 +56,25 @@ class InitTestCase(unittest.TestCase):
 
     def test_log(self):
         from sciunit import log
-
+        
         log("Lorem Ipsum")
 
     def test_get_model_state(self):
         from sciunit import Model
-
+        
         m = Model()
         state = m.__getstate__()
         self.assertEqual(m.__dict__,state)
 
     def test_get_model_capabilities(self):
         from sciunit.capabilities import ProducesNumber
-
+        
         m = self.M(2,3)
         self.assertEqual(m.capabilities,['ProducesNumber'])
 
     def test_get_model_description(self):
         from sciunit.models import UniformModel
-
+        
         m = self.M(2,3)
         m.describe()
         m.description = "Lorem Ipsum"
@@ -101,7 +101,7 @@ class InitTestCase(unittest.TestCase):
 
     def test_testsuite(self):
         from sciunit import TestSuite
-
+        
         t1 = self.T([2,3])
         t2 = self.T([5,6])
         m1 = self.M(2,3)
@@ -113,7 +113,7 @@ class InitTestCase(unittest.TestCase):
 
     def test_testsuite_hooks(self):
         from sciunit import TestSuite
-
+        
         t1 = self.T([2,3])
         t1.hook_called = False
         t2 = self.T([5,6])
@@ -132,7 +132,7 @@ class InitTestCase(unittest.TestCase):
 
     def test_testsuite_from_observations(self):
         from sciunit import TestSuite
-
+        
         m = self.M(2,3)
         t = TestSuite.from_observations("MySuite",
                                         [(self.T,[2,3]),
@@ -152,7 +152,7 @@ class InitTestCase(unittest.TestCase):
 
     def prep_models_and_tests(self):
         from sciunit import TestSuite
-
+        
         t1 = self.T([2,3],name='test1')
         t2 = self.T([5,6])
         m1 = self.M(2,3)
@@ -162,14 +162,14 @@ class InitTestCase(unittest.TestCase):
 
     def test_score_matrix(self):
         from sciunit import ScoreMatrix
-
+        
         t,t1,t2,m1,m2 = self.prep_models_and_tests()
         sm = t.judge(m1)
         self.assertTrue(type(sm) is ScoreMatrix)
         self.assertTrue(sm[t1][m1].score)
         self.assertTrue(sm['test1'][m1].score)
         self.assertTrue(sm[m1]['test1'].score)
-        self.assertFalse(sm[t2][m1].score)
+        self.assertFalse(sm[t2][m1].score)  
         self.assertEqual(sm[(m1,t1)].score,True)
         self.assertEqual(sm[(m1,t2)].score,False)
         sm = t.judge([m1,m2])
@@ -179,12 +179,12 @@ class InitTestCase(unittest.TestCase):
 
     def test_score_arrays(self):
         from sciunit import ScoreArray
-
+        
         t,t1,t2,m1,m2 = self.prep_models_and_tests()
         sm = t.judge(m1)
         sa = sm[m1]
         self.assertTrue(type(sa) is ScoreArray)
-        self.assertEqual(list(sa.sort_keys.values),[1.0,0.0])
+        self.assertEqual(list(sa.sort_keys.values),[1.0,0.0])      
         self.assertEqual(sa.stature(t1),1)
         self.assertEqual(sa.stature(t2),2)
         self.assertEqual(sa.stature(t1),1)
@@ -193,13 +193,13 @@ class InitTestCase(unittest.TestCase):
     @unittest.skip("Currently failing because ScorePanel just stores sm1 twice")
     def test_score_panel(self):
         from sciunit import ScorePanel
-
+        
         t,t1,t2,m1,m2 = self.prep_models_and_tests()
         sm1 = t.judge([m1,m2])
         sm2 = t.judge([m2,m1])
         sp = ScorePanel(data={1:sm1,2:sm2})
         self.assertTrue(sp[1].equals(sm1))
-        self.assertTrue(sp[2].equals(sm2))
+        self.assertTrue(sp[2].equals(sm2))  
 
     def test_error_types(self):
         from sciunit import CapabilityError, BadParameterValueError,\
@@ -299,6 +299,7 @@ class InitTestCase(unittest.TestCase):
         self.assertEqual(myScore[myModel1][myModel1], 0.0)
         self.assertEqual(myScore["Model2"]["Model2"], 0.0)
 
+
 class CapabilitiesTestCase(unittest.TestCase):
     """Unit tests for sciunit Capability classes"""
 
@@ -307,25 +308,25 @@ class CapabilitiesTestCase(unittest.TestCase):
         from sciunit.capabilities import ProducesNumber,UniqueRandomNumberModel,\
                                          RepeatedRandomNumberModel
 
-        class MyModel(Model,ProducesNumber):
+        class MyModel(Model,ProducesNumber): 
             def produce_number(self):
                 return 3.14
         m = MyModel()
         self.assertEqual(m.produce_number(),3.14)
-
+        
         m = UniqueRandomNumberModel()
         self.assertNotEqual(m.produce_number(),m.produce_number())
 
         m = RepeatedRandomNumberModel()
         self.assertEqual(m.produce_number(),m.produce_number())
-
+        
 
 class ModelsTestCase(unittest.TestCase):
     """Unit tests for sciunit Model classes"""
 
     def test_regular_models(self):
         from sciunit.models import ConstModel,UniformModel,SharedModel
-
+        
         m = ConstModel(3)
         self.assertEqual(m.produce_number(),3)
 
@@ -360,14 +361,14 @@ class ScoresTestCase(unittest.TestCase):
         from sciunit.scores import BooleanScore,FloatScore,RatioScore,\
                                    ZScore,CohenDScore,PercentScore
         from sciunit.tests.example import RangeTest
-
+        
         BooleanScore(True)
         BooleanScore(False)
         score = BooleanScore.compute(5,5)
         self.assertEqual(score.sort_key,1)
         score = BooleanScore.compute(4,5)
         self.assertEqual(score.sort_key,0)
-
+        
         t = RangeTest([2,3])
         score.test = t
         score.describe()
@@ -379,7 +380,7 @@ class ScoresTestCase(unittest.TestCase):
         pred = np.array([1.0,2.0,4.0])
         score = FloatScore.compute_ssd(obs,pred)
         self.assertEqual(score.score,1.0)
-
+        
         RatioScore(1.2)
         score = RatioScore.compute({'mean':4.,'std':1.},{'value':2.})
         self.assertEqual(score.score,0.5)
@@ -398,7 +399,7 @@ class ScoresTestCase(unittest.TestCase):
     def test_irregular_score_types(self):
         from sciunit import ErrorScore,NAScore,TBDScore,NoneScore
         from sciunit.scores import InsufficientDataScore
-
+        
         e = Exception("This is an error")
         score = ErrorScore(e)
         score = NAScore(None)
@@ -439,11 +440,11 @@ class ConvertersTestCase(unittest.TestCase):
 
 class UtilsTestCase(unittest.TestCase):
     """Unit tests for sciunit.utils"""
-
+    
     def test_assert_dimensionless(self):
         import quantities as pq
         from sciunit.utils import assert_dimensionless
-
+        
         assert_dimensionless(3*pq.s*pq.Hz)
         try:
             assert_dimensionless(3*pq.s)
@@ -454,7 +455,7 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_printd(self):
         from sciunit.utils import printd, printd_set
-
+        
         printd_set(True)
         self.assertTrue(printd("This line should print"))
         printd_set(False)
@@ -462,7 +463,7 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_dict_hash(self):
         from sciunit.utils import dict_hash
-
+        
         d1 = {'a':1,'b':2,'c':3}
         d2 = {'c':3,'a':1,'b':2}
         dh1 = dict_hash(d1)
@@ -471,6 +472,25 @@ class UtilsTestCase(unittest.TestCase):
         self.assertTrue(type(dh2) is str)
         self.assertEqual(d1,d2)
 
+    def test_import_module_from_path(self):
+        from sciunit.utils import import_module_from_path
+        
+        temp_file = tempfile.mkstemp(suffix='.py')[1]
+        with open(temp_file,'w') as f:
+            f.write('value = 42')
+        module = import_module_from_path(temp_file)
+        self.assertEqual(module.value,42)
+
+    def test_versioned(self):
+        from sciunit.utils import Versioned
+        from sciunit.models import ConstModel
+        class VersionedModel(ConstModel,Versioned):
+            pass
+        m = VersionedModel(37)
+        print("Commit hash is %s" % m.version)
+        print("Remote URL is %s" % m.remote_url)
+        self.assertTrue('sciunit' in m.remote_url)
+
 
 class CommandLineTestCase(unittest.TestCase):
     """Unit tests for command line tools"""
@@ -478,7 +498,7 @@ class CommandLineTestCase(unittest.TestCase):
     def setUp(self):
         from sciunit.__main__ import main
         import sciunit
-
+        
         self.main = main
         SCIDASH_HOME = os.path.dirname(os.path.dirname(sciunit.__path__[0]))
         self.cosmosuite_path = os.path.join(SCIDASH_HOME,'scidash')
@@ -495,7 +515,7 @@ class CommandLineTestCase(unittest.TestCase):
 
     def test_sciunit_2check(self):
         self.main('--directory',self.cosmosuite_path,'check')
-
+        
     def test_sciunit_3run(self):
         self.main('--directory',self.cosmosuite_path,'run')
 
