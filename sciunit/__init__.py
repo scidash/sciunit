@@ -8,6 +8,7 @@ import inspect
 from copy import copy
 from datetime import datetime
 from fnmatch import fnmatchcase
+import json
 try:
     from io import StringIO
 except ImportError:
@@ -42,6 +43,7 @@ def log(*args, **kwargs):
                 output = f.getvalue()
                 display(HTML(output))
 
+
 class SciUnit(object):
     """Abstract base class for models, tests, and scores."""
     def __init__(self):
@@ -60,6 +62,22 @@ class SciUnit(object):
                 if key in state:
                     del state[key]
         return state
+
+    @property
+    def state(self):
+        return self.__getstate__()
+
+    @property
+    def hash(self):
+        """A unique numeric identifier of the current model state"""
+        state = self.state
+        result = dict_hash(state)
+        return result
+
+    def serialize(self):
+        state = self.state
+        result = json.dumps(state)
+        return result
 
 
 class Model(SciUnit):
@@ -118,11 +136,6 @@ class Model(SciUnit):
         as needed by specific model classes.
         """
         pass
-
-    @property
-    def state(self):
-        """A unique numeric identifier of the current model state"""
-        return dict_hash(self.__dict__)
 
     def __str__(self):
         return '%s' % self.name

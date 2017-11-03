@@ -11,10 +11,14 @@ import pkgutil
 import importlib
 import pickle
 import hashlib
+from datetime import datetime
 try: # Python 3
     import tkinter
 except ImportError: # Python 2
-    import Tkinter as tkinter
+    try:
+        import Tkinter as tkinter
+    except ImportError:
+        pass    #handled in fix_display()
 import inspect
 from io import TextIOWrapper,StringIO
 try:
@@ -22,15 +26,16 @@ try:
     mock = True
 except ImportError:
     mock = False
-mock = False # mock is probably obviated by the unittest -b flag.  
+mock = False # mock is probably obviated by the unittest -b flag.
 
 import nbformat
 import nbconvert
 from nbconvert.preprocessors import ExecutePreprocessor
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
+import cypy
 
-PRINT_DEBUG_STATE = False # printd does nothing by default.  
+PRINT_DEBUG_STATE = False # printd does nothing by default.
 
 
 def printd_set(state):
@@ -50,7 +55,7 @@ def printd(*args, **kwargs):
 def assert_dimensionless(value):
     """
     Tests for dimensionlessness of input.
-    If input is dimensionless but expressed as a Quantity, it returns the 
+    If input is dimensionless but expressed as a Quantity, it returns the
     bare value.  If it not, it raised an error.
     """
     if isinstance(value,Quantity):
@@ -63,7 +68,7 @@ def assert_dimensionless(value):
 
 
 class NotebookTools(object):
-    
+
     def __init__(self, *args, **kwargs):
         super(NotebookTools,self).__init__(*args, **kwargs)
         self.fix_display()
@@ -79,10 +84,10 @@ class NotebookTools(object):
     def fix_display(self):
         """If this is being run on a headless system the Matplotlib
         backend must be changed to one that doesn't need a display."""
-        
+
         try:
             root = tkinter.Tk()
-        except tkinter.TclError: # If there is no display.  
+        except (tkinter.TclError, NameError): # If there is no display.
             try:
                 import matplotlib as mpl
             except ImportError:
@@ -93,14 +98,14 @@ class NotebookTools(object):
 
     def load_notebook(self, name):
         """Loads a notebook file into memory."""
-        
+
         with open(self.get_path('%s.ipynb'%name)) as f:
             nb = nbformat.read(f, as_version=4)
         return nb,f
 
     def run_notebook(self, nb, f):
         """Runs a loaded notebook file."""
-        
+
         if (sys.version_info >= (3, 0)):
             kernel_name = 'python3'
         else:
@@ -119,26 +124,26 @@ class NotebookTools(object):
 
     def execute_notebook(self, name):
         """Loads and then runs a notebook file."""
-        
-        warnings.filterwarnings("ignore", category=DeprecationWarning) 
+
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         nb,f = self.load_notebook(name)
         self.run_notebook(nb,f)
         self.assertTrue(True)
 
     def convert_notebook(self, name):
         """Converts a notebook into a python file."""
-        
+
         #subprocess.call(["jupyter","nbconvert","--to","python",
         #                self.get_path("%s.ipynb"%name)])
         exporter = nbconvert.exporters.python.PythonExporter()
         file_path = self.get_path("%s.ipynb"%name)
         code = exporter.from_filename(file_path)[0]
         self.write_code(name, code)
-        self.clean_code(name, ['get_ipython'])    
+        self.clean_code(name, ['get_ipython'])
 
     def convert_and_execute_notebook(self, name):
         """Converts a notebook into a python file and then runs it."""
-        
+
         self.convert_notebook(name)
         code = self.read_code(name)
         exec(code,globals())
@@ -152,19 +157,19 @@ class NotebookTools(object):
         return code
 
     def write_code(self, name, code):
-        """Writes code to a python file called 'name', 
+        """Writes code to a python file called 'name',
         erasing the previous contents."""
 
         file_path = self.get_path('%s.py'%name)
         with open(file_path,'w') as f:
             f.write(code)
-            
+
     def clean_code(self, name, forbidden):
         """Remove lines containing items in forbidden from the code.
         Helpful for executing converted notebooks that still retain IPython
         magic commands.
         """
-        
+
         code = self.read_code(name)
         code = code.split('\n')
         new_code = []
@@ -175,14 +180,14 @@ class NotebookTools(object):
         self.write_code(name, new_code)
 
     def do_notebook(self, name):
-        """Runs a notebook file after optionally 
+        """Runs a notebook file after optionally
         converting it to a python file."""
-        
+
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS',True))
         s = StringIO()
         if mock:
             with unittest.mock.patch('sys.stdout', new=MockDevice(s)) as fake_out:
-                with unittest.mock.patch('sys.stderr', new=MockDevice(s)) as fake_out:    
+                with unittest.mock.patch('sys.stderr', new=MockDevice(s)) as fake_out:
                     self._do_notebook(name, CONVERT_NOTEBOOKS)
         else:
             self._do_notebook(name, CONVERT_NOTEBOOKS)
@@ -193,7 +198,7 @@ class NotebookTools(object):
         if convert_notebooks:
             self.convert_and_execute_notebook(name)
         else:
-            self.execute_notebook(name)    
+            self.execute_notebook(name)
 
 
 class MockDevice(TextIOWrapper):
@@ -201,13 +206,13 @@ class MockDevice(TextIOWrapper):
     Similar to UNIX /dev/null.
     """
 
-    def write(self, s): 
+    def write(self, s):
         if s.startswith('[') and s.endswith(']'):
             super(MockDevice,self).write(s)
 
 
 def import_all_modules(package):
-    """Recursively imports all subpackages, modules, and submodules of a 
+    """Recursively imports all subpackages, modules, and submodules of a
     given package.
     'package' should be an imported package, not a string.
     """
@@ -221,6 +226,70 @@ def import_all_modules(package):
             import_all_modules(subpackage)
 
 
+def import_module_from_path(module_path, name=None):
+    directory,file_name = os.path.split(module_path)
+    if name is None:
+        name = file_name.rstrip('.py')
+        if name == '__init__':
+            name = os.path.split(directory)[1]
+    try:
+        from importlib.machinery import SourceFileLoader
+        sfl = SourceFileLoader(name, module_path)
+        module = sfl.load_module()
+    except ImportError:
+        sys.path.append(directory)
+        from importlib import import_module
+        module_name = file_name.rstrip('.py')
+        module = import_module(module_name)
+        sys.path.pop() # Remove the directory that was just added.  
+    return module
+
+
 def dict_hash(d):
     pickled = pickle.dumps([(key,d[key]) for key in sorted(d)])
     return hashlib.sha224(pickled).hexdigest()
+
+
+def method_cache(by='value',method='run'):
+    """A decorator used on any model method which calls the model's 'method' 
+    method if that latter method has not been called using the current 
+    arguments or simply sets model attributes to match the run results if 
+    it has."""  
+    
+    def decorate_(func):
+        def decorate(*args, **kwargs):
+            model = args[0] # Assumed to be self.  
+            assert hasattr(model,method), "Model must have a '%s' method."%method
+            if func.__name__ == method: # Run itself.  
+                method_args = kwargs
+            else: # Any other method.  
+                method_args = kwargs[method] if method in kwargs else {}
+            if not hasattr(model.__class__,'cached_runs'): # If there is no run cache.  
+                model.__class__.cached_runs = {} # Create the method cache.  
+            cache = model.__class__.cached_runs
+            if by == 'value':
+                model_dict = {key:value for key,value in list(model.__dict__.items()) \
+                              if key[0]!='_'}
+                method_signature = dict_hash({'attrs':model_dict,'args':method_args}) # Hash key.
+            elif by == 'instance':
+                method_signature = dict_hash({'id':id(model),'args':method_args}) # Hash key.
+            else:
+                raise ValueError("Cache type must be 'value' or 'instance'")
+            if method_signature not in cache:
+                print("Method with this signature not found in the cache. Running...")
+                f = getattr(model,method)
+                f(**method_args)
+                cache[method_signature] = (datetime.now(),model.__dict__.copy())
+            else:
+                print("Method with this signature found in the cache. Restoring...")
+                timestamp,attrs = cache[method_signature]
+                model.__dict__.update(attrs)
+            return func(*args, **kwargs)
+        return decorate
+    return decorate_
+
+
+class_intern = cypy.intern
+
+method_memoize = cypy.memoize
+
