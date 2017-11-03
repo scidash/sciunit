@@ -63,21 +63,37 @@ class SciUnit(object):
                     del state[key]
         return state
 
+    def _state(self, state=None, keys=None, exclude=None):
+        if state is None:
+            state = self.__getstate__()
+        if keys:
+            state = {key:state[key] for key in keys if key in state.keys()}
+        if exclude:
+            state = {key:state[key] for key in state.keys() if key not in exclude}
+        return state
+
     @property
     def state(self):
-        return self.__getstate__()
+        return self._state()
 
     @property
     def hash(self):
         """A unique numeric identifier of the current model state"""
-        state = self.state
-        result = dict_hash(state)
-        return result
+        return dict_hash(self.state)
 
-    def serialize(self):
-        state = self.state
-        result = json.dumps(state)
-        return result
+    @property
+    def json(self):
+        def serialize(obj):
+            try:
+                s = json.dumps(obj)
+            except:
+                s = json.dumps(obj.state, default=serialize)
+            return json.loads(s)
+        return serialize(self)
+
+    @property
+    def id(self):
+        return str(self.json)
 
 
 class Model(SciUnit):
@@ -392,6 +408,10 @@ class Test(SciUnit):
                     s += [self.converter.description]
                 result = '\n'.join(s)
         return result
+
+    @property
+    def state(self):
+        return self._state(exclude=['last_model'])
 
     def __str__(self):
         return '%s' % self.name
@@ -964,7 +984,7 @@ class NAScore(NoneScore):
         return 'N/A'
 
 
-class ScoreArray(pd.Series):
+class ScoreArray(pd.Series,SciUnit):
     """
     Represents an array of scores derived from a test suite.
     Extends the pandas Series such that items are either
@@ -1032,7 +1052,7 @@ class ScoreArray(pd.Series):
 #        return self
 
 
-class ScoreMatrix(pd.DataFrame):
+class ScoreMatrix(pd.DataFrame,SciUnit):
     """
     Represents a matrix of scores derived from a test suite.
     Extends the pandas DataFrame such that tests are columns and models
@@ -1165,7 +1185,6 @@ class ScoreMatrix(pd.DataFrame):
 #        html = self.to_html(*args, **kwargs)
 #        return HTML(html)
 
-
 class ScoreArrayM2M(pd.Series):
     """
     Represents an array of scores derived from TestM2M.
@@ -1245,8 +1264,7 @@ class ScoreMatrixM2M(pd.DataFrame):
     def sort_keys(self):
         return self.applymap(lambda x: x.sort_key)
 
-
-class ScorePanel(pd.Panel):
+class ScorePanel(pd.Panel,SciUnit):
     def __getitem__(self, item):
         df = super(ScorePanel,self).__getitem__(item)
         assert isinstance(df,pd.DataFrame), \
@@ -1255,7 +1273,7 @@ class ScorePanel(pd.Panel):
         return score_matrix 
 
 
-class Error(Exception):
+class Error(Exception,SciUnit):
     """Base class for errors in sciunit's core."""
     pass
 
