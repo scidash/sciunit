@@ -516,10 +516,10 @@ class TestM2M(Test):
                     predictions.append(prediction)
                 except CapabilityError as e:
                     raise CapabilityError(("TestM2M's judge method resulted in error"
-                                           "for '%s'. Error: '%s'" % model, str(e)))
+                                           "for '%s'. Error: '%s'" % (model, str(e))))
                 except Exception as e:
                     raise Exception(("TestM2M's judge method resulted in error"
-                                     "for '%s'. Error: '%s'" % model, str(e)))
+                                     "for '%s'. Error: '%s'" % (model, str(e))))
 
         # 5. 2D list for scores; num(rows) = num(cols) = num(predictions)
         scores = [[NoneScore for x in range(len(predictions))] for y in range(len(predictions))]
