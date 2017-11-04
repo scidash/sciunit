@@ -8,4 +8,5 @@ USER root
 RUN chown -R $NB_USER . 
 USER $NB_USER
 
-RUN python setup.py install
+RUN pip install -e . --process-dependency-links
+RUN sh test.sh

@@ -22,12 +22,10 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - pip install --process-dependency-links . 
+  - pip install . --process-dependency-links
   - pip install coveralls
 ######################################################
-before_script:
-  - git clone -b cosmosuite http://github.com/scidash/scidash ../scidash
 script: 
-  - coverage run --source=. --omit=*unit_test*,setup.py,.eggs setup.py test  
+  - sh test.sh
 after_success:
   - coveralls
