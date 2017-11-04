@@ -3,6 +3,7 @@ of Quantitative Scientific Models
 """
 
 from __future__ import print_function
+import os
 import sys
 import inspect
 from copy import copy
@@ -23,7 +24,7 @@ from .utils import dict_hash
 
 KERNEL = ('ipykernel' in sys.modules)
 LOGGING = True
-
+HERE = os.path.dirname(os.path.realpath(__file__))
 
 def log(*args, **kwargs):
     if LOGGING:
@@ -42,6 +43,31 @@ def log(*args, **kwargs):
                     print(args)
                 output = f.getvalue()
                 display(HTML(output))
+
+
+def config_get(key, default=None):
+    try:
+        assert isinstance(key,str), "Config key must be a string"
+        config_path = os.path.join(HERE,'config.json')
+        try:
+            with open(config_path) as f:
+                config = json.load(f)
+                value = config[key]
+        except FileNotFoundError:
+            raise Error("Config file not found at '%s'" % config_path)
+        except json.JSONDecodeError:
+            log("Config file JSON at '%s' was invalid" % config_path)
+            raise Error("Config file not found at '%s'" % config_path)
+        except KeyError:
+            raise Error("Config file does not contain key '%s'" % key)
+    except Exception as e:
+        if default is not None:
+            log(e)
+            log("Using default value of %s" % default)
+            value = default
+        else:
+            raise e
+    return value
 
 
 class SciUnit(object):
@@ -821,7 +847,11 @@ class Score(SciUnit):
         if value is None or np.isnan(value):
             rgb = (128,128,128)
         else:
-            rgb = tuple([x*256 for x in cm.RdYlGn(int(180*value+38))[:3]])
+            cmap_low = config_get('cmap_low',38)
+            cmap_high = config_get('cmap_high',218)
+            cmap_range = cmap_high - cmap_low
+            cmap = cm.RdYlGn(int(cmap_range*value+cmap_low))[:3]
+            rgb = tuple([x*256 for x in cmap])
         return rgb
 
     @property
