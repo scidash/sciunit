@@ -1,10 +1,9 @@
-[![Build Status](https://travis-ci.org/scidash/sciunit.svg?branch=master)](https://travis-ci.org/scidash/sciunit) (master)
-
-[![Build Status](https://travis-ci.org/scidash/sciunit.svg?branch=dev)](https://travis-ci.org/scidash/sciunit) (dev)
-
-[![Documentation Status](https://readthedocs.org/projects/sciunit/badge/?version=latest)](http://sciunit.readthedocs.io/en/latest/?badge=latest)
-
-[![Coverage Status](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=dev)](https://coveralls.io/github/scidash/sciunit?branch=dev) (dev)
+| Master  | Dev |
+| ------------- | ------------- |
+| [![Travis](https://travis-ci.org/scidash/sciunit.svg?branch=master)](https://travis-ci.org/scidash/sciunit) | [![Travis](https://travis-ci.org/scidash/sciunit.svg?branch=dev)](https://travis-ci.org/scidash/sciunit)  |
+| [![RTFD](https://readthedocs.org/projects/sciunit/badge/?version=master)](http://sciunit.readthedocs.io/en/latest/?badge=master) | [![RTFD](https://readthedocs.org/projects/sciunit/badge/?version=dev)](http://sciunit.readthedocs.io/en/latest/?badge=dev) |
+| [![Coveralls](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=master)](https://coveralls.io/github/scidash/sciunit?branch=master) | [![Coveralls](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=dev)](https://coveralls.io/github/scidash/sciunit?branch=dev) |
+| [![Requirements](https://requires.io/github/scidash/sciunit/requirements.svg?branch=master)](https://requires.io/github/scidash/sciunit/requirements/?branch=master) |  [![Requirements](https://requires.io/github/scidash/sciunit/requirements.svg?branch=dev)](https://requires.io/github/scidash/sciunit/requirements/?branch=dev) | 
 
 ![SciUnit Logo](https://raw.githubusercontent.com/scidash/assets/master/logos/sciunit.png)
 # SciUnit: A Test-Driven Framework for Formally Validating Scientific Models Against Data

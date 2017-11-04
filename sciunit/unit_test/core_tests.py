@@ -211,6 +211,94 @@ class InitTestCase(unittest.TestCase):
         InvalidScoreError()
         BadParameterValueError('x',3)
 
+    def test_testm2m_with_observation(self):
+        import sciunit
+        from sciunit.scores import FloatScore
+        from sciunit.capabilities import ProducesNumber
+        from sciunit.models import ConstModel
+
+        class NumberTest_M2M(sciunit.TestM2M):
+            """Dummy Test"""
+            score_type = FloatScore
+            description = ("Tests the parameter 'value' between two models")
+
+            def __init__(self, observation=None, name="ValueTest-M2M"):
+                sciunit.TestM2M.__init__(self,observation,name)
+                self.required_capabilities += (ProducesNumber,)
+
+            def generate_prediction(self, model, verbose=False):
+                """Implementation of sciunit.Test.generate_prediction."""
+                prediction = model.produce_number()
+                return prediction
+
+            def compute_score(self, prediction1, prediction2):
+                """Implementation of sciunit.Test.score_prediction."""
+                score = sciunit.scores.FloatScore(prediction1 - prediction2)
+                score.description = "Difference between model predictions"
+                return score
+
+        myModel1 = ConstModel(100.0, "Model1")
+        myModel2 = ConstModel(110.0, "Model2")
+        myTest = NumberTest_M2M(observation=95.0)
+        myScore = myTest.judge([myModel1, myModel2])
+
+        # Test model vs observation
+        self.assertEqual(myScore[myTest][myModel1], -5.0)
+        self.assertEqual(myScore[myModel1][myTest], 5.0)
+        self.assertEqual(myScore["observation"][myModel2], -15.0)
+        self.assertEqual(myScore[myModel2]["observation"], 15.0)
+
+        # Test model vs model
+        self.assertEqual(myScore[myModel1][myModel2], -10.0)
+        self.assertEqual(myScore[myModel2][myModel1], 10.0)
+
+    def test_testm2m_without_observation(self):
+        import sciunit
+        from sciunit.scores import FloatScore
+        from sciunit.capabilities import ProducesNumber
+        from sciunit.models import ConstModel
+
+        class NumberTest_M2M(sciunit.TestM2M):
+            """Dummy Test"""
+            score_type = FloatScore
+            description = ("Tests the parameter 'value' between two models")
+
+            def __init__(self, observation=None, name="ValueTest-M2M"):
+                sciunit.TestM2M.__init__(self,observation,name)
+                self.required_capabilities += (ProducesNumber,)
+
+            def generate_prediction(self, model, verbose=False):
+                """Implementation of sciunit.Test.generate_prediction."""
+                prediction = model.produce_number()
+                return prediction
+
+            def compute_score(self, prediction1, prediction2):
+                """Implementation of sciunit.Test.score_prediction."""
+                score = sciunit.scores.FloatScore(prediction1 - prediction2)
+                score.description = "Difference between model predictions"
+                return score
+
+        myModel1 = ConstModel(100.0, "Model1")
+        myModel2 = ConstModel(110.0, "Model2")
+        myTest = NumberTest_M2M(observation=95.0)
+        myScore = myTest.judge([myModel1, myModel2])
+
+        # Test model vs observation; different ways of specifying individual scores
+        self.assertEqual(myScore[myTest][myModel1], -5.0)
+        self.assertEqual(myScore[myModel1][myTest], 5.0)
+        self.assertEqual(myScore["observation"][myModel2], -15.0)
+        self.assertEqual(myScore[myModel2]["observation"], 15.0)
+        self.assertEqual(myScore[myTest][myTest], 0.0)
+        self.assertEqual(myScore["observation"]["observation"], 0.0)
+
+        # Test model vs model; different ways of specifying individual scores
+        self.assertEqual(myScore[myModel1][myModel2], -10.0)
+        self.assertEqual(myScore[myModel2][myModel1], 10.0)
+        self.assertEqual(myScore["Model1"][myModel2], -10.0)
+        self.assertEqual(myScore["Model2"][myModel1], 10.0)
+        self.assertEqual(myScore[myModel1][myModel1], 0.0)
+        self.assertEqual(myScore["Model2"]["Model2"], 0.0)
+
 
 class CapabilitiesTestCase(unittest.TestCase):
     """Unit tests for sciunit Capability classes"""
@@ -392,6 +480,16 @@ class UtilsTestCase(unittest.TestCase):
             f.write('value = 42')
         module = import_module_from_path(temp_file)
         self.assertEqual(module.value,42)
+
+    def test_versioned(self):
+        from sciunit.utils import Versioned
+        from sciunit.models import ConstModel
+        class VersionedModel(ConstModel,Versioned):
+            pass
+        m = VersionedModel(37)
+        print("Commit hash is %s" % m.version)
+        print("Remote URL is %s" % m.remote_url)
+        self.assertTrue('sciunit' in m.remote_url)
 
 
 class CommandLineTestCase(unittest.TestCase):

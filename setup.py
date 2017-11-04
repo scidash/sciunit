@@ -16,7 +16,7 @@ setup(
     version='0.19',
     author='Rick Gerkin',
     author_email='rgerkin@asu.edu',
-    packages=['sciunit', 
+    packages=['sciunit',
               'sciunit.tests',
               'sciunit.unit_test'],
     url='http://sciunit.scidash.org',
@@ -34,7 +34,8 @@ setup(
                       'lxml',
                       'nbconvert',
                       'ipykernel',
-                      'nbformat',],
+                      'nbformat',
+                      'gitpython'],
     #dependency_links = ['git+https://github.com/python-quantities/python-quantities.git@master#egg=quantities-999'],
     entry_points={
         'console_scripts': [
