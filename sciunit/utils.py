@@ -35,6 +35,8 @@ from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 import cypy
 import git
+from git.exc import GitCommandError
+from git.cmd import Git
 
 PRINT_DEBUG_STATE = False # printd does nothing by default.
 
@@ -323,6 +325,13 @@ class Versioned(object):
         repo = self.get_repo()
         remotes = {r.name:r for r in repo.remotes}
         r = repo.remotes[0] if remote not in remotes else remotes[remote]
-        url = list(r.urls)[0]
+        try:
+            url = list(r.urls)[0]
+        except GitCommandError as ex:
+            if 'correct access rights' in str(ex):
+                # If ssh is not setup to access this repository                                                                                            
+                url = Git().execute(['git','config','--get','remote.%s.url' % r.name])
+            else:
+                raise ex
         return url
     remote_url = property(get_remote_url)
