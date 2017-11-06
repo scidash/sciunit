@@ -33,8 +33,8 @@ There is a [mailing list](https://groups.google.com/forum/?fromgroups#!forum/sci
 Please join it if you are at all interested!
 
 ## Contributors
- * [Cyrus Omar](http://cs.cmu.edu/~comar), Carnegie Mellon University (Dept. of Computer Science)
  * [Rick Gerkin](http://rick.gerk.in), Arizona State University (School of Life Science)
-
+ * [Cyrus Omar](http://cs.cmu.edu/~comar), Carnegie Mellon University (Dept. of Computer Science)
+ 
 ## License
 SciUnit is released under the permissive [MIT license](https://opensource.org/licenses/MIT), requiring only attribution in derivative works. See the LICENSE file for terms.
