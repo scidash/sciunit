@@ -391,7 +391,7 @@ class Test(SciUnit):
             try:
                 score = self._judge(model, skip_incapable=skip_incapable)
             except CapabilityError as e:
-                score = NAScore(str(e))
+                score = NAScore(e)
                 score.model = model
                 score.test = self
             except Exception as e:
@@ -958,8 +958,11 @@ class ErrorScore(Score):
     @property
     def summary(self):
         """Summarize the performance of a model on a test."""
-        return "=== Model %s did not complete test %s due to error %s. ===" % \
+        return "=== Model %s did not complete test %s due to error '%s'. ===" % \
                (str(self.model), str(self.test), str(self.score))
+
+    def _describe(self):
+        return self.summary
 
     def __str__(self):
         return 'Error'
