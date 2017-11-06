@@ -4,6 +4,7 @@
 | [![RTFD](https://readthedocs.org/projects/sciunit/badge/?version=master)](http://sciunit.readthedocs.io/en/latest/?badge=master) | [![RTFD](https://readthedocs.org/projects/sciunit/badge/?version=dev)](http://sciunit.readthedocs.io/en/latest/?badge=dev) |
 | [![Coveralls](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=master)](https://coveralls.io/github/scidash/sciunit?branch=master) | [![Coveralls](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=dev)](https://coveralls.io/github/scidash/sciunit?branch=dev) |
 | [![Requirements](https://requires.io/github/scidash/sciunit/requirements.svg?branch=master)](https://requires.io/github/scidash/sciunit/requirements/?branch=master) |  [![Requirements](https://requires.io/github/scidash/sciunit/requirements.svg?branch=dev)](https://requires.io/github/scidash/sciunit/requirements/?branch=dev) | 
+| [![Docker Build Status](https://img.shields.io/docker/build/scidash/sciunit.svg)](https://hub.docker.com/r/scidash/sciunit/builds/) |
 
 ![SciUnit Logo](https://raw.githubusercontent.com/scidash/assets/master/logos/sciunit.png)
 # SciUnit: A Test-Driven Framework for Formally Validating Scientific Models Against Data
@@ -32,8 +33,8 @@ There is a [mailing list](https://groups.google.com/forum/?fromgroups#!forum/sci
 Please join it if you are at all interested!
 
 ## Contributors
- * [Cyrus Omar](http://cs.cmu.edu/~comar), Carnegie Mellon University (Dept. of Computer Science)
  * [Rick Gerkin](http://rick.gerk.in), Arizona State University (School of Life Science)
-
+ * [Cyrus Omar](http://cs.cmu.edu/~comar), Carnegie Mellon University (Dept. of Computer Science)
+ 
 ## License
 SciUnit is released under the permissive [MIT license](https://opensource.org/licenses/MIT), requiring only attribution in derivative works. See the LICENSE file for terms.
