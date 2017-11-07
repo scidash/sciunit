@@ -29,7 +29,9 @@ HERE = os.path.dirname(os.path.realpath(__file__))
 def log(*args, **kwargs):
     if LOGGING:
         if not KERNEL:
-            args = [bs4.BeautifulSoup(x,"lxml").text for x in args]
+            args = [bs4.BeautifulSoup(x,"lxml").text \
+                    if not isinstance(x,Exception) else x \
+                    for x in args]
             try:
                 print(*args, **kwargs)
             except SyntaxError: # Python 2
