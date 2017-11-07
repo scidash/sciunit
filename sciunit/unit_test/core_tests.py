@@ -14,6 +14,7 @@ import tempfile
 import numpy as np
 from IPython.display import display
 
+import sciunit
 from sciunit.utils import NotebookTools, import_all_modules
 
 
@@ -497,7 +498,6 @@ class CommandLineTestCase(unittest.TestCase):
 
     def setUp(self):
         from sciunit.__main__ import main
-        import sciunit
         
         self.main = main
         SCIDASH_HOME = os.path.dirname(os.path.dirname(sciunit.__path__[0]))
@@ -534,6 +534,23 @@ class ExampleTestCase(unittest.TestCase):
 
     def test_example1(self):
         from sciunit.tests import example
+
+
+class ConfigTestCase(unittest.TestCase):
+    """Unit tests for config files"""
+
+    def test_json_config(self):
+        config_path = os.path.join(sciunit.__path__[0],'config.json')
+        print(config_path)
+        self.assertTrue(os.path.isfile(config_path))
+        cmap_low = sciunit.config_get('cmap_low')
+        self.assertTrue(isinstance(cmap_low,int))
+        dummy = sciunit.config_get('dummy',37)
+        self.assertEqual(dummy,37)
+        try:
+            sciunit.config_get('dummy')
+        except sciunit.Error as e:
+            self.assertTrue('does not contain key' in str(e))
 
 
 if __name__ == '__main__':
