@@ -973,11 +973,10 @@ class NoneScore(Score):
     checked to see if it has the capabilities required by the test."""
 
     def __init__(self, score, related_data=None):
-        if isinstance(score,str) or score is None:
+        if isinstance(score,(Exception,str)) or score is None:
             super(NoneScore,self).__init__(score, related_data=related_data)
         else:
-            raise InvalidScoreError(("Score must an (e.g. exception) string "
-                                     "or None."))
+            raise InvalidScoreError("Score must be an Exception, a string, or None")
 
     @property
     def sort_key(self):
