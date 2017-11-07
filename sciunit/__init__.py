@@ -14,6 +14,8 @@ try:
     from io import StringIO
 except ImportError:
     from StringIO import StringIO
+if sys.version_info.major < 3:
+    FileNotFoundError = OSError
 
 import numpy as np
 import pandas as pd
