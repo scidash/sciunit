@@ -16,6 +16,7 @@ except ImportError:
     from StringIO import StringIO
 if sys.version_info.major < 3:
     FileNotFoundError = OSError
+    json.JSONDecodeError = ValueError
 
 import numpy as np
 import pandas as pd
