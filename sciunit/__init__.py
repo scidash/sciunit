@@ -94,7 +94,7 @@ class SciUnit(object):
                     del state[key]
         return state
 
-    def _state(self, state=None, keys=None, exclude=None):
+    def _state(self, state=None, keys=[], exclude=[]):
         if state is None:
             state = self.__getstate__()
         if keys:
@@ -102,6 +102,17 @@ class SciUnit(object):
         if exclude:
             state = {key:state[key] for key in state.keys() if key not in exclude}
         return state
+
+    def _properties(self, keys=[], exclude=[]):
+        result = {}
+        props = [p for p in dir(self.__class__) \
+                 if isinstance(getattr(self.__class__,p),property)]
+        exclude += ['state','hash','id']
+        for prop in props:
+            if prop not in exclude:
+                if not keys or prop in keys: 
+                    result[prop] = getattr(self,prop)
+        return result
 
     @property
     def state(self):
@@ -112,15 +123,22 @@ class SciUnit(object):
         """A unique numeric identifier of the current model state"""
         return dict_hash(self.state)
 
-    @property
-    def json(self):
+    def json(self, add_props=False, keys=[], exclude=[]):
         def serialize(obj):
             try:
                 s = json.dumps(obj)
-            except:
-                s = json.dumps(obj.state, default=serialize)
+            except TypeError:
+                state = obj.state
+                if add_props:
+                    state.update(obj._properties())
+                state = self._state(state=state, keys=keys, exclude=exclude)
+                s = json.dumps(state, default=serialize)
             return json.loads(s)
         return serialize(self)
+
+    @property
+    def _class(self):
+        return self.__class__.__name__
 
     @property
     def id(self):
