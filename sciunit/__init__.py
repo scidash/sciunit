@@ -7,6 +7,7 @@ import os
 import sys
 import inspect
 from copy import copy
+import warnings
 from datetime import datetime
 from fnmatch import fnmatchcase
 import json
@@ -138,7 +139,9 @@ class SciUnit(object):
 
     @property
     def _class(self):
-        return self.__class__.__name__
+        url = getattr(self.__class__,'remote_url','')
+        return {'name':self.__class__.__name__,
+                'url':url}
 
     @property
     def id(self):
@@ -970,6 +973,10 @@ class Score(SciUnit):
             result = self.score <= other
         return result
 
+    @property
+    def score_type(self):
+        return self.__class__.__name__ 
+
 
 class ErrorScore(Score):
     """A score returned when an error occurs during testing."""
@@ -1132,10 +1139,14 @@ class ScoreMatrix(pd.DataFrame,SciUnit):
         if scores is None:
             scores = [[NoneScore for test in tests] for model in models]
         super(ScoreMatrix,self).__init__(data=scores, index=models, columns=tests)
-        self.tests = tests
-        self.models = models
         n = len(tests)
-        self.weights = np.ones(n) if weights is None else np.array(weights)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", 
+                                    message=(".*Pandas doesn't allow columns "
+                                             "to be created via a new "))
+            self.tests = tests
+            self.models = models
+            self.weights = np.ones(n) if weights is None else np.array(weights)
         self.weights /= self.weights.sum()
 
     show_mean = False
