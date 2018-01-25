@@ -279,6 +279,7 @@ class Test(SciUnit):
         Raises an ObservationError if invalid.
         """
         assert observation, "Observation is empty."
+        return observation
   
     required_capabilities = ()
     """A sequence of capabilities that a model must have in order for the 
