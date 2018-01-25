@@ -245,7 +245,8 @@ class Test(SciUnit):
         self.verbose = params.pop('verbose',1)
         self.params.update(params)
         
-        self.observation = self.validate_observation(observation)
+        validated = self.validate_observation(observation)
+        self.observation = validated if validated is not None else observation
 
         if self.score_type is None or not issubclass(self.score_type, Score):
             raise Error("Test %s does not specify a score type." % self.name)
