@@ -17,7 +17,7 @@ setup(
     author='Rick Gerkin',
     author_email='rgerkin@asu.edu',
     packages=['sciunit',
-              'sciunit.tests',
+              'sciunit.scores',
               'sciunit.unit_test'],
     url='http://sciunit.scidash.org',
     license='MIT',
