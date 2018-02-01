@@ -7,6 +7,7 @@
 # coverage run --source . test_all.py
 
 import os
+import sys
 import platform
 import unittest
 import tempfile
@@ -15,7 +16,7 @@ import numpy as np
 from IPython.display import display
 
 import sciunit
-from sciunit.utils import NotebookTools, import_all_modules
+from sciunit.utils import log, NotebookTools, import_all_modules
 
 
 class DocumentationTestCase(NotebookTools,unittest.TestCase):
@@ -50,13 +51,13 @@ class InitTestCase(unittest.TestCase):
     """Unit tests for the sciunit module"""
 
     def setUp(self):
-        from sciunit.tests.example import RangeTest
+        from sciunit.tests import RangeTest
         from sciunit.models import UniformModel
         self.M = UniformModel
         self.T = RangeTest
 
     def test_log(self):
-        from sciunit import log
+        from sciunit.utils import log
         
         log("Lorem Ipsum")
 
@@ -151,6 +152,17 @@ class InitTestCase(unittest.TestCase):
         self.assertEqual(t1.verbose,True)
         self.assertEqual(t2.verbose,True)
 
+    def test_rangetest(self):
+        from sciunit.tests import RangeTest
+        range_2_3_test = RangeTest(observation=[2,3])
+        one_model = sciunit.models.ConstModel(2.5)
+        self.assertTrue(range_2_3_test.check_capabilities(one_model))
+        score = range_2_3_test.judge(one_model)
+        self.assertTrue(isinstance(score, sciunit.scores.BooleanScore))
+        self.assertEqual(score.score,True)
+        self.assertTrue(score.test is range_2_3_test)
+        self.assertTrue(score.model is one_model)
+
     def prep_models_and_tests(self):
         from sciunit import TestSuite
         
@@ -203,9 +215,9 @@ class InitTestCase(unittest.TestCase):
         self.assertTrue(sp[2].equals(sm2))  
 
     def test_error_types(self):
-        from sciunit import CapabilityError, BadParameterValueError,\
-                            PredictionError, InvalidScoreError, \
-                            Model, Capability
+        from sciunit.errors import CapabilityError, BadParameterValueError,\
+                                   PredictionError, InvalidScoreError
+        from sciunit import Model, Capability
 
         CapabilityError(Model(),Capability)
         PredictionError(Model(),'foo')
@@ -306,7 +318,8 @@ class CapabilitiesTestCase(unittest.TestCase):
 
     def test_capabilities(self):
         from sciunit import Model
-        from sciunit.capabilities import ProducesNumber,UniqueRandomNumberModel,\
+        from sciunit.capabilities import ProducesNumber
+        from sciunit.models import Model,UniqueRandomNumberModel,\
                                          RepeatedRandomNumberModel
 
         class MyModel(Model,ProducesNumber): 
@@ -361,7 +374,7 @@ class ScoresTestCase(unittest.TestCase):
     def test_regular_score_types(self):
         from sciunit.scores import BooleanScore,FloatScore,RatioScore,\
                                    ZScore,CohenDScore,PercentScore
-        from sciunit.tests.example import RangeTest
+        from sciunit.tests import RangeTest
         
         BooleanScore(True)
         BooleanScore(False)
@@ -398,8 +411,8 @@ class ScoresTestCase(unittest.TestCase):
         self.assertTrue(-0.708 < score.score < -0.707)
 
     def test_irregular_score_types(self):
-        from sciunit import ErrorScore,NAScore,TBDScore,NoneScore
-        from sciunit.scores import InsufficientDataScore
+        from sciunit.scores import ErrorScore,NAScore,TBDScore,NoneScore,\
+                                   InsufficientDataScore
         
         e = Exception("This is an error")
         score = ErrorScore(e)
@@ -529,29 +542,25 @@ class CommandLineTestCase(unittest.TestCase):
         self.main('--directory',self.cosmosuite_path,'run-nb')
 
 
-class ExampleTestCase(unittest.TestCase):
-    """Unit tests for example modules"""
-
-    def test_example1(self):
-        from sciunit.tests import example
-
-
 class ConfigTestCase(unittest.TestCase):
     """Unit tests for config files"""
 
     def test_json_config(self):
+        from sciunit.utils import config_get
         config_path = os.path.join(sciunit.__path__[0],'config.json')
         print(config_path)
         self.assertTrue(os.path.isfile(config_path))
-        cmap_low = sciunit.config_get('cmap_low')
+        cmap_low = config_get('cmap_low')
         self.assertTrue(isinstance(cmap_low,int))
-        dummy = sciunit.config_get('dummy',37)
+        dummy = config_get('dummy',37)
         self.assertEqual(dummy,37)
         try:
-            sciunit.config_get('dummy')
+            config_get('dummy')
         except sciunit.Error as e:
             self.assertTrue('does not contain key' in str(e))
 
 
 if __name__ == '__main__':
-    unittest.main()
+    buffer = 'buffer' in sys.argv
+    sys.argv = sys.argv[:1] # Args need to be removed for __main__ to work.  
+    unittest.main(buffer=buffer)

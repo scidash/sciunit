@@ -11,6 +11,7 @@ import pkgutil
 import importlib
 import pickle
 import hashlib
+import json
 from datetime import datetime
 try: # Python 3
     import tkinter
@@ -28,6 +29,7 @@ except ImportError:
     mock = False
 mock = False # mock is probably obviated by the unittest -b flag.
 
+import bs4
 import nbformat
 import nbconvert
 from nbconvert.preprocessors import ExecutePreprocessor
@@ -37,18 +39,24 @@ import cypy
 import git
 from git.exc import GitCommandError
 from git.cmd import Git
+from IPython.display import HTML
 
-PRINT_DEBUG_STATE = False # printd does nothing by default.
+import sciunit
+from sciunit.errors import Error
 
+settings = {'PRINT_DEBUG_STATE':False, # printd does nothing by default.
+            'LOGGING':True,
+            'KERNEL':('ipykernel' in sys.modules),
+            'CWD':os.path.realpath(sciunit.__path__[0])}
 
 def printd_set(state):
-    global PRINT_DEBUG_STATE
-    PRINT_DEBUG_STATE = (state is True)
+    global settings
+    settings['PRINT_DEBUG_STATE'] = (state is True)
 
 
 def printd(*args, **kwargs):
-    global PRINT_DEBUG_STATE
-    if PRINT_DEBUG_STATE:
+    global settins
+    if settings['PRINT_DEBUG_STATE']:
         print(*args, **kwargs)
         return True
     else:
@@ -335,3 +343,48 @@ class Versioned(object):
                 raise ex
         return url
     remote_url = property(get_remote_url)
+
+def log(*args, **kwargs):
+    if settings['LOGGING']:
+        if not settings['KERNEL']:
+            args = [bs4.BeautifulSoup(x,"lxml").text \
+                    if not isinstance(x,Exception) else x \
+                    for x in args]
+            try:
+                print(*args, **kwargs)
+            except SyntaxError: # Python 2
+                print(args)
+        else:
+            with StringIO() as f:
+                kwargs['file'] = f
+                try:
+                    print(*args, **kwargs)
+                except SyntaxError: # Python 2
+                    print(args)
+                output = f.getvalue()
+                display(HTML(output))
+
+
+def config_get(key, default=None):
+    try:
+        assert isinstance(key,str), "Config key must be a string"
+        config_path = os.path.join(settings['CWD'],'config.json')
+        try:
+            with open(config_path) as f:
+                config = json.load(f)
+                value = config[key]
+        except FileNotFoundError:
+            raise Error("Config file not found at '%s'" % config_path)
+        except json.JSONDecodeError:
+            log("Config file JSON at '%s' was invalid" % config_path)
+            raise Error("Config file not found at '%s'" % config_path)
+        except KeyError:
+            raise Error("Config file does not contain key '%s'" % key)
+    except Exception as e:
+        if default is not None:
+            log(e)
+            log("Using default value of %s" % default)
+            value = default
+        else:
+            raise e
+    return value

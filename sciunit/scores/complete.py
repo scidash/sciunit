@@ -1,23 +1,13 @@
 import math
 
+import numpy as np
 import quantities as pq
 
-import sciunit
-import sciunit.utils as utils
+from sciunit import utils
+from sciunit import errors
+from .base import Score
 
-class InsufficientDataScore(sciunit.NoneScore):
-    """A score returned when the model or test data 
-    is insufficient to score the test."""
-    
-    @property
-    def sort_key(self):
-        return None
-
-    def __str__(self):
-        return 'Insufficient Data'
-
-
-class BooleanScore(sciunit.Score):
+class BooleanScore(Score):
     """
     A boolean score. Must be True or False.
     """
@@ -45,7 +35,7 @@ class BooleanScore(sciunit.Score):
         return 'Pass' if self.score else 'Fail'
 
 
-class ZScore(sciunit.Score):
+class ZScore(Score):
     """
     A Z score. A float indicating standardized difference 
     from a reference mean.
@@ -89,7 +79,7 @@ class ZScore(sciunit.Score):
         return 'Z = %.2f' % self.score
 
 
-class CohenDScore(sciunit.Score):
+class CohenDScore(Score):
     """
     A Cohen's D score. A float indicating difference 
     between two means normalized by the pooled standard deviation.
@@ -132,7 +122,7 @@ class CohenDScore(sciunit.Score):
         return 'D = %.2f' % self.score
 
 
-class RatioScore(sciunit.Score):
+class RatioScore(Score):
     """
     A ratio of two numbers score. Usually the prediction divided by
     the observation.  
@@ -144,7 +134,7 @@ class RatioScore(sciunit.Score):
 
     def _check_score(self, score):
         if score < 0.0:
-            raise sciunit.InvalidScoreError(("RatioScore was initialized with "
+            raise errors.InvalidScoreError(("RatioScore was initialized with "
                                              "a score of %f, but a RatioScore "
                                              "must be non-negative.") % score)
 
@@ -194,7 +184,7 @@ class RatioScore(sciunit.Score):
         return 'Ratio = %.2f' % self.score
 
 
-class PercentScore(sciunit.Score):
+class PercentScore(Score):
     """
     A percent score. A float in the range [0,0,100.0] where higher is better.
     """
@@ -205,7 +195,7 @@ class PercentScore(sciunit.Score):
 
     def _check_score(self, score):
         if not (0.0 <= score <= 100.0):
-            raise sciunit.InvalidScoreError(("Score of %f must be in "
+            raise errors.InvalidScoreError(("Score of %f must be in "
                                              "range 0.0-100.0" % score))
     
     @property
@@ -218,7 +208,7 @@ class PercentScore(sciunit.Score):
         return '%.1f%%' % self.score
 
 
-class FloatScore(sciunit.Score):
+class FloatScore(Score):
     """
     A float score. A float with any value.
     """
@@ -227,7 +217,7 @@ class FloatScore(sciunit.Score):
 
     def _check_score(self, score):
         if isinstance(score, pq.Quantity) and score.size!=1:
-            raise sciunit.InvalidScoreError("Score must have size 1.")
+            raise errors.InvalidScoreError("Score must have size 1.")
 
     _description = ('There is no canonical mapping between this score type and '
                    'a measure of agreement between the observation and the '
