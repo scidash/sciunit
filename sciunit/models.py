@@ -1,3 +1,7 @@
+"""
+Base class for SciUnit models, and various examples
+"""
+
 import inspect
 import random
 

@@ -1,6 +1,10 @@
+"""
+Score types for tests that completed successfully.  
+These include various representations of goodness-of-fit.
+"""
+
 import math
 
-import numpy as np
 import quantities as pq
 
 from sciunit import utils
@@ -229,10 +233,10 @@ class FloatScore(Score):
         """
         Computes a sum-squared difference from an observation and a prediction.
         """
-        value = ((observation - prediction)**2).sum() # The sum of the 
-                                                      # squared differences.
+        
+        # The sum of the squared differences.
+        value = ((observation - prediction)**2).sum() 
         score = FloatScore(value)
-        #score.set_raw(value)
         return score
      
     def __str__(self):

@@ -1,4 +1,11 @@
+"""
+Score types for tests that did not complete successfully.
+These include details about the various possible reasons
+that a particular combination of model and test could not be completed.
+"""  
+
 from .base import Score
+from sciunit.errors import InvalidScoreError
 
 class ErrorScore(Score):
     """A score returned when an error occurs during testing."""
@@ -77,4 +84,3 @@ class InsufficientDataScore(NoneScore):
 
     def __str__(self):
         return 'Insufficient Data'
-

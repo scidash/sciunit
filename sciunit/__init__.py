@@ -1,4 +1,5 @@
-"""SciUnit: A Test-Driven Framework for Validation 
+"""
+SciUnit: A Testing Framework for Data-Driven Validation 
 of Quantitative Scientific Models
 """
 

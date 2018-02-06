@@ -1,4 +1,6 @@
-"""Exception classes for SciUnit"""
+"""
+Exception classes for SciUnit
+"""
 
 class Error(Exception):
     """Base class for errors in sciunit's core."""
@@ -58,4 +60,3 @@ class BadParameterValueError(Error):
         
         super(BadParameterValueError, self).__init__(\
         "Parameter %s has unreasonable value of %s"  % (name,value))
-

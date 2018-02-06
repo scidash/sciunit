@@ -1,6 +1,9 @@
+"""
+Score collections for direct comparison of models against other models.
+"""
+
 import pandas as pd
 
-from sciunit.base import SciUnit
 from sciunit.models import Model
 from sciunit.tests import Test
 
@@ -18,7 +21,7 @@ class ScoreArrayM2M(pd.Series):
     def __getitem__(self, item):
         if isinstance(item,str):
             for entry in self.index:
-                if entry.name == item or "observation" == item.lower():
+                if entry.name == item or item.lower() == "observation":
                     return self.__getitem__(entry)
             raise KeyError("Doesn't match test, 'observation' or any model: '%s'" % item)
         else:
@@ -62,7 +65,7 @@ class ScoreMatrixM2M(pd.DataFrame):
             for model in self.models:
                 if model.name == item:
                     return self.__getitem__(model)
-            if self.test.name == item or "observation" == item.lower():
+            if self.test.name == item or item.lower() == "observation":
                 return self.__getitem__(self.test)
             raise KeyError("Doesn't match test, 'observation' or any model: '%s'" % item)
         elif isinstance(item,(list,tuple)) and len(item)==2:

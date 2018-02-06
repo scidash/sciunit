@@ -1,3 +1,17 @@
+"""
+This module implements the SciUnit command line tools.
+With SciUnit installed, a .sciunit configuration file can be created from 
+a *nix shell with:
+`sciunit create`
+and if models, tests, etc. are in locations specified by the configuration file
+then they can be executed with
+`sciunit run` (to run using the Python interpreter)
+or
+`sciunit make-nb` (to create Jupyter notebooks for test execution)
+and
+`sciunit run-nb` (to execute and save those notebooks)
+"""
+
 import sys
 import os
 import argparse
@@ -25,7 +39,7 @@ def main(*args):
                     help="stop and raise errors, halting the program")
     parser.add_argument("--tests", "-t", default=False, 
                     help="runs tests instead of suites")
-    if len(args):
+    if args:
         args = parser.parse_args(args)
     else:
         args = parser.parse_args()
@@ -134,12 +148,8 @@ def run(config, path=None, stop_on_error=True, just_tests=False):
             print('\nSuite %s:\n%s\n' % (suite,score_matrix))
 
 
-def make_nb(config, path=None, stop_on_error=True, just_tests=False):
-    """Create a Jupyter notebook sciunit tests for the given configuration"""
-
-    from nbformat.v4.nbbase import new_notebook,new_markdown_cell
-    import nbformat
-    
+def nb_name_from_path(config,path):
+    """Get a notebook name from a path to a notebook"""
     if path is None:
         path = os.getcwd()
     root = config.get('root','path')
@@ -147,10 +157,20 @@ def make_nb(config, path=None, stop_on_error=True, just_tests=False):
     root = os.path.realpath(root)
     default_nb_name = os.path.split(os.path.realpath(root))[1]
     nb_name = config.get('misc','nb-name',fallback=default_nb_name)
+    return root,nb_name
+    
+            
+def make_nb(config, path=None, stop_on_error=True, just_tests=False):
+    """Create a Jupyter notebook sciunit tests for the given configuration"""
+
+    from nbformat.v4.nbbase import new_notebook,new_markdown_cell
+    import nbformat
+    
+    root,nb_name = nb_name_from_path(config,path)
     clean = lambda varStr: re.sub('\W|^(?=\d)','_', varStr)
     name = clean(nb_name)
-    mpl_style = config.get('misc','matplotlib',fallback='inline')
     
+    mpl_style = config.get('misc','matplotlib',fallback='inline')
     cells = [new_markdown_cell('## Sciunit Testing Notebook for %s' % nb_name)]
     add_code_cell(cells, (
         "%%matplotlib %s\n"
@@ -158,12 +178,6 @@ def make_nb(config, path=None, stop_on_error=True, just_tests=False):
         "from importlib.machinery import SourceFileLoader\n"
         "%s = SourceFileLoader('scidash', '%s/__init__.py').load_module()") % \
         (mpl_style,name,root))
-        #"import os,sys\n"
-        #"if sys.path[0] != '%s':\n"
-        #"  sys.path.insert(0,'%s')\n"
-        #"os.environ['SCIDASH_HOME'] = '%s'") % (mpl_style,root,root,root))
-    #add_code_cell(cells, (
-    #    "import models, tests, suites"))
     if just_tests:
         add_code_cell(cells, (
             "for test in %s.tests.tests:\n"

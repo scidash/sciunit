@@ -1,5 +1,12 @@
+"""
+The base class for SciUnit capabilities.
+By inheriting a capability class, a model tells the test that it implements
+that capability and that all of its methods are safe to call.  
+The capability must then be implemented by the modeler (i.e. all of its methods)
+must exist in the model class
+"""
+
 import inspect
-import random
 
 from .base import SciUnit
 
@@ -29,4 +36,4 @@ class ProducesNumber(Capability):
 
     def produce_number(self):
         raise NotImplementedError("Must implement produce_number.")
-
+        

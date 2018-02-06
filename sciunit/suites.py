@@ -1,3 +1,7 @@
+"""
+Base class for SciUnit test suites.  
+"""
+
 import inspect
 from fnmatch import fnmatchcase
 
@@ -9,6 +13,7 @@ from .tests import Test
 from .models import Model
 from .scores import NoneScore
 from .scores.collections import ScoreMatrix
+from .errors import Error
 
 class TestSuite(SciUnit):
     """A collection of tests."""
@@ -90,16 +95,14 @@ class TestSuite(SciUnit):
         if self.include_models:
             skip = True # Skip unless found in include_models
             for include_model in self.include_models:
-                if model == include_model or \
-                   (isinstance(include_model,str) and \
-                   fnmatchcase(model.name, include_model)):
-                   # Found by instance or name
+                if model == include_model or (isinstance(include_model,str) and \
+                fnmatchcase(model.name, include_model)):
+                    # Found by instance or name
                     skip = False
                     break
         for skip_model in self.skip_models:
-            if model == skip_model or \
-               (isinstance(skip_model,str) and \
-                fnmatchcase(model.name, skip_model)):
+            if model == skip_model or (isinstance(skip_model,str) and \
+            fnmatchcase(model.name, skip_model)):
                 # Found by instance or name
                 skip = True
                 break

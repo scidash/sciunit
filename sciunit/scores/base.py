@@ -1,3 +1,7 @@
+"""
+Base class for SciUnit scores.
+"""
+
 from copy import copy
 
 import numpy as np
@@ -5,6 +9,7 @@ import numpy as np
 from sciunit.base import SciUnit
 from sciunit.utils import log,config_get
 from sciunit import scores
+from sciunit.errors import InvalidScoreError
 
 #
 # Scores

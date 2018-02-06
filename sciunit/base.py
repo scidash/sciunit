@@ -1,15 +1,20 @@
+"""
+The base class for many SciUnit objects
+"""
+
 import os
 import sys
+import json
+
+from .utils import dict_hash
+
 if sys.version_info.major < 3:
     FileNotFoundError = OSError
     json.JSONDecodeError = ValueError
-import json
 try:
     from io import StringIO
 except ImportError:
     from StringIO import StringIO
-
-from .utils import dict_hash
 
 KERNEL = ('ipykernel' in sys.modules)
 LOGGING = True
@@ -34,7 +39,7 @@ class SciUnit(object):
                     del state[key]
         return state
 
-    def _state(self, state=None, keys=[], exclude=[]):
+    def _state(self, state=None, keys=None, exclude=None):
         if state is None:
             state = self.__getstate__()
         if keys:
@@ -43,10 +48,12 @@ class SciUnit(object):
             state = {key:state[key] for key in state.keys() if key not in exclude}
         return state
 
-    def _properties(self, keys=[], exclude=[]):
+    def _properties(self, keys=None, exclude=None):
         result = {}
         props = [p for p in dir(self.__class__) \
                  if isinstance(getattr(self.__class__,p),property)]
+        if exclude is None:
+            exclude = []
         exclude += ['state','hash','id']
         for prop in props:
             if prop not in exclude:
@@ -63,7 +70,7 @@ class SciUnit(object):
         """A unique numeric identifier of the current model state"""
         return dict_hash(self.state)
 
-    def json(self, add_props=False, keys=[], exclude=[]):
+    def json(self, add_props=False, keys=None, exclude=None):
         def serialize(obj):
             try:
                 s = json.dumps(obj)

@@ -1,10 +1,16 @@
+"""
+SciUnit score collections, such as arrays and matrices.  
+These collections allow scores to be organized and visualized
+by model, test, or both.  
+"""
+
 from datetime import datetime
 import warnings
 
 import numpy as np
 import pandas as pd
 import bs4
-from IPython.display import display,HTML,Javascript
+from IPython.display import display,Javascript
 
 from sciunit.base import SciUnit
 from sciunit.models import Model
@@ -171,7 +177,12 @@ class ScoreMatrix(pd.DataFrame,SciUnit):
             df.insert(0,'Mean',None)
             df.loc[:,'Mean'] = ['%.3f' % self[m].mean() for m in self.models]
         html = df.to_html(*args, **kwargs) # Pandas method
-        
+        html,table_id = self.annotate(df,html,show_mean,colorize)
+        if sortable:
+            self.dynamify(table_id)
+        return html
+    
+    def annotate(self, df, html, show_mean, colorize):
         soup = bs4.BeautifulSoup(html,"lxml")
         if colorize: 
             for i,row in enumerate(soup.find('thead').findAll('tr')):
@@ -204,17 +215,15 @@ class ScoreMatrix(pd.DataFrame,SciUnit):
         table = soup.find('table')
         table_id = table['id'] = hash(datetime.now())
         html = str(soup)
-        if sortable:
-            prefix = "//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0"
-            js = Javascript("$('#%s').dataTable();" % table_id,
-                lib=["%s/jquery.dataTables.min.js" % prefix],
-                css=["%s/css/jquery.dataTables.css" % prefix])
-            display(js)
-        return html
+        return html,table_id
     
-#    def view(self, *args, **kwargs):
-#        html = self.to_html(*args, **kwargs)
-#        return HTML(html)
+    def dynamify(self, table_id):
+        prefix = "//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0"
+        js = Javascript("$('#%s').dataTable();" % table_id,
+            lib=["%s/jquery.dataTables.min.js" % prefix],
+            css=["%s/css/jquery.dataTables.css" % prefix])
+        display(js)
+    
 
 class ScorePanel(pd.Panel,SciUnit):
     def __getitem__(self, item):

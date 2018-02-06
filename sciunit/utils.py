@@ -5,7 +5,6 @@ Utility functions for SciUnit.
 from __future__ import print_function
 import os
 import sys
-import subprocess
 import warnings
 import pkgutil
 import importlib
@@ -13,6 +12,23 @@ import pickle
 import hashlib
 import json
 from datetime import datetime
+
+import bs4
+import nbformat
+import nbconvert
+from nbconvert.preprocessors import ExecutePreprocessor
+from nbconvert.preprocessors.execute import CellExecutionError
+from quantities.dimensionality import Dimensionality
+from quantities.quantity import Quantity
+import cypy
+import git
+from git.exc import GitCommandError
+from git.cmd import Git
+from IPython.display import HTML,display
+
+import sciunit
+from sciunit.errors import Error
+
 try: # Python 3
     import tkinter
 except ImportError: # Python 2
@@ -29,21 +45,6 @@ except ImportError:
     mock = False
 mock = False # mock is probably obviated by the unittest -b flag.
 
-import bs4
-import nbformat
-import nbconvert
-from nbconvert.preprocessors import ExecutePreprocessor
-from quantities.dimensionality import Dimensionality
-from quantities.quantity import Quantity
-import cypy
-import git
-from git.exc import GitCommandError
-from git.cmd import Git
-from IPython.display import HTML
-
-import sciunit
-from sciunit.errors import Error
-
 settings = {'PRINT_DEBUG_STATE':False, # printd does nothing by default.
             'LOGGING':True,
             'KERNEL':('ipykernel' in sys.modules),
@@ -55,13 +56,11 @@ def printd_set(state):
 
 
 def printd(*args, **kwargs):
-    global settins
+    global settings
     if settings['PRINT_DEBUG_STATE']:
         print(*args, **kwargs)
         return True
-    else:
-        return False
-
+    return False
 
 def assert_dimensionless(value):
     """
@@ -97,14 +96,14 @@ class NotebookTools(object):
         backend must be changed to one that doesn't need a display."""
 
         try:
-            root = tkinter.Tk()
+            tkinter.Tk()
         except (tkinter.TclError, NameError): # If there is no display.
             try:
                 import matplotlib as mpl
             except ImportError:
                 pass
             else:
-                "Setting matplotlib backend to Agg"
+                print("Setting matplotlib backend to Agg")
                 mpl.use('Agg')
 
     def load_notebook(self, name):
@@ -116,16 +115,15 @@ class NotebookTools(object):
 
     def run_notebook(self, nb, f):
         """Runs a loaded notebook file."""
-
+        
         if (sys.version_info >= (3, 0)):
             kernel_name = 'python3'
         else:
             kernel_name = 'python2'
         ep = ExecutePreprocessor(timeout=600, kernel_name=kernel_name)
         try:
-            out = ep.preprocess(nb, {'metadata': {'path': '.'}})
+            ep.preprocess(nb, {'metadata': {'path': '.'}})
         except CellExecutionError:
-            out = None
             msg = 'Error executing the notebook "%s".\n\n' % f.name
             msg += 'See notebook "%s" for the traceback.' % f.name
             print(msg)
@@ -184,7 +182,7 @@ class NotebookTools(object):
         code = self.read_code(name)
         code = code.split('\n')
         new_code = []
-        for i,line in enumerate(code):
+        for line in code:
             if not [bad for bad in forbidden if bad in line]:
                 new_code.append(line)
         new_code = '\n'.join(new_code)
@@ -197,15 +195,14 @@ class NotebookTools(object):
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS',True))
         s = StringIO()
         if mock:
-            with unittest.mock.patch('sys.stdout', new=MockDevice(s)) as fake_out:
-                with unittest.mock.patch('sys.stderr', new=MockDevice(s)) as fake_out:
+            with unittest.mock.patch('sys.stdout', new=MockDevice(s)) as _:
+                with unittest.mock.patch('sys.stderr', new=MockDevice(s)) as _:
                     self._do_notebook(name, CONVERT_NOTEBOOKS)
         else:
             self._do_notebook(name, CONVERT_NOTEBOOKS)
         self.assertTrue(True)
 
     def _do_notebook(self, name, convert_notebooks=False):
-        s = StringIO()
         if convert_notebooks:
             self.convert_and_execute_notebook(name)
         else:
@@ -228,7 +225,7 @@ def import_all_modules(package):
     'package' should be an imported package, not a string.
     """
 
-    for importer, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
+    for _, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
                                                           onerror=lambda x: None):
         print(modname,ispkg)
         if ispkg:
@@ -293,7 +290,7 @@ def method_cache(by='value',method='run'):
                 cache[method_signature] = (datetime.now(),model.__dict__.copy())
             else:
                 print("Method with this signature found in the cache. Restoring...")
-                timestamp,attrs = cache[method_signature]
+                _,attrs = cache[method_signature]
                 model.__dict__.update(attrs)
             return func(*args, **kwargs)
         return decorate

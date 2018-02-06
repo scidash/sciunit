@@ -1,3 +1,5 @@
+"""Setup file for SciUnit"""
+
 import sys
 
 try:
