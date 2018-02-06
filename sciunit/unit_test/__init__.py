@@ -1,4 +1,4 @@
-"""All unit tests for SciUnit"""
+"""Unit testing module for sciunit"""
 
 import unittest
 import sys
@@ -25,9 +25,4 @@ class ImportTestCase(unittest.TestCase):
         
         # Recursively import all submodules
         import_all_modules(sciunit)
-        
 
-if __name__ == '__main__':
-    buffer = 'buffer' in sys.argv
-    sys.argv = sys.argv[:1] # Args need to be removed for __main__ to work.  
-    unittest.main(buffer=buffer)
