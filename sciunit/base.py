@@ -5,8 +5,8 @@ The base class for many SciUnit objects
 import os
 import sys
 import json
-
-from .utils import dict_hash
+import pickle
+import hashlib
 
 if sys.version_info.major < 3:
     FileNotFoundError = OSError
@@ -65,10 +65,15 @@ class SciUnit(object):
     def state(self):
         return self._state()
 
+    @classmethod
+    def dict_hash(cls,d):
+        pickled = pickle.dumps([(key,d[key]) for key in sorted(d)])
+        return hashlib.sha224(pickled).hexdigest()
+
     @property
     def hash(self):
         """A unique numeric identifier of the current model state"""
-        return dict_hash(self.state)
+        return self.dict_hash(self.state)
 
     def json(self, add_props=False, keys=None, exclude=None):
         def serialize(obj):

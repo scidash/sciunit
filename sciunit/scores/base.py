@@ -8,7 +8,6 @@ import numpy as np
 
 from sciunit.base import SciUnit
 from sciunit.utils import log,config_get
-from sciunit import scores
 from sciunit.errors import InvalidScoreError
 
 #
@@ -22,7 +21,7 @@ class Score(SciUnit):
             related_data = {}
         self.score, self.related_data = score, related_data
         if isinstance(score,Exception):
-            self.__class__ = scores.ErrorScore # Set to error score to use its summarize().
+            self.__class__ = ErrorScore # Set to error score to use its summarize().
         super(Score,self).__init__()
   
     score = None
@@ -192,3 +191,23 @@ class Score(SciUnit):
     @property
     def score_type(self):
         return self.__class__.__name__ 
+
+
+class ErrorScore(Score):
+    """A score returned when an error occurs during testing."""
+    
+    @property
+    def sort_key(self):
+        return 0.0
+
+    @property
+    def summary(self):
+        """Summarize the performance of a model on a test."""
+        return "=== Model %s did not complete test %s due to error '%s'. ===" % \
+               (str(self.model), str(self.test), str(self.score))
+
+    def _describe(self):
+        return self.summary
+
+    def __str__(self):
+        return 'Error'

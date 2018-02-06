@@ -1,6 +1,6 @@
 """SciUnit tests live in this module."""
 from sciunit.base import SciUnit
-from . import capabilities
+from .capabilities import ProducesNumber
 from .models import Model
 from .scores import Score,BooleanScore,NoneScore,ErrorScore,TBDScore,NAScore
 from .errors import CapabilityError
@@ -426,7 +426,7 @@ class RangeTest(Test):
     super(RangeTest, self).__init__(observation,
     								name=name)
 
-  required_capabilities = (capabilities.ProducesNumber,)
+  required_capabilities = (ProducesNumber,)
   score_type = BooleanScore
   
   def validate_observation(self, observation):

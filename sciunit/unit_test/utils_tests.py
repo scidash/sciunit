@@ -32,12 +32,12 @@ class UtilsTestCase(unittest.TestCase):
         self.assertFalse(printd("This line should not print"))
 
     def test_dict_hash(self):
-        from sciunit.utils import dict_hash
+        from sciunit.base import SciUnit
         
         d1 = {'a':1,'b':2,'c':3}
         d2 = {'c':3,'a':1,'b':2}
-        dh1 = dict_hash(d1)
-        dh2 = dict_hash(d2)
+        dh1 = SciUnit.dict_hash(d1)
+        dh2 = SciUnit.dict_hash(d2)
         self.assertTrue(type(dh1) is str)
         self.assertTrue(type(dh2) is str)
         self.assertEqual(d1,d2)

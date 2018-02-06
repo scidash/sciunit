@@ -14,7 +14,8 @@ class CommandLineTestCase(unittest.TestCase):
         from sciunit.__main__ import main
         
         self.main = main
-        SCIDASH_HOME = os.path.dirname(os.path.dirname(sciunit.__path__[0]))
+        path = os.path.abspath(sciunit.__path__[0])
+        SCIDASH_HOME = os.path.dirname(os.path.dirname(path))
         self.cosmosuite_path = os.path.join(SCIDASH_HOME,'scidash')
 
     def test_sciunit_1create(self):

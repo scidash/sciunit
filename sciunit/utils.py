@@ -28,6 +28,9 @@ from IPython.display import HTML,display
 
 import sciunit
 from sciunit.errors import Error
+from .base import SciUnit
+if sys.version_info.major < 3:
+    FileNotFoundError = OSError
 
 try: # Python 3
     import tkinter
@@ -219,7 +222,7 @@ class MockDevice(TextIOWrapper):
             super(MockDevice,self).write(s)
 
 
-def import_all_modules(package):
+def import_all_modules(package,verbose=False):
     """Recursively imports all subpackages, modules, and submodules of a
     given package.
     'package' should be an imported package, not a string.
@@ -227,7 +230,8 @@ def import_all_modules(package):
 
     for _, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
                                                           onerror=lambda x: None):
-        print(modname,ispkg)
+        if verbose:
+            print(modname,ispkg)
         if ispkg:
             subpackage = importlib.import_module('%s.%s' % \
                                                  (package.__name__,modname))
@@ -252,10 +256,8 @@ def import_module_from_path(module_path, name=None):
         sys.path.pop() # Remove the directory that was just added.  
     return module
 
-
 def dict_hash(d):
-    pickled = pickle.dumps([(key,d[key]) for key in sorted(d)])
-    return hashlib.sha224(pickled).hexdigest()
+    return SciUnit.dict_hash(d)
 
 
 def method_cache(by='value',method='run'):
@@ -278,9 +280,9 @@ def method_cache(by='value',method='run'):
             if by == 'value':
                 model_dict = {key:value for key,value in list(model.__dict__.items()) \
                               if key[0]!='_'}
-                method_signature = dict_hash({'attrs':model_dict,'args':method_args}) # Hash key.
+                method_signature = SciUnit.dict_hash({'attrs':model_dict,'args':method_args}) # Hash key.
             elif by == 'instance':
-                method_signature = dict_hash({'id':id(model),'args':method_args}) # Hash key.
+                method_signature = SciUnit.dict_hash({'id':id(model),'args':method_args}) # Hash key.
             else:
                 raise ValueError("Cache type must be 'value' or 'instance'")
             if method_signature not in cache:

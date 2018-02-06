@@ -7,25 +7,6 @@ that a particular combination of model and test could not be completed.
 from .base import Score
 from sciunit.errors import InvalidScoreError
 
-class ErrorScore(Score):
-    """A score returned when an error occurs during testing."""
-    
-    @property
-    def sort_key(self):
-        return 0.0
-
-    @property
-    def summary(self):
-        """Summarize the performance of a model on a test."""
-        return "=== Model %s did not complete test %s due to error '%s'. ===" % \
-               (str(self.model), str(self.test), str(self.score))
-
-    def _describe(self):
-        return self.summary
-
-    def __str__(self):
-        return 'Error'
-
 
 class NoneScore(Score):
     """A None score.  Usually indicates that the model has not been 
