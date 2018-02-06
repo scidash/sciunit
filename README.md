@@ -36,5 +36,8 @@ Please join it if you are at all interested!
  * [Cyrus Omar](http://cs.cmu.edu/~comar), Carnegie Mellon University (Dept. of Computer Science)
  * [Rick Gerkin](http://rick.gerk.in), Arizona State University (School of Life Science)
 
+## Reproducible Research ID
+RRID:[SCR_014528](https://scicrunch.org/resources/Any/record/nlx_144509-1/3faed1d9-6579-5da6-b4b4-75a5077656bb/search?q=sciunit&l=sciunit)
+
 ## License
 SciUnit is released under the permissive [MIT license](https://opensource.org/licenses/MIT), requiring only attribution in derivative works. See the LICENSE file for terms.
