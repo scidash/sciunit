@@ -54,11 +54,18 @@ settings = {'PRINT_DEBUG_STATE':False, # printd does nothing by default.
             'CWD':os.path.realpath(sciunit.__path__[0])}
 
 def printd_set(state):
+    """Enable the printd function.  
+    Call with True for all subsequent printd commands to be passed to print.
+    Call with False to ignore all subsequent printd commands.  
+    """
+
     global settings
     settings['PRINT_DEBUG_STATE'] = (state is True)
 
 
 def printd(*args, **kwargs):
+    """Print if PRINT_DEBUG_STATE is True"""
+
     global settings
     if settings['PRINT_DEBUG_STATE']:
         print(*args, **kwargs)
@@ -71,6 +78,7 @@ def assert_dimensionless(value):
     If input is dimensionless but expressed as a Quantity, it returns the
     bare value.  If it not, it raised an error.
     """
+
     if isinstance(value,Quantity):
         value = value.simplified
         if value.dimensionality == Dimensionality({}):
@@ -81,6 +89,7 @@ def assert_dimensionless(value):
 
 
 class NotebookTools(object):
+    """A class for manipulating and executing Jupyter notebooks."""
 
     def __init__(self, *args, **kwargs):
         super(NotebookTools,self).__init__(*args, **kwargs)
@@ -89,6 +98,10 @@ class NotebookTools(object):
     path = '' # Relative path to the parent directory of the notebook.
 
     def get_path(self, file):
+        """Get the full path of the notebook found in the directory
+        specified by self.path.
+        """
+
         class_path = inspect.getfile(self.__class__)
         parent_path = os.path.dirname(class_path)
         path = os.path.join(parent_path,self.path,file)
@@ -96,7 +109,8 @@ class NotebookTools(object):
 
     def fix_display(self):
         """If this is being run on a headless system the Matplotlib
-        backend must be changed to one that doesn't need a display."""
+        backend must be changed to one that doesn't need a display.
+        """
 
         try:
             tkinter.Tk()
@@ -206,6 +220,7 @@ class NotebookTools(object):
         self.assertTrue(True)
 
     def _do_notebook(self, name, convert_notebooks=False):
+        """Called by do_notebook to actually run the notebook."""
         if convert_notebooks:
             self.convert_and_execute_notebook(name)
         else:
@@ -229,13 +244,13 @@ def import_all_modules(package,verbose=False):
     """
 
     for _, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
-                                                          onerror=lambda x: None):
+                                                   onerror=lambda x: None):
         if verbose:
             print(modname,ispkg)
         if ispkg:
-            subpackage = importlib.import_module('%s.%s' % \
-                                                 (package.__name__,modname))
-            import_all_modules(subpackage)
+            module = '%s.%s' % (package.__name__,modname)
+            subpackage = importlib.import_module(module)
+            import_all_modules(subpackage,verbose=verbose)
 
 
 def import_module_from_path(module_path, name=None):
@@ -328,16 +343,21 @@ class Versioned(object):
         return version
     version = property(get_version)
     
-    def get_remote_url(self, remote='origin'):
+    def get_remote(self, remote='origin'):
         repo = self.get_repo()
         remotes = {r.name:r for r in repo.remotes}
         r = repo.remotes[0] if remote not in remotes else remotes[remote]
+        return r
+
+    def get_remote_url(self, remote='origin'):
+        r = self.get_remote(remote)
         try:
             url = list(r.urls)[0]
         except GitCommandError as ex:
             if 'correct access rights' in str(ex):
-                # If ssh is not setup to access this repository                                                                                            
-                url = Git().execute(['git','config','--get','remote.%s.url' % r.name])
+                # If ssh is not setup to access this repository 
+                cmd = ['git','config','--get','remote.%s.url' % r.name]                                                                                           
+                url = Git().execute(cmd)
             else:
                 raise ex
         return url
@@ -346,39 +366,52 @@ class Versioned(object):
 def log(*args, **kwargs):
     if settings['LOGGING']:
         if not settings['KERNEL']:
-            args = [bs4.BeautifulSoup(x,"lxml").text \
-                    if not isinstance(x,Exception) else x \
-                    for x in args]
-            try:
-                print(*args, **kwargs)
-            except SyntaxError: # Python 2
-                print(args)
+            kernel_log(*args, **kwargs)
         else:
-            with StringIO() as f:
-                kwargs['file'] = f
-                try:
-                    print(*args, **kwargs)
-                except SyntaxError: # Python 2
-                    print(args)
-                output = f.getvalue()
-                display(HTML(output))
+            non_kernel_log(*args, **kwargs)
+
+
+def kernel_log(*args, **kwargs):
+    args = [bs4.BeautifulSoup(x,"lxml").text \
+            if not isinstance(x,Exception) else x \
+            for x in args]
+    try:
+        print(*args, **kwargs)
+    except SyntaxError: # Python 2
+        print(args)
+
+
+def non_kernel_log(*args, **kwargs):
+    with StringIO() as f:
+        kwargs['file'] = f
+        try:
+            print(*args, **kwargs)
+        except SyntaxError: # Python 2
+            print(args)
+        output = f.getvalue()
+    display(HTML(output))
+
+
+def config_get_from_path(config_path,key):
+    try:
+        with open(config_path) as f:
+            config = json.load(f)
+            value = config[key]
+    except FileNotFoundError:
+        raise Error("Config file not found at '%s'" % config_path)
+    except json.JSONDecodeError:
+        log("Config file JSON at '%s' was invalid" % config_path)
+        raise Error("Config file not found at '%s'" % config_path)
+    except KeyError:
+        raise Error("Config file does not contain key '%s'" % key)
+    return value
 
 
 def config_get(key, default=None):
     try:
         assert isinstance(key,str), "Config key must be a string"
         config_path = os.path.join(settings['CWD'],'config.json')
-        try:
-            with open(config_path) as f:
-                config = json.load(f)
-                value = config[key]
-        except FileNotFoundError:
-            raise Error("Config file not found at '%s'" % config_path)
-        except json.JSONDecodeError:
-            log("Config file JSON at '%s' was invalid" % config_path)
-            raise Error("Config file not found at '%s'" % config_path)
-        except KeyError:
-            raise Error("Config file does not contain key '%s'" % key)
+        value = config_get_from_path(config_path,key)    
     except Exception as e:
         if default is not None:
             log(e)

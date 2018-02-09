@@ -20,10 +20,7 @@ class ScoreArrayM2M(pd.Series):
 
     def __getitem__(self, item):
         if isinstance(item,str):
-            for entry in self.index:
-                if entry.name == item or item.lower() == "observation":
-                    return self.__getitem__(entry)
-            raise KeyError("Doesn't match test, 'observation' or any model: '%s'" % item)
+            return self.get_by_name(item)    
         else:
             return super(ScoreArrayM2M,self).__getitem__(item)
 
@@ -33,6 +30,13 @@ class ScoreArrayM2M(pd.Series):
         else:
             attr = super(ScoreArrayM2M,self).__getattribute__(name)
         return attr
+
+    def get_by_name(self, name):
+        for entry in self.index:
+            if entry.name == name or name.lower() == "observation":
+                return self.__getitem__(entry)
+        raise KeyError(("Doesn't match test, 'observation' or "
+                        "any model: '%s'") % name)
 
     @property
     def sort_keys(self):
@@ -60,20 +64,32 @@ class ScoreMatrixM2M(pd.DataFrame):
 
     def __getitem__(self, item):
         if isinstance(item,(Test,Model)):
-            return ScoreArrayM2M(self.test, self.models, scores=self.loc[item,:])
+            result = ScoreArrayM2M(self.test, self.models, scores=self.loc[item,:])
         elif isinstance(item,str):
-            for model in self.models:
-                if model.name == item:
-                    return self.__getitem__(model)
-            if self.test.name == item or item.lower() == "observation":
-                return self.__getitem__(self.test)
-            raise KeyError("Doesn't match test, 'observation' or any model: '%s'" % item)
+            result = self.get_by_name(item)    
         elif isinstance(item,(list,tuple)) and len(item)==2:
-            if isinstance(item[0],(Test,Model)) and isinstance(item[1],(Test,Model)):
-                return self.loc[item[0],item[1]]
-            elif isinstance(item[0],str):
-                return self.__getitem__(item[0]).__getitem__(item[1])
-        raise TypeError("Expected test/'observation'; model; test/'observation',model; model,test/'observation'; or model,model")
+            result = self.get_group(item)
+        else:
+            raise TypeError(("Expected test/'observation'; model; "
+                             "test/'observation',model; "
+                             "model,test/'observation'; or model,model"))
+        return result
+
+    def get_by_name(self, name):
+        for model in self.models:
+            if model.name == name:
+                return self.__getitem__(model)
+            if self.test.name == name or name.lower() == "observation":
+                return self.__getitem__(self.test)
+        raise KeyError(("Doesn't match test, 'observation' or "
+                        "any model: '%s'") % name)
+
+    def get_group(self, x):
+        if isinstance(x[0],(Test,Model)) and isinstance(x[1],(Test,Model)):
+            return self.loc[x[0],x[1]]
+        elif isinstance(x[0],str):
+            return self.__getitem__(x[0]).__getitem__(x[1])
+        raise TypeError("Expected test/model pair")
 
     def __getattr__(self, name):
         if name in ['score','sort_key','related_data']:

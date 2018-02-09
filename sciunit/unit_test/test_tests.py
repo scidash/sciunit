@@ -2,14 +2,19 @@
 
 import unittest
 
+from sciunit import TestSuite
+from sciunit.tests import RangeTest, TestM2M
+from sciunit.models import ConstModel, UniformModel
+from sciunit.scores import BooleanScore, FloatScore
+from sciunit.scores import FloatScore
+from sciunit.capabilities import ProducesNumber
+        
 from .base import SuiteBase
 
 class TestsTestCase(unittest.TestCase):
     """Unit tests for the sciunit module"""
 
     def setUp(self):
-        from sciunit.tests import RangeTest
-        from sciunit.models import UniformModel
         self.M = UniformModel
         self.T = RangeTest
 
@@ -33,9 +38,6 @@ class TestsTestCase(unittest.TestCase):
         t.check(m)
 
     def test_rangetest(self):
-        from sciunit.tests import RangeTest
-        from sciunit.models import ConstModel
-        from sciunit.scores import BooleanScore
         range_2_3_test = RangeTest(observation=[2,3])
         one_model = ConstModel(2.5)
         self.assertTrue(range_2_3_test.check_capabilities(one_model))
@@ -50,20 +52,16 @@ class TestSuitesTestCase(SuiteBase,unittest.TestCase):
     """Unit tests for the sciunit module"""
     
     def test_testsuite(self):
-        from sciunit import TestSuite
-        
         t1 = self.T([2,3])
         t2 = self.T([5,6])
         m1 = self.M(2,3)
         m2 = self.M(5,6)
-        t = TestSuite("MySuite",[t1,t2])
+        t = TestSuite([t1,t2])
         t.judge([m1,m2])
-        t = TestSuite("MySuite",[t1,t2],skip_models=[m1],include_models=[m2])
+        t = TestSuite([t1,t2],skip_models=[m1],include_models=[m2])
         t.judge([m1,m2])
 
     def test_testsuite_hooks(self):
-        from sciunit import TestSuite
-        
         t1 = self.T([2,3])
         t1.hook_called = False
         t2 = self.T([5,6])
@@ -72,43 +70,39 @@ class TestSuitesTestCase(SuiteBase,unittest.TestCase):
             self.assertEqual(score,True)
             self.assertEqual(a,1)
             t1.hook_called = True
-        t = TestSuite("MySuite",[t1,t2],
+        ts = TestSuite([t1,t2],name='MySuite',
                       hooks={t1:
                                 {'f':f,
                                  'kwargs':{'a':1}}
                             })
-        t.judge(m)
+        ts.judge(m)
         self.assertEqual(t1.hook_called,True)
 
     def test_testsuite_from_observations(self):
-        from sciunit import TestSuite
-        
         m = self.M(2,3)
-        t = TestSuite.from_observations("MySuite",
-                                        [(self.T,[2,3]),
-                                         (self.T,[5,6])])
-        t.judge(m)
-
+        ts = TestSuite.from_observations([(self.T,[2,3]),
+                                         (self.T,[5,6])],
+                                        name="MySuite")
+        ts.judge(m)
 
     def test_testsuite_set_verbose(self):
-        from sciunit import TestSuite
-
         t1 = self.T([2,3])
         t2 = self.T([5,6])
-        t = TestSuite("MySuite",[t1,t2])
+        t = TestSuite([t1,t2])
         t.set_verbose(True)
         self.assertEqual(t1.verbose,True)
         self.assertEqual(t2.verbose,True)
+
+    def test_testsuite_serialize(self):
+        tests = [RangeTest(observation=(x,x+3)) for x in [1,2,3,4]]
+        ts = TestSuite(tests, name='RangeSuite')
+        self.assertTrue(isinstance(ts.json(),str))
         
         
 class M2MsTestCase(unittest.TestCase):
     """Tests for the M2M flavor of tests and test suites"""
     
-    def setUp(self):
-        from sciunit.scores import FloatScore
-        from sciunit.capabilities import ProducesNumber
-        from sciunit.models import ConstModel
-        from sciunit.tests import TestM2M    
+    def setUp(self):  
         self.myModel1 = ConstModel(100.0, "Model1")
         self.myModel2 = ConstModel(110.0, "Model2")
         

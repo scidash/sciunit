@@ -3,11 +3,11 @@ Base class for SciUnit test suites.
 """
 
 import inspect
-from fnmatch import fnmatchcase
+import random
 
 import numpy as np
 
-from .base import SciUnit
+from .base import SciUnit,TestWeighted
 from .utils import log
 from .tests import Test
 from .models import Model
@@ -15,31 +15,16 @@ from .scores import NoneScore
 from .scores.collections import ScoreMatrix
 from .errors import Error
 
-class TestSuite(SciUnit):
+class TestSuite(SciUnit,TestWeighted):
     """A collection of tests."""
-    def __init__(self, name, tests, weights=None, include_models=None, 
+
+    def __init__(self, tests, name=None, weights=None, include_models=None, 
                  skip_models=None, hooks=None):
-        if name is None:
-            raise Error("Suite name required.")
-        self.name = name
-        if isinstance(tests, Test):
-            # Turn singleton test into a sequence
-            tests = (tests,)
-        else:
-            try:
-                for test in tests:
-                    if not isinstance(test, Test):
-                        raise TypeError(("Test suite provided an iterable "
-                                         "containing a non-Test."))
-            except TypeError:
-                raise TypeError(("Test suite was not provided with "
-                                 "a test or iterable."))
-        self.tests = tests
-        n = len(self.tests)
-        self.weights = np.ones(n) if weights is None else np.array(weights)
-        self.weights /= self.weights.sum() # Normalize
-        self.include_models = [] if include_models is None else include_models
-        self.skip_models = [] if skip_models is None else skip_models
+        self.name = name if name else "Suite_%d" % random.randint(0,1e12)
+        self.tests = self.check_tests(tests)
+        self.weights_ = [] if not weights else list(weights)
+        self.include_models = include_models if include_models else []
+        self.skip_models = skip_models if skip_models else []
         self.hooks = hooks
         super(TestSuite,self).__init__()
 
@@ -60,11 +45,26 @@ class TestSuite(SciUnit):
     """List of names or instances of models to not judge 
     (all passed to judge are judged by default)."""
 
-    def judge(self, models, 
-              skip_incapable=False, stop_on_error=True, deep_error=False):
-        """Judges the provided models against each test in the test suite.
-           Returns a ScoreMatrix.
-        """
+    def check_tests(self, tests):
+        """Checks and in some cases fixes the list of tests."""
+
+        if isinstance(tests, Test):
+            # Turn singleton test into a sequence
+            tests = (tests,)
+        else:
+            try:
+                for test in tests:
+                    if not isinstance(test, Test):
+                        raise TypeError(("Test suite provided an iterable "
+                                         "containing a non-Test."))
+            except TypeError:
+                raise TypeError(("Test suite was not provided with "
+                                 "a test or iterable."))
+        return tests
+
+    def check_models(self, models):
+        """Checks and in some cases fixes the list of models."""
+
         if isinstance(models, Model):
             models = (models,)
         else:
@@ -76,48 +76,48 @@ class TestSuite(SciUnit):
             except TypeError:
                 raise TypeError(("Test suite's judge method not provided with "
                                  "a model or iterable."))
+        return models
 
+    def judge(self, models, 
+              skip_incapable=False, stop_on_error=True, deep_error=False):
+        """Judges the provided models against each test in the test suite.
+           Returns a ScoreMatrix.
+        """
+
+        models = self.check_models(models)
         sm = ScoreMatrix(self.tests, models, weights=self.weights)
         for model in models:
-            skip = self.is_skipped(model)
             for test in self.tests:
-                if skip:
-                    sm.loc[model,test] = score = NoneScore(None)
-                else:
-                    score = self.judge_one(model,test,sm,skip_incapable,
-                                           stop_on_error,deep_error)
+                score = self.judge_one(model,test,sm,skip_incapable,
+                                       stop_on_error,deep_error)
                 self.set_hooks(test,score)
         return sm
 
     def is_skipped(self, model):
-        # Possibly skip model
-        skip = False # Don't skip by default
-        if self.include_models:
-            skip = True # Skip unless found in include_models
-            for include_model in self.include_models:
-                if model == include_model or (isinstance(include_model,str) and \
-                fnmatchcase(model.name, include_model)):
-                    # Found by instance or name
-                    skip = False
-                    break
-        for skip_model in self.skip_models:
-            if model == skip_model or (isinstance(skip_model,str) and \
-            fnmatchcase(model.name, skip_model)):
-                # Found by instance or name
-                skip = True
-                break
+        """Possibly skip model."""
+
+        # Skip if include_models provided and model not found there
+        skip = self.include_models and \
+               not any([model.is_match(x) for x in self.include_models])
+        # Skip if model found in skip_models
+        if not skip: 
+            skip = any([model.is_match(x) for x in self.skip_models])
         return skip 
         
     def judge_one(self, model, test, sm, 
                   skip_incapable=True, stop_on_error=True, deep_error=False):
         """Judge model and put score in the ScoreMatrix"""
-        log('Executing test <i>%s</i> on model <i>%s</i>' % (test,model), 
+        
+        if self.is_skipped(model):
+            score = NoneScore(None)
+        else:    
+            log('Executing test <i>%s</i> on model <i>%s</i>' % (test,model), 
             end="... ")
-        score = test.judge(model, skip_incapable=skip_incapable, 
+            score = test.judge(model, skip_incapable=skip_incapable, 
                                   stop_on_error=stop_on_error, 
                                   deep_error=deep_error)
-        log('Score is <a style="color: rgb(%d,%d,%d)">' % score.color()
-          + '%s</a>' % score)
+            log('Score is <a style="color: rgb(%d,%d,%d)">' % score.color()
+            + '%s</a>' % score)
         sm.loc[model, test] = score
         return score
 
@@ -133,14 +133,13 @@ class TestSuite(SciUnit):
             else:
                 kwargs = {}
             f(test, self.tests, score, **kwargs)
-        
 
     def set_verbose(self, verbose):
         for test in self.tests:
             test.verbose = verbose
 
     @classmethod
-    def from_observations(cls, name, tests_info):
+    def from_observations(cls, tests_info, name=None):
         """Instantiate a test suite with name 'name' and information about tests
         in 'tests_info', as [(TestClass1,obs1),(TestClass2,obs2),...].
         The desired test name may appear as an optional third item in the 
@@ -150,16 +149,13 @@ class TestSuite(SciUnit):
 
         tests = []
         for test_info in tests_info:
-            test_class = test_info[0]
-            observation = test_info[1]
+            test_class,observation = test_info[0:2]
             test_name = None if len(test_info)<3 else test_info[2]
-            assert inspect.isclass(test_class) \
-                   and issubclass(test_class, Test), \
+            assert Test.is_test_class(test_class), \
                    "First item in each tuple must be a Test class"
-            if test_name is not None:
-                assert isinstance(test_name,str), "Each test name must be a string"
-            tests.append(test_class(observation,name=test_name))
-        return cls(name, tests)
+            test = test_class(observation,name=test_name)
+            tests.append(test)
+        return cls(tests, name=name)
 
     def __str__(self):
         return '%s' % self.name

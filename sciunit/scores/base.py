@@ -110,15 +110,17 @@ class Score(SciUnit):
         if self.score is not None:
             if self.description:
                 result = "%s" % self.description
-            else:
-                s = []
-                if self.test.score_type.__doc__:    
-                    s += [self.test.score_type.__doc__.strip().\
-                          replace('\n','').replace('    ','')]
-                    if self.test.converter:
-                        s += [self.test.converter.description]
-                    s += [self._description]
-                result = '\n'.join(s)
+            elif self.test.score_type.__doc__: 
+                result = self.describe_from_docstring()
+        return result
+
+    def describe_from_docstring(self):
+        s = [self.test.score_type.__doc__.strip().\
+             replace('\n','').replace('    ','')]
+        if self.test.converter:
+            s += [self.test.converter.description]
+        s += [self._description]
+        result = '\n'.join(s)
         return result
 
     def describe(self, quiet=False):
@@ -191,6 +193,38 @@ class Score(SciUnit):
     @property
     def score_type(self):
         return self.__class__.__name__ 
+
+    @classmethod
+    def extract_means_or_values(cls, observation, prediction, key=None):
+        """Extracts the mean, value, or user-provided key from the observation
+        and prediction dictionaries.
+        """
+        
+        obs_mv = cls.extract_mean_or_value(observation, key)
+        pred_mv = cls.extract_mean_or_value(prediction, key)
+        return obs_mv, pred_mv
+
+    @classmethod
+    def extract_mean_or_value(cls, obs_or_pred, key=None):
+        """Extracts the mean, value, or user-provided key from an observation
+        or prediction dictionary.
+        """
+
+        result = None
+        if not isinstance(obs_or_pred,dict):
+            result = obs_or_pred
+        else:
+            keys = ['mean','value']
+            if key is not None:
+                keys = [key] + keys
+            for key in keys:
+                if key in obs_or_pred:
+                    result = obs_or_pred[key]
+                    break
+            if result is None:
+                raise KeyError(("%s has neither a mean nor a single "
+                                    "value" % obs_or_pred))
+        return result
 
 
 class ErrorScore(Score):

@@ -16,6 +16,9 @@ import sys
 import os
 import argparse
 import re
+
+import sciunit
+
 try:
     import configparser
 except ImportError:
@@ -136,16 +139,20 @@ def run(config, path=None, stop_on_error=True, just_tests=False):
     print('\n')
     for x in ['models','tests','suites']:
         module = __import__(x)
-        assert hasattr(module,x), "'%s' module requires attribute '%s'" % (x,x)     
+        assert hasattr(module,x), "'%s' module requires attribute '%s'" % (x,x)  
 
     if just_tests:
         for test in tests.tests:
-            score_array = test.judge(models.models, stop_on_error=stop_on_error)
-            print('\nTest %s:\n%s\n' % (test,score_array))
+            _run(test, models, stop_on_error)
+            
     else:
         for suite in suites.suites:
-            score_matrix = suite.judge(models.models, stop_on_error=stop_on_error)
-            print('\nSuite %s:\n%s\n' % (suite,score_matrix))
+            _run(suite, models, stop_on_error)
+
+def _run(test_or_suite, models, stop_on_error):
+    score_array_or_matrix = test_or_suite.judge(models.models, stop_on_error=stop_on_error)
+    kind = 'Test' if isinstance(test_or_suite,sciunit.Test) else 'Suite'
+    print('\n%s %s:\n%s\n' % (kind,test_or_suite,score_array_or_matrix))
 
 
 def nb_name_from_path(config,path):

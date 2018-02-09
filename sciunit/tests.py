@@ -1,4 +1,7 @@
 """SciUnit tests live in this module."""
+
+import inspect
+
 from sciunit.base import SciUnit
 from .capabilities import ProducesNumber
 from .models import Model
@@ -8,15 +11,13 @@ from .errors import CapabilityError
 class Test(SciUnit):
     """Abstract base class for tests."""
     def __init__(self, observation, name=None, **params):
-        if name is None:
-            name = self.__class__.__name__
-        self.name = name
-      
+        self.name = name if name else self.__class__.__name__
+        assert isinstance(self.name,str), "Test name must be a string"
+        
         if self.description is None:
             self.description = self.__class__.__doc__
       
-        if params is None:
-            params = {}    
+        params = params if params else {}
         self.verbose = params.pop('verbose',1)
         self.params.update(params)
         
@@ -70,20 +71,21 @@ class Test(SciUnit):
         """
         if not isinstance(model, Model):
             raise Error("Model %s is not a sciunit.Model." % str(model))
-        capable = True
-        for c in self.required_capabilities:
-            if not c.check(model):
-                capable = False
-                if not skip_incapable:
-                    raise CapabilityError(model, c)
+        capable = all([self.check_capability(model, c, skip_incapable) \
+                       for c in self.required_capabilities])
+        return capable
 
+    def check_capability(self, model, c, skip_incapable=False):
+        capable = c.check(model)
+        if not capable and not skip_incapable:
+            raise CapabilityError(model, c)
         return capable
 
     def generate_prediction(self, model):
         """Generates a prediction from a model using the required capabilities.
-
         No default implementation.
         """
+
         raise NotImplementedError(("Test %s does not implement "
                                    "generate_prediction.") % str())
 
@@ -93,6 +95,7 @@ class Test(SciUnit):
         """Checks the prediction for acceptable values.
         No default implementation.
         """
+        
         pass
     
     def compute_score(self, observation, prediction):
@@ -103,6 +106,7 @@ class Test(SciUnit):
 
         No default implementation.
         """
+        
         try:
             # After some processing of the observation and the prediction.  
             score = self.score_type.compute(observation,prediction) 
@@ -131,8 +135,16 @@ class Test(SciUnit):
         """
         pass
 
+    def check_score_type(self, score):
+        if not isinstance(score,(self.score_type,NoneScore,ErrorScore)):
+            msg = (("Score for test '%s' is not of correct type. "
+                    "The test requires type %s but %s was provided.") \
+                   % (self.name, self.score_type.__name__,
+                      score.__class__.__name__))
+            raise InvalidScoreError(msg)
+
     def _judge(self, model, skip_incapable=True):
-        # 1.
+        # 1. 
         self.check_capabilities(model, skip_incapable=skip_incapable)
         # 2.
         prediction = self.generate_prediction(model)
@@ -144,12 +156,7 @@ class Test(SciUnit):
         if self.converter:
             score = self.converter.convert(score)
         # 4.
-        if not isinstance(score,(self.score_type,NoneScore,ErrorScore)):
-            raise InvalidScoreError(("Score for test '%s' is not of correct "
-                                     "type. The test requires type %s but %s "
-                                     "was provided.") \
-                                    % (self.name, self.score_type.__name__,
-                                       score.__class__.__name__))
+        self.check_score_type(score)
         # 5.
         self._bind_score(score,model,observation,prediction)
       
@@ -241,6 +248,10 @@ class Test(SciUnit):
     def state(self):
         return self._state(exclude=['last_model'])
 
+    @classmethod
+    def is_test_class(cls,other_cls):
+        return inspect.isclass(other_cls) and issubclass(other_cls, cls)
+
     def __str__(self):
         return '%s' % self.name
 
@@ -255,6 +266,7 @@ class TestM2M(Test):
        models, with/without experimental reference data. For single model
        tests, you can use the 'Test' class.
     """
+
     def __init__(self, observation=None, name=None, **params):
         super(TestM2M,self).__init__(observation, name=name, **params)
 

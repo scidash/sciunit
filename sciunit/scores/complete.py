@@ -83,14 +83,12 @@ class ZScore(Score):
         return 'Z = %.2f' % self.score
 
 
-class CohenDScore(Score):
+class CohenDScore(ZScore):
     """
     A Cohen's D score. A float indicating difference 
     between two means normalized by the pooled standard deviation.
     """
     
-    _allowed_types = (float,)
-
     _description = ("The Cohen's D between the prediction and the observation")
 
     @classmethod
@@ -113,14 +111,6 @@ class CohenDScore(Score):
         value = (p_mean - o_mean)/s
         value = utils.assert_dimensionless(value)
         return CohenDScore(value)
-    
-    @property
-    def sort_key(self):
-        """Returns 1.0 for a D of 0, falling to 0.0 for extremely positive
-        or negative values."""
-
-        cdf = (1.0 + math.erf(self.score / math.sqrt(2.0))) / 2.0
-        return 1 - 2*math.fabs(0.5 - cdf)
 
     def __str__(self):
         return 'D = %.2f' % self.score
@@ -151,26 +141,7 @@ class RatioScore(Score):
         assert isinstance(observation,(dict,float,int,pq.Quantity))
         assert isinstance(prediction,(dict,float,int,pq.Quantity))
 
-        def extract_mean_or_value(observation, prediction):
-            values = {}
-            for name,data in [('observation',observation),
-                              ('prediction',prediction)]:
-                if not isinstance(data,dict):
-                    values[name] = data
-                elif key is not None:
-                    values[name] = data[key]
-                else:
-                    try:
-                        values[name] = data['mean'] # Use the mean.  
-                    except KeyError: # If there isn't a mean...
-                        try:
-                            values[name] = data['value'] # Use the value.  
-                        except KeyError:
-                            raise KeyError(("%s has neither a mean nor a single "
-                                            "value" % name))
-            return values['observation'], values['prediction']
-
-        obs, pred = extract_mean_or_value(observation, prediction)
+        obs, pred = cls.extract_means_or_values(observation, prediction)
         value = pred / obs
         value = utils.assert_dimensionless(value)
         return RatioScore(value)

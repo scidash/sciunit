@@ -5,12 +5,15 @@ import unittest
 from IPython.display import display
 import numpy as np
 
+from sciunit import TestSuite, ScoreMatrix, ScoreArray, ScorePanel
+from sciunit.scores import ZScore,CohenDScore,PercentScore,BooleanScore,FloatScore,RatioScore
+from sciunit.scores import ErrorScore,NAScore,TBDScore,NoneScore, InsufficientDataScore
+from sciunit.tests import RangeTest
+
 from .base import SuiteBase
 
 class ScoresTestCase(SuiteBase,unittest.TestCase):
     def test_score_matrix(self):
-        from sciunit import ScoreMatrix
-        
         t,t1,t2,m1,m2 = self.prep_models_and_tests()
         sm = t.judge(m1)
         self.assertTrue(type(sm) is ScoreMatrix)
@@ -26,8 +29,6 @@ class ScoresTestCase(SuiteBase,unittest.TestCase):
         display(sm)
 
     def test_score_arrays(self):
-        from sciunit import ScoreArray
-        
         t,t1,t2,m1,m2 = self.prep_models_and_tests()
         sm = t.judge(m1)
         sa = sm[m1]
@@ -40,8 +41,6 @@ class ScoresTestCase(SuiteBase,unittest.TestCase):
 
     @unittest.skip("Currently failing because ScorePanel just stores sm1 twice")
     def test_score_panel(self):
-        from sciunit import ScorePanel
-        
         t,t1,t2,m1,m2 = self.prep_models_and_tests()
         sm1 = t.judge([m1,m2])
         sm2 = t.judge([m2,m1])
@@ -49,11 +48,19 @@ class ScoresTestCase(SuiteBase,unittest.TestCase):
         self.assertTrue(sp[1].equals(sm1))
         self.assertTrue(sp[2].equals(sm2))  
         
-    def test_regular_score_types(self):
-        from sciunit.scores import BooleanScore,FloatScore,RatioScore,\
-                                   ZScore,CohenDScore,PercentScore
-        from sciunit.tests import RangeTest
-        
+    def test_regular_score_types_1(self):
+        score = PercentScore(42)
+        self.assertEqual(score.sort_key,0.42)
+
+        ZScore(0.7)
+        score = ZScore.compute({'mean':3.,'std':1.},{'value':2.})
+        self.assertEqual(score.score,-1.)
+
+        CohenDScore(-0.3)
+        score = CohenDScore.compute({'mean':3.,'std':1.},{'mean':2.,'std':1.})
+        self.assertTrue(-0.708 < score.score < -0.707)
+
+    def test_regular_score_types_2(self):
         BooleanScore(True)
         BooleanScore(False)
         score = BooleanScore.compute(5,5)
@@ -77,21 +84,7 @@ class ScoresTestCase(SuiteBase,unittest.TestCase):
         score = RatioScore.compute({'mean':4.,'std':1.},{'value':2.})
         self.assertEqual(score.score,0.5)
 
-        score = PercentScore(42)
-        self.assertEqual(score.sort_key,0.42)
-
-        ZScore(0.7)
-        score = ZScore.compute({'mean':3.,'std':1.},{'value':2.})
-        self.assertEqual(score.score,-1.)
-
-        CohenDScore(-0.3)
-        score = CohenDScore.compute({'mean':3.,'std':1.},{'mean':2.,'std':1.})
-        self.assertTrue(-0.708 < score.score < -0.707)
-
     def test_irregular_score_types(self):
-        from sciunit.scores import ErrorScore,NAScore,TBDScore,NoneScore,\
-                                   InsufficientDataScore
-        
         e = Exception("This is an error")
         score = ErrorScore(e)
         score = NAScore(None)

@@ -4,6 +4,7 @@ Base class for SciUnit models, and various examples
 
 import inspect
 import random
+from fnmatch import fnmatchcase
 
 from cypy import memoize # Decorator for caching of capability method results.  
 
@@ -68,6 +69,14 @@ class Model(SciUnit):
         """
         pass
 
+    def is_match(self, match):
+        result = False
+        if self == match:
+            result = True
+        elif isinstance(match,str) and fnmatchcase(self.name, match):
+            result = True # Found by instance or name
+        return result
+
     def __str__(self):
         return '%s' % self.name
 
@@ -94,6 +103,11 @@ class UniformModel(Model,ProducesNumber):
     def produce_number(self):
         return random.uniform(self.a, self.b)
 
+
+################################################################
+# Here are several examples of caching and sharing can be used
+# to reduce the computational load of testing.  
+################################################################
 
 class UniqueRandomNumberModel(Model,ProducesNumber):
     """An example model to ProducesNumber."""
@@ -130,7 +144,7 @@ class PersistentUniformModel(UniformModel):
         self._x = random.uniform(self.a, self.b)
 
     def produce_number(self):
-        return self._x  
+        return self._x
 
 
 class CacheByInstancePersistentUniformModel(PersistentUniformModel):
@@ -138,7 +152,7 @@ class CacheByInstancePersistentUniformModel(PersistentUniformModel):
     
     @method_cache(by='instance',method='run')
     def produce_number(self):
-        return self._x  
+        return self._x
 
 
 class CacheByValuePersistentUniformModel(PersistentUniformModel):
@@ -146,4 +160,4 @@ class CacheByValuePersistentUniformModel(PersistentUniformModel):
     
     @method_cache(by='value',method='run')
     def produce_number(self):
-        return self._x  
+        return self._x

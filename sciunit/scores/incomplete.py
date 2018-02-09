@@ -30,13 +30,6 @@ class TBDScore(NoneScore):
     """A TBD (to be determined) score. Indicates that the model has capabilities 
     required by the test but has not yet taken it."""
 
-    def __init__(self, score, related_data=None):
-        super(TBDScore,self).__init__(score, related_data=related_data)
-
-    @property
-    def sort_key(self):
-        return None
-
     def __str__(self):
         return 'TBD'
 
@@ -45,23 +38,12 @@ class NAScore(NoneScore):
     """A N/A (not applicable) score. Indicates that the model doesn't have the 
     capabilities that the test requires."""
 
-    def __init__(self, score, related_data=None):
-        super(NAScore,self).__init__(score, related_data=related_data)
-
-    @property
-    def sort_key(self):
-        return None
-
     def __str__(self):
         return 'N/A'
 
 class InsufficientDataScore(NoneScore):
     """A score returned when the model or test data 
     is insufficient to score the test."""
-    
-    @property
-    def sort_key(self):
-        return None
 
     def __str__(self):
         return 'Insufficient Data'
