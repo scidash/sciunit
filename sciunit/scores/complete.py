@@ -141,7 +141,8 @@ class RatioScore(Score):
         assert isinstance(observation,(dict,float,int,pq.Quantity))
         assert isinstance(prediction,(dict,float,int,pq.Quantity))
 
-        obs, pred = cls.extract_means_or_values(observation, prediction)
+        obs, pred = cls.extract_means_or_values(observation, prediction, 
+                                                key=key)
         value = pred / obs
         value = utils.assert_dimensionless(value)
         return RatioScore(value)

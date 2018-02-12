@@ -10,13 +10,19 @@ import hashlib
 
 import numpy as np
 
-if sys.version_info.major < 3:
+if sys.version_info.major < 3: # Python 2
+    import tkinter
+    from StringIO import StringIO
+    try:
+        import Tkinter as tkinter
+    except ImportError:
+        pass # Handled in the importing modules's fix_display()
     FileNotFoundError = OSError
     json.JSONDecodeError = ValueError
-try:
+else:
     from io import StringIO
-except ImportError:
-    from StringIO import StringIO
+    import tkinter
+    FileNotFoundError = FileNotFoundError
 
 KERNEL = ('ipykernel' in sys.modules)
 LOGGING = True
@@ -59,13 +65,17 @@ class SciUnit(object):
                 result[prop] = getattr(self,prop)
         return result
 
-    def raw_props():
+    def raw_props(self):
         return [p for p in dir(self.__class__) \
                 if isinstance(getattr(self.__class__,p),property)]
 
     @property
     def state(self):
         return self._state()
+
+    @property
+    def properties(self):
+        return self._properties()
 
     @classmethod
     def dict_hash(cls,d):
@@ -86,7 +96,7 @@ class SciUnit(object):
             except TypeError:
                 state = obj.state
                 if add_props:
-                    state.update(obj._properties())
+                    state.update(obj.properties)
                 state = self._state(state=state, keys=keys, exclude=exclude)
                 s = json.dumps(state, default=serialize)
             return json.loads(s)

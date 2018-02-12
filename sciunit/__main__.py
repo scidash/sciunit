@@ -17,6 +17,10 @@ import os
 import argparse
 import re
 
+import nbformat
+from nbformat.v4.nbbase import new_notebook,new_markdown_cell
+from nbconvert.preprocessors import ExecutePreprocessor
+
 import sciunit
 
 try:
@@ -170,8 +174,7 @@ def nb_name_from_path(config,path):
 def make_nb(config, path=None, stop_on_error=True, just_tests=False):
     """Create a Jupyter notebook sciunit tests for the given configuration"""
 
-    from nbformat.v4.nbbase import new_notebook,new_markdown_cell
-    import nbformat
+    
     
     root,nb_name = nb_name_from_path(config,path)
     clean = lambda varStr: re.sub('\W|^(?=\d)','_', varStr)
@@ -195,12 +198,18 @@ def make_nb(config, path=None, stop_on_error=True, just_tests=False):
             "for suite in %s.suites.suites:\n"
             "  score_matrix = suite.judge(%s.models.models, stop_on_error=%r)\n"
             "  display(score_matrix)") % (name,name,stop_on_error))
+    write_nb(root,nb_name,cells)
+    
+
+def write_nb(root,nb_name,cells):
+    """Writes a jupyter notebook to disk given a root directory, a notebook 
+    name, and a list of cells.
+    """
 
     nb = new_notebook(cells=cells,
         metadata={
             'language': 'python',
             })
-        
     nb_path = os.path.join(root,'%s.ipynb' % nb_name)
     with codecs.open(nb_path, encoding='utf-8', mode='w') as nb_file:
         nbformat.write(nb, nb_file, NB_VERSION)
@@ -208,6 +217,10 @@ def make_nb(config, path=None, stop_on_error=True, just_tests=False):
 
 
 def run_nb(config, path=None):
+    """Runs a notebook file specified by the config file, or the one at
+    the location specificed by 'path'.
+    """
+
     if path is None:
         path = os.getcwd()
     root = config.get('root','path')
@@ -219,8 +232,6 @@ def run_nb(config, path=None):
                "Create the notebook first with make-nb?") % path)
         sys.exit(0)
     
-    import nbformat
-    from nbconvert.preprocessors import ExecutePreprocessor
     with codecs.open(nb_path, encoding='utf-8', mode='r') as nb_file:
         nb = nbformat.read(nb_file, as_version=NB_VERSION)
     ep = ExecutePreprocessor(timeout=600)#, kernel_name='python3')

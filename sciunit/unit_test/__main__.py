@@ -2,7 +2,7 @@
 
 import sys
 import unittest
-from . import *
+from . import * # Import all the tests from the unit_test module
 
 def main():
     buffer = 'buffer' in sys.argv
@@ -11,5 +11,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-        
-
+    

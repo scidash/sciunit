@@ -20,9 +20,10 @@ class ScoreArrayM2M(pd.Series):
 
     def __getitem__(self, item):
         if isinstance(item,str):
-            return self.get_by_name(item)    
+            result = self.get_by_name(item)    
         else:
-            return super(ScoreArrayM2M,self).__getitem__(item)
+            result = super(ScoreArrayM2M,self).__getitem__(item)
+        return result
 
     def __getattr__(self, name):
         if name in ['score','sort_keys','related_data']:

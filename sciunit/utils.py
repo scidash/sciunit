@@ -6,11 +6,11 @@ from __future__ import print_function
 import os
 import sys
 import warnings
+import inspect
 import pkgutil
 import importlib
-import pickle
-import hashlib
 import json
+from io import TextIOWrapper,StringIO
 from datetime import datetime
 
 import bs4
@@ -28,19 +28,7 @@ from IPython.display import HTML,display
 
 import sciunit
 from sciunit.errors import Error
-from .base import SciUnit
-if sys.version_info.major < 3:
-    FileNotFoundError = OSError
-
-try: # Python 3
-    import tkinter
-except ImportError: # Python 2
-    try:
-        import Tkinter as tkinter
-    except ImportError:
-        pass    #handled in fix_display()
-import inspect
-from io import TextIOWrapper,StringIO
+from .base import SciUnit,FileNotFoundError,tkinter
 try:
     import unittest.mock
     mock = True
@@ -212,9 +200,11 @@ class NotebookTools(object):
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS',True))
         s = StringIO()
         if mock:
-            with unittest.mock.patch('sys.stdout', new=MockDevice(s)) as _:
-                with unittest.mock.patch('sys.stderr', new=MockDevice(s)) as _:
-                    self._do_notebook(name, CONVERT_NOTEBOOKS)
+            out = unittest.mock.patch('sys.stdout', new=MockDevice(s))
+            err = unittest.mock.patch('sys.stderr', new=MockDevice(s))
+            self._do_notebook(name, CONVERT_NOTEBOOKS)
+            out.close()
+            err.close()
         else:
             self._do_notebook(name, CONVERT_NOTEBOOKS)
         self.assertTrue(True)

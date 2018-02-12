@@ -246,7 +246,7 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
 
     def annotate_body_cell(self, cell, df, show_mean, i, j):
         if show_mean and j==0:
-            self.annotate_mean(cell, df, i)
+            value = self.annotate_mean(cell, df, i)
         else:
             j_ = j-bool(show_mean)
             score = self[self.models[i],self.tests[j_]]
@@ -258,6 +258,7 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
     def annotate_mean(self, cell, df, i):
         value = float(df.loc[self.models[i],'Mean'])
         cell['title'] = 'Mean sort key value across tests'
+        return value
 
     def dynamify(self, table_id):
         prefix = "//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0"

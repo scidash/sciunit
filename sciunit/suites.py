@@ -2,10 +2,7 @@
 Base class for SciUnit test suites.  
 """
 
-import inspect
 import random
-
-import numpy as np
 
 from .base import SciUnit,TestWeighted
 from .utils import log
@@ -13,7 +10,6 @@ from .tests import Test
 from .models import Model
 from .scores import NoneScore
 from .scores.collections import ScoreMatrix
-from .errors import Error
 
 class TestSuite(SciUnit,TestWeighted):
     """A collection of tests."""

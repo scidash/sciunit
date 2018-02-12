@@ -214,16 +214,14 @@ class Score(SciUnit):
         if not isinstance(obs_or_pred,dict):
             result = obs_or_pred
         else:
-            keys = ['mean','value']
-            if key is not None:
-                keys = [key] + keys
-            for key in keys:
-                if key in obs_or_pred:
-                    result = obs_or_pred[key]
+            keys = ['mean','value'] + ([key] if key is not None else [])
+            for k in keys:
+                if k in obs_or_pred:
+                    result = obs_or_pred[k]
                     break
             if result is None:
                 raise KeyError(("%s has neither a mean nor a single "
-                                    "value" % obs_or_pred))
+                                "value" % obs_or_pred))
         return result
 
 

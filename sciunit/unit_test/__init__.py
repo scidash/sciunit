@@ -1,7 +1,6 @@
 """Unit testing module for sciunit"""
 
 import unittest
-import sys
 
 from .command_line_tests import *
 from .config_tests import *
@@ -17,7 +16,9 @@ class ImportTestCase(unittest.TestCase):
     """Unit tests for imports"""
 
     def test_quantities(self):
-        import quantities
+        import quantities as pq
+        pq.Quantity([10,20,30], pq.pA)
+
 
     def test_import_everything(self):
         import sciunit
@@ -25,4 +26,4 @@ class ImportTestCase(unittest.TestCase):
         
         # Recursively import all submodules
         import_all_modules(sciunit)
-
+        
