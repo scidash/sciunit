@@ -59,8 +59,10 @@ class SciUnit(object):
         props = self.raw_props()
         exclude = exclude if exclude else []
         exclude += ['state','hash','id']
-        for prop in set(props).difference(exclude).intersection:
-            if not keys or prop in keys: 
+        for prop in set(props).difference(exclude):
+            if prop == 'properties':
+                pass # Avoid infinite recursion
+            elif not keys or prop in keys:  
                 result[prop] = getattr(self,prop)
         return result
 

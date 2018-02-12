@@ -188,7 +188,8 @@ class Test(SciUnit):
 
         if isinstance(model,(list,tuple,set)): 
             # If a collection of models is provided
-            suite = TestSuite(self.name, self) 
+            from .suites import TestSuite
+            suite = TestSuite([self], name=self.name) 
             # then test them using a one-test suite.  
             return suite.judge(model, skip_incapable=skip_incapable, 
                                       stop_on_error=stop_on_error, 
