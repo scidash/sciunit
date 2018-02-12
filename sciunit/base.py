@@ -11,7 +11,6 @@ import hashlib
 import numpy as np
 
 if sys.version_info.major < 3: # Python 2
-    import tkinter
     from StringIO import StringIO
     try:
         import Tkinter as tkinter
