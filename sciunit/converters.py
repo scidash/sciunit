@@ -4,7 +4,7 @@ to the value required for particular score type.
 """
 
 from string import Template
-from sciunit.scores import BooleanScore
+from .scores import BooleanScore
 
 
 class Converter(object):

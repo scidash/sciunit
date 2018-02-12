@@ -5,22 +5,30 @@ Utility functions for SciUnit.
 from __future__ import print_function
 import os
 import sys
-import subprocess
 import warnings
+import inspect
 import pkgutil
 import importlib
-import pickle
-import hashlib
-from datetime import datetime
-try: # Python 3
-    import tkinter
-except ImportError: # Python 2
-    try:
-        import Tkinter as tkinter
-    except ImportError:
-        pass    #handled in fix_display()
-import inspect
+import json
 from io import TextIOWrapper,StringIO
+from datetime import datetime
+
+import bs4
+import nbformat
+import nbconvert
+from nbconvert.preprocessors import ExecutePreprocessor
+from nbconvert.preprocessors.execute import CellExecutionError
+from quantities.dimensionality import Dimensionality
+from quantities.quantity import Quantity
+import cypy
+import git
+from git.exc import GitCommandError
+from git.cmd import Git
+from IPython.display import HTML,display
+
+import sciunit
+from sciunit.errors import Error
+from .base import SciUnit,FileNotFoundError,tkinter
 try:
     import unittest.mock
     mock = True
@@ -28,32 +36,29 @@ except ImportError:
     mock = False
 mock = False # mock is probably obviated by the unittest -b flag.
 
-import nbformat
-import nbconvert
-from nbconvert.preprocessors import ExecutePreprocessor
-from quantities.dimensionality import Dimensionality
-from quantities.quantity import Quantity
-import cypy
-import git
-from git.exc import GitCommandError
-from git.cmd import Git
-
-PRINT_DEBUG_STATE = False # printd does nothing by default.
-
+settings = {'PRINT_DEBUG_STATE':False, # printd does nothing by default.
+            'LOGGING':True,
+            'KERNEL':('ipykernel' in sys.modules),
+            'CWD':os.path.realpath(sciunit.__path__[0])}
 
 def printd_set(state):
-    global PRINT_DEBUG_STATE
-    PRINT_DEBUG_STATE = (state is True)
+    """Enable the printd function.  
+    Call with True for all subsequent printd commands to be passed to print.
+    Call with False to ignore all subsequent printd commands.  
+    """
+
+    global settings
+    settings['PRINT_DEBUG_STATE'] = (state is True)
 
 
 def printd(*args, **kwargs):
-    global PRINT_DEBUG_STATE
-    if PRINT_DEBUG_STATE:
+    """Print if PRINT_DEBUG_STATE is True"""
+
+    global settings
+    if settings['PRINT_DEBUG_STATE']:
         print(*args, **kwargs)
         return True
-    else:
-        return False
-
+    return False
 
 def assert_dimensionless(value):
     """
@@ -61,6 +66,7 @@ def assert_dimensionless(value):
     If input is dimensionless but expressed as a Quantity, it returns the
     bare value.  If it not, it raised an error.
     """
+
     if isinstance(value,Quantity):
         value = value.simplified
         if value.dimensionality == Dimensionality({}):
@@ -71,6 +77,7 @@ def assert_dimensionless(value):
 
 
 class NotebookTools(object):
+    """A class for manipulating and executing Jupyter notebooks."""
 
     def __init__(self, *args, **kwargs):
         super(NotebookTools,self).__init__(*args, **kwargs)
@@ -79,6 +86,10 @@ class NotebookTools(object):
     path = '' # Relative path to the parent directory of the notebook.
 
     def get_path(self, file):
+        """Get the full path of the notebook found in the directory
+        specified by self.path.
+        """
+
         class_path = inspect.getfile(self.__class__)
         parent_path = os.path.dirname(class_path)
         path = os.path.join(parent_path,self.path,file)
@@ -86,17 +97,18 @@ class NotebookTools(object):
 
     def fix_display(self):
         """If this is being run on a headless system the Matplotlib
-        backend must be changed to one that doesn't need a display."""
+        backend must be changed to one that doesn't need a display.
+        """
 
         try:
-            root = tkinter.Tk()
+            tkinter.Tk()
         except (tkinter.TclError, NameError): # If there is no display.
             try:
                 import matplotlib as mpl
             except ImportError:
                 pass
             else:
-                "Setting matplotlib backend to Agg"
+                print("Setting matplotlib backend to Agg")
                 mpl.use('Agg')
 
     def load_notebook(self, name):
@@ -108,16 +120,15 @@ class NotebookTools(object):
 
     def run_notebook(self, nb, f):
         """Runs a loaded notebook file."""
-
+        
         if (sys.version_info >= (3, 0)):
             kernel_name = 'python3'
         else:
             kernel_name = 'python2'
         ep = ExecutePreprocessor(timeout=600, kernel_name=kernel_name)
         try:
-            out = ep.preprocess(nb, {'metadata': {'path': '.'}})
+            ep.preprocess(nb, {'metadata': {'path': '.'}})
         except CellExecutionError:
-            out = None
             msg = 'Error executing the notebook "%s".\n\n' % f.name
             msg += 'See notebook "%s" for the traceback.' % f.name
             print(msg)
@@ -176,7 +187,7 @@ class NotebookTools(object):
         code = self.read_code(name)
         code = code.split('\n')
         new_code = []
-        for i,line in enumerate(code):
+        for line in code:
             if not [bad for bad in forbidden if bad in line]:
                 new_code.append(line)
         new_code = '\n'.join(new_code)
@@ -189,15 +200,17 @@ class NotebookTools(object):
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS',True))
         s = StringIO()
         if mock:
-            with unittest.mock.patch('sys.stdout', new=MockDevice(s)) as fake_out:
-                with unittest.mock.patch('sys.stderr', new=MockDevice(s)) as fake_out:
-                    self._do_notebook(name, CONVERT_NOTEBOOKS)
+            out = unittest.mock.patch('sys.stdout', new=MockDevice(s))
+            err = unittest.mock.patch('sys.stderr', new=MockDevice(s))
+            self._do_notebook(name, CONVERT_NOTEBOOKS)
+            out.close()
+            err.close()
         else:
             self._do_notebook(name, CONVERT_NOTEBOOKS)
         self.assertTrue(True)
 
     def _do_notebook(self, name, convert_notebooks=False):
-        s = StringIO()
+        """Called by do_notebook to actually run the notebook."""
         if convert_notebooks:
             self.convert_and_execute_notebook(name)
         else:
@@ -214,19 +227,20 @@ class MockDevice(TextIOWrapper):
             super(MockDevice,self).write(s)
 
 
-def import_all_modules(package):
+def import_all_modules(package,verbose=False):
     """Recursively imports all subpackages, modules, and submodules of a
     given package.
     'package' should be an imported package, not a string.
     """
 
-    for importer, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
-                                                          onerror=lambda x: None):
-        print(modname,ispkg)
+    for _, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
+                                                   onerror=lambda x: None):
+        if verbose:
+            print(modname,ispkg)
         if ispkg:
-            subpackage = importlib.import_module('%s.%s' % \
-                                                 (package.__name__,modname))
-            import_all_modules(subpackage)
+            module = '%s.%s' % (package.__name__,modname)
+            subpackage = importlib.import_module(module)
+            import_all_modules(subpackage,verbose=verbose)
 
 
 def import_module_from_path(module_path, name=None):
@@ -247,10 +261,8 @@ def import_module_from_path(module_path, name=None):
         sys.path.pop() # Remove the directory that was just added.  
     return module
 
-
 def dict_hash(d):
-    pickled = pickle.dumps([(key,d[key]) for key in sorted(d)])
-    return hashlib.sha224(pickled).hexdigest()
+    return SciUnit.dict_hash(d)
 
 
 def method_cache(by='value',method='run'):
@@ -273,9 +285,9 @@ def method_cache(by='value',method='run'):
             if by == 'value':
                 model_dict = {key:value for key,value in list(model.__dict__.items()) \
                               if key[0]!='_'}
-                method_signature = dict_hash({'attrs':model_dict,'args':method_args}) # Hash key.
+                method_signature = SciUnit.dict_hash({'attrs':model_dict,'args':method_args}) # Hash key.
             elif by == 'instance':
-                method_signature = dict_hash({'id':id(model),'args':method_args}) # Hash key.
+                method_signature = SciUnit.dict_hash({'id':id(model),'args':method_args}) # Hash key.
             else:
                 raise ValueError("Cache type must be 'value' or 'instance'")
             if method_signature not in cache:
@@ -285,7 +297,7 @@ def method_cache(by='value',method='run'):
                 cache[method_signature] = (datetime.now(),model.__dict__.copy())
             else:
                 print("Method with this signature found in the cache. Restoring...")
-                timestamp,attrs = cache[method_signature]
+                _,attrs = cache[method_signature]
                 model.__dict__.update(attrs)
             return func(*args, **kwargs)
         return decorate
@@ -321,17 +333,80 @@ class Versioned(object):
         return version
     version = property(get_version)
     
-    def get_remote_url(self, remote='origin'):
+    def get_remote(self, remote='origin'):
         repo = self.get_repo()
         remotes = {r.name:r for r in repo.remotes}
         r = repo.remotes[0] if remote not in remotes else remotes[remote]
+        return r
+
+    def get_remote_url(self, remote='origin'):
+        r = self.get_remote(remote)
         try:
             url = list(r.urls)[0]
         except GitCommandError as ex:
             if 'correct access rights' in str(ex):
-                # If ssh is not setup to access this repository                                                                                            
-                url = Git().execute(['git','config','--get','remote.%s.url' % r.name])
+                # If ssh is not setup to access this repository 
+                cmd = ['git','config','--get','remote.%s.url' % r.name]                                                                                           
+                url = Git().execute(cmd)
             else:
                 raise ex
         return url
     remote_url = property(get_remote_url)
+
+def log(*args, **kwargs):
+    if settings['LOGGING']:
+        if not settings['KERNEL']:
+            kernel_log(*args, **kwargs)
+        else:
+            non_kernel_log(*args, **kwargs)
+
+
+def kernel_log(*args, **kwargs):
+    args = [bs4.BeautifulSoup(x,"lxml").text \
+            if not isinstance(x,Exception) else x \
+            for x in args]
+    try:
+        print(*args, **kwargs)
+    except SyntaxError: # Python 2
+        print(args)
+
+
+def non_kernel_log(*args, **kwargs):
+    with StringIO() as f:
+        kwargs['file'] = f
+        try:
+            print(*args, **kwargs)
+        except SyntaxError: # Python 2
+            print(args)
+        output = f.getvalue()
+    display(HTML(output))
+
+
+def config_get_from_path(config_path,key):
+    try:
+        with open(config_path) as f:
+            config = json.load(f)
+            value = config[key]
+    except FileNotFoundError:
+        raise Error("Config file not found at '%s'" % config_path)
+    except json.JSONDecodeError:
+        log("Config file JSON at '%s' was invalid" % config_path)
+        raise Error("Config file not found at '%s'" % config_path)
+    except KeyError:
+        raise Error("Config file does not contain key '%s'" % key)
+    return value
+
+
+def config_get(key, default=None):
+    try:
+        assert isinstance(key,str), "Config key must be a string"
+        config_path = os.path.join(settings['CWD'],'config.json')
+        value = config_get_from_path(config_path,key)    
+    except Exception as e:
+        if default is not None:
+            log(e)
+            log("Using default value of %s" % default)
+            value = default
+        else:
+            raise e
+    return value

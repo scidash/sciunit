@@ -1,29 +1,39 @@
-"""Basic sciunit capabilities"""
-import sciunit
-import random
+"""
+The base class for SciUnit capabilities.
+By inheriting a capability class, a model tells the test that it implements
+that capability and that all of its methods are safe to call.  
+The capability must then be implemented by the modeler (i.e. all of its methods)
+must exist in the model class
+"""
 
-from cypy import memoize # Decorator for caching of capability method results.  
+import inspect
 
-class ProducesNumber(sciunit.Capability):
+from .base import SciUnit
+
+class Capability(SciUnit):
+    """Abstract base class for sciunit capabilities."""
+  
+    @classmethod
+    def check(cls, model):
+        """Checks whether the provided model has this capability.
+        By default, uses isinstance.
+        """
+        return isinstance(model, cls)
+
+    def unimplemented(self):
+        raise NotImplementedError(("The method %s promised by capability %s "
+                                   "is not implemented") % \
+                                  (inspect.stack()[1][3],self.name))
+
+    class __metaclass__(type):
+        @property
+        def name(cls):
+            return cls.__name__
+
+
+class ProducesNumber(Capability):
     """An example capability for producing some generic number."""
 
     def produce_number(self):
         raise NotImplementedError("Must implement produce_number.")
-
-class UniqueRandomNumberModel(sciunit.Model,ProducesNumber):
-    """An example model to ProducesNumber."""
-
-    def produce_number(self):
-        """Each call to this method will produce a different random number."""
-        return random.random()
-
-class RepeatedRandomNumberModel(sciunit.Model,ProducesNumber):
-    """An example model to demonstrate ProducesNumber with cypy.lazy."""
-
-    @memoize
-    def produce_number(self):
-        """Each call to this method will produce the same random number as
-        was returned in the first call, ensuring reproducibility and
-        eliminating computational overhead."""
-        return random.random()
         

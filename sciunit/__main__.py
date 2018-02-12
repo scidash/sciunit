@@ -1,7 +1,28 @@
+"""
+This module implements the SciUnit command line tools.
+With SciUnit installed, a .sciunit configuration file can be created from 
+a *nix shell with:
+`sciunit create`
+and if models, tests, etc. are in locations specified by the configuration file
+then they can be executed with
+`sciunit run` (to run using the Python interpreter)
+or
+`sciunit make-nb` (to create Jupyter notebooks for test execution)
+and
+`sciunit run-nb` (to execute and save those notebooks)
+"""
+
 import sys
 import os
 import argparse
 import re
+
+import nbformat
+from nbformat.v4.nbbase import new_notebook,new_markdown_cell
+from nbconvert.preprocessors import ExecutePreprocessor
+
+import sciunit
+
 try:
     import configparser
 except ImportError:
@@ -25,7 +46,7 @@ def main(*args):
                     help="stop and raise errors, halting the program")
     parser.add_argument("--tests", "-t", default=False, 
                     help="runs tests instead of suites")
-    if len(args):
+    if args:
         args = parser.parse_args(args)
     else:
         args = parser.parse_args()
@@ -122,24 +143,24 @@ def run(config, path=None, stop_on_error=True, just_tests=False):
     print('\n')
     for x in ['models','tests','suites']:
         module = __import__(x)
-        assert hasattr(module,x), "'%s' module requires attribute '%s'" % (x,x)     
+        assert hasattr(module,x), "'%s' module requires attribute '%s'" % (x,x)  
 
     if just_tests:
         for test in tests.tests:
-            score_array = test.judge(models.models, stop_on_error=stop_on_error)
-            print('\nTest %s:\n%s\n' % (test,score_array))
+            _run(test, models, stop_on_error)
+            
     else:
         for suite in suites.suites:
-            score_matrix = suite.judge(models.models, stop_on_error=stop_on_error)
-            print('\nSuite %s:\n%s\n' % (suite,score_matrix))
+            _run(suite, models, stop_on_error)
+
+def _run(test_or_suite, models, stop_on_error):
+    score_array_or_matrix = test_or_suite.judge(models.models, stop_on_error=stop_on_error)
+    kind = 'Test' if isinstance(test_or_suite,sciunit.Test) else 'Suite'
+    print('\n%s %s:\n%s\n' % (kind,test_or_suite,score_array_or_matrix))
 
 
-def make_nb(config, path=None, stop_on_error=True, just_tests=False):
-    """Create a Jupyter notebook sciunit tests for the given configuration"""
-
-    from nbformat.v4.nbbase import new_notebook,new_markdown_cell
-    import nbformat
-    
+def nb_name_from_path(config,path):
+    """Get a notebook name from a path to a notebook"""
     if path is None:
         path = os.getcwd()
     root = config.get('root','path')
@@ -147,10 +168,19 @@ def make_nb(config, path=None, stop_on_error=True, just_tests=False):
     root = os.path.realpath(root)
     default_nb_name = os.path.split(os.path.realpath(root))[1]
     nb_name = config.get('misc','nb-name',fallback=default_nb_name)
+    return root,nb_name
+    
+            
+def make_nb(config, path=None, stop_on_error=True, just_tests=False):
+    """Create a Jupyter notebook sciunit tests for the given configuration"""
+
+    
+    
+    root,nb_name = nb_name_from_path(config,path)
     clean = lambda varStr: re.sub('\W|^(?=\d)','_', varStr)
     name = clean(nb_name)
-    mpl_style = config.get('misc','matplotlib',fallback='inline')
     
+    mpl_style = config.get('misc','matplotlib',fallback='inline')
     cells = [new_markdown_cell('## Sciunit Testing Notebook for %s' % nb_name)]
     add_code_cell(cells, (
         "%%matplotlib %s\n"
@@ -158,12 +188,6 @@ def make_nb(config, path=None, stop_on_error=True, just_tests=False):
         "from importlib.machinery import SourceFileLoader\n"
         "%s = SourceFileLoader('scidash', '%s/__init__.py').load_module()") % \
         (mpl_style,name,root))
-        #"import os,sys\n"
-        #"if sys.path[0] != '%s':\n"
-        #"  sys.path.insert(0,'%s')\n"
-        #"os.environ['SCIDASH_HOME'] = '%s'") % (mpl_style,root,root,root))
-    #add_code_cell(cells, (
-    #    "import models, tests, suites"))
     if just_tests:
         add_code_cell(cells, (
             "for test in %s.tests.tests:\n"
@@ -174,12 +198,18 @@ def make_nb(config, path=None, stop_on_error=True, just_tests=False):
             "for suite in %s.suites.suites:\n"
             "  score_matrix = suite.judge(%s.models.models, stop_on_error=%r)\n"
             "  display(score_matrix)") % (name,name,stop_on_error))
+    write_nb(root,nb_name,cells)
+    
+
+def write_nb(root,nb_name,cells):
+    """Writes a jupyter notebook to disk given a root directory, a notebook 
+    name, and a list of cells.
+    """
 
     nb = new_notebook(cells=cells,
         metadata={
             'language': 'python',
             })
-        
     nb_path = os.path.join(root,'%s.ipynb' % nb_name)
     with codecs.open(nb_path, encoding='utf-8', mode='w') as nb_file:
         nbformat.write(nb, nb_file, NB_VERSION)
@@ -187,6 +217,10 @@ def make_nb(config, path=None, stop_on_error=True, just_tests=False):
 
 
 def run_nb(config, path=None):
+    """Runs a notebook file specified by the config file, or the one at
+    the location specificed by 'path'.
+    """
+
     if path is None:
         path = os.getcwd()
     root = config.get('root','path')
@@ -198,8 +232,6 @@ def run_nb(config, path=None):
                "Create the notebook first with make-nb?") % path)
         sys.exit(0)
     
-    import nbformat
-    from nbconvert.preprocessors import ExecutePreprocessor
     with codecs.open(nb_path, encoding='utf-8', mode='r') as nb_file:
         nb = nbformat.read(nb_file, as_version=NB_VERSION)
     ep = ExecutePreprocessor(timeout=600)#, kernel_name='python3')
