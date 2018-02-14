@@ -1,0 +1,11 @@
+cypy>=0.2
+quantities==0.12.1
+pandas>=0.18
+ipython
+matplotlib
+bs4
+lxml
+nbconvert
+ipykernel
+nbformat
+gitpython
