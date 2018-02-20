@@ -58,7 +58,7 @@ class SciUnit(object):
         result = {}
         props = self.raw_props()
         exclude = exclude if exclude else []
-        exclude += ['state','hash','id']
+        exclude += ['state','id']
         for prop in set(props).difference(exclude):
             if prop == 'properties':
                 pass # Avoid infinite recursion
