@@ -9,6 +9,7 @@ import pickle
 import hashlib
 
 import numpy as np
+import pandas as pd
 
 if sys.version_info.major < 3: # Python 2
     from StringIO import StringIO
@@ -67,8 +68,9 @@ class SciUnit(object):
         return result
 
     def raw_props(self):
-        return [p for p in dir(self.__class__) \
-                if isinstance(getattr(self.__class__,p),property)]
+        class_attrs = dir(self.__class__)
+        return [p for p in class_attrs \
+                if isinstance(getattr(self.__class__,p,None),property)]
 
     @property
     def state(self):
@@ -89,21 +91,11 @@ class SciUnit(object):
         return self.dict_hash(self.state)
 
     def json(self, add_props=False, keys=None, exclude=None, string=True):
-        def serialize(obj):
-            if isinstance(obj,np.ndarray):
-                obj = obj.tolist()
-            try:
-                s = json.dumps(obj)
-            except TypeError:
-                state = obj.state
-                if add_props:
-                    state.update(obj.properties)
-                state = self._state(state=state, keys=keys, exclude=exclude)
-                s = json.dumps(state, default=serialize)
-            return json.loads(s)
-        result = serialize(self)
-        if string:
-            result = json.dumps(result)
+        for attr in ['keys','exclude','add_props']:
+            setattr(SciUnitEncoder,attr,locals()[attr])
+        result = json.dumps(self,cls=SciUnitEncoder)
+        if not string:
+            result = json.loads(result)
         return result
 
     @property
@@ -115,6 +107,33 @@ class SciUnit(object):
     @property
     def id(self):
         return str(self.json)
+
+
+class SciUnitEncoder(json.JSONEncoder):
+    """Custom JSON encoder for SciUnit objects"""
+
+    add_props = False
+    keys = None
+    exclude = None
+    
+    def default(self, obj):
+        if isinstance(obj, pd.DataFrame):
+            d = obj.to_dict(orient='split')
+            for old,new in [('data','scores'),
+                                ('columns','tests'),('index','models')]:
+                    d[new] = d.pop(old)
+            return d
+        elif isinstance(obj,np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj,SciUnit):
+            state = obj.state
+            if self.add_props:
+                state.update(obj.properties)
+            state = obj._state(state=state, 
+                               keys=self.keys, exclude=self.exclude)
+            return state
+        return json.JSONEncoder.default(self, obj)
+
 
 class TestWeighted(object):
     """Base class for objects with test weights."""
