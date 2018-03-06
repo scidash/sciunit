@@ -10,6 +10,7 @@ import inspect
 import pkgutil
 import importlib
 import json
+import re
 from io import TextIOWrapper,StringIO
 from datetime import datetime
 
@@ -153,7 +154,7 @@ class NotebookTools(object):
         file_path = self.get_path("%s.ipynb"%name)
         code = exporter.from_filename(file_path)[0]
         self.write_code(name, code)
-        self.clean_code(name, ['get_ipython'])
+        self.clean_code(name, [])#'get_ipython'])
 
     def convert_and_execute_notebook(self, name):
         """Converts a notebook into a python file and then runs it."""
@@ -179,7 +180,7 @@ class NotebookTools(object):
             f.write(code)
 
     def clean_code(self, name, forbidden):
-        """Remove lines containing items in forbidden from the code.
+        """Remove lines containing items in 'forbidden' from the code.
         Helpful for executing converted notebooks that still retain IPython
         magic commands.
         """
@@ -188,10 +189,28 @@ class NotebookTools(object):
         code = code.split('\n')
         new_code = []
         for line in code:
-            if not [bad for bad in forbidden if bad in line]:
+            if [bad for bad in forbidden if bad in line]:
+                pass
+            else:
+                allowed = ['time','timeit'] # Magics where we want to keep the command
+                line = self.strip_line_magic(line,allowed)
                 new_code.append(line)
         new_code = '\n'.join(new_code)
         self.write_code(name, new_code)
+
+    def strip_line_magic(self,line,magics_allowed):
+        matches = re.findall("run_line_magic\(([^]]+)", line)
+        if matches and matches[0]: # This line contains the pattern
+            match = matches[0]
+            if match[-1] == ')':
+                match = match[:-1] # Just because the re way is hard
+            magic_kind,stripped = eval(match)
+            if magic_kind not in magics_allowed:
+                stripped = "" # If the part after the magic won't work, just get rid of it
+        else:
+            printd("No line magic pattern match in '%s'" % line)
+            stripped = line
+        return stripped
 
     def do_notebook(self, name):
         """Runs a notebook file after optionally
@@ -227,20 +246,31 @@ class MockDevice(TextIOWrapper):
             super(MockDevice,self).write(s)
 
 
-def import_all_modules(package,verbose=False):
+def import_all_modules(package, skip=None, verbose=False, prefix="", depth=0):
     """Recursively imports all subpackages, modules, and submodules of a
     given package.
     'package' should be an imported package, not a string.
+    'skip' is a list of modules or subpackages not to import.
     """
 
-    for _, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
-                                                   onerror=lambda x: None):
+    skip = [] if skip is None else skip
+
+    for ff, modname, ispkg in pkgutil.walk_packages(path=package.__path__,
+                                                prefix=prefix,
+                                                onerror=lambda x: None):
+        if ff.path not in package.__path__[0]: # Solves weird bug
+            continue
         if verbose:
-            print(modname,ispkg)
+            print('\t'*depth,modname)
+        if modname in skip:
+            if verbose:
+                print('\t'*depth,'*Skipping*')
+            continue
+        module = '%s.%s' % (package.__name__,modname)
+        subpackage = importlib.import_module(module)
         if ispkg:
-            module = '%s.%s' % (package.__name__,modname)
-            subpackage = importlib.import_module(module)
-            import_all_modules(subpackage,verbose=verbose)
+            import_all_modules(subpackage, skip=skip, 
+                               verbose=verbose,depth=depth+1)
 
 
 def import_module_from_path(module_path, name=None):
