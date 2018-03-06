@@ -1,6 +1,10 @@
 """Setup file for SciUnit"""
 
 import sys
+import os
+
+from pip.req import parse_requirements
+from pip.download import PipSession
 
 try:
     from setuptools import setup
@@ -12,6 +16,13 @@ if sys.version_info < (3,3):
     ipython = "ipython>=5.1,<6.0"
 else:
     ipython = "ipython>=5.1"    
+
+def read_requirements():
+    '''parses requirements from requirements.txt'''
+    reqs_path = os.path.join('.', 'requirements.txt')
+    install_reqs = parse_requirements(reqs_path, session=PipSession())
+    reqs = [str(ir.req) for ir in install_reqs]
+    return reqs
     
 setup(
     name='sciunit',
@@ -26,19 +37,7 @@ setup(
     description='A test-driven framework for formally validating scientific models against data.',
     long_description="",  
     test_suite="sciunit.unit_test.core_tests",    
-    install_requires=['cypy>=0.2',
-                      'quantities==0.12.1',
-                      #'quantities==999',
-                      'pandas>=0.18',
-                      ipython,
-                      'matplotlib',
-                      'bs4',
-                      'lxml',
-                      'nbconvert',
-                      'ipykernel',
-                      'nbformat',
-                      'gitpython'],
-    #dependency_links = ['git+https://github.com/python-quantities/python-quantities.git@master#egg=quantities-999'],
+    install_requires=read_requirements(),
     entry_points={
         'console_scripts': [
             'sciunit = sciunit.__main__:main'
