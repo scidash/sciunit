@@ -1,7 +1,8 @@
 """Tests of imports of sciunit submodules and other dependencies"""
 
-from .base import *
+import unittest
 
+from .base import *
 
 class ImportTestCase(unittest.TestCase):
     """Unit tests for imports"""
