@@ -11,7 +11,9 @@ import hashlib
 import numpy as np
 import pandas as pd
 
-if sys.version_info.major < 3: # Python 2
+PYTHON_MAJOR_VERSION = sys.version_info.major
+
+if PYTHON_MAJOR_VERSION < 3: # Python 2
     from StringIO import StringIO
     try:
         import Tkinter as tkinter

@@ -29,7 +29,7 @@ from IPython.display import HTML,display
 
 import sciunit
 from sciunit.errors import Error
-from .base import SciUnit,FileNotFoundError,tkinter
+from .base import SciUnit,FileNotFoundError,tkinter,PYTHON_MAJOR_VERSION
 try:
     import unittest.mock
     mock = True
@@ -122,10 +122,12 @@ class NotebookTools(object):
     def run_notebook(self, nb, f):
         """Runs a loaded notebook file."""
         
-        if (sys.version_info >= (3, 0)):
+        if PYTHON_MAJOR_VERSION == 3:
             kernel_name = 'python3'
-        else:
+        elif PYTHON_MAJOR_VERSION == 2:
             kernel_name = 'python2'
+        else:
+            raise Exception('Only Python 2 and 3 are supported')
         ep = ExecutePreprocessor(timeout=600, kernel_name=kernel_name)
         try:
             ep.preprocess(nb, {'metadata': {'path': '.'}})
@@ -160,7 +162,7 @@ class NotebookTools(object):
         """Converts a notebook into a python file and then runs it."""
 
         self.convert_notebook(name)
-        code = self.read_code(name)
+        code = self.read_code(name)#clean_code(name,'get_ipython')
         exec(code,globals())
 
     def read_code(self, name):
@@ -197,20 +199,56 @@ class NotebookTools(object):
                 new_code.append(line)
         new_code = '\n'.join(new_code)
         self.write_code(name, new_code)
+        return new_code
 
-    def strip_line_magic(self,line,magics_allowed):
+    @classmethod
+    def strip_line_magic(cls, line, magics_allowed):
+        """Handles lines that contain get_ipython.run_line_magic() commands"""
+        if PYTHON_MAJOR_VERSION == 2: # Python 2
+            stripped,magic_kind = cls.strip_line_magic_v2(line)
+        else: # Python 3+
+            stripped,magic_kind = cls.strip_line_magic_v3(line)
+        if line == stripped:
+            printd("No line magic pattern match in '%s'" % line)
+        if magic_kind not in magics_allowed:
+            stripped = "" # If the part after the magic won't work, 
+                          # just get rid of it
+        return stripped
+
+    @classmethod
+    def strip_line_magic_v3(cls,line):
+        """strip_line_magic() implementation for Python 3"""
+
         matches = re.findall("run_line_magic\(([^]]+)", line)
         if matches and matches[0]: # This line contains the pattern
             match = matches[0]
             if match[-1] == ')':
                 match = match[:-1] # Just because the re way is hard
             magic_kind,stripped = eval(match)
-            if magic_kind not in magics_allowed:
-                stripped = "" # If the part after the magic won't work, just get rid of it
         else:
-            printd("No line magic pattern match in '%s'" % line)
             stripped = line
-        return stripped
+            magic_kind = ""
+        return stripped,magic_kind
+
+    @classmethod
+    def strip_line_magic_v2(cls,line):
+        """strip_line_magic() implementation for Python 2"""
+
+        matches = re.findall("magic\(([^]]+)", line)
+        if matches and matches[0]: # This line contains the pattern
+            match = matches[0]
+            if match[-1] == ')':
+                match = match[:-1] # Just because the re way is hard
+            stripped = eval(match)
+            magic_kind = stripped.split(' ')[0]
+            if len(stripped.split(' '))>1:
+                stripped = stripped.split(' ')[1:]
+            else:
+                stripped = ""
+        else:
+            stripped = line
+            magic_kind = ""
+        return stripped,magic_kind
 
     def do_notebook(self, name):
         """Runs a notebook file after optionally
