@@ -210,7 +210,7 @@ class NotebookTools(object):
             stripped,magic_kind = cls.strip_line_magic_v3(line)
         if line == stripped:
             printd("No line magic pattern match in '%s'" % line)
-        if magic_kind not in magics_allowed:
+        if magic_kind and magic_kind not in magics_allowed:
             stripped = "" # If the part after the magic won't work, 
                           # just get rid of it
         return stripped
