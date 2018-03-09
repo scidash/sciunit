@@ -66,7 +66,7 @@ class ZScore(Score):
                 p_value = prediction # Use the prediction (assume it is numeric).
         o_mean = observation['mean']
         o_std = observation['std']
-        value = (p_value - o_mean)/o_std
+        value = float(p_value - o_mean)/o_std
         value = utils.assert_dimensionless(value)
         return ZScore(value)
 
