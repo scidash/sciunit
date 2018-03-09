@@ -3,6 +3,8 @@ Score types for tests that completed successfully.
 These include various representations of goodness-of-fit.
 """
 
+from __future__ import division
+
 import math
 
 import quantities as pq
@@ -66,7 +68,7 @@ class ZScore(Score):
                 p_value = prediction # Use the prediction (assume it is numeric).
         o_mean = observation['mean']
         o_std = observation['std']
-        value = float(p_value - o_mean)/o_std
+        value = (p_value - o_mean)/o_std
         value = utils.assert_dimensionless(value)
         return ZScore(value)
 
