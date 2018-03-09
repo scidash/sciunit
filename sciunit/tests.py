@@ -107,15 +107,15 @@ class Test(SciUnit):
         No default implementation.
         """
         
-        try:
-            # After some processing of the observation and the prediction.  
-            score = self.score_type.compute(observation,prediction) 
-            return score
-        except:
-            raise NotImplementedError(("Test %s either implements no "
+        if not hasattr(self,'score_type') or \
+           not hasattr(self.score_type,'compute'):
+           raise NotImplementedError(("Test %s either implements no "
                                        "compute_score method or provides no "
                                        "score_type with a compute method.") \
                                        % self.name)
+        # After some processing of the observation and the prediction.  
+        score = self.score_type.compute(observation,prediction) 
+        return score    
 
     def _bind_score(self,score,model,observation,prediction):
         """
