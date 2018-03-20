@@ -423,13 +423,13 @@ class Versioned(object):
 
 def log(*args, **kwargs):
     if settings['LOGGING']:
-        if not settings['KERNEL']:
+        if settings['KERNEL']:
             kernel_log(*args, **kwargs)
         else:
             non_kernel_log(*args, **kwargs)
 
 
-def kernel_log(*args, **kwargs):
+def non_kernel_log(*args, **kwargs):
     args = [bs4.BeautifulSoup(x,"lxml").text \
             if not isinstance(x,Exception) else x \
             for x in args]
@@ -439,9 +439,10 @@ def kernel_log(*args, **kwargs):
         print(args)
 
 
-def non_kernel_log(*args, **kwargs):
+def kernel_log(*args, **kwargs):
     with StringIO() as f:
         kwargs['file'] = f
+        args = [u'%s'%arg for arg in args]
         try:
             print(*args, **kwargs)
         except SyntaxError: # Python 2
