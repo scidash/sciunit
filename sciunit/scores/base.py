@@ -214,7 +214,7 @@ class Score(SciUnit):
         if not isinstance(obs_or_pred,dict):
             result = obs_or_pred
         else:
-            keys = ['mean','value'] + ([key] if key is not None else [])
+            keys = ([key] if key is not None else []) + ['mean','value']
             for k in keys:
                 if k in obs_or_pred:
                     result = obs_or_pred[k]
