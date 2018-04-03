@@ -7,11 +7,13 @@ from __future__ import division
 
 import math
 
+import numpy as np
 import quantities as pq
 
 from sciunit import utils
 from sciunit import errors
 from .base import Score
+from .incomplete import InsufficientDataScore
 
 class BooleanScore(Score):
     """
@@ -61,17 +63,20 @@ class ZScore(Score):
         assert isinstance(observation,dict)
         try:
             p_value = prediction['mean'] # Use the prediction's mean.  
-        except (TypeError,KeyError): # If there isn't one...
+        except (TypeError,KeyError,IndexError): # If there isn't one...
             try:
                 p_value = prediction['value'] # Use the prediction's value.  
-            except TypeError: # If there isn't one...
+            except (TypeError,IndexError): # If there isn't one...
                 p_value = prediction # Use the prediction (assume it is numeric).
         o_mean = observation['mean']
         o_std = observation['std']
         value = (p_value - o_mean)/o_std
         value = utils.assert_dimensionless(value)
-        return ZScore(value)
-
+        if np.isnan(value):
+            score = InsufficientDataScore('One of the input values was NaN')
+        else:
+            score = ZScore(value)
+        return score
     
     @property
     def sort_key(self):
