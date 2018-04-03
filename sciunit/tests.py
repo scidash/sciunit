@@ -233,7 +233,6 @@ class Test(SciUnit):
 
     def describe(self):
         result = "No description available"
-        print(self)
         if self.description:
             result = "%s" % self.description
         else:

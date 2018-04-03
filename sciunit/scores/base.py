@@ -133,9 +133,12 @@ class Score(SciUnit):
     @property
     def raw(self):
         value = self._raw if self._raw else self.score
-        string = '%.4g' % value
-        if hasattr(value,'magnitude'):
-            string += ' %s' % str(value.units)[4:]
+        if isinstance(value,float):
+            string = '%.4g' % value
+            if hasattr(value,'magnitude'):
+                string += ' %s' % str(value.units)[4:]
+        else:
+            string = None
         return string
 
     def get_raw(self):
