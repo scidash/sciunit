@@ -55,6 +55,7 @@ class SciUnit(object):
             state = {key:state[key] for key in keys if key in state.keys()}
         if exclude:
             state = {key:state[key] for key in state.keys() if key not in exclude}
+            state = deep_exclude(state,exclude)
         return state
 
     def _properties(self, keys=None, exclude=None):
@@ -84,18 +85,25 @@ class SciUnit(object):
 
     @classmethod
     def dict_hash(cls,d):
-        pickled = pickle.dumps([(key,d[key]) for key in sorted(d)])
-        return hashlib.sha224(pickled).hexdigest()
+        od = [(key,d[key]) for key in sorted(d)]
+        try:
+            s = pickle.dumps(od)
+        except AttributeError:
+            s = json.dumps(od,cls=SciUnitEncoder).encode('utf-8')
+        return hashlib.sha224(s).hexdigest()
 
     @property
     def hash(self):
         """A unique numeric identifier of the current model state"""
         return self.dict_hash(self.state)
 
-    def json(self, add_props=False, keys=None, exclude=None, string=True):
-        for attr in ['keys','exclude','add_props']:
-            setattr(SciUnitEncoder,attr,locals()[attr])
-        result = json.dumps(self,cls=SciUnitEncoder)
+    def json(self, add_props=False, keys=None, exclude=None, string=True, 
+             indent=None):
+        #for attr in ['keys','exclude','add_props']:
+        #    setattr(SciUnitEncoder,attr,locals()[attr])
+        result = json.dumps(self, cls=SciUnitEncoder, 
+                            add_props=add_props, keys=keys, exclude=exclude,
+                            indent=indent)
         if not string:
             result = json.loads(result)
         return result
@@ -114,27 +122,33 @@ class SciUnit(object):
 class SciUnitEncoder(json.JSONEncoder):
     """Custom JSON encoder for SciUnit objects"""
 
-    add_props = False
-    keys = None
-    exclude = None
+    def __init__(self, *args, **kwargs):
+        for key in ['add_props','keys','exclude']:
+            if key in kwargs:
+                setattr(self.__class__,key,kwargs[key])
+                kwargs.pop(key)
+        super(SciUnitEncoder,self).__init__(*args,**kwargs)
     
     def default(self, obj):
         if isinstance(obj, pd.DataFrame):
-            d = obj.to_dict(orient='split')
-            for old,new in [('data','scores'),
-                                ('columns','tests'),('index','models')]:
-                    d[new] = d.pop(old)
-            return d
+            o = obj.to_dict(orient='split')
+            if isinstance(obj,SciUnit):
+                for old,new in [('data','scores'),
+                                ('columns','tests'),
+                                ('index','models')]:
+                    o[new] = o.pop(old)
         elif isinstance(obj,np.ndarray):
-            return obj.tolist()
+            o = obj.tolist()
         elif isinstance(obj,SciUnit):
             state = obj.state
             if self.add_props:
                 state.update(obj.properties)
-            state = obj._state(state=state, 
-                               keys=self.keys, exclude=self.exclude)
-            return state
-        return json.JSONEncoder.default(self, obj)
+            o = obj._state(state=state, keys=self.keys, exclude=self.exclude)
+        elif isinstance(obj,(dict,list,tuple,str,type(None),bool,float,int)):
+            o = json.JSONEncoder.default(self, obj)
+        else: # Something we don't know how to serialize; just represent it as truncated string
+            o = "%.20s..." % obj
+        return o
 
 
 class TestWeighted(object):
@@ -153,3 +167,20 @@ class TestWeighted(object):
         else:
             weights = [1.0/n for i in range(n)]
         return weights
+
+def deep_exclude(state, exclude):
+    tuples = [key for key in exclude if isinstance(key,tuple)]
+    s = state
+    for loc in tuples:
+        for key in loc:
+            try:
+                s[key]
+            except:
+                pass
+            else:
+                if key == loc[-1]:
+                    s[key] = '*removed*'
+                else:
+                    s = s[key]
+    return state
+        
