@@ -113,9 +113,16 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
     (score_1, ..., score_n)
     """
 
-    def __init__(self, tests, models, scores=None, weights=None):
-        tests, models, scores = self.check_tests_models_scores(tests, models, scores)
-        super(ScoreMatrix,self).__init__(data=scores, index=models, columns=tests)
+    def __init__(self, tests, models, 
+                 scores=None, weights=None, transpose=False):
+        tests, models, scores = self.check_tests_models_scores(\
+                                                    tests, models, scores)
+        if transpose:
+            super(ScoreMatrix,self).__init__(data=scores.T, index=tests, 
+                                             columns=models)
+        else:
+            super(ScoreMatrix,self).__init__(data=scores, index=models, 
+                                             columns=tests)
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", 
                                     message=(".*Pandas doesn't allow columns "
@@ -123,6 +130,7 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
             self.tests = tests
             self.models = models
             self.weights_ = [] if not weights else list(weights)
+            self.transposed = transpose
         
     show_mean = False
     sortable = False
@@ -159,12 +167,13 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
                           weights=self.weights)
 
     def get_group(self, x):
+        t = int(bool(self.transposed))
         if isinstance(x[0], Test) and isinstance(x[1], Model):
-            result = self.loc[x[1],x[0]]
+            result = self.loc[x[1-t],x[t]]
         elif isinstance(x[1], Test) and isinstance(x[0], Model):
-            result = self.loc[x[0],x[1]]
+            result = self.loc[x[t],x[1-t]]
         elif isinstance(x[0],str):
-            result = self.__getitem__(x[0]).__getitem__(x[1])
+            result = self.__getitem__(x[t]).__getitem__(x[1-t])
         else:
             raise TypeError("Expected test,model or model,test")
         return result
@@ -194,6 +203,11 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
         that were asked to take the test."""
 
         return self[test].stature(model)
+
+    @property
+    def T(self):
+        return ScoreMatrix(self.tests, self.models, scores=self.values,\
+                           weights=self.weights, transpose=True)
 
     def to_html(self, show_mean=None, sortable=None, colorize=True, *args, 
                       **kwargs):
@@ -240,7 +254,10 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
     def annotate_body(self, soup, df, show_mean):
         for i,row in enumerate(soup.find('tbody').findAll('tr')):
             cell = row.find('th')
-            cell['title'] = self.models[i].describe()
+            if self.transposed:
+                cell['title'] = self.tests[i].describe()
+            else:
+                cell['title'] = self.models[i].describe()
             for j,cell in enumerate(row.findAll('td')):
                 self.annotate_body_cell(cell, df, show_mean, i, j)
 
@@ -249,7 +266,10 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
             value = self.annotate_mean(cell, df, i)
         else:
             j_ = j-bool(show_mean)
-            score = self[self.models[i],self.tests[j_]]
+            if self.transposed:
+                score = self[self.models[j_],self.tests[i]]
+            else:
+                score = self[self.models[i],self.tests[j_]]
             value = score.sort_key
             cell['title'] = score.describe(quiet=True)
         rgb = Score.value_color(value)
