@@ -10,6 +10,9 @@ import hashlib
 
 import numpy as np
 import pandas as pd
+import git
+from git.exc import GitCommandError
+from git.cmd import Git
 
 PYTHON_MAJOR_VERSION = sys.version_info.major
 
@@ -30,7 +33,68 @@ KERNEL = ('ipykernel' in sys.modules)
 LOGGING = True
 HERE = os.path.dirname(os.path.realpath(__file__))
 
-class SciUnit(object):
+
+class Versioned(object):
+    """
+    A Mixin class for SciUnit model instances, which provides a version string
+    based on the Git repository where the model is tracked.
+    Provided in part by Andrew Davison in issue #53.
+    """
+
+    def get_repo(self):
+        module = sys.modules[self.__module__]
+        # We use module.__file__ instead of module.__path__[0]
+        # to include modules without a __path__ attribute.
+        if hasattr(module,'__file__'):
+            path = os.path.realpath(module.__file__)
+            repo = git.Repo(path, search_parent_directories=True)
+        else:
+            repo = None
+        return repo
+    
+    def get_version(self):
+        repo = self.get_repo()
+        if repo is not None:
+            head = repo.head
+            version = head.commit.hexsha
+            if repo.is_dirty():
+                version += "*"
+        else:
+            version = None
+        return version
+    version = property(get_version)
+    
+    def get_remote(self, remote='origin'):
+        repo = self.get_repo()
+        if repo is not None:
+            remotes = {r.name:r for r in repo.remotes}
+            r = repo.remotes[0] if remote not in remotes else remotes[remote]
+        else:
+            r = None
+        return r
+
+    def get_remote_url(self, remote='origin'):
+        r = self.get_remote(remote)
+        try:
+            url = list(r.urls)[0]
+        except GitCommandError as ex:
+            if 'correct access rights' in str(ex):
+                # If ssh is not setup to access this repository 
+                cmd = ['git','config','--get','remote.%s.url' % r.name]                                                                                           
+                url = Git().execute(cmd)
+            else:
+                raise ex
+        except AttributeError:
+            url = None
+        if url is not None and url.startswith('git@'):
+            domain = url.split('@')[1].split(':')[0]
+            path = url.split(':')[1]
+            url = "http://%s/%s" % (domain,path)
+        return url
+    remote_url = property(get_remote_url)
+
+
+class SciUnit(Versioned):
     """Abstract base class for models, tests, and scores."""
     def __init__(self):
         self.unpicklable = [] # Attributes that cannot or should not be pickled.

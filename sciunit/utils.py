@@ -22,9 +22,6 @@ from nbconvert.preprocessors.execute import CellExecutionError
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 import cypy
-import git
-from git.exc import GitCommandError
-from git.cmd import Git
 from IPython.display import HTML,display
 
 import sciunit
@@ -376,50 +373,6 @@ class_intern = cypy.intern
 
 method_memoize = cypy.memoize
 
-
-class Versioned(object):
-    """
-    A Mixin class for SciUnit model instances, which provides a version string
-    based on the Git repository where the model is tracked.
-    Provided by Andrew Davison in issue #53.
-    """
-
-    def get_repo(self):
-        module = sys.modules[self.__module__]
-        # We use module.__file__ instead of module.__path__[0]
-        # to include modules without a __path__ attribute.
-        path = os.path.realpath(module.__file__)
-        repo = git.Repo(path, search_parent_directories=True)
-        return repo
-    
-    def get_version(self):
-        repo = self.get_repo()
-        head = repo.head
-        version = head.commit.hexsha
-        if repo.is_dirty():
-            version += "*"
-        return version
-    version = property(get_version)
-    
-    def get_remote(self, remote='origin'):
-        repo = self.get_repo()
-        remotes = {r.name:r for r in repo.remotes}
-        r = repo.remotes[0] if remote not in remotes else remotes[remote]
-        return r
-
-    def get_remote_url(self, remote='origin'):
-        r = self.get_remote(remote)
-        try:
-            url = list(r.urls)[0]
-        except GitCommandError as ex:
-            if 'correct access rights' in str(ex):
-                # If ssh is not setup to access this repository 
-                cmd = ['git','config','--get','remote.%s.url' % r.name]                                                                                           
-                url = Git().execute(cmd)
-            else:
-                raise ex
-        return url
-    remote_url = property(get_remote_url)
 
 def log(*args, **kwargs):
     if settings['LOGGING']:
