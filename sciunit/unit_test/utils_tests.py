@@ -52,11 +52,9 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(module.value,42)
 
     def test_versioned(self):
-        from sciunit.utils import Versioned
         from sciunit.models import ConstModel
-        class VersionedModel(ConstModel,Versioned):
-            pass
-        m = VersionedModel(37)
+        
+        m = ConstModel(37)
         print("Commit hash is %s" % m.version)
         print("Remote URL is %s" % m.remote_url)
         self.assertTrue('sciunit' in m.remote_url)
