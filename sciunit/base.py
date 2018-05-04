@@ -109,6 +109,10 @@ class SciUnit(object):
         return result
 
     @property
+    def _id(self):
+        return id(self)
+
+    @property
     def _class(self):
         url = getattr(self.__class__,'remote_url','')
         return {'name':self.__class__.__name__,
@@ -146,7 +150,8 @@ class SciUnitEncoder(json.JSONEncoder):
             o = obj._state(state=state, keys=self.keys, exclude=self.exclude)
         elif isinstance(obj,(dict,list,tuple,str,type(None),bool,float,int)):
             o = json.JSONEncoder.default(self, obj)
-        else: # Something we don't know how to serialize; just represent it as truncated string
+        else: # Something we don't know how to serialize; 
+              # just represent it as truncated string
             o = "%.20s..." % obj
         return o
 
@@ -167,6 +172,7 @@ class TestWeighted(object):
         else:
             weights = [1.0/n for i in range(n)]
         return weights
+
 
 def deep_exclude(state, exclude):
     tuples = [key for key in exclude if isinstance(key,tuple)]
