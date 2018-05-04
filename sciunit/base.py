@@ -100,6 +100,7 @@ class SciUnit(Versioned):
         self.unpicklable = [] # Attributes that cannot or should not be pickled.
      
     unpicklable = []
+    _url = None
        
     def __getstate__(self):
         # Copy the object's state from self.__dict__ which contains
@@ -185,6 +186,10 @@ class SciUnit(Versioned):
     @property
     def id(self):
         return str(self.json)
+
+    @property
+    def url(self):
+        return self._url if self._url else self.remote_url
 
 
 class SciUnitEncoder(json.JSONEncoder):
