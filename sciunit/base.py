@@ -179,7 +179,7 @@ class SciUnit(Versioned):
 
     @property
     def _class(self):
-        url = getattr(self.__class__,'remote_url','')
+        url = '' if self.url is None else self.url
         return {'name':self.__class__.__name__,
                 'url':url}
 
