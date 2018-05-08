@@ -27,7 +27,7 @@ def read_requirements():
     
 setup(
     name='sciunit',
-    version='0.19',
+    version='0.19.1',
     author='Rick Gerkin',
     author_email='rgerkin@asu.edu',
     packages=find_packages(),
