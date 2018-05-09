@@ -5,6 +5,7 @@
 | [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/scidash/sciunit/master?filepath=docs%2Fchapter1.ipynb) | |
 | [![Coveralls](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=master)](https://coveralls.io/github/scidash/sciunit?branch=master) | [![Coveralls](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=dev)](https://coveralls.io/github/scidash/sciunit?branch=dev) |
 | [![Requirements](https://requires.io/github/scidash/sciunit/requirements.svg?branch=master)](https://requires.io/github/scidash/sciunit/requirements/?branch=master) |  [![Requirements](https://requires.io/github/scidash/sciunit/requirements.svg?branch=dev)](https://requires.io/github/scidash/sciunit/requirements/?branch=dev) | 
+| [![Docker Build Status](https://img.shields.io/docker/build/scidash/sciunit.svg)](https://hub.docker.com/r/scidash/sciunit/builds/) |
 
 ![SciUnit Logo](https://raw.githubusercontent.com/scidash/assets/master/logos/sciunit.png)
 # SciUnit: A Test-Driven Framework for Formally Validating Scientific Models Against Data
@@ -33,9 +34,9 @@ There is a [mailing list](https://groups.google.com/forum/?fromgroups#!forum/sci
 Please join it if you are at all interested!
 
 ## Contributors
- * [Cyrus Omar](http://cs.cmu.edu/~comar), Carnegie Mellon University (Dept. of Computer Science)
  * [Rick Gerkin](http://rick.gerk.in), Arizona State University (School of Life Science)
-
+ * [Cyrus Omar](http://cs.cmu.edu/~comar), Carnegie Mellon University (Dept. of Computer Science)
+ 
 ## Reproducible Research ID
 RRID:[SCR_014528](https://scicrunch.org/resources/Any/record/nlx_144509-1/3faed1d9-6579-5da6-b4b4-75a5077656bb/search?q=sciunit&l=sciunit)
 
