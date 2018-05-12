@@ -14,3 +14,4 @@ from .scores import Score
 from .errors import Error
 from .scores.collections import ScoreArray,ScoreMatrix,ScorePanel
 from .scores.collections_m2m import ScoreArrayM2M,ScoreMatrixM2M
+from .version import __version__
