@@ -11,7 +11,7 @@ import hashlib
 import numpy as np
 import pandas as pd
 import git
-from git.exc import GitCommandError
+from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.cmd import Git
 
 PYTHON_MAJOR_VERSION = sys.version_info.major
@@ -45,9 +45,13 @@ class Versioned(object):
         module = sys.modules[self.__module__]
         # We use module.__file__ instead of module.__path__[0]
         # to include modules without a __path__ attribute.
+        repo = None
         if hasattr(module,'__file__'):
             path = os.path.realpath(module.__file__)
-            repo = git.Repo(path, search_parent_directories=True)
+            try:
+                repo = git.Repo(path, search_parent_directories=True)
+            except InvalidGitRepositoryError:
+                pass
         else:
             repo = None
         return repo
