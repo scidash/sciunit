@@ -40,9 +40,9 @@ settings = {'PRINT_DEBUG_STATE':False, # printd does nothing by default.
             'CWD':os.path.realpath(sciunit.__path__[0])}
 
 def printd_set(state):
-    """Enable the printd function.  
+    """Enable the printd function.
     Call with True for all subsequent printd commands to be passed to print.
-    Call with False to ignore all subsequent printd commands.  
+    Call with False to ignore all subsequent printd commands.
     """
 
     global settings
@@ -83,6 +83,19 @@ class NotebookTools(object):
 
     path = '' # Relative path to the parent directory of the notebook.
 
+    def convert_path(self, file):
+        """
+        Check to see if an extended path is given and convert appropriately
+        """
+
+        if isinstance(file,str):
+            return file
+        elif isinstance(file, list) and all([isinstance(x, str) for x in file]):
+            return "/".join(file)
+        else:
+            print("Incorrect path specified")
+            return -1
+
     def get_path(self, file):
         """Get the full path of the notebook found in the directory
         specified by self.path.
@@ -118,7 +131,7 @@ class NotebookTools(object):
 
     def run_notebook(self, nb, f):
         """Runs a loaded notebook file."""
-        
+
         if PYTHON_MAJOR_VERSION == 3:
             kernel_name = 'python3'
         elif PYTHON_MAJOR_VERSION == 2:
@@ -150,7 +163,8 @@ class NotebookTools(object):
         #subprocess.call(["jupyter","nbconvert","--to","python",
         #                self.get_path("%s.ipynb"%name)])
         exporter = nbconvert.exporters.python.PythonExporter()
-        file_path = self.get_path("%s.ipynb"%name)
+        relative_path = self.convert_path(name)
+        file_path = self.get_path("%s.ipynb"%relative_path)
         code = exporter.from_filename(file_path)[0]
         self.write_code(name, code)
         self.clean_code(name, [])#'get_ipython'])
@@ -165,7 +179,8 @@ class NotebookTools(object):
     def read_code(self, name):
         """Reads code from a python file called 'name'"""
 
-        file_path = self.get_path('%s.py'%name)
+        relative_path = self.convert_path(name)
+        file_path = self.get_path('%s.py'%relative_path)
         with open(file_path) as f:
             code = f.read()
         return code
@@ -173,8 +188,8 @@ class NotebookTools(object):
     def write_code(self, name, code):
         """Writes code to a python file called 'name',
         erasing the previous contents."""
-
-        file_path = self.get_path('%s.py'%name)
+        relative_path = self.convert_path(name)
+        file_path = self.get_path('%s.py'%relative_path)
         with open(file_path,'w') as f:
             f.write(code)
 
@@ -208,7 +223,7 @@ class NotebookTools(object):
         if line == stripped:
             printd("No line magic pattern match in '%s'" % line)
         if magic_kind and magic_kind not in magics_allowed:
-            stripped = "" # If the part after the magic won't work, 
+            stripped = "" # If the part after the magic won't work,
                           # just get rid of it
         return stripped
 
@@ -304,7 +319,7 @@ def import_all_modules(package, skip=None, verbose=False, prefix="", depth=0):
         module = '%s.%s' % (package.__name__,modname)
         subpackage = importlib.import_module(module)
         if ispkg:
-            import_all_modules(subpackage, skip=skip, 
+            import_all_modules(subpackage, skip=skip,
                                verbose=verbose,depth=depth+1)
 
 
@@ -323,7 +338,7 @@ def import_module_from_path(module_path, name=None):
         from importlib import import_module
         module_name = file_name.rstrip('.py')
         module = import_module(module_name)
-        sys.path.pop() # Remove the directory that was just added.  
+        sys.path.pop() # Remove the directory that was just added.
     return module
 
 def dict_hash(d):
@@ -331,21 +346,21 @@ def dict_hash(d):
 
 
 def method_cache(by='value',method='run'):
-    """A decorator used on any model method which calls the model's 'method' 
-    method if that latter method has not been called using the current 
-    arguments or simply sets model attributes to match the run results if 
-    it has."""  
-    
+    """A decorator used on any model method which calls the model's 'method'
+    method if that latter method has not been called using the current
+    arguments or simply sets model attributes to match the run results if
+    it has."""
+
     def decorate_(func):
         def decorate(*args, **kwargs):
-            model = args[0] # Assumed to be self.  
+            model = args[0] # Assumed to be self.
             assert hasattr(model,method), "Model must have a '%s' method."%method
-            if func.__name__ == method: # Run itself.  
+            if func.__name__ == method: # Run itself.
                 method_args = kwargs
-            else: # Any other method.  
+            else: # Any other method.
                 method_args = kwargs[method] if method in kwargs else {}
-            if not hasattr(model.__class__,'cached_runs'): # If there is no run cache.  
-                model.__class__.cached_runs = {} # Create the method cache.  
+            if not hasattr(model.__class__,'cached_runs'): # If there is no run cache.
+                model.__class__.cached_runs = {} # Create the method cache.
             cache = model.__class__.cached_runs
             if by == 'value':
                 model_dict = {key:value for key,value in list(model.__dict__.items()) \
@@ -423,7 +438,7 @@ def config_get(key, default=None):
     try:
         assert isinstance(key,str), "Config key must be a string"
         config_path = os.path.join(settings['CWD'],'config.json')
-        value = config_get_from_path(config_path,key)    
+        value = config_get_from_path(config_path,key)
     except Exception as e:
         if default is not None:
             log(e)
