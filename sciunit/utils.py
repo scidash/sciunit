@@ -94,7 +94,8 @@ class NotebookTools(object):
         super(NotebookTools,self).__init__(*args, **kwargs)
         self.fix_display()
 
-    def convert_path(self, file):
+    @classmethod
+    def convert_path(cls, file):
         """
         Check to see if an extended path is given and convert appropriately
         """
