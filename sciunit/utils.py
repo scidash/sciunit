@@ -39,6 +39,16 @@ settings = {'PRINT_DEBUG_STATE':False, # printd does nothing by default.
             'KERNEL':('ipykernel' in sys.modules),
             'CWD':os.path.realpath(sciunit.__path__[0])}
 
+def recApply(func, n):
+    """
+    Used to determine parent directory n levels up
+    by repeatedly applying os.path.dirname
+    """
+    if n > 1:
+        rec_func = recApply(func, n - 1)
+        return lambda x: func(rec_func(x))
+    return func
+
 def printd_set(state):
     """Enable the printd function.
     Call with True for all subsequent printd commands to be passed to print.
@@ -47,7 +57,6 @@ def printd_set(state):
 
     global settings
     settings['PRINT_DEBUG_STATE'] = (state is True)
-
 
 def printd(*args, **kwargs):
     """Print if PRINT_DEBUG_STATE is True"""
@@ -77,11 +86,13 @@ def assert_dimensionless(value):
 class NotebookTools(object):
     """A class for manipulating and executing Jupyter notebooks."""
 
+    path = '' # Relative path to the parent directory of the notebook.
+    genDirName = 'GeneratedFiles'
+    genFileLevel = 2
+
     def __init__(self, *args, **kwargs):
         super(NotebookTools,self).__init__(*args, **kwargs)
         self.fix_display()
-
-    path = '' # Relative path to the parent directory of the notebook.
 
     def convert_path(self, file):
         """
@@ -176,20 +187,30 @@ class NotebookTools(object):
         code = self.read_code(name)#clean_code(name,'get_ipython')
         exec(code,globals())
 
+    def gen_file_path(self, name):
+        relative_path = self.convert_path(name)
+        file_path = self.get_path("%s.ipynb"%relative_path)
+        parent_path = recApply(os.path.dirname, self.genFileLevel)(file_path)
+        genFileName = name if isinstance(name,str) else name[1] #Name of generated file
+        new_file_path = self.get_path('%s.py'%os.path.join(parent_path, self.genDirName,genFileName))
+        return new_file_path
+
     def read_code(self, name):
         """Reads code from a python file called 'name'"""
 
-        relative_path = self.convert_path(name)
-        file_path = self.get_path('%s.py'%relative_path)
+        file_path = self.gen_file_path(name)
         with open(file_path) as f:
             code = f.read()
         return code
 
     def write_code(self, name, code):
-        """Writes code to a python file called 'name',
-        erasing the previous contents."""
-        relative_path = self.convert_path(name)
-        file_path = self.get_path('%s.py'%relative_path)
+        """
+        Writes code to a python file called 'name',
+        erasing the previous contents.
+        Files are created in a directory specified by genDirName
+        File name is second argument of path
+        """
+        file_path = self.gen_file_path(name)
         with open(file_path,'w') as f:
             f.write(code)
 
@@ -265,7 +286,6 @@ class NotebookTools(object):
     def do_notebook(self, name):
         """Runs a notebook file after optionally
         converting it to a python file."""
-
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS',True))
         s = StringIO()
         if mock:
