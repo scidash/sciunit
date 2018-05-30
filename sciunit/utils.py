@@ -39,13 +39,13 @@ settings = {'PRINT_DEBUG_STATE':False, # printd does nothing by default.
             'KERNEL':('ipykernel' in sys.modules),
             'CWD':os.path.realpath(sciunit.__path__[0])}
 
-def recApply(func, n):
+def  rec_apply(func, n):
     """
     Used to determine parent directory n levels up
     by repeatedly applying os.path.dirname
     """
     if n > 1:
-        rec_func = recApply(func, n - 1)
+        rec_func =  rec_apply(func, n - 1)
         return lambda x: func(rec_func(x))
     return func
 
@@ -194,7 +194,7 @@ class NotebookTools(object):
         """
         relative_path = self.convert_path(name)
         file_path = self.get_path("%s.ipynb"%relative_path)
-        parent_path = recApply(os.path.dirname, self.genFileLevel)(file_path)
+        parent_path =  rec_apply(os.path.dirname, self.genFileLevel)(file_path)
         genFileName = name if isinstance(name,str) else name[1] #Name of generated file
         genDirPath = self.get_path(os.path.join(parent_path, self.genDirName))
         if not os.path.exists(genDirPath): # Create folder for generated files if needed
