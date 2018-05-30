@@ -16,3 +16,4 @@ docs/chapter*.py
 .coverage
 htmlcov
 Untitled*.ipynb
+GeneratedFiles/*.py
