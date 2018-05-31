@@ -196,11 +196,11 @@ class NotebookTools(object):
         relative_path = self.convert_path(name)
         file_path = self.get_path("%s.ipynb"%relative_path)
         parent_path =  rec_apply(os.path.dirname, self.gen_file_level)(file_path)
-        genFileName = name if isinstance(name,str) else name[1] #Name of generated file
-        genDirPath = self.get_path(os.path.join(parent_path, self.gen_dir_name))
-        if not os.path.exists(genDirPath): # Create folder for generated files if needed
-            os.makedirs(genDirPath)
-        new_file_path = self.get_path('%s.py'%os.path.join(genDirPath, genFileName))
+        gen_file_name = name if isinstance(name,str) else name[1] #Name of generated file
+        gen_dir_path = self.get_path(os.path.join(parent_path, self.gen_dir_name))
+        if not os.path.exists(gen_dir_path): # Create folder for generated files if needed
+            os.makedirs(gen_dir_path)
+        new_file_path = self.get_path('%s.py'%os.path.join(gen_dir_path, gen_file_name))
         return new_file_path
 
     def read_code(self, name):
