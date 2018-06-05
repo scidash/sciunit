@@ -41,29 +41,36 @@ class Versioned(object):
     Provided in part by Andrew Davison in issue #53.
     """
 
-    def get_repo(self):
+    def get_repo(self, cached=True):
         module = sys.modules[self.__module__]
         # We use module.__file__ instead of module.__path__[0]
         # to include modules without a __path__ attribute.
-        if hasattr(module,'__file__'):
+        if hasattr(self.__class__,'_repo') and cached:
+            repo = self.__class__._repo
+        elif hasattr(module,'__file__'):
             path = os.path.realpath(module.__file__)
             repo = git.Repo(path, search_parent_directories=True)
         else:
             repo = None
+        self.__class__._repo = repo
         return repo
-    
-    def get_version(self):
-        repo = self.get_repo()
-        if repo is not None:
-            head = repo.head
-            version = head.commit.hexsha
-            if repo.is_dirty():
-                version += "*"
+
+    def get_version(self, cached=True):
+        if hasattr(self.__class__,'_version') and cached:
+            version = self.__class__._version
         else:
-            version = None
+            repo = self.get_repo()
+            if repo is not None:
+                head = repo.head
+                version = head.commit.hexsha
+                if repo.is_dirty():
+                    version += "*"
+            else:
+                version = None
+        self.__class__._version = version
         return version
     version = property(get_version)
-    
+
     def get_remote(self, remote='origin'):
         repo = self.get_repo()
         if repo is not None:
@@ -73,23 +80,27 @@ class Versioned(object):
             r = None
         return r
 
-    def get_remote_url(self, remote='origin'):
-        r = self.get_remote(remote)
-        try:
-            url = list(r.urls)[0]
-        except GitCommandError as ex:
-            if 'correct access rights' in str(ex):
-                # If ssh is not setup to access this repository 
-                cmd = ['git','config','--get','remote.%s.url' % r.name]                                                                                           
-                url = Git().execute(cmd)
-            else:
-                raise ex
-        except AttributeError:
-            url = None
-        if url is not None and url.startswith('git@'):
-            domain = url.split('@')[1].split(':')[0]
-            path = url.split(':')[1]
-            url = "http://%s/%s" % (domain,path)
+    def get_remote_url(self, remote='origin', cached=True):
+        if hasattr(self.__class__,'_remote_url') and cached:
+            url = self.__class__._remote_url
+        else:
+            r = self.get_remote(remote)
+            try:
+                url = list(r.urls)[0]
+            except GitCommandError as ex:
+                if 'correct access rights' in str(ex):
+                    # If ssh is not setup to access this repository
+                    cmd = ['git','config','--get','remote.%s.url' % r.name]
+                    url = Git().execute(cmd)
+                else:
+                    raise ex
+            except AttributeError:
+                url = None
+            if url is not None and url.startswith('git@'):
+                domain = url.split('@')[1].split(':')[0]
+                path = url.split(':')[1]
+                url = "http://%s/%s" % (domain,path)
+        self.__class__._remote_url = url
         return url
     remote_url = property(get_remote_url)
 
@@ -98,10 +109,10 @@ class SciUnit(Versioned):
     """Abstract base class for models, tests, and scores."""
     def __init__(self):
         self.unpicklable = [] # Attributes that cannot or should not be pickled.
-     
+
     unpicklable = []
     _url = None
-       
+
     def __getstate__(self):
         # Copy the object's state from self.__dict__ which contains
         # all our instance attributes. Always use the dict.copy()
@@ -131,7 +142,7 @@ class SciUnit(Versioned):
         for prop in set(props).difference(exclude):
             if prop == 'properties':
                 pass # Avoid infinite recursion
-            elif not keys or prop in keys:  
+            elif not keys or prop in keys:
                 result[prop] = getattr(self,prop)
         return result
 
@@ -162,11 +173,11 @@ class SciUnit(Versioned):
         """A unique numeric identifier of the current model state"""
         return self.dict_hash(self.state)
 
-    def json(self, add_props=False, keys=None, exclude=None, string=True, 
+    def json(self, add_props=False, keys=None, exclude=None, string=True,
              indent=None):
         #for attr in ['keys','exclude','add_props']:
         #    setattr(SciUnitEncoder,attr,locals()[attr])
-        result = json.dumps(self, cls=SciUnitEncoder, 
+        result = json.dumps(self, cls=SciUnitEncoder,
                             add_props=add_props, keys=keys, exclude=exclude,
                             indent=indent)
         if not string:
@@ -201,7 +212,7 @@ class SciUnitEncoder(json.JSONEncoder):
                 setattr(self.__class__,key,kwargs[key])
                 kwargs.pop(key)
         super(SciUnitEncoder,self).__init__(*args,**kwargs)
-    
+
     def default(self, obj):
         if isinstance(obj, pd.DataFrame):
             o = obj.to_dict(orient='split')
@@ -219,7 +230,7 @@ class SciUnitEncoder(json.JSONEncoder):
             o = obj._state(state=state, keys=self.keys, exclude=self.exclude)
         elif isinstance(obj,(dict,list,tuple,str,type(None),bool,float,int)):
             o = json.JSONEncoder.default(self, obj)
-        else: # Something we don't know how to serialize; 
+        else: # Something we don't know how to serialize;
               # just represent it as truncated string
             o = "%.20s..." % obj
         return o
@@ -258,4 +269,3 @@ def deep_exclude(state, exclude):
                 else:
                     s = s[key]
     return state
-        
