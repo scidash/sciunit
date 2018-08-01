@@ -23,7 +23,7 @@ class Score(SciUnit):
         if isinstance(score,Exception):
             self.__class__ = ErrorScore # Set to error score to use its summarize().
         super(Score,self).__init__()
-  
+
     score = None
     """The score itself."""
 
@@ -43,9 +43,9 @@ class Score(SciUnit):
     For the user to set in bind_score"""
 
     _raw = None
-    """A raw number arising in a test's compute_score, 
-    used to determine this score. Can be set for reporting a raw value 
-    determined in Test.compute_score before any transformation, 
+    """A raw number arising in a test's compute_score,
+    used to determine this score. Can be set for reporting a raw value
+    determined in Test.compute_score before any transformation,
     e.g. by a Converter"""
 
     related_data = None
@@ -71,7 +71,7 @@ class Score(SciUnit):
 
     @property
     def sort_key(self):
-        """A floating point version of the score used for sorting. 
+        """A floating point version of the score used for sorting.
         If normalized = True, this must be in the range 0.0 to 1.0,
         where larger is better (used for sorting and coloring tables)."""
         return self.score
@@ -110,7 +110,7 @@ class Score(SciUnit):
         if self.score is not None:
             if self.description:
                 result = "%s" % self.description
-            elif self.test.score_type.__doc__: 
+            elif self.test.score_type.__doc__:
                 result = self.describe_from_docstring()
         return result
 
@@ -133,7 +133,7 @@ class Score(SciUnit):
     @property
     def raw(self):
         value = self._raw if self._raw else self.score
-        if isinstance(value,float):
+        if isinstance(value,(float,np.ndarray)):
             string = '%.4g' % value
             if hasattr(value,'magnitude'):
                 string += ' %s' % str(value.units)[4:]
@@ -195,14 +195,14 @@ class Score(SciUnit):
 
     @property
     def score_type(self):
-        return self.__class__.__name__ 
+        return self.__class__.__name__
 
     @classmethod
     def extract_means_or_values(cls, observation, prediction, key=None):
         """Extracts the mean, value, or user-provided key from the observation
         and prediction dictionaries.
         """
-        
+
         obs_mv = cls.extract_mean_or_value(observation, key)
         pred_mv = cls.extract_mean_or_value(prediction, key)
         return obs_mv, pred_mv
@@ -230,7 +230,7 @@ class Score(SciUnit):
 
 class ErrorScore(Score):
     """A score returned when an error occurs during testing."""
-    
+
     @property
     def sort_key(self):
         return 0.0
