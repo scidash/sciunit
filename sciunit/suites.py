@@ -1,5 +1,5 @@
 """
-Base class for SciUnit test suites.  
+Base class for SciUnit test suites.
 """
 
 import random
@@ -14,7 +14,7 @@ from .scores.collections import ScoreMatrix
 class TestSuite(SciUnit,TestWeighted):
     """A collection of tests."""
 
-    def __init__(self, tests, name=None, weights=None, include_models=None, 
+    def __init__(self, tests, name=None, weights=None, include_models=None,
                  skip_models=None, hooks=None):
         self.name = name if name else "Suite_%d" % random.randint(0,1e12)
         self.tests = self.check_tests(tests)
@@ -34,11 +34,11 @@ class TestSuite(SciUnit,TestWeighted):
     """The sequence of tests that this suite contains."""
 
     include_models = []
-    """List of names or instances of models to judge 
+    """List of names or instances of models to judge
     (all passed to judge are judged by default)."""
 
     skip_models = []
-    """List of names or instances of models to not judge 
+    """List of names or instances of models to not judge
     (all passed to judge are judged by default)."""
 
     def check_tests(self, tests):
@@ -74,12 +74,35 @@ class TestSuite(SciUnit,TestWeighted):
                                  "a model or iterable."))
         return models
 
-    def judge(self, models, 
+    def check(self, models, skip_incapable=True, stop_on_error=True):
+        """Like judge, but without actually running the test.
+
+        Just returns a ScoreMatrix indicating whether each model can take
+        each test or not.  A TBDScore indicates that it can, and an NAScore
+        indicates that it cannot.
+        """
+        sm = ScoreMatrix(self.tests, models)
+        print(sm.shape)
+        for test in self.tests:
+            for model in models:
+                sm.loc[model, test] = test.check(model)
+        return sm
+
+    def check_capabilities(self, model, skip_incapable=False):
+        """Check model capabilities against those required by the suite.
+
+        Returns a list of booleans (one for each test in the suite)
+        corresponding to whether the test's required capabilities are satisfied
+        by the model.
+        """
+        return [test.check_capabilities(model,
+                skip_incapable=skip_incapable) for test in self.tests]
+
+    def judge(self, models,
               skip_incapable=False, stop_on_error=True, deep_error=False):
         """Judges the provided models against each test in the test suite.
            Returns a ScoreMatrix.
         """
-
         models = self.check_models(models)
         sm = ScoreMatrix(self.tests, models, weights=self.weights)
         for model in models:
@@ -96,21 +119,21 @@ class TestSuite(SciUnit,TestWeighted):
         skip = self.include_models and \
                not any([model.is_match(x) for x in self.include_models])
         # Skip if model found in skip_models
-        if not skip: 
+        if not skip:
             skip = any([model.is_match(x) for x in self.skip_models])
-        return skip 
-        
-    def judge_one(self, model, test, sm, 
+        return skip
+
+    def judge_one(self, model, test, sm,
                   skip_incapable=True, stop_on_error=True, deep_error=False):
         """Judge model and put score in the ScoreMatrix"""
-        
+
         if self.is_skipped(model):
             score = NoneScore(None)
-        else:    
-            log('Executing test <i>%s</i> on model <i>%s</i>' % (test,model), 
+        else:
+            log('Executing test <i>%s</i> on model <i>%s</i>' % (test,model),
             end="... ")
-            score = test.judge(model, skip_incapable=skip_incapable, 
-                                  stop_on_error=stop_on_error, 
+            score = test.judge(model, skip_incapable=skip_incapable,
+                                  stop_on_error=stop_on_error,
                                   deep_error=deep_error)
             log('Score is <a style="color: rgb(%d,%d,%d)">' % score.color()
             + '%s</a>' % score)
@@ -138,8 +161,8 @@ class TestSuite(SciUnit,TestWeighted):
     def from_observations(cls, tests_info, name=None):
         """Instantiate a test suite with name 'name' and information about tests
         in 'tests_info', as [(TestClass1,obs1),(TestClass2,obs2),...].
-        The desired test name may appear as an optional third item in the 
-        tuple, e.g. (TestClass1,obse1,"my_test").  The same test class may be 
+        The desired test name may appear as an optional third item in the
+        tuple, e.g. (TestClass1,obse1,"my_test").  The same test class may be
         used multiple times, e.g. [(TestClass1,obs1a),(TestClass1,obs1b),...].
         """
 

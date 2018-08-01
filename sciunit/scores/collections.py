@@ -1,7 +1,7 @@
 """
-SciUnit score collections, such as arrays and matrices.  
+SciUnit score collections, such as arrays and matrices.
 These collections allow scores to be organized and visualized
-by model, test, or both.  
+by model, test, or both.
 """
 
 from datetime import datetime
@@ -21,8 +21,8 @@ class ScoreArray(pd.Series,SciUnit,TestWeighted):
     """
     Represents an array of scores derived from a test suite.
     Extends the pandas Series such that items are either
-    models subject to a test or tests taken by a model.  
-    Also displays and compute score summaries in sciunit-specific ways.  
+    models subject to a test or tests taken by a model.
+    Also displays and compute score summaries in sciunit-specific ways.
 
     Can use like this, assuming n tests and m models:
 
@@ -74,20 +74,20 @@ class ScoreArray(pd.Series,SciUnit,TestWeighted):
         else:
             attr = super(ScoreArray,self).__getattribute__(name)
         return attr
-   
-    @property   
+
+    @property
     def sort_keys(self):
         return self.map(lambda x: x.sort_key)
 
     def mean(self):
-        """Computes a total score for each model over all the tests, 
+        """Computes a total score for each model over all the tests,
         using the sort_key, since otherwise direct comparison across different
         kinds of scores would not be possible."""
 
         return np.dot(np.array(self.sort_keys),self.weights)
-        
+
     def stature(self, test_or_model):
-        """Computes the relative rank of a model on a test compared to other models 
+        """Computes the relative rank of a model on a test compared to other models
         that were asked to take the test."""
 
         return self.sort_keys.rank(ascending=False)[test_or_model]
@@ -100,8 +100,8 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
     """
     Represents a matrix of scores derived from a test suite.
     Extends the pandas DataFrame such that tests are columns and models
-    are the index.  
-    Also displays and compute score summaries in sciunit-specific ways.  
+    are the index.
+    Also displays and compute score summaries in sciunit-specific ways.
 
     Can use like this, assuming n tests and m models:
 
@@ -113,25 +113,25 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
     (score_1, ..., score_n)
     """
 
-    def __init__(self, tests, models, 
+    def __init__(self, tests, models,
                  scores=None, weights=None, transpose=False):
         tests, models, scores = self.check_tests_models_scores(\
                                                     tests, models, scores)
         if transpose:
-            super(ScoreMatrix,self).__init__(data=scores.T, index=tests, 
+            super(ScoreMatrix,self).__init__(data=scores.T, index=tests,
                                              columns=models)
         else:
-            super(ScoreMatrix,self).__init__(data=scores, index=models, 
+            super(ScoreMatrix,self).__init__(data=scores, index=models,
                                              columns=tests)
         with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", 
+            warnings.filterwarnings("ignore",
                                     message=(".*Pandas doesn't allow columns "
                                              "to be created via a new "))
             self.tests = tests
             self.models = models
             self.weights_ = [] if not weights else list(weights)
             self.transposed = transpose
-        
+
     show_mean = False
     sortable = False
     direct_attrs = ['score','sort_keys','related_data']
@@ -157,12 +157,12 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
         raise TypeError("Expected test; model; test,model; or model,test")
 
     def get_test(self, test):
-        return ScoreArray(self.models, 
+        return ScoreArray(self.models,
                           scores=super(ScoreMatrix,self).__getitem__(test),
                           weights=self.weights)
 
     def get_model(self, model):
-        return ScoreArray(self.tests, 
+        return ScoreArray(self.tests,
                           scores=self.loc[model,:],
                           weights=self.weights)
 
@@ -186,7 +186,7 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
             if test.name == name:
                 return self.__getitem__(test)
         raise KeyError("No model or test with name '%s'" % name)
-  
+
     def __getattr__(self, name):
         if name in self.direct_attrs:
             attr = self.applymap(lambda x: getattr(x,name))
@@ -194,12 +194,12 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
             attr = super(ScoreMatrix,self).__getattribute__(name)
         return attr
 
-    @property   
+    @property
     def sort_keys(self):
         return self.applymap(lambda x: x.sort_key)
-       
+
     def stature(self, test, model):
-        """Computes the relative rank of a model on a test compared to other models 
+        """Computes the relative rank of a model on a test compared to other models
         that were asked to take the test."""
 
         return self[test].stature(model)
@@ -209,7 +209,7 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
         return ScoreMatrix(self.tests, self.models, scores=self.values,\
                            weights=self.weights, transpose=True)
 
-    def to_html(self, show_mean=None, sortable=None, colorize=True, *args, 
+    def to_html(self, show_mean=None, sortable=None, colorize=True, *args,
                       **kwargs):
         if show_mean is None:
             show_mean = self.show_mean
@@ -224,10 +224,10 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
         if sortable:
             self.dynamify(table_id)
         return html
-    
+
     def annotate(self, df, html, show_mean, colorize):
         soup = bs4.BeautifulSoup(html,"lxml")
-        if colorize: 
+        if colorize:
             self.annotate_headers(soup, df, show_mean)
             self.annotate_body(soup, df, show_mean)
         table = soup.find('table')
@@ -286,7 +286,7 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
             lib=["%s/jquery.dataTables.min.js" % prefix],
             css=["%s/css/jquery.dataTables.css" % prefix])
         display(js)
-    
+
 
 class ScorePanel(pd.Panel,SciUnit):
     def __getitem__(self, item):
@@ -294,4 +294,4 @@ class ScorePanel(pd.Panel,SciUnit):
         assert isinstance(df,pd.DataFrame), \
             "Only Score Matrices can be accessed by attribute from Score Panels"
         score_matrix = ScoreMatrix(models=df.index, tests=df.columns, scores=df)
-        return score_matrix 
+        return score_matrix

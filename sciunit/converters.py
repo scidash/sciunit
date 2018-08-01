@@ -9,7 +9,7 @@ from .scores import BooleanScore
 
 class Converter(object):
     """
-    Base converter class.  
+    Base converter class.
     Only derived classes should be used in applications.
     """
 
@@ -26,7 +26,7 @@ class Converter(object):
     def _convert(self, score):
         """
         Takes the score attribute of a score instance
-        and recasts it as instance of another score type.  
+        and recasts it as instance of another score type.
         """
         raise NotImplementedError(("The '_convert' method for %s "
                                    "it not implemented." %
@@ -44,7 +44,7 @@ class Converter(object):
 class NoConversion(Converter):
     """
     Applies no conversion.
-    """    
+    """
 
     def _convert(self, score):
         return score
@@ -60,7 +60,7 @@ class LambdaConversion(Converter):
 
     def _convert(self, score):
         return score.__class__(self.f(score))
-        
+
 
 class AtMostToBoolean(Converter):
     """
@@ -68,7 +68,7 @@ class AtMostToBoolean(Converter):
     """
     def __init__(self, cutoff):
         self.cutoff = cutoff
-    
+
     def _convert(self, score):
         return BooleanScore(bool(score <= self.cutoff))
 
@@ -79,7 +79,7 @@ class AtLeastToBoolean(Converter):
     """
     def __init__(self, cutoff):
         self.cutoff = cutoff
-    
+
     def _convert(self, score):
         return BooleanScore(score >= self.cutoff)
 
