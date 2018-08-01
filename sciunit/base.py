@@ -214,25 +214,29 @@ class SciUnitEncoder(json.JSONEncoder):
         super(SciUnitEncoder,self).__init__(*args,**kwargs)
 
     def default(self, obj):
-        if isinstance(obj, pd.DataFrame):
-            o = obj.to_dict(orient='split')
-            if isinstance(obj,SciUnit):
-                for old,new in [('data','scores'),
-                                ('columns','tests'),
-                                ('index','models')]:
-                    o[new] = o.pop(old)
-        elif isinstance(obj,np.ndarray):
-            o = obj.tolist()
-        elif isinstance(obj,SciUnit):
-            state = obj.state
-            if self.add_props:
-                state.update(obj.properties)
-            o = obj._state(state=state, keys=self.keys, exclude=self.exclude)
-        elif isinstance(obj,(dict,list,tuple,str,type(None),bool,float,int)):
-            o = json.JSONEncoder.default(self, obj)
-        else: # Something we don't know how to serialize;
-              # just represent it as truncated string
-            o = "%.20s..." % obj
+        try:
+            if isinstance(obj, pd.DataFrame):
+                o = obj.to_dict(orient='split')
+                if isinstance(obj,SciUnit):
+                    for old,new in [('data','scores'),
+                                    ('columns','tests'),
+                                    ('index','models')]:
+                        o[new] = o.pop(old)
+            elif isinstance(obj,np.ndarray) and len(obj.shape):
+                o = obj.tolist()
+            elif isinstance(obj,SciUnit):
+                state = obj.state
+                if self.add_props:
+                    state.update(obj.properties)
+                o = obj._state(state=state, keys=self.keys, exclude=self.exclude)
+            elif isinstance(obj,(dict,list,tuple,str,type(None),bool,float,int)):
+                o = json.JSONEncoder.default(self, obj)
+            else: # Something we don't know how to serialize;
+                  # just represent it as truncated string
+                o = "%.20s..." % obj
+        except Exception as e:
+            print("Could not JSON encode object %s" % obj)
+            raise e
         return o
 
 
