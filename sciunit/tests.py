@@ -6,7 +6,7 @@ from sciunit.base import SciUnit
 from .capabilities import ProducesNumber
 from .models import Model
 from .scores import Score,BooleanScore,NoneScore,ErrorScore,TBDScore,NAScore
-from .errors import CapabilityError
+from .errors import CapabilityError, InvalidScoreError
 
 class Test(SciUnit):
     """Abstract base class for tests."""
