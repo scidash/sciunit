@@ -4,25 +4,25 @@ Base class for SciUnit test suites.
 
 import random
 
-from .base import SciUnit,TestWeighted
+from .base import SciUnit, TestWeighted
 from .utils import log
 from .tests import Test
 from .models import Model
 from .scores import NoneScore
 from .scores.collections import ScoreMatrix
 
-class TestSuite(SciUnit,TestWeighted):
+class TestSuite(SciUnit, TestWeighted):
     """A collection of tests."""
 
     def __init__(self, tests, name=None, weights=None, include_models=None,
                  skip_models=None, hooks=None):
-        self.name = name if name else "Suite_%d" % random.randint(0,1e12)
-        self.tests = self.check_tests(tests)
+        self.name = name if name else "Suite_%d" % random.randint(0, 1e12)
+        self.tests = self.assert_tests(tests)
         self.weights_ = [] if not weights else list(weights)
         self.include_models = include_models if include_models else []
         self.skip_models = skip_models if skip_models else []
         self.hooks = hooks
-        super(TestSuite,self).__init__()
+        super(TestSuite, self).__init__()
 
     name = None
     """The name of the test suite. Defaults to the class name."""
@@ -41,7 +41,7 @@ class TestSuite(SciUnit,TestWeighted):
     """List of names or instances of models to not judge
     (all passed to judge are judged by default)."""
 
-    def check_tests(self, tests):
+    def assert_tests(self, tests):
         """Checks and in some cases fixes the list of tests."""
 
         if isinstance(tests, Test):
@@ -58,7 +58,7 @@ class TestSuite(SciUnit,TestWeighted):
                                  "a test or iterable."))
         return tests
 
-    def check_models(self, models):
+    def assert_models(self, models):
         """Checks and in some cases fixes the list of models."""
 
         if isinstance(models, Model):
@@ -81,8 +81,8 @@ class TestSuite(SciUnit,TestWeighted):
         each test or not.  A TBDScore indicates that it can, and an NAScore
         indicates that it cannot.
         """
+        models = self.assert_models(models)
         sm = ScoreMatrix(self.tests, models)
-        print(sm.shape)
         for test in self.tests:
             for model in models:
                 sm.loc[model, test] = test.check(model)
@@ -103,13 +103,13 @@ class TestSuite(SciUnit,TestWeighted):
         """Judges the provided models against each test in the test suite.
            Returns a ScoreMatrix.
         """
-        models = self.check_models(models)
+        models = self.assert_models(models)
         sm = ScoreMatrix(self.tests, models, weights=self.weights)
         for model in models:
             for test in self.tests:
-                score = self.judge_one(model,test,sm,skip_incapable,
-                                       stop_on_error,deep_error)
-                self.set_hooks(test,score)
+                score = self.judge_one(model, test, sm, skip_incapable,
+                                       stop_on_error, deep_error)
+                self.set_hooks(test, score)
         return sm
 
     def is_skipped(self, model):
@@ -169,10 +169,10 @@ class TestSuite(SciUnit,TestWeighted):
         tests = []
         for test_info in tests_info:
             test_class,observation = test_info[0:2]
-            test_name = None if len(test_info)<3 else test_info[2]
+            test_name = None if len(test_info) < 3 else test_info[2]
             assert Test.is_test_class(test_class), \
-                   "First item in each tuple must be a Test class"
-            test = test_class(observation,name=test_name)
+                "First item in each tuple must be a Test class"
+            test = test_class(observation, name=test_name)
             tests.append(test)
         return cls(tests, name=name)
 
