@@ -20,8 +20,12 @@ class Capability(SciUnit):
         By default, uses isinstance.
         """
         class_capable = isinstance(model, cls)
-        f = model.extra_capability_checks.get(cls, lambda: True)
-        instance_capable = f()
+        f_name = model.extra_capability_checks.get(cls, None)
+        if f_name:
+            f = getattr(model, f_name)
+            instance_capable = f()
+        else:
+            instance_capable = True
         return class_capable and instance_capable
 
     def unimplemented(self):

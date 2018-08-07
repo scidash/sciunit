@@ -45,9 +45,9 @@ class Versioned(object):
         module = sys.modules[self.__module__]
         # We use module.__file__ instead of module.__path__[0]
         # to include modules without a __path__ attribute.
-        if hasattr(self.__class__,'_repo') and cached:
+        if hasattr(self.__class__, '_repo') and cached:
             repo = self.__class__._repo
-        elif hasattr(module,'__file__'):
+        elif hasattr(module, '__file__'):
             path = os.path.realpath(module.__file__)
             try:
                 repo = git.Repo(path, search_parent_directories=True)
@@ -59,7 +59,7 @@ class Versioned(object):
         return repo
 
     def get_version(self, cached=True):
-        if hasattr(self.__class__,'_version') and cached:
+        if hasattr(self.__class__, '_version') and cached:
             version = self.__class__._version
         else:
             repo = self.get_repo()
@@ -102,7 +102,7 @@ class Versioned(object):
             if url is not None and url.startswith('git@'):
                 domain = url.split('@')[1].split(':')[0]
                 path = url.split(':')[1]
-                url = "http://%s/%s" % (domain,path)
+                url = "http://%s/%s" % (domain, path)
         self.__class__._remote_url = url
         return url
     remote_url = property(get_remote_url)
@@ -133,26 +133,27 @@ class SciUnit(Versioned):
         if keys:
             state = {key:state[key] for key in keys if key in state.keys()}
         if exclude:
-            state = {key:state[key] for key in state.keys() if key not in exclude}
-            state = deep_exclude(state,exclude)
+            state = {key:state[key] for key in state.keys()
+                     if key not in exclude}
+            state = deep_exclude(state, exclude)
         return state
 
     def _properties(self, keys=None, exclude=None):
         result = {}
         props = self.raw_props()
         exclude = exclude if exclude else []
-        exclude += ['state','id']
+        exclude += ['state', 'id']
         for prop in set(props).difference(exclude):
             if prop == 'properties':
                 pass # Avoid infinite recursion
             elif not keys or prop in keys:
-                result[prop] = getattr(self,prop)
+                result[prop] = getattr(self, prop)
         return result
 
     def raw_props(self):
         class_attrs = dir(self.__class__)
         return [p for p in class_attrs \
-                if isinstance(getattr(self.__class__,p,None),property)]
+                if isinstance(getattr(self.__class__, p, None), property)]
 
     @property
     def state(self):
@@ -164,11 +165,11 @@ class SciUnit(Versioned):
 
     @classmethod
     def dict_hash(cls,d):
-        od = [(key,d[key]) for key in sorted(d)]
+        od = [(key, d[key]) for key in sorted(d)]
         try:
             s = pickle.dumps(od)
         except AttributeError:
-            s = json.dumps(od,cls=SciUnitEncoder).encode('utf-8')
+            s = json.dumps(od, cls=SciUnitEncoder).encode('utf-8')
         return hashlib.sha224(s).hexdigest()
 
     @property
@@ -210,29 +211,31 @@ class SciUnitEncoder(json.JSONEncoder):
     """Custom JSON encoder for SciUnit objects"""
 
     def __init__(self, *args, **kwargs):
-        for key in ['add_props','keys','exclude']:
+        for key in ['add_props', 'keys', 'exclude']:
             if key in kwargs:
-                setattr(self.__class__,key,kwargs[key])
+                setattr(self.__class__, key, kwargs[key])
                 kwargs.pop(key)
-        super(SciUnitEncoder,self).__init__(*args,**kwargs)
+        super(SciUnitEncoder,self).__init__(*args, **kwargs)
 
     def default(self, obj):
         try:
             if isinstance(obj, pd.DataFrame):
                 o = obj.to_dict(orient='split')
                 if isinstance(obj,SciUnit):
-                    for old,new in [('data','scores'),
-                                    ('columns','tests'),
-                                    ('index','models')]:
+                    for old,new in [('data', 'scores'),
+                                    ('columns', 'tests'),
+                                    ('index', 'models')]:
                         o[new] = o.pop(old)
-            elif isinstance(obj,np.ndarray) and len(obj.shape):
+            elif isinstance(obj, np.ndarray) and len(obj.shape):
                 o = obj.tolist()
-            elif isinstance(obj,SciUnit):
+            elif isinstance(obj, SciUnit):
                 state = obj.state
                 if self.add_props:
                     state.update(obj.properties)
-                o = obj._state(state=state, keys=self.keys, exclude=self.exclude)
-            elif isinstance(obj,(dict,list,tuple,str,type(None),bool,float,int)):
+                o = obj._state(state=state, keys=self.keys,
+                               exclude=self.exclude)
+            elif isinstance(obj, (dict, list, tuple, str, type(None), bool,
+                                  float, int)):
                 o = json.JSONEncoder.default(self, obj)
             else: # Something we don't know how to serialize;
                   # just represent it as truncated string
