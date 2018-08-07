@@ -6,11 +6,12 @@ import inspect
 import random
 from fnmatch import fnmatchcase
 
-from cypy import memoize # Decorator for caching of capability method results.  
+from cypy import memoize  # Decorator for caching of capability method results.
 
 from .base import SciUnit
-from .utils import class_intern,method_cache
-from .capabilities import Capability,ProducesNumber
+from .utils import class_intern, method_cache
+from .capabilities import Capability, ProducesNumber
+
 
 class Model(SciUnit):
     """Abstract base class for sciunit models."""
@@ -21,7 +22,8 @@ class Model(SciUnit):
         self.params = params
         if params is None:
             params = {}
-        super(Model,self).__init__()
+        self.extra_capability_checks = {}
+        super(Model, self).__init__()
         self.check_params()
 
     name = None
@@ -38,14 +40,18 @@ class Model(SciUnit):
     """These are the run-time arguments for the model.
     Execution of run() should make use of these arguments."""
 
+    extra_capability_checks = None
+    """Optional extra checks of capabilities on a per-instance basis."""
+
     @property
     def capabilities(self):
+        # Needs to be patched to include extra_capability_checks.
         capabilities = []
         for cls in self.__class__.mro():
-            if issubclass(cls,Capability) and cls is not Capability \
-            and not issubclass(cls,Model):
+            if issubclass(cls, Capability) and cls is not Capability \
+              and not issubclass(cls, Model):
                 capabilities.append(cls.__name__)
-        return capabilities 
+        return capabilities
 
     def describe(self):
         result = "No description available"
@@ -54,7 +60,8 @@ class Model(SciUnit):
         else:
             if self.__doc__:
                 s = []
-                s += [self.__doc__.strip().replace('\n','').replace('    ','')]
+                s += [self.__doc__.strip().replace('\n', '').
+                      replace('    ', ' ')]
                 result = '\n'.join(s)
         return result
 
@@ -73,43 +80,43 @@ class Model(SciUnit):
         result = False
         if self == match:
             result = True
-        elif isinstance(match,str) and fnmatchcase(self.name, match):
-            result = True # Found by instance or name
+        elif isinstance(match, str) and fnmatchcase(self.name, match):
+            result = True  # Found by instance or name
         return result
 
     def __str__(self):
         return '%s' % self.name
 
 
-class ConstModel(Model,ProducesNumber):
+class ConstModel(Model, ProducesNumber):
     """A model that always produces a constant number as output."""
-    
+
     def __init__(self, constant, name=None):
-        self.constant = constant 
+        self.constant = constant
         super(ConstModel, self).__init__(name=name, constant=constant)
-        
+
     def produce_number(self):
         return self.constant
 
 
-class UniformModel(Model,ProducesNumber):
+class UniformModel(Model, ProducesNumber):
     """A model that always produces a random uniformly distributed number
     in [a,b] as output."""
-    
+
     def __init__(self, a, b, name=None):
         self.a, self.b = a, b
         super(UniformModel, self).__init__(name=name, a=a, b=b)
-    
+
     def produce_number(self):
         return random.uniform(self.a, self.b)
 
 
 ################################################################
 # Here are several examples of caching and sharing can be used
-# to reduce the computational load of testing.  
+# to reduce the computational load of testing.
 ################################################################
 
-class UniqueRandomNumberModel(Model,ProducesNumber):
+class UniqueRandomNumberModel(Model, ProducesNumber):
     """An example model to ProducesNumber."""
 
     def produce_number(self):
@@ -117,7 +124,7 @@ class UniqueRandomNumberModel(Model,ProducesNumber):
         return random.random()
 
 
-class RepeatedRandomNumberModel(Model,ProducesNumber):
+class RepeatedRandomNumberModel(Model, ProducesNumber):
     """An example model to demonstrate ProducesNumber with cypy.lazy."""
 
     @memoize
@@ -130,8 +137,8 @@ class RepeatedRandomNumberModel(Model,ProducesNumber):
 
 @class_intern
 class SharedModel(Model):
-    """A model that, each time it is instantiated with the same parameters, will
-    return the same instance at the same locaiton in memory. 
+    """A model that, each time it is instantiated with the same parameters,
+    will return the same instance at the same locaiton in memory.
     Attributes should not be set post-instantiation
     unless the goal is to set those attributes on all models of this class."""
     pass
@@ -139,7 +146,7 @@ class SharedModel(Model):
 
 class PersistentUniformModel(UniformModel):
     """TODO"""
-    
+
     def run(self):
         self._x = random.uniform(self.a, self.b)
 
@@ -149,15 +156,15 @@ class PersistentUniformModel(UniformModel):
 
 class CacheByInstancePersistentUniformModel(PersistentUniformModel):
     """TODO"""
-    
-    @method_cache(by='instance',method='run')
+
+    @method_cache(by='instance', method='run')
     def produce_number(self):
         return self._x
 
 
 class CacheByValuePersistentUniformModel(PersistentUniformModel):
     """TODO"""
-    
-    @method_cache(by='value',method='run')
+
+    @method_cache(by='value', method='run')
     def produce_number(self):
         return self._x
