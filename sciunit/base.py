@@ -49,7 +49,10 @@ class Versioned(object):
             repo = self.__class__._repo
         elif hasattr(module,'__file__'):
             path = os.path.realpath(module.__file__)
-            repo = git.Repo(path, search_parent_directories=True)
+            try:
+                repo = git.Repo(path, search_parent_directories=True)
+            except git.InvalidGitRepositoryError:
+                repo = None
         else:
             repo = None
         self.__class__._repo = repo
