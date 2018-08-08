@@ -237,7 +237,9 @@ class NotebookTools(object):
                 pass
             else:
                 allowed = ['time','timeit'] # Magics where we want to keep the command
-                line = self.strip_line_magic(line,allowed)
+                line = self.strip_line_magic(line, allowed)
+                if isinstance(line,list):
+                    line = ' '.join(line)
                 new_code.append(line)
         new_code = '\n'.join(new_code)
         self.write_code(name, new_code)
