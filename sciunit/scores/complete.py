@@ -30,7 +30,7 @@ class BooleanScore(Score):
         return BooleanScore(observation == prediction)
 
     @property
-    def sort_key(self):
+    def norm_score(self):
         """Return 1.0 for a True score and 0.0 for False score."""
         return 1.0 if self.score else 0.0
 
@@ -74,7 +74,7 @@ class ZScore(Score):
         return score
 
     @property
-    def sort_key(self):
+    def norm_score(self):
         """Return 1.0 for a z-score of 0, falling to 0.0 for extremely positive
         or negative values."""
 
@@ -150,7 +150,7 @@ class RatioScore(Score):
         return RatioScore(value)
 
     @property
-    def sort_key(self):
+    def norm_score(self):
         """Returns 1.0 for a ratio of 1, falling to 0.0 for extremely small
         or large values."""
 
@@ -177,7 +177,7 @@ class PercentScore(Score):
                                             "range 0.0-100.0" % score))
 
     @property
-    def sort_key(self):
+    def norm_score(self):
         """Returns 1.0 for a percent score of 100, and 0.0 for 0."""
 
         return float(self.score)/100

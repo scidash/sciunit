@@ -33,7 +33,7 @@ class ScoresTestCase(SuiteBase,unittest.TestCase):
         sm = t.judge(m1)
         sa = sm[m1]
         self.assertTrue(type(sa) is ScoreArray)
-        self.assertEqual(list(sa.sort_keys.values),[1.0,0.0])      
+        self.assertEqual(list(sa.norm_scores.values),[1.0,0.0])      
         self.assertEqual(sa.stature(t1),1)
         self.assertEqual(sa.stature(t2),2)
         self.assertEqual(sa.stature(t1),1)
@@ -50,7 +50,7 @@ class ScoresTestCase(SuiteBase,unittest.TestCase):
         
     def test_regular_score_types_1(self):
         score = PercentScore(42)
-        self.assertEqual(score.sort_key,0.42)
+        self.assertEqual(score.norm_score,0.42)
 
         ZScore(0.7)
         score = ZScore.compute({'mean':3.,'std':1.},{'value':2.})
@@ -64,9 +64,9 @@ class ScoresTestCase(SuiteBase,unittest.TestCase):
         BooleanScore(True)
         BooleanScore(False)
         score = BooleanScore.compute(5,5)
-        self.assertEqual(score.sort_key,1)
+        self.assertEqual(score.norm_score,1)
         score = BooleanScore.compute(4,5)
-        self.assertEqual(score.sort_key,0)
+        self.assertEqual(score.norm_score,0)
         
         t = RangeTest([2,3])
         score.test = t
@@ -91,4 +91,4 @@ class ScoresTestCase(SuiteBase,unittest.TestCase):
         score = TBDScore(None)
         score = NoneScore(None)
         score = InsufficientDataScore(None)
-        self.assertEqual(score.sort_key,None)
+        self.assertEqual(score.norm_score,None)

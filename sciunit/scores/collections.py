@@ -44,7 +44,7 @@ class ScoreArray(pd.Series,SciUnit,TestWeighted):
                                   else 'models'
         setattr(self,self.index_type,tests_or_models)
 
-    direct_attrs = ['score','sort_keys','related_data']
+    direct_attrs = ['score','norm_scores','related_data']
 
     def check_tests_and_models(self, tests_or_models):
         assert all([isinstance(tom,Test) for tom in tests_or_models]) or \
@@ -76,21 +76,21 @@ class ScoreArray(pd.Series,SciUnit,TestWeighted):
         return attr
 
     @property
-    def sort_keys(self):
-        return self.map(lambda x: x.sort_key)
+    def norm_scores(self):
+        return self.map(lambda x: x.norm_score)
 
     def mean(self):
         """Computes a total score for each model over all the tests,
-        using the sort_key, since otherwise direct comparison across different
+        using the norm_score, since otherwise direct comparison across different
         kinds of scores would not be possible."""
 
-        return np.dot(np.array(self.sort_keys),self.weights)
+        return np.dot(np.array(self.norm_scores),self.weights)
 
     def stature(self, test_or_model):
         """Computes the relative rank of a model on a test compared to other models
         that were asked to take the test."""
 
-        return self.sort_keys.rank(ascending=False)[test_or_model]
+        return self.norm_scores.rank(ascending=False)[test_or_model]
 
 #    def view(self):
 #        return self
@@ -134,7 +134,7 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
 
     show_mean = False
     sortable = False
-    direct_attrs = ['score','sort_keys','related_data']
+    direct_attrs = ['score','norm_scores','related_data']
 
     def check_tests_models_scores(self, tests, models, scores):
         if isinstance(tests,Test):
@@ -195,8 +195,8 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
         return attr
 
     @property
-    def sort_keys(self):
-        return self.applymap(lambda x: x.sort_key)
+    def norm_scores(self):
+        return self.applymap(lambda x: x.norm_score)
 
     def stature(self, test, model):
         """Computes the relative rank of a model on a test compared to other models
@@ -270,7 +270,7 @@ class ScoreMatrix(pd.DataFrame,SciUnit,TestWeighted):
                 score = self[self.models[j_],self.tests[i]]
             else:
                 score = self[self.models[i],self.tests[j_]]
-            value = score.sort_key
+            value = score.norm_score
             cell['title'] = score.describe(quiet=True)
         rgb = Score.value_color(value)
         cell['style'] = 'background-color: rgb(%d,%d,%d);' % rgb

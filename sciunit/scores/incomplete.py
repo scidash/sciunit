@@ -19,7 +19,7 @@ class NoneScore(Score):
             raise InvalidScoreError("Score must be a string or None")
 
     @property
-    def sort_key(self):
+    def norm_score(self):
         return None
 
     def __str__(self):

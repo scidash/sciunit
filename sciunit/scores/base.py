@@ -70,7 +70,7 @@ class Score(SciUnit):
         pass
 
     @property
-    def sort_key(self):
+    def norm_score(self):
         """A floating point version of the score used for sorting.
         If normalized = True, this must be in the range 0.0 to 1.0,
         where larger is better (used for sorting and coloring tables)."""
@@ -78,7 +78,7 @@ class Score(SciUnit):
 
     def color(self, value=None):
         if value is None:
-            value = self.sort_key
+            value = self.norm_score
         rgb = Score.value_color(value)
         return rgb
 
@@ -153,42 +153,42 @@ class Score(SciUnit):
 
     def __eq__(self, other):
         if isinstance(other,Score):
-            result = self.sort_key == other.sort_key
+            result = self.norm_score == other.norm_score
         else:
             result = self.score == other
         return result
 
     def __ne__(self, other):
         if isinstance(other,Score):
-            result = self.sort_key != other.sort_key
+            result = self.norm_score != other.norm_score
         else:
             result = self.score != other
         return result
 
     def __gt__(self, other):
         if isinstance(other,Score):
-            result = self.sort_key > other.sort_key
+            result = self.norm_score > other.norm_score
         else:
             result = self.score > other
         return result
 
     def __ge__(self, other):
         if isinstance(other,Score):
-            result = self.sort_key >= other.sort_key
+            result = self.norm_score >= other.norm_score
         else:
             result = self.score >= other
         return result
 
     def __lt__(self, other):
         if isinstance(other,Score):
-            result = self.sort_key < other.sort_key
+            result = self.norm_score < other.norm_score
         else:
             result = self.score < other
         return result
 
     def __le__(self, other):
         if isinstance(other,Score):
-            result = self.sort_key <= other.sort_key
+            result = self.norm_score <= other.norm_score
         else:
             result = self.score <= other
         return result
@@ -232,7 +232,7 @@ class ErrorScore(Score):
     """A score returned when an error occurs during testing."""
 
     @property
-    def sort_key(self):
+    def norm_score(self):
         return 0.0
 
     @property

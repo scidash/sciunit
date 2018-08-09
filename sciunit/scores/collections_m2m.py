@@ -26,7 +26,7 @@ class ScoreArrayM2M(pd.Series):
         return result
 
     def __getattr__(self, name):
-        if name in ['score','sort_keys','related_data']:
+        if name in ['score','norm_scores','related_data']:
             attr = self.apply(lambda x: getattr(x,name))
         else:
             attr = super(ScoreArrayM2M,self).__getattribute__(name)
@@ -40,8 +40,8 @@ class ScoreArrayM2M(pd.Series):
                         "any model: '%s'") % name)
 
     @property
-    def sort_keys(self):
-        return self.map(lambda x: x.sort_key)
+    def norm_scores(self):
+        return self.map(lambda x: x.norm_score)
 
 
 class ScoreMatrixM2M(pd.DataFrame):
@@ -93,12 +93,12 @@ class ScoreMatrixM2M(pd.DataFrame):
         raise TypeError("Expected test/model pair")
 
     def __getattr__(self, name):
-        if name in ['score','sort_key','related_data']:
+        if name in ['score','norm_score','related_data']:
             attr = self.applymap(lambda x: getattr(x,name))
         else:
             attr = super(ScoreMatrixM2M,self).__getattribute__(name)
         return attr
 
     @property
-    def sort_keys(self):
-        return self.applymap(lambda x: x.sort_key)
+    def norm_scores(self):
+        return self.applymap(lambda x: x.norm_score)
