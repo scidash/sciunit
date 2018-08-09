@@ -111,10 +111,17 @@ class Versioned(object):
 class SciUnit(Versioned):
     """Abstract base class for models, tests, and scores."""
     def __init__(self):
-        self.unpicklable = [] # Attributes that cannot or should not be pickled.
+        self.unpicklable = []
 
+    """ A list of attributes that cannot or should not be pickled."""
     unpicklable = []
+
+    """A URL where the code for this object can be found."""
     _url = None
+
+    """A verbosity level for printing information."""
+    verbose = 1
+
 
     def __getstate__(self):
         # Copy the object's state from self.__dict__ which contains

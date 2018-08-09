@@ -8,7 +8,8 @@ from .capabilities import ProducesNumber
 from .models import Model
 from .scores import Score, BooleanScore, NoneScore, ErrorScore, TBDScore,\
                     NAScore
-from .errors import Error, CapabilityError, InvalidScoreError
+from .validators import ObservationValidator
+from .errors import Error, CapabilityError, ObservationError, InvalidScoreError
 
 
 class Test(SciUnit):
@@ -35,7 +36,8 @@ class Test(SciUnit):
         self.observation = validated if validated is not None else observation
 
         if self.score_type is None or not issubclass(self.score_type, Score):
-            raise Error("Test %s does not specify a score type." % self.name)
+            raise Error(("The score type '%s' specified for Test '%s' "
+                         "is not valid.") % (self.score_type, self.name))
 
         super(Test, self).__init__()
 
@@ -51,21 +53,36 @@ class Test(SciUnit):
     params = {}
     """A dictionary containing the parameters to the test."""
 
-    score_type = None
+    score_type = BooleanScore
     """A score type for this test's `judge` method to return."""
 
     converter = None
     """A conversion to be done on the score after it is computed."""
 
-    verbose = 1
-    """A verbosity level for printing information."""
+    observation_schema = None
+    """A schema that the observation must adhere to (validated by cerberus).
+    Can also be a list of schemas, one of which the observation must match."""
 
     def validate_observation(self, observation):
-        """(Optional) Implement to validate the observation provided to the
-        constructor.
+        """Validate the observation provided to the constructor.
+
         Raises an ObservationError if invalid.
         """
-        assert observation, "Observation is empty."
+        if not observation:
+            raise ObservationError("Observation is missing.")
+        if not isinstance(observation, dict):
+            raise ObservationError("Observation is not a dictionary.")
+        if self.observation_schema:
+            if isinstance(self.observation_schema, list):
+                schema = {'oneof_schema': self.observation_schema,
+                          'type': 'dict'}
+            else:
+                schema = {'schema': self.observation_schema, 'type': 'dict'}
+            schema = {'observation': schema}
+            from pprint import pprint
+            v = ObservationValidator(schema, test=self)
+            if not v.validate({'observation': observation}):
+                raise ObservationError(v.errors)
         return observation
 
     required_capabilities = ()
@@ -73,8 +90,7 @@ class Test(SciUnit):
     test to be run. Defaults to empty."""
 
     def check_capabilities(self, model, skip_incapable=False):
-        """Checks that the capabilities required by the test are
-        implemented by `model`.
+        """Check that test's required capabilities are implemented by `model`.
 
         Raises an Error if model is not a Model.
         Raises a CapabilityError if model does not have a capability.
@@ -102,8 +118,6 @@ class Test(SciUnit):
         """
         raise NotImplementedError(("Test %s does not implement "
                                    "generate_prediction.") % str())
-
-    score_type = None
 
     def check_prediction(self, prediction):
         """Check the prediction for acceptable values.
