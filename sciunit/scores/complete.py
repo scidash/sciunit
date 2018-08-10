@@ -1,5 +1,5 @@
-"""
-Score types for tests that completed successfully.
+"""Score types for tests that completed successfully.
+
 These include various representations of goodness-of-fit.
 """
 
@@ -39,8 +39,9 @@ class BooleanScore(Score):
 
 
 class ZScore(Score):
-    """
-    A Z score. A float indicating standardized difference
+    """A Z score.
+
+    A float indicating standardized difference
     from a reference mean.
     """
 
@@ -50,11 +51,10 @@ class ZScore(Score):
                     'prediction divided by the standard deviation of the '
                     'observation')
 
+
     @classmethod
     def compute(cls, observation, prediction):
-        """
-        Computes a z-score from an observation and a prediction.
-        """
+        """Compute a z-score from an observation and a prediction."""
         assert isinstance(observation, dict)
         try:
             p_value = prediction['mean']  # Use the prediction's mean.
@@ -77,7 +77,6 @@ class ZScore(Score):
     def norm_score(self):
         """Return 1.0 for a z-score of 0, falling to 0.0 for extremely positive
         or negative values."""
-
         cdf = (1.0 + math.erf(self.score / math.sqrt(2.0))) / 2.0
         return 1 - 2*math.fabs(0.5 - cdf)
 
@@ -86,8 +85,9 @@ class ZScore(Score):
 
 
 class CohenDScore(ZScore):
-    """
-    A Cohen's D score. A float indicating difference
+    """A Cohen's D score.
+
+    A float indicating difference
     between two means normalized by the pooled standard deviation.
     """
 
@@ -95,9 +95,7 @@ class CohenDScore(ZScore):
 
     @classmethod
     def compute(cls, observation, prediction):
-        """
-        Computes a Cohen's D from an observation and a prediction.
-        """
+        """Compute a Cohen's D from an observation and a prediction."""
         assert isinstance(observation, dict)
         assert isinstance(prediction, dict)
         p_mean = prediction['mean']  # Use the prediction's mean.
@@ -119,8 +117,9 @@ class CohenDScore(ZScore):
 
 
 class RatioScore(Score):
-    """
-    A ratio of two numbers score. Usually the prediction divided by
+    """A ratio of two numbers.
+
+    Usually the prediction divided by
     the observation.
     """
 
@@ -136,10 +135,7 @@ class RatioScore(Score):
 
     @classmethod
     def compute(cls, observation, prediction, key=None):
-        """
-        Computes a ratio from an observation and a prediction.
-        """
-
+        """Compute a ratio from an observation and a prediction."""
         assert isinstance(observation, (dict, float, int, pq.Quantity))
         assert isinstance(prediction, (dict, float, int, pq.Quantity))
 
@@ -151,9 +147,8 @@ class RatioScore(Score):
 
     @property
     def norm_score(self):
-        """Returns 1.0 for a ratio of 1, falling to 0.0 for extremely small
+        """Return 1.0 for a ratio of 1, falling to 0.0 for extremely small
         or large values."""
-
         score = math.log10(self.score)
         cdf = (1.0 + math.erf(score / math.sqrt(2.0))) / 2.0
         return 1 - 2*math.fabs(0.5 - cdf)
@@ -163,8 +158,9 @@ class RatioScore(Score):
 
 
 class PercentScore(Score):
-    """
-    A percent score. A float in the range [0,0,100.0] where higher is better.
+    """A percent score.
+
+    A float in the range [0,0,100.0] where higher is better.
     """
 
     _description = ('100.0 is considered perfect agreement between the '
@@ -178,8 +174,7 @@ class PercentScore(Score):
 
     @property
     def norm_score(self):
-        """Returns 1.0 for a percent score of 100, and 0.0 for 0."""
-
+        """Return 1.0 for a percent score of 100, and 0.0 for 0."""
         return float(self.score)/100
 
     def __str__(self):
@@ -187,8 +182,9 @@ class PercentScore(Score):
 
 
 class FloatScore(Score):
-    """
-    A float score. A float with any value.
+    """A float score.
+
+    A float with any value.
     """
 
     _allowed_types = (float, pq.Quantity,)

@@ -113,7 +113,7 @@ class SciUnit(Versioned):
     def __init__(self):
         self.unpicklable = []
 
-    """ A list of attributes that cannot or should not be pickled."""
+    """A list of attributes that cannot or should not be pickled."""
     unpicklable = []
 
     """A URL where the code for this object can be found."""

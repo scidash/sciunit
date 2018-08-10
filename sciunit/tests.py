@@ -1,7 +1,6 @@
 """SciUnit tests live in this module."""
 
 import inspect
-from cerberus import Validator
 
 from sciunit.base import SciUnit
 from .capabilities import ProducesNumber
@@ -421,7 +420,8 @@ class TestM2M(Test):
                     self.check_prediction(prediction)
                     predictions.append(prediction)
                 except CapabilityError as e:
-                    raise CapabilityError(("TestM2M's judge method resulted in"
+                    raise CapabilityError(model, e.capability,
+                                          ("TestM2M's judge method resulted in"
                                            " error for '%s'. Error: '%s'" %
                                            (model, str(e))))
                 except Exception as e:

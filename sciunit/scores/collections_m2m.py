@@ -1,11 +1,10 @@
-"""
-Score collections for direct comparison of models against other models.
-"""
+"""Score collections for direct comparison of models against other models."""
 
 import pandas as pd
 
 from sciunit.models import Model
 from sciunit.tests import Test
+
 
 class ScoreArrayM2M(pd.Series):
     """
@@ -16,18 +15,18 @@ class ScoreArrayM2M(pd.Series):
 
     def __init__(self, test, models, scores):
         items = models if not test.observation else [test]+models
-        super(ScoreArrayM2M,self).__init__(data=scores, index=items)
+        super(ScoreArrayM2M, self).__init__(data=scores, index=items)
 
     def __getitem__(self, item):
-        if isinstance(item,str):
-            result = self.get_by_name(item)    
+        if isinstance(item, str):
+            result = self.get_by_name(item)
         else:
-            result = super(ScoreArrayM2M,self).__getitem__(item)
+            result = super(ScoreArrayM2M, self).__getitem__(item)
         return result
 
     def __getattr__(self, name):
-        if name in ['score','norm_scores','related_data']:
-            attr = self.apply(lambda x: getattr(x,name))
+        if name in ['score', 'norm_scores', 'related_data']:
+            attr = self.apply(lambda x: getattr(x, name))
         else:
             attr = super(ScoreArrayM2M,self).__getattribute__(name)
         return attr
@@ -59,16 +58,18 @@ class ScoreMatrixM2M(pd.DataFrame):
             # only affects pandas.DataFrame; not test.name in individual scores
             test.name = "observation"
             items = [test]+models
-        super(ScoreMatrixM2M,self).__init__(data=scores, index=items, columns=items)
+        super(ScoreMatrixM2M, self).__init__(data=scores, index=items,
+                                             columns=items)
         self.test = test
         self.models = models
 
     def __getitem__(self, item):
-        if isinstance(item,(Test,Model)):
-            result = ScoreArrayM2M(self.test, self.models, scores=self.loc[item,:])
-        elif isinstance(item,str):
-            result = self.get_by_name(item)    
-        elif isinstance(item,(list,tuple)) and len(item)==2:
+        if isinstance(item, (Test, Model)):
+            result = ScoreArrayM2M(self.test, self.models,
+                                   scores=self.loc[item, :])
+        elif isinstance(item, str):
+            result = self.get_by_name(item)
+        elif isinstance(item, (list, tuple)) and len(item) == 2:
             result = self.get_group(item)
         else:
             raise TypeError(("Expected test/'observation'; model; "
@@ -86,17 +87,17 @@ class ScoreMatrixM2M(pd.DataFrame):
                         "any model: '%s'") % name)
 
     def get_group(self, x):
-        if isinstance(x[0],(Test,Model)) and isinstance(x[1],(Test,Model)):
-            return self.loc[x[0],x[1]]
-        elif isinstance(x[0],str):
+        if isinstance(x[0], (Test, Model)) and isinstance(x[1], (Test, Model)):
+            return self.loc[x[0], x[1]]
+        elif isinstance(x[0], str):
             return self.__getitem__(x[0]).__getitem__(x[1])
         raise TypeError("Expected test/model pair")
 
     def __getattr__(self, name):
-        if name in ['score','norm_score','related_data']:
-            attr = self.applymap(lambda x: getattr(x,name))
+        if name in ['score', 'norm_score', 'related_data']:
+            attr = self.applymap(lambda x: getattr(x, name))
         else:
-            attr = super(ScoreMatrixM2M,self).__getattribute__(name)
+            attr = super(ScoreMatrixM2M, self).__getattribute__(name)
         return attr
 
     @property
