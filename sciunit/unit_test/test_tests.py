@@ -4,11 +4,11 @@ import unittest
 
 from sciunit import TestSuite
 from sciunit.tests import RangeTest, TestM2M
-from sciunit.models import ConstModel, UniformModel
+from sciunit.models.examples import ConstModel, UniformModel
 from sciunit.scores import BooleanScore, FloatScore
 from sciunit.scores import FloatScore
 from sciunit.capabilities import ProducesNumber
-        
+
 from .base import SuiteBase
 
 class TestsTestCase(unittest.TestCase):
@@ -46,11 +46,11 @@ class TestsTestCase(unittest.TestCase):
         self.assertEqual(score.score,True)
         self.assertTrue(score.test is range_2_3_test)
         self.assertTrue(score.model is one_model)
-        
+
 
 class TestSuitesTestCase(SuiteBase,unittest.TestCase):
     """Unit tests for the sciunit module"""
-    
+
     def test_testsuite(self):
         t1 = self.T([2,3])
         t2 = self.T([5,6])
@@ -97,15 +97,15 @@ class TestSuitesTestCase(SuiteBase,unittest.TestCase):
         tests = [RangeTest(observation=(x,x+3)) for x in [1,2,3,4]]
         ts = TestSuite(tests, name='RangeSuite')
         self.assertTrue(isinstance(ts.json(),str))
-        
-        
+
+
 class M2MsTestCase(unittest.TestCase):
     """Tests for the M2M flavor of tests and test suites"""
-    
-    def setUp(self):  
+
+    def setUp(self):
         self.myModel1 = ConstModel(100.0, "Model1")
         self.myModel2 = ConstModel(110.0, "Model2")
-        
+
         class NumberTest_M2M(TestM2M):
             """Dummy Test"""
             score_type = FloatScore
@@ -125,9 +125,9 @@ class M2MsTestCase(unittest.TestCase):
                 score = FloatScore(prediction1 - prediction2)
                 score.description = "Difference between model predictions"
                 return score
-            
+
         self.NumberTest_M2M = NumberTest_M2M
-            
+
     def test_testm2m_with_observation(self):
         myTest = self.NumberTest_M2M(observation=95.0)
         myScore = myTest.judge([self.myModel1, self.myModel2])
@@ -145,7 +145,7 @@ class M2MsTestCase(unittest.TestCase):
     def test_testm2m_without_observation(self):
         myTest = self.NumberTest_M2M(observation=None)
         myScore = myTest.judge([self.myModel1, self.myModel2])
-        
+
         # Test model vs model; different ways of specifying individual scores
         self.assertEqual(myScore[self.myModel1][self.myModel2], -10.0)
         self.assertEqual(myScore[self.myModel2][self.myModel1], 10.0)

@@ -50,3 +50,28 @@ class ProducesNumber(Capability):
     def produce_number(self):
         """Produce a number."""
         raise NotImplementedError("Must implement produce_number.")
+
+
+class Runnable(Capability):
+    """Capability for models that can be run, i.e. simulated."""
+
+    def run(self, **run_params):
+        """Run, i.e. simulate the model."""
+        return NotImplementedError("%s not implemented" %
+                                   inspect.stack()[0][3])
+
+    def set_run_params(self, **run_params):
+        """Set parameters for the next run.
+
+        Note these are parameters of the simulation itself, not the model.
+        """
+        return NotImplementedError("%s not implemented" %
+                                   inspect.stack()[0][3])
+
+    def set_default_run_params(self, **default_run_params):
+        """Set default parameters for all runs.
+
+        Note these are parameters of the simulation itself, not the model.
+        """
+        return NotImplementedError("%s not implemented" %
+                                   inspect.stack()[0][3])

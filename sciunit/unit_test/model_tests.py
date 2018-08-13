@@ -6,23 +6,23 @@ class ModelsTestCase(unittest.TestCase):
     """Unit tests for the sciunit module"""
 
     def setUp(self):
-        from sciunit.models import UniformModel
+        from sciunit.models.examples import UniformModel
         self.M = UniformModel
-        
+
     def test_get_model_state(self):
         from sciunit import Model
-        
+
         m = Model()
         state = m.__getstate__()
         self.assertEqual(m.__dict__,state)
 
     def test_get_model_capabilities(self):
         from sciunit.capabilities import ProducesNumber
-        
+
         m = self.M(2,3)
         self.assertEqual(m.capabilities,['ProducesNumber'])
 
-    def test_get_model_description(self):    
+    def test_get_model_description(self):
         m = self.M(2,3)
         m.describe()
         m.description = "Lorem Ipsum"
@@ -33,10 +33,11 @@ class ModelsTestCase(unittest.TestCase):
         t = RangeTest([2,3])
         m = self.M(2,3)
         t.check(m)
-        
+
     def test_regular_models(self):
-        from sciunit.models import ConstModel,UniformModel,SharedModel
-        
+        from sciunit.models.examples\
+            import ConstModel, UniformModel, SharedModel
+
         m = ConstModel(3)
         self.assertEqual(m.produce_number(),3)
 
@@ -44,8 +45,9 @@ class ModelsTestCase(unittest.TestCase):
         self.assertTrue(3 < m.produce_number() < 4)
 
     def test_irregular_models(self):
-        from sciunit.models import CacheByInstancePersistentUniformModel,\
-                                   CacheByValuePersistentUniformModel
+        from sciunit.models.examples\
+            import CacheByInstancePersistentUniformModel,\
+            CacheByValuePersistentUniformModel
 
         a = CacheByInstancePersistentUniformModel(2,3)
         a1 = a.produce_number()
@@ -62,23 +64,24 @@ class ModelsTestCase(unittest.TestCase):
         d = CacheByValuePersistentUniformModel(2,3)
         d1 = d.produce_number()
         self.assertEqual(d1,c2)
-        
-        
+
+
 class CapabilitiesTestCase(unittest.TestCase):
     """Unit tests for sciunit Capability classes"""
 
     def test_capabilities(self):
         from sciunit import Model
         from sciunit.capabilities import ProducesNumber
-        from sciunit.models import Model,UniqueRandomNumberModel,\
-                                         RepeatedRandomNumberModel
+        from sciunit.models import Model
+        from sciunit.models.examples import UniqueRandomNumberModel,\
+            RepeatedRandomNumberModel
 
-        class MyModel(Model,ProducesNumber): 
+        class MyModel(Model,ProducesNumber):
             def produce_number(self):
                 return 3.14
         m = MyModel()
         self.assertEqual(m.produce_number(),3.14)
-        
+
         m = UniqueRandomNumberModel()
         self.assertNotEqual(m.produce_number(),m.produce_number())
 
