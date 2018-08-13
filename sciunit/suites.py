@@ -76,7 +76,8 @@ class TestSuite(SciUnit, TestWeighted):
                                  "a model or iterable."))
         return models
 
-    def check(self, models, skip_incapable=True, stop_on_error=True):
+    def check(self, models, skip_incapable=True, require_extra=False,
+              stop_on_error=True):
         """Like judge, but without actually running the test.
 
         Just returns a ScoreMatrix indicating whether each model can take
@@ -87,10 +88,12 @@ class TestSuite(SciUnit, TestWeighted):
         sm = ScoreMatrix(self.tests, models)
         for test in self.tests:
             for model in models:
-                sm.loc[model, test] = test.check(model)
+                sm.loc[model, test] = test.check(model,
+                                                 require_extra=require_extra)
         return sm
 
-    def check_capabilities(self, model, skip_incapable=False):
+    def check_capabilities(self, model, skip_incapable=False,
+                           require_extra=False):
         """Check model capabilities against those required by the suite.
 
         Returns a list of booleans (one for each test in the suite)
@@ -98,7 +101,8 @@ class TestSuite(SciUnit, TestWeighted):
         by the model.
         """
         return [test.check_capabilities(model,
-                skip_incapable=skip_incapable) for test in self.tests]
+                skip_incapable=skip_incapable, require_extra=require_extra)
+                for test in self.tests]
 
     def judge(self, models,
               skip_incapable=False, stop_on_error=True, deep_error=False):

@@ -78,7 +78,6 @@ class Test(SciUnit):
             else:
                 schema = {'schema': self.observation_schema, 'type': 'dict'}
             schema = {'observation': schema}
-            from pprint import pprint
             v = ObservationValidator(schema, test=self)
             if not v.validate({'observation': observation}):
                 raise ObservationError(v.errors)
@@ -88,7 +87,8 @@ class Test(SciUnit):
     """A sequence of capabilities that a model must have in order for the
     test to be run. Defaults to empty."""
 
-    def check_capabilities(self, model, skip_incapable=False):
+    def check_capabilities(self, model, skip_incapable=False,
+                           require_extra=False):
         """Check that test's required capabilities are implemented by `model`.
 
         Raises an Error if model is not a Model.
@@ -96,16 +96,18 @@ class Test(SciUnit):
         """
         if not isinstance(model, Model):
             raise Error("Model %s is not a sciunit.Model." % str(model))
-        capable = all([self.check_capability(model, c, skip_incapable)
+        capable = all([self.check_capability(model, c, skip_incapable,
+                                             require_extra)
                        for c in self.required_capabilities])
         return capable
 
-    def check_capability(self, model, c, skip_incapable=False):
+    def check_capability(self, model, c, skip_incapable=False,
+                         require_extra=False):
         """Check if `model` has capability `c`.
 
         Optionally (default:True) raise a `CapabilityError` if it does not.
         """
-        capable = c.check(model)
+        capable = c.check(model, require_extra=require_extra)
         if not capable and not skip_incapable:
             raise CapabilityError(model, c)
         return capable

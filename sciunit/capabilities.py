@@ -15,20 +15,25 @@ class Capability(SciUnit):
     """Abstract base class for sciunit capabilities."""
 
     @classmethod
-    def check(cls, model):
-        """Checks whether the provided model has this capability.
-        By default, uses isinstance.
+    def check(cls, model, require_extra=False):
+        """Check whether the provided model has this capability.
+
+        By default, uses isinstance.  If `require_extra`, also requires that an
+        instance check be present in `model.extra_capability_checks`.
         """
         class_capable = isinstance(model, cls)
         f_name = model.extra_capability_checks.get(cls, None)
         if f_name:
             f = getattr(model, f_name)
             instance_capable = f()
-        else:
+        elif not require_extra:
             instance_capable = True
+        else:
+            instance_capable = False
         return class_capable and instance_capable
 
     def unimplemented(self):
+        """Raise a `NotImplementedError` with details."""
         raise NotImplementedError(("The method %s promised by capability %s "
                                    "is not implemented") %
                                   (inspect.stack()[1][3], self.name))
@@ -43,4 +48,5 @@ class ProducesNumber(Capability):
     """An example capability for producing some generic number."""
 
     def produce_number(self):
+        """Produce a number."""
         raise NotImplementedError("Must implement produce_number.")
