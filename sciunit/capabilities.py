@@ -22,7 +22,11 @@ class Capability(SciUnit):
         instance check be present in `model.extra_capability_checks`.
         """
         class_capable = isinstance(model, cls)
-        f_name = model.extra_capability_checks.get(cls, None)
+
+        f_name = model.extra_capability_checks.get(cls, None) \
+            if model.extra_capability_checks is not None \
+            else False
+
         if f_name:
             f = getattr(model, f_name)
             instance_capable = f()

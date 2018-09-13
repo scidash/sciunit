@@ -18,3 +18,5 @@ htmlcov
 Untitled*.ipynb
 GeneratedFiles
 GeneratedFiles/*.py
+
+\.idea/
