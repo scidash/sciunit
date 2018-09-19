@@ -145,7 +145,7 @@ class TestSuite(SciUnit, TestWeighted):
             score = NoneScore(None)
         else:
             log('Executing test <i>%s</i> on model <i>%s</i>' % (test, model),
-                end="... ")
+                end=u"... ")
             score = test.judge(model, skip_incapable=skip_incapable,
                                stop_on_error=stop_on_error,
                                deep_error=deep_error)
