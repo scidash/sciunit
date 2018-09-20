@@ -31,8 +31,7 @@ class Test(SciUnit):
         self.verbose = params.pop('verbose', 1)
         self.params.update(params)
 
-        validated = self.validate_observation(observation)
-        self.observation = validated if validated is not None else observation
+        self.observation = observation
 
         if self.score_type is None or not issubclass(self.score_type, Score):
             raise Error(("The score type '%s' specified for Test '%s' "
@@ -71,6 +70,8 @@ class Test(SciUnit):
             raise ObservationError("Observation is missing.")
         if not isinstance(observation, dict):
             raise ObservationError("Observation is not a dictionary.")
+        if "mean" in observation and observation["mean"] is None:
+            raise ObservationError("Observation mean cannot be 'None'.")
         if self.observation_schema:
             if isinstance(self.observation_schema, list):
                 schema = {'oneof_schema': self.observation_schema,
@@ -171,19 +172,28 @@ class Test(SciUnit):
         """Generate a score for the model (internal API use only)."""
         # 1.
         self.check_capabilities(model, skip_incapable=skip_incapable)
+
         # 2.
         prediction = self.generate_prediction(model)
         self.check_prediction(prediction)
         self.last_model = model
-        # 3.
-        observation = self.observation
-        score = self.compute_score(observation, prediction)
+
+        # 3. Validate observation and compute score
+        validated = self.validate_observation(self.observation)
+
+        if validated is not None:
+            self.observation = validated
+
+        score = self.compute_score(self.observation, prediction)
+
         if self.converter:
             score = self.converter.convert(score)
+
         # 4.
         self.check_score_type(score)
+
         # 5.
-        self._bind_score(score, model, observation, prediction)
+        self._bind_score(score, model, self.observation, prediction)
 
         return score
 
