@@ -1,6 +1,7 @@
 """SciUnit tests live in this module."""
 
 import inspect
+import traceback
 
 from sciunit.base import SciUnit
 from .capabilities import ProducesNumber
@@ -240,6 +241,7 @@ class Test(SciUnit):
                 score.model = model
                 score.test = self
             except Exception as e:
+                e.stack = traceback.format_exc()
                 score = ErrorScore(e)
                 score.model = model
                 score.test = self
