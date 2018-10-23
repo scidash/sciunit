@@ -61,7 +61,7 @@ class ScoreMatrixM2M(pd.DataFrame):
             items = [test]+models
         super(ScoreMatrixM2M,self).__init__(data=scores, index=items, columns=items)
         self.test = test
-        self.models = models
+        self['models'] = models
 
     def __getitem__(self, item):
         if isinstance(item,(Test,Model)):
