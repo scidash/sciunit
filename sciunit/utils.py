@@ -36,6 +36,7 @@ mock = False # mock is probably obviated by the unittest -b flag.
 
 settings = {'PRINT_DEBUG_STATE':False, # printd does nothing by default.
             'LOGGING':True,
+            'PREVALIDATE':False,
             'KERNEL':('ipykernel' in sys.modules),
             'CWD':os.path.realpath(sciunit.__path__[0])}
 
