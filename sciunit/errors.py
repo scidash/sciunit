@@ -13,6 +13,11 @@ class ObservationError(Error):
     pass
 
 
+class ParametersError(Error):
+    """Raised when params passed to a test are invalid."""
+    pass
+
+
 class CapabilityError(Error):
     """Error raised when a required capability is not
     provided by a model."""

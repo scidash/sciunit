@@ -3,13 +3,15 @@
 import inspect
 import traceback
 
+from sciunit import settings
 from sciunit.base import SciUnit
 from .capabilities import ProducesNumber
 from .models import Model
 from .scores import Score, BooleanScore, NoneScore, ErrorScore, TBDScore,\
                     NAScore
-from .validators import ObservationValidator
-from .errors import Error, CapabilityError, ObservationError, InvalidScoreError
+from .validators import ObservationValidator, ParametersValidator
+from .errors import Error, CapabilityError, ObservationError,\
+                    InvalidScoreError, ParametersError
 
 
 class Test(SciUnit):
@@ -28,11 +30,14 @@ class Test(SciUnit):
         if self.description is None:
             self.description = self.__class__.__doc__
 
-        params = params if params else {}
-        self.verbose = params.pop('verbose', 1)
-        self.params.update(params)
+        self.params = params if params else {}
+        self.verbose = self.params.pop('verbose', 1)
+        #self.params.update(params)
+        self.validate_params(self.params)
 
         self.observation = observation
+        if settings['PREVALIDATE']:
+            self.validate_observation(self.observation)
 
         if self.score_type is None or not issubclass(self.score_type, Score):
             raise Error(("The score type '%s' specified for Test '%s' "
@@ -49,7 +54,7 @@ class Test(SciUnit):
     observation = None
     """The empirical observation that the test is using."""
 
-    params = {}
+    params = None
     """A dictionary containing the parameters to the test."""
 
     score_type = BooleanScore
@@ -61,6 +66,10 @@ class Test(SciUnit):
     observation_schema = None
     """A schema that the observation must adhere to (validated by cerberus).
     Can also be a list of schemas, one of which the observation must match."""
+
+    params_schema = None
+    """A schema that the params must adhere to (validated by cerberus).
+    Can also be a list of schemas, one of which the params must match."""
 
     def validate_observation(self, observation):
         """Validate the observation provided to the constructor.
@@ -78,12 +87,35 @@ class Test(SciUnit):
                 schema = {'oneof_schema': self.observation_schema,
                           'type': 'dict'}
             else:
-                schema = {'schema': self.observation_schema, 'type': 'dict'}
+                schema = {'schema': self.observation_schema,
+                          'type': 'dict'}
             schema = {'observation': schema}
             v = ObservationValidator(schema, test=self)
             if not v.validate({'observation': observation}):
                 raise ObservationError(v.errors)
         return observation
+
+    def validate_params(self, params):
+        """Validate the params provided to the constructor.
+
+        Raises an ParametersError if invalid.
+        """
+        if params is None:
+            raise ParametersError("Parameters cannot be `None`.")
+        if not isinstance(params, dict):
+            raise ParametersError("Parameters are not a dictionary.")
+        if self.params_schema:
+            if isinstance(self.params_schema, list):
+                schema = {'oneof_schema': self.params_schema,
+                          'type': 'dict'}
+            else:
+                schema = {'schema': self.params_schema,
+                          'type': 'dict'}
+            schema = {'params': schema}
+            v = ParametersValidator(schema, test=self)
+            if not v.validate({'params': params}):
+                raise ParametersError(v.errors)
+        return params
 
     required_capabilities = ()
     """A sequence of capabilities that a model must have in order for the
