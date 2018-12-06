@@ -60,7 +60,11 @@ class ScoreMatrixM2M(pd.DataFrame):
             items = [test]+models
         super(ScoreMatrixM2M, self).__init__(data=scores, index=items,
                                              columns=items)
-        self.test = test
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore",
+                                    message=(".*Pandas doesn't allow columns "
+                                             "to be created via a new "))
+            self.tests = tests
         self.models = models
 
     def __getitem__(self, item):
