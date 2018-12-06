@@ -66,7 +66,7 @@ class ScoreMatrixM2M(pd.DataFrame):
             warnings.filterwarnings("ignore",
                                     message=(".*Pandas doesn't allow columns "
                                              "to be created via a new "))
-            self.tests = tests
+            self.test = test
         self.models = models
 
     def __getitem__(self, item):
