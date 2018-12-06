@@ -1,5 +1,7 @@
 """Score collections for direct comparison of models against other models."""
 
+import warnings
+
 import pandas as pd
 
 from sciunit.models import Model
