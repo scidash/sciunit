@@ -6,7 +6,7 @@ import os
 try:
     from pip.req import parse_requirements
     from pip.download import PipSession
-except ImportError:
+except:
     from pip._internal.req import parse_requirements
     from pip._internal.download import PipSession
 
