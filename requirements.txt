@@ -9,3 +9,4 @@ nbconvert
 ipykernel
 nbformat
 gitpython
+cerberus>=1.2

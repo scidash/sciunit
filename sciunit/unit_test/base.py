@@ -2,7 +2,7 @@
 
 from sciunit import TestSuite
 from sciunit.tests import RangeTest
-from sciunit.models import UniformModel
+from sciunit.models.examples import UniformModel
 
 class SuiteBase(object):
     """Abstract base class for testing suites and scores"""
