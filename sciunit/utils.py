@@ -11,7 +11,7 @@ import pkgutil
 import importlib
 import json
 import re
-from io import TextIOWrapper,StringIO
+from io import TextIOWrapper, StringIO
 from datetime import datetime
 
 import bs4
@@ -22,32 +22,34 @@ from nbconvert.preprocessors.execute import CellExecutionError
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 import cypy
-from IPython.display import HTML,display
+from IPython.display import HTML, display
 
 import sciunit
 from sciunit.errors import Error
-from .base import SciUnit,FileNotFoundError,tkinter,PYTHON_MAJOR_VERSION
+from .base import SciUnit, FileNotFoundError, tkinter, PYTHON_MAJOR_VERSION
 try:
     import unittest.mock
     mock = True
 except ImportError:
     mock = False
-mock = False # mock is probably obviated by the unittest -b flag.
+mock = False  # mock is probably obviated by the unittest -b flag.
 
-settings = {'PRINT_DEBUG_STATE':False, # printd does nothing by default.
-            'LOGGING':True,
-            'KERNEL':('ipykernel' in sys.modules),
-            'CWD':os.path.realpath(sciunit.__path__[0])}
+settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
+            'LOGGING': True,
+            'KERNEL': ('ipykernel' in sys.modules),
+            'CWD': os.path.realpath(sciunit.__path__[0])}
 
-def  rec_apply(func, n):
+
+def rec_apply(func, n):
     """
     Used to determine parent directory n levels up
     by repeatedly applying os.path.dirname
     """
     if n > 1:
-        rec_func =  rec_apply(func, n - 1)
+        rec_func = rec_apply(func, n - 1)
         return lambda x: func(rec_func(x))
     return func
+
 
 def printd_set(state):
     """Enable the printd function.
@@ -58,6 +60,7 @@ def printd_set(state):
     global settings
     settings['PRINT_DEBUG_STATE'] = (state is True)
 
+
 def printd(*args, **kwargs):
     """Print if PRINT_DEBUG_STATE is True"""
 
@@ -67,6 +70,7 @@ def printd(*args, **kwargs):
         return True
     return False
 
+
 def assert_dimensionless(value):
     """
     Tests for dimensionlessness of input.
@@ -74,7 +78,7 @@ def assert_dimensionless(value):
     bare value.  If it not, it raised an error.
     """
 
-    if isinstance(value,Quantity):
+    if isinstance(value, Quantity):
         value = value.simplified
         if value.dimensionality == Dimensionality({}):
             value = value.base.item()
@@ -295,9 +299,9 @@ class NotebookTools(object):
         return stripped,magic_kind
 
     def do_notebook(self, name):
-        """Runs a notebook file after optionally
+        """Run a notebook file after optionally
         converting it to a python file."""
-        CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS',True))
+        CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS', True))
         s = StringIO()
         if mock:
             out = unittest.mock.patch('sys.stdout', new=MockDevice(s))
@@ -324,7 +328,7 @@ class MockDevice(TextIOWrapper):
 
     def write(self, s):
         if s.startswith('[') and s.endswith(']'):
-            super(MockDevice,self).write(s)
+            super(MockDevice, self).write(s)
 
 
 def import_all_modules(package, skip=None, verbose=False, prefix="", depth=0):

@@ -67,7 +67,7 @@ class ScoreMatrixM2M(pd.DataFrame):
                                     message=(".*Pandas doesn't allow columns "
                                              "to be created via a new "))
             self.tests = tests
-        self.models = models
+            self.models = models
 
     def __getitem__(self, item):
         if isinstance(item, (Test, Model)):
