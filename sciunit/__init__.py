@@ -5,6 +5,7 @@ Quantitative Scientific Models
 """
 
 from __future__ import print_function
+from __future__ import unicode_literals
 
 from .utils import settings
 from .models import Model
