@@ -13,6 +13,7 @@ from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.cmd import Git
 
 PYTHON_MAJOR_VERSION = sys.version_info.major
+PLATFORM = sys.platform
 
 if PYTHON_MAJOR_VERSION < 3:  # Python 2
     from StringIO import StringIO

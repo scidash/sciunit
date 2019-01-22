@@ -27,7 +27,8 @@ from IPython.display import HTML, display
 
 import sciunit
 from sciunit.errors import Error
-from .base import SciUnit, FileNotFoundError, tkinter, PYTHON_MAJOR_VERSION
+from .base import SciUnit, FileNotFoundError, tkinter
+from .base import PLATFORM, PYTHON_MAJOR_VERSION
 try:
     import unittest.mock
     mock = True
