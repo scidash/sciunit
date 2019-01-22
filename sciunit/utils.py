@@ -11,6 +11,7 @@ import pkgutil
 import importlib
 import json
 import re
+import contextlib
 from io import TextIOWrapper, StringIO
 from datetime import datetime
 
@@ -69,6 +70,17 @@ def printd(*args, **kwargs):
         print(*args, **kwargs)
         return True
     return False
+
+
+if PYTHON_MAJOR_VERSION == 3:
+    redirect_stdout = contextlib.redirect_stdout
+else:  # Python 2
+    @contextlib.contextmanager
+    def redirect_stdout(target):
+        original = sys.stdout
+        sys.stdout = target
+        yield
+        sys.stdout = original
 
 
 def assert_dimensionless(value):
