@@ -87,6 +87,17 @@ class Model(SciUnit):
             result = True  # Found by instance or name
         return result
 
+    def __getattr__(self, attr):
+        try:
+            result = super(Model, self).__getattribute__(attr)
+        except AttributeError:
+            try:
+                result = self._backend.__getattribute__(attr)
+            except:
+                raise AttributeError("Model %s has no attribute %s"
+                                     % (self, attr))
+        return result
+        
     def __str__(self):
         """Return the model name."""
         return '%s' % self.name
