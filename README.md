@@ -7,7 +7,8 @@
 | [![Requirements](https://requires.io/github/scidash/sciunit/requirements.svg?branch=master)](https://requires.io/github/scidash/sciunit/requirements/?branch=master) |  [![Requirements](https://requires.io/github/scidash/sciunit/requirements.svg?branch=dev)](https://requires.io/github/scidash/sciunit/requirements/?branch=dev) | 
 | [![Docker Build Status](https://img.shields.io/docker/build/scidash/sciunit.svg)](https://hub.docker.com/r/scidash/sciunit/builds/) |
 
-![SciUnit Logo](https://raw.githubusercontent.com/scidash/assets/master/logos/SciUnit/sci-unit-square.png)
+<img src="https://raw.githubusercontent.com/scidash/assets/master/logos/SciUnit/sci-unit-square-small.png" alt="SciUnit Logo" width="400px">
+
 # SciUnit: A Test-Driven Framework for Formally Validating Scientific Models Against Data
 
 ## Concept
