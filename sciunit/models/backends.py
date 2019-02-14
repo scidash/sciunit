@@ -107,7 +107,7 @@ class Backend(object):
         pass
 
     def set_run_params(self, **run_params):
-        """Set run parameters on the backend."""
+        """Set model attributes on the backend."""
         pass
 
     def backend_run(self):

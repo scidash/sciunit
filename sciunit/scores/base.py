@@ -153,6 +153,9 @@ class Score(SciUnit):
     def set_raw(self, raw):
         self._raw = raw
 
+    def __repr__(self):
+        return self.__str__()
+
     def __str__(self):
         return '%s' % self.score
 

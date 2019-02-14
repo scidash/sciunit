@@ -6,7 +6,7 @@ import os
 try:
     from pip.req import parse_requirements
     from pip.download import PipSession
-except ImportError:
+except:
     from pip._internal.req import parse_requirements
     from pip._internal.download import PipSession
 
@@ -25,9 +25,15 @@ def read_requirements():
     reqs = [str(ir.req) for ir in install_reqs]
     return reqs
 
+def get_version():
+    version = {}
+    with open("sciunit/version.py") as f:
+        exec(f.read(), version)
+    return version['__version__']
+
 setup(
     name='sciunit',
-    version='0.2',
+    version=get_version(),
     author='Rick Gerkin',
     author_email='rgerkin@asu.edu',
     packages=find_packages(),

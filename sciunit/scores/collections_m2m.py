@@ -1,5 +1,7 @@
 """Score collections for direct comparison of models against other models."""
 
+import warnings
+
 import pandas as pd
 
 from sciunit.models import Model
@@ -60,8 +62,12 @@ class ScoreMatrixM2M(pd.DataFrame):
             items = [test]+models
         super(ScoreMatrixM2M, self).__init__(data=scores, index=items,
                                              columns=items)
-        self.test = test
-        self.models = models
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore",
+                                    message=(".*Pandas doesn't allow columns "
+                                             "to be created via a new "))
+            self.test = test
+            self.models = models
 
     def __getitem__(self, item):
         if isinstance(item, (Test, Model)):
