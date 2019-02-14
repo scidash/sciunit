@@ -47,6 +47,9 @@ class Capability(SciUnit):
         def name(cls):
             return cls.__name__
 
+    def __str__(self):
+        return self.name
+
 
 class ProducesNumber(Capability):
     """An example capability for producing some generic number."""

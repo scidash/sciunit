@@ -13,10 +13,10 @@ except:
 from setuptools import setup, find_packages
 
 # IPython 6.0+ does not support Python 2.6, 2.7, 3.0, 3.1, or 3.2
-if sys.version_info < (3,3):
+if sys.version_info < (3, 3):
     ipython = "ipython>=5.1,<6.0"
 else:
-    ipython = "ipython>=5.1"    
+    ipython = "ipython>=5.1"
 
 def read_requirements():
     '''parses requirements from requirements.txt'''
@@ -30,7 +30,7 @@ def get_version():
     with open("sciunit/version.py") as f:
         exec(f.read(), version)
     return version['__version__']
-    
+
 setup(
     name='sciunit',
     version=get_version(),
@@ -40,8 +40,8 @@ setup(
     url='http://sciunit.scidash.org',
     license='MIT',
     description='A test-driven framework for formally validating scientific models against data.',
-    long_description="",  
-    test_suite="sciunit.unit_test.core_tests",    
+    long_description="",
+    test_suite="sciunit.unit_test.core_tests",
     install_requires=read_requirements(),
     entry_points={
         'console_scripts': [
@@ -49,6 +49,3 @@ setup(
             ]
         }
     )
-
-
-

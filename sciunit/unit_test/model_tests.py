@@ -14,16 +14,16 @@ class ModelsTestCase(unittest.TestCase):
 
         m = Model()
         state = m.__getstate__()
-        self.assertEqual(m.__dict__,state)
+        self.assertEqual(m.__dict__, state)
 
     def test_get_model_capabilities(self):
         from sciunit.capabilities import ProducesNumber
 
-        m = self.M(2,3)
-        self.assertEqual(m.capabilities,['ProducesNumber'])
+        m = self.M(2, 3)
+        self.assertEqual(m.capabilities, [ProducesNumber])
 
     def test_get_model_description(self):
-        m = self.M(2,3)
+        m = self.M(2, 3)
         m.describe()
         m.description = "Lorem Ipsum"
         m.describe()

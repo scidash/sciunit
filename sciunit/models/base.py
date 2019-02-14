@@ -46,8 +46,19 @@ class Model(SciUnit):
         for cls in self.__class__.mro():
             if issubclass(cls, Capability) and cls is not Capability \
               and not issubclass(cls, Model):
-                capabilities.append(cls.__name__)
+                capabilities.append(cls)
         return capabilities
+
+    @property
+    def failed_extra_capabilities(self):
+        """Check to see if instance passes its `extra_capability_checks`."""
+        failed = []
+        for capability, f_name in self.extra_capability_checks.items():
+            f = getattr(self, f_name)
+            instance_capable = f()
+            if not instance_capable:
+                failed.append(capability)
+        return failed
 
     def describe(self):
         """Describe the model."""
