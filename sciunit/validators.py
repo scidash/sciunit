@@ -2,8 +2,8 @@
 
 import inspect
 
-from cerberus import Validator, TypeDefinition
 import quantities as pq
+from cerberus import TypeDefinition, Validator
 
 
 def register_type(cls, name):
@@ -58,11 +58,12 @@ class ParametersValidator(Validator):
     units_map = {'time': 's', 'voltage': 'V', 'current': 'A'}
 
     def validate_quantity(self, value):
+        """Validate that the value is of the `Quantity` type."""
         if not isinstance(value, pq.quantity.Quantity):
             self._error('%s' % value, "Must be a Python quantity.")
 
     def validate_units(self, value):
-        """Validates units, assuming that it was called by _validate_type_*"""
+        """Validate units, assuming that it was called by _validate_type_*."""
         self.validate_quantity(value)
         self.units_type = inspect.stack()[1][3].split('_')[-1]
         assert self.units_type, ("`validate_units` should not be called "
@@ -86,15 +87,3 @@ class ParametersValidator(Validator):
     def _validate_type_current(self, value):
         """Validate fields requiring `units` of amps."""
         return self.validate_units(value)
-
-"""
-    def __getattr__(self, attr):
-        if '_validate_type_' in attr:
-            setattr(self, 'units_type', attr.split('_')[-1])
-            assert self.units_type in self.units_map, \
-                ("The parameters validator's `units_map` does not contain a "
-                 "key for '%s'" % self.units_type)
-            return self.validate_units
-        else:
-            return self.__getattribute__(attr)#super(ParametersValidator, self).__getattr__(attr)
-"""
