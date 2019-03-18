@@ -65,7 +65,9 @@ class Test(SciUnit):
 
     observation_schema = None
     """A schema that the observation must adhere to (validated by cerberus).
-    Can also be a list of schemas, one of which the observation must match."""
+    Can also be a list of schemas, one of which the observation must match.
+    If it is a list, each schema in the list can optionally be named by putting
+    (name, schema) tuples in that list."""
 
     params_schema = None
     """A schema that the params must adhere to (validated by cerberus).
@@ -84,7 +86,9 @@ class Test(SciUnit):
             raise ObservationError("Observation mean cannot be 'None'.")
         if self.observation_schema:
             if isinstance(self.observation_schema, list):
-                schema = {'oneof_schema': self.observation_schema,
+                schemas = [x[1] if isinstance(x, tuple) else x
+                           for x in self.observation_schema]
+                schema = {'oneof_schema': schemas,
                           'type': 'dict'}
             else:
                 schema = {'schema': self.observation_schema,
@@ -94,6 +98,16 @@ class Test(SciUnit):
             if not v.validate({'observation': observation}):
                 raise ObservationError(v.errors)
         return observation
+
+    @classmethod
+    def observation_schema_names(cls):
+        """Return a list of names of observation schema, if they are set."""
+        names = []
+        if cls.observation_schema:
+            if isinstance(cls.observation_schema, list):
+                names = [x[0] if isinstance(x, tuple) else 'Schema %d' % (i+1)
+                         for i, x in enumerate(cls.observation_schema)]
+        return names
 
     def validate_params(self, params):
         """Validate the params provided to the constructor.
