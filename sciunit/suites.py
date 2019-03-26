@@ -118,7 +118,8 @@ class TestSuite(SciUnit, TestWeighted):
                 all the way to the root of the error.
 
         Returns:
-            ScoreMatrix: The resulting scores for all test/model combos."""
+            ScoreMatrix: The resulting scores for all test/model combos.
+        """
         models = self.assert_models(models)
         sm = ScoreMatrix(self.tests, models, weights=self.weights)
         for model in models:
