@@ -108,7 +108,7 @@ class Model(SciUnit):
                 raise AttributeError("Model %s has no attribute %s"
                                      % (self, attr))
         return result
-        
+
     def __str__(self):
         """Return the model name."""
         return '%s' % self.name

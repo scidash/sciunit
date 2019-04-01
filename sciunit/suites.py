@@ -88,7 +88,8 @@ class TestSuite(SciUnit, TestWeighted):
         sm = ScoreMatrix(self.tests, models)
         for test in self.tests:
             for model in models:
-                sm.loc[model, test] = test.check(model)
+                sm.loc[model, test] = test.check(model,
+                                                 require_extra=require_extra)
         return sm
 
     def check_capabilities(self, model, skip_incapable=False,
@@ -117,7 +118,8 @@ class TestSuite(SciUnit, TestWeighted):
                 all the way to the root of the error.
 
         Returns:
-            ScoreMatrix: The resulting scores for all test/model combos."""
+            ScoreMatrix: The resulting scores for all test/model combos.
+        """
         models = self.assert_models(models)
         sm = ScoreMatrix(self.tests, models, weights=self.weights)
         for model in models:

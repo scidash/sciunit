@@ -295,14 +295,16 @@ class Test(SciUnit):
             raise score.score  # An exception.
         return score
 
-    def check(self, model, skip_incapable=True, stop_on_error=True):
+    def check(self, model, skip_incapable=True, stop_on_error=True,
+              require_extra=False):
         """Check to see if the test can run this model.
 
         Like judge, but without actually running the test. Just returns a Score
         indicating whether the model can take the test or not.
         """
         try:
-            if self.check_capabilities(model, skip_incapable=skip_incapable):
+            if self.check_capabilities(model, skip_incapable=skip_incapable,
+                                       require_extra=require_extra):
                 score = TBDScore(None)
             else:
                 score = NAScore(None)
