@@ -39,14 +39,14 @@ class Model(SciUnit):
     extra_capability_checks = None
     """Optional extra checks of capabilities on a per-instance basis."""
 
-    @property
-    def capabilities(self):
+    @classmethod
+    def capabilities(cls):
         """List the model's capabilities."""
         capabilities = []
-        for cls in self.__class__.mro():
-            if issubclass(cls, Capability) and cls is not Capability \
-              and not issubclass(cls, Model):
-                capabilities.append(cls)
+        for _cls in cls.mro():
+            if issubclass(_cls, Capability) and _cls is not Capability \
+              and not issubclass(_cls, Model):
+                capabilities.append(_cls)
         return capabilities
 
     @property
