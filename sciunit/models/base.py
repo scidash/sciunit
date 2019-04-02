@@ -36,8 +36,18 @@ class Model(SciUnit):
     """These are the run-time arguments for the model.
     Execution of run() should make use of these arguments."""
 
-    extra_capability_checks = None
+    _extra_capability_checks = None
     """Optional extra checks of capabilities on a per-instance basis."""
+
+    @classmethod
+    def extra_capability_checks(cls):
+        return cls._extra_capability_checks
+
+    def __setattr__(self, name, value):
+        if name == 'extra_capability_checks':
+            self._extra_capability_checks = value
+        else:
+            object.__setattr__(self, name, value)
 
     @classmethod
     def capabilities(cls):
