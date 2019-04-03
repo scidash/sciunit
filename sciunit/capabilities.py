@@ -23,8 +23,8 @@ class Capability(SciUnit):
         """
         class_capable = isinstance(model, cls)
 
-        f_name = model.extra_capability_checks.get(cls, None) \
-            if model.extra_capability_checks is not None \
+        f_name = model.__class__.extra_capability_checks().get(cls, None) \
+            if model.__class__.extra_capability_checks() is not None \
             else False
 
         if f_name:
