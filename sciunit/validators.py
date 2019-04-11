@@ -1,7 +1,9 @@
 """Cerberus validator classes for SciUnit."""
 
-from cerberus import Validator, TypeDefinition
+import inspect
+
 import quantities as pq
+from cerberus import TypeDefinition, Validator
 
 
 def register_type(cls, name):
@@ -53,27 +55,35 @@ class ObservationValidator(Validator):
 class ParametersValidator(Validator):
     """Cerberus validator class for observations."""
 
+    units_map = {'time': 's', 'voltage': 'V', 'current': 'A'}
+
     def validate_quantity(self, value):
+        """Validate that the value is of the `Quantity` type."""
         if not isinstance(value, pq.quantity.Quantity):
             self._error('%s' % value, "Must be a Python quantity.")
 
+    def validate_units(self, value):
+        """Validate units, assuming that it was called by _validate_type_*."""
+        self.validate_quantity(value)
+        self.units_type = inspect.stack()[1][3].split('_')[-1]
+        assert self.units_type, ("`validate_units` should not be called "
+                                 "directly. It should be called by a "
+                                 "_validate_type_* methods that sets "
+                                 "`units_type`")
+        units = getattr(pq, self.units_map[self.units_type])
+        if not value.simplified.units == units:
+            self._error('%s' % value,
+                        "Must have dimensions of %s." % self.units_type)
+        return True
+
     def _validate_type_time(self, value):
         """Validate fields requiring `units` of seconds."""
-        self.validate_quantity(value)
-        if not value.simplified.units == pq.s:
-            self._error('%s' % value, "Must have dimensions of time.")
-        return True
+        return self.validate_units(value)
 
     def _validate_type_voltage(self, value):
         """Validate fields requiring `units` of volts."""
-        self.validate_quantity(value)
-        if not value.simplified.units == pq.V:
-            self._error('%s' % value, "Must have dimensions of voltage.")
-        return True
+        return self.validate_units(value)
 
     def _validate_type_current(self, value):
         """Validate fields requiring `units` of amps."""
-        self.validate_quantity(value)
-        if not value.simplified.units == pq.A:
-            self._error('%s' % value, "Must have dimensions of current.")
-        return True
+        return self.validate_units(value)
