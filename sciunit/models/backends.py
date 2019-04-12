@@ -49,6 +49,9 @@ class Backend(object):
     """The function that handles running the simulation"""
     f = None
 
+    """Optional list of state variables for a backend to record."""
+    recorded_variables = None
+
     def init_cache(self):
         """Initialize the cache."""
         self.init_memory_cache()
