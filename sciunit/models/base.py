@@ -18,7 +18,6 @@ class Model(SciUnit):
         self.params = params
         if params is None:
             params = {}
-        self.extra_capability_checks = {}
         super(Model, self).__init__()
         self.check_params()
 
@@ -36,17 +35,17 @@ class Model(SciUnit):
     """These are the run-time arguments for the model.
     Execution of run() should make use of these arguments."""
 
-    extra_capability_checks = None
+    extra_capability_checks = {}
     """Optional extra checks of capabilities on a per-instance basis."""
 
-    @property
-    def capabilities(self):
+    @classmethod
+    def capabilities(cls):
         """List the model's capabilities."""
         capabilities = []
-        for cls in self.__class__.mro():
-            if issubclass(cls, Capability) and cls is not Capability \
-              and not issubclass(cls, Model):
-                capabilities.append(cls)
+        for _cls in cls.mro():
+            if issubclass(_cls, Capability) and _cls is not Capability \
+              and not issubclass(_cls, Model):
+                capabilities.append(_cls)
         return capabilities
 
     @property
