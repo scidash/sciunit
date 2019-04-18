@@ -14,6 +14,10 @@ import re
 import contextlib
 from io import TextIOWrapper, StringIO
 from datetime import datetime
+try:
+    from tempfile import TemporaryDirectory
+except ImportError:
+    from backports.tempfile import TemporaryDirectory
 
 import bs4
 import nbformat

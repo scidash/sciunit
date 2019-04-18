@@ -10,3 +10,4 @@ ipykernel
 nbformat
 gitpython
 cerberus>=1.2
+backports.tempfile
