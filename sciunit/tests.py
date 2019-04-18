@@ -160,6 +160,16 @@ class Test(SciUnit):
             raise CapabilityError(model, c)
         return capable
 
+    def condition_model(self, model):
+        """Update the model in any way needed before generating the prediction.
+
+        This could include updating parameters such as simulation durations
+        that do not define the model but do define experiments performed on
+        the model.
+        No default implementation.
+        """
+        pass
+
     def generate_prediction(self, model):
         """Generate a prediction from a model using the required capabilities.
 
