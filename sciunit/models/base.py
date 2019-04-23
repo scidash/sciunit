@@ -35,11 +35,11 @@ class Model(SciUnit):
     """These are the run-time arguments for the model.
     Execution of run() should make use of these arguments."""
 
-    extra_capability_checks = {}
+    extra_capability_checks = None
     """Optional extra checks of capabilities on a per-instance basis."""
 
     @classmethod
-    def capabilities(cls):
+    def get_capabilities(cls):
         """List the model's capabilities."""
         capabilities = []
         for _cls in cls.mro():
@@ -47,6 +47,10 @@ class Model(SciUnit):
               and not issubclass(_cls, Model):
                 capabilities.append(_cls)
         return capabilities
+
+    @property
+    def capabilities(self):
+        return self.__class__.get_capabilities()
 
     @property
     def failed_extra_capabilities(self):
