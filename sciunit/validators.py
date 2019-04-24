@@ -33,6 +33,14 @@ class ObservationValidator(Validator):
                              "a `test` keyword argument"))
         super(ObservationValidator, self).__init__(*args, **kwargs)
         register_type(pq.quantity.Quantity, 'quantity')
+        
+    def _validate_iterable(self, is_iterable, key, value):
+        """Validate fields with `iterable` key in schema set to True"""
+        if is_iterable:
+            try:
+                iter(value)
+            except TypeError:
+                self._error(key, "Must be iterable (e.g. a list or array)")
 
     def _validate_units(self, has_units, key, value):
         """Validate fields with `units` key in schema set to True.
@@ -41,7 +49,12 @@ class ObservationValidator(Validator):
         {'type': 'boolean'}
         """
         if has_units:
-            required_units = self.test.units
+            if isinstance(self.test.units, dict):
+                required_units = self.test.units[key]
+            else:
+                required_units = self.test.units
+            if not isinstance(value, pq.quantity.Quantity):
+                self._error(key, "Must be a python quantity")
             if not isinstance(value, pq.quantity.Quantity):
                 self._error(key, "Must be a python quantity")
             provided_units = value.simplified.units
