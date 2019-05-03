@@ -562,3 +562,28 @@ class RangeTest(Test):
         low = observation[0]
         high = observation[1]
         return self.score_type(low < prediction < high)
+
+class ProtocolToFeaturesTest(Test):
+    """Assume that generating a prediction consists of: 
+    1) Setting up a simulation experiment protocol, 
+    2) Running a model (using e.g. RunnableModel)
+    3) Extract features from the results
+    """
+
+    def generate_prediction(self, model):
+        run_method = getattr(model, "run", None)
+        assert callable(run_method), "Model must have a `run` method to use a ProtocolToFeatureTest"
+        self.setup_protocol(model)
+        result = self.get_result(model)
+        prediction = self.extract_features(model, result)
+        return prediction
+
+    def setup_protocol(self, model):
+        return NotImplementedError()
+
+    def get_result(self, model):
+        return NotImplementedError()
+
+    def extract_features(self, model, result):
+        return NotImplementedError()
+    
