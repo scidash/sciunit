@@ -35,7 +35,11 @@ class ObservationValidator(Validator):
         register_type(pq.quantity.Quantity, 'quantity')
         
     def _validate_iterable(self, is_iterable, key, value):
-        """Validate fields with `iterable` key in schema set to True"""
+        """Validate fields with `iterable` key in schema set to True
+
+        The rule's arguments are validated against this schema:
+        {'type': 'boolean'}
+        """
         if is_iterable:
             try:
                 iter(value)
