@@ -30,11 +30,14 @@ class Test(SciUnit):
         if self.description is None:
             self.description = self.__class__.__doc__
 
-        self.params = params if params else {}
+        # Use a combination of default_params and params, choosing the latter
+        # if there is a conflict.
+        self.params = {**self.default_params, **params}
         self.verbose = self.params.pop('verbose', 1)
-        #self.params.update(params)
         self.validate_params(self.params)
-
+        # Compute possible new params from existing params
+        self.compute_params()
+        
         self.observation = observation
         if settings['PREVALIDATE']:
             self.validate_observation(self.observation)
@@ -54,7 +57,7 @@ class Test(SciUnit):
     observation = None
     """The empirical observation that the test is using."""
 
-    params = None
+    default_params = {}
     """A dictionary containing the parameters to the test."""
 
     score_type = BooleanScore
@@ -72,6 +75,14 @@ class Test(SciUnit):
     params_schema = None
     """A schema that the params must adhere to (validated by cerberus).
     Can also be a list of schemas, one of which the params must match."""
+
+    def compute_params(self):
+        """Compute new params from existing `self.params`.
+        Inserts those new params into `self.params`. Use this when some params
+        depend upon the values of others.
+        Example: `self.params['c'] = self.params['a'] + self.params['b']`
+        """
+        pass
 
     def validate_observation(self, observation):
         """Validate the observation provided to the constructor.
@@ -563,16 +574,18 @@ class RangeTest(Test):
         high = observation[1]
         return self.score_type(low < prediction < high)
 
+
 class ProtocolToFeaturesTest(Test):
-    """Assume that generating a prediction consists of: 
-    1) Setting up a simulation experiment protocol, 
+    """Assume that generating a prediction consists of:
+    1) Setting up a simulation experiment protocol,
     2) Running a model (using e.g. RunnableModel)
     3) Extract features from the results
     """
 
     def generate_prediction(self, model):
         run_method = getattr(model, "run", None)
-        assert callable(run_method), "Model must have a `run` method to use a ProtocolToFeatureTest"
+        assert callable(run_method), \
+            "Model must have a `run` method to use a ProtocolToFeatureTest"
         self.setup_protocol(model)
         result = self.get_result(model)
         prediction = self.extract_features(model, result)
@@ -586,4 +599,3 @@ class ProtocolToFeaturesTest(Test):
 
     def extract_features(self, model, result):
         return NotImplementedError()
-    
