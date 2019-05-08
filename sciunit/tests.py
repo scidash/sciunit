@@ -38,7 +38,7 @@ class Test(SciUnit):
         self.validate_params(self.params)
         # Compute possible new params from existing params
         self.compute_params()
-        
+
         self.observation = observation
         if settings['PREVALIDATE']:
             self.validate_observation(self.observation)
