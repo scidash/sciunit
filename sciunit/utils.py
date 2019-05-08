@@ -12,6 +12,7 @@ import importlib
 import json
 import re
 import contextlib
+import traceback
 from io import TextIOWrapper, StringIO
 from datetime import datetime
 try:
@@ -45,6 +46,25 @@ settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
             'PREVALIDATE': False,
             'KERNEL': ('ipykernel' in sys.modules),
             'CWD': os.path.realpath(sciunit.__path__[0])}
+
+
+def warn_with_traceback(message, category, filename, lineno, file=None, line=None):
+    """A function to use with `warnings.showwarning` to show a traceback."""
+    log = file if hasattr(file,'write') else sys.stderr
+    traceback.print_stack(file=log)
+    log.write(warnings.formatwarning(message, category, filename, lineno, line))
+
+
+def set_warnings_traceback(tb=True):
+    """Set to `True` to give tracebacks for all warnings, or `False` to restore
+    default behavior."""
+    if tb:
+        warnings._showwarning = warnings.showwarning
+        warnings.showwarning = warn_with_traceback
+        warnings.simplefilter("always")
+    else:
+        warnings.showwarning = warnings._showwarning
+        warnings.simplefilter("default")
 
 
 def rec_apply(func, n):
@@ -153,7 +173,7 @@ class NotebookTools(object):
             except ImportError:
                 pass
             else:
-                print("Setting matplotlib backend to Agg")
+                printd("Setting matplotlib backend to Agg")
                 mpl.use('Agg')
 
     def load_notebook(self, name):
