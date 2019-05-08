@@ -12,6 +12,7 @@ from .scores import Score, BooleanScore, NoneScore, ErrorScore, TBDScore,\
 from .validators import ObservationValidator, ParametersValidator
 from .errors import Error, CapabilityError, ObservationError,\
                     InvalidScoreError, ParametersError
+from .utils import dict_combine
 
 
 class Test(SciUnit):
@@ -32,7 +33,7 @@ class Test(SciUnit):
 
         # Use a combination of default_params and params, choosing the latter
         # if there is a conflict.
-        self.params = {**self.default_params, **params}
+        self.params = dict_combine(self.default_params, params)
         self.verbose = self.params.pop('verbose', 1)
         self.validate_params(self.params)
         # Compute possible new params from existing params

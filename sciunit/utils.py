@@ -67,6 +67,16 @@ def set_warnings_traceback(tb=True):
         warnings.simplefilter("default")
 
 
+def dict_combine(*dict_list): 
+    """Return the union of several dictionaries.
+    Uses the values from later dictionaries in the argument list when
+    duplicate keys are encountered.
+    In Python 3 this can simply be {**d1, **d2, ...}
+    but Python 2 does not support this dict unpacking syntax.
+    """
+    return {k: v for d in dict_list for k, v in d.items()}
+
+
 def rec_apply(func, n):
     """
     Used to determine parent directory n levels up
