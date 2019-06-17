@@ -9,7 +9,7 @@ from sciunit.scores import BooleanScore, FloatScore
 from sciunit.scores import FloatScore
 from sciunit.capabilities import ProducesNumber
 
-from .base import SuiteBase
+from sciunit.unit_test.base import SuiteBase
 
 class TestsTestCase(unittest.TestCase):
     """Unit tests for the sciunit module"""
@@ -19,7 +19,7 @@ class TestsTestCase(unittest.TestCase):
         self.T = RangeTest
 
     def test_get_test_description(self):
-        t = self.T([2,3])
+        t = self.T([2, 3])
         t.describe()
         t.description = "Lorem Ipsum"
         t.describe()
@@ -28,17 +28,17 @@ class TestsTestCase(unittest.TestCase):
             """Lorem Ipsum"""
             pass
 
-        t = MyTest([2,3])
+        t = MyTest([2, 3])
         t.description = None
         self.assertEqual(t.describe(),"Lorem Ipsum")
 
     def test_check_model_capabilities(self):
-        t = self.T([2,3])
-        m = self.M(2,3)
+        t = self.T([2, 3])
+        m = self.M(2, 3)
         t.check(m)
 
     def test_rangetest(self):
-        range_2_3_test = RangeTest(observation=[2,3])
+        range_2_3_test = RangeTest(observation=[2, 3])
         one_model = ConstModel(2.5)
         self.assertTrue(range_2_3_test.check_capabilities(one_model))
         score = range_2_3_test.judge(one_model)

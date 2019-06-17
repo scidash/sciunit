@@ -548,3 +548,10 @@ def config_get(key, default=None):
         else:
             raise e
     return value
+
+
+def path_escape(path):
+    """Escape a path by placing backslashes in front of disallowed characters"""
+    for char in [' ', '(', ')']:
+        path = path.replace(char, '\%s' % char)
+    return path

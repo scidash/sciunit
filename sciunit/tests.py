@@ -578,15 +578,21 @@ class RangeTest(Test):
 
 class ProtocolToFeaturesTest(Test):
     """Assume that generating a prediction consists of:
-    1) Setting up a simulation experiment protocol,
+    1) Setting up a simulation experiment protocol.
+    Depending on the backend, this could include editing simulation parameters
+    in memory or editing a model file.  It could include any kind of
+    experimental protocol, such as a perturbation.
     2) Running a model (using e.g. RunnableModel)
     3) Extract features from the results
+
+    Developers should not need to manually implement `generate_prediction`, and
+    instead should focus on the other three methods here.
     """
 
     def generate_prediction(self, model):
         run_method = getattr(model, "run", None)
         assert callable(run_method), \
-            "Model must have a `run` method to use a ProtocolToFeatureTest"
+            "Model must have a `run` method to use a ProtocolToFeaturesTest"
         self.setup_protocol(model)
         result = self.get_result(model)
         prediction = self.extract_features(model, result)
