@@ -6,6 +6,7 @@
 | [![Coveralls](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=master)](https://coveralls.io/github/scidash/sciunit?branch=master) | [![Coveralls](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=dev)](https://coveralls.io/github/scidash/sciunit?branch=dev) |
 | [![Requirements](https://requires.io/github/scidash/sciunit/requirements.svg?branch=master)](https://requires.io/github/scidash/sciunit/requirements/?branch=master) |  [![Requirements](https://requires.io/github/scidash/sciunit/requirements.svg?branch=dev)](https://requires.io/github/scidash/sciunit/requirements/?branch=dev) |
 | [![Docker Build Status](https://img.shields.io/docker/build/scidash/sciunit.svg)](https://hub.docker.com/r/scidash/sciunit/builds/) |
+| [![Repos using Sciunit](https://img.shields.io/librariesio/dependent-repos/pypi/sciunit.svg)](https://github.com/scidash/sciunit/network/dependents?dependent_type=REPOSITORY)
 
 <img src="https://raw.githubusercontent.com/scidash/assets/master/logos/SciUnit/sci-unit-square-small.png" alt="SciUnit Logo" width="400px">
 
