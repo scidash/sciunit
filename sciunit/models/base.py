@@ -59,7 +59,7 @@ class Model(SciUnit):
         for capability, f_name in self.extra_capability_checks.items():
             f = getattr(self, f_name)
             instance_capable = f()
-            if not instance_capable:
+            if isinstance(self, capability) and not instance_capable:
                 failed.append(capability)
         return failed
 
