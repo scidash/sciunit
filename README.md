@@ -28,8 +28,8 @@ score = my_test.judge() # Runs the test and return a rich score containing test 
 ```
 
 ## Domain-specific libraries and information
-
-[NeuronUnit](https://github.com/scidash/neuronunit) for neuron and ion channel physiology
+[NeuronUnit](https://github.com/scidash/neuronunit) for neuron and ion channel physiology<br>
+See others [here](https://github.com/scidash/sciunit/network/dependents?dependent_type=REPOSITORY)
 
 ## Mailing List
 There is a [mailing list](https://groups.google.com/forum/?fromgroups#!forum/sciunit) for announcements and discussion.
