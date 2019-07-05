@@ -43,3 +43,7 @@ class CommandLineTestCase(unittest.TestCase):
                      "run-nb not supported on Python < 3.3")
     def test_sciunit_5run_nb(self):
         self.main('--directory', self.cosmosuite_path, 'run-nb')
+
+
+if __name__ == '__main__':
+    test_program = unittest.main(verbosity=0, buffer=True, exit=False)

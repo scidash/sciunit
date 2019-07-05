@@ -51,7 +51,6 @@ class ZScore(Score):
                     'prediction divided by the standard deviation of the '
                     'observation')
 
-
     @classmethod
     def compute(cls, observation, prediction):
         """Compute a z-score from an observation and a prediction."""
@@ -75,8 +74,11 @@ class ZScore(Score):
 
     @property
     def norm_score(self):
-        """Return 1.0 for a z-score of 0, falling to 0.0 for extremely positive
-        or negative values."""
+        """Return the normalized score.
+
+        Equals 1.0 for a z-score of 0, falling to 0.0 for extremely positive
+        or negative values.
+        """
         cdf = (1.0 + math.erf(self.score / math.sqrt(2.0))) / 2.0
         return 1 - 2*math.fabs(0.5 - cdf)
 

@@ -3,13 +3,16 @@
 import inspect
 import traceback
 
+from sciunit import settings
 from sciunit.base import SciUnit
 from .capabilities import ProducesNumber
 from .models import Model
 from .scores import Score, BooleanScore, NoneScore, ErrorScore, TBDScore,\
                     NAScore
-from .validators import ObservationValidator
-from .errors import Error, CapabilityError, ObservationError, InvalidScoreError
+from .validators import ObservationValidator, ParametersValidator
+from .errors import Error, CapabilityError, ObservationError,\
+                    InvalidScoreError, ParametersError
+from .utils import dict_combine
 
 
 class Test(SciUnit):
@@ -28,11 +31,17 @@ class Test(SciUnit):
         if self.description is None:
             self.description = self.__class__.__doc__
 
-        params = params if params else {}
-        self.verbose = params.pop('verbose', 1)
-        self.params.update(params)
+        # Use a combination of default_params and params, choosing the latter
+        # if there is a conflict.
+        self.params = dict_combine(self.default_params, params)
+        self.verbose = self.params.pop('verbose', 1)
+        self.validate_params(self.params)
+        # Compute possible new params from existing params
+        self.compute_params()
 
         self.observation = observation
+        if settings['PREVALIDATE']:
+            self.validate_observation(self.observation)
 
         if self.score_type is None or not issubclass(self.score_type, Score):
             raise Error(("The score type '%s' specified for Test '%s' "
@@ -49,7 +58,7 @@ class Test(SciUnit):
     observation = None
     """The empirical observation that the test is using."""
 
-    params = {}
+    default_params = {}
     """A dictionary containing the parameters to the test."""
 
     score_type = BooleanScore
@@ -60,7 +69,21 @@ class Test(SciUnit):
 
     observation_schema = None
     """A schema that the observation must adhere to (validated by cerberus).
-    Can also be a list of schemas, one of which the observation must match."""
+    Can also be a list of schemas, one of which the observation must match.
+    If it is a list, each schema in the list can optionally be named by putting
+    (name, schema) tuples in that list."""
+
+    params_schema = None
+    """A schema that the params must adhere to (validated by cerberus).
+    Can also be a list of schemas, one of which the params must match."""
+
+    def compute_params(self):
+        """Compute new params from existing `self.params`.
+        Inserts those new params into `self.params`. Use this when some params
+        depend upon the values of others.
+        Example: `self.params['c'] = self.params['a'] + self.params['b']`
+        """
+        pass
 
     def validate_observation(self, observation):
         """Validate the observation provided to the constructor.
@@ -75,15 +98,50 @@ class Test(SciUnit):
             raise ObservationError("Observation mean cannot be 'None'.")
         if self.observation_schema:
             if isinstance(self.observation_schema, list):
-                schema = {'oneof_schema': self.observation_schema,
+                schemas = [x[1] if isinstance(x, tuple) else x
+                           for x in self.observation_schema]
+                schema = {'oneof_schema': schemas,
                           'type': 'dict'}
             else:
-                schema = {'schema': self.observation_schema, 'type': 'dict'}
+                schema = {'schema': self.observation_schema,
+                          'type': 'dict'}
             schema = {'observation': schema}
             v = ObservationValidator(schema, test=self)
             if not v.validate({'observation': observation}):
                 raise ObservationError(v.errors)
         return observation
+
+    @classmethod
+    def observation_schema_names(cls):
+        """Return a list of names of observation schema, if they are set."""
+        names = []
+        if cls.observation_schema:
+            if isinstance(cls.observation_schema, list):
+                names = [x[0] if isinstance(x, tuple) else 'Schema %d' % (i+1)
+                         for i, x in enumerate(cls.observation_schema)]
+        return names
+
+    def validate_params(self, params):
+        """Validate the params provided to the constructor.
+
+        Raises an ParametersError if invalid.
+        """
+        if params is None:
+            raise ParametersError("Parameters cannot be `None`.")
+        if not isinstance(params, dict):
+            raise ParametersError("Parameters are not a dictionary.")
+        if self.params_schema:
+            if isinstance(self.params_schema, list):
+                schema = {'oneof_schema': self.params_schema,
+                          'type': 'dict'}
+            else:
+                schema = {'schema': self.params_schema,
+                          'type': 'dict'}
+            schema = {'params': schema}
+            v = ParametersValidator(schema, test=self)
+            if not v.validate({'params': params}):
+                raise ParametersError(v.errors)
+        return params
 
     required_capabilities = ()
     """A sequence of capabilities that a model must have in order for the
@@ -113,6 +171,16 @@ class Test(SciUnit):
         if not capable and not skip_incapable:
             raise CapabilityError(model, c)
         return capable
+
+    def condition_model(self, model):
+        """Update the model in any way needed before generating the prediction.
+
+        This could include updating parameters such as simulation durations
+        that do not define the model but do define experiments performed on
+        the model.
+        No default implementation.
+        """
+        pass
 
     def generate_prediction(self, model):
         """Generate a prediction from a model using the required capabilities.
@@ -249,14 +317,16 @@ class Test(SciUnit):
             raise score.score  # An exception.
         return score
 
-    def check(self, model, skip_incapable=True, stop_on_error=True):
+    def check(self, model, skip_incapable=True, stop_on_error=True,
+              require_extra=False):
         """Check to see if the test can run this model.
 
         Like judge, but without actually running the test. Just returns a Score
         indicating whether the model can take the test or not.
         """
         try:
-            if self.check_capabilities(model, skip_incapable=skip_incapable):
+            if self.check_capabilities(model, skip_incapable=skip_incapable,
+                                       require_extra=require_extra):
                 score = TBDScore(None)
             else:
                 score = NAScore(None)
@@ -504,3 +574,35 @@ class RangeTest(Test):
         low = observation[0]
         high = observation[1]
         return self.score_type(low < prediction < high)
+
+
+class ProtocolToFeaturesTest(Test):
+    """Assume that generating a prediction consists of:
+    1) Setting up a simulation experiment protocol.
+    Depending on the backend, this could include editing simulation parameters
+    in memory or editing a model file.  It could include any kind of
+    experimental protocol, such as a perturbation.
+    2) Running a model (using e.g. RunnableModel)
+    3) Extract features from the results
+
+    Developers should not need to manually implement `generate_prediction`, and
+    instead should focus on the other three methods here.
+    """
+
+    def generate_prediction(self, model):
+        run_method = getattr(model, "run", None)
+        assert callable(run_method), \
+            "Model must have a `run` method to use a ProtocolToFeaturesTest"
+        self.setup_protocol(model)
+        result = self.get_result(model)
+        prediction = self.extract_features(model, result)
+        return prediction
+
+    def setup_protocol(self, model):
+        return NotImplementedError()
+
+    def get_result(self, model):
+        return NotImplementedError()
+
+    def extract_features(self, model, result):
+        return NotImplementedError()

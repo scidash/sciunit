@@ -3,6 +3,7 @@
 import unittest
 import tempfile
 
+
 class UtilsTestCase(unittest.TestCase):
     """Unit tests for sciunit.utils"""
 
@@ -34,22 +35,22 @@ class UtilsTestCase(unittest.TestCase):
     def test_dict_hash(self):
         from sciunit.base import SciUnit
 
-        d1 = {'a':1,'b':2,'c':3}
-        d2 = {'c':3,'a':1,'b':2}
+        d1 = {'a': 1, 'b': 2, 'c': 3}
+        d2 = {'c': 3, 'a': 1, 'b': 2}
         dh1 = SciUnit.dict_hash(d1)
         dh2 = SciUnit.dict_hash(d2)
         self.assertTrue(type(dh1) is str)
         self.assertTrue(type(dh2) is str)
-        self.assertEqual(d1,d2)
+        self.assertEqual(d1, d2)
 
     def test_import_module_from_path(self):
         from sciunit.utils import import_module_from_path
 
         temp_file = tempfile.mkstemp(suffix='.py')[1]
-        with open(temp_file,'w') as f:
+        with open(temp_file, 'w') as f:
             f.write('value = 42')
         module = import_module_from_path(temp_file)
-        self.assertEqual(module.value,42)
+        self.assertEqual(module.value, 42)
 
     def test_versioned(self):
         from sciunit.models.examples import ConstModel

@@ -18,7 +18,6 @@ class Model(SciUnit):
         self.params = params
         if params is None:
             params = {}
-        self.extra_capability_checks = {}
         super(Model, self).__init__()
         self.check_params()
 
@@ -39,15 +38,30 @@ class Model(SciUnit):
     extra_capability_checks = None
     """Optional extra checks of capabilities on a per-instance basis."""
 
-    @property
-    def capabilities(self):
+    @classmethod
+    def get_capabilities(cls):
         """List the model's capabilities."""
         capabilities = []
-        for cls in self.__class__.mro():
-            if issubclass(cls, Capability) and cls is not Capability \
-              and not issubclass(cls, Model):
-                capabilities.append(cls.__name__)
+        for _cls in cls.mro():
+            if issubclass(_cls, Capability) and _cls is not Capability \
+              and not issubclass(_cls, Model):
+                capabilities.append(_cls)
         return capabilities
+
+    @property
+    def capabilities(self):
+        return self.__class__.get_capabilities()
+
+    @property
+    def failed_extra_capabilities(self):
+        """Check to see if instance passes its `extra_capability_checks`."""
+        failed = []
+        for capability, f_name in self.extra_capability_checks.items():
+            f = getattr(self, f_name)
+            instance_capable = f()
+            if isinstance(self, capability) and not instance_capable:
+                failed.append(capability)
+        return failed
 
     def describe(self):
         """Describe the model."""
@@ -85,6 +99,17 @@ class Model(SciUnit):
             result = True
         elif isinstance(match, str) and fnmatchcase(self.name, match):
             result = True  # Found by instance or name
+        return result
+
+    def __getattr__(self, attr):
+        try:
+            result = super(Model, self).__getattribute__(attr)
+        except AttributeError:
+            try:
+                result = self._backend.__getattribute__(attr)
+            except:
+                raise AttributeError("Model %s has no attribute %s"
+                                     % (self, attr))
         return result
 
     def __str__(self):

@@ -20,3 +20,4 @@ GeneratedFiles
 GeneratedFiles/*.py
 
 \.idea/
+.vscode
