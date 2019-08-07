@@ -206,7 +206,14 @@ class SciUnit(Versioned):
     @property
     def _class(self):
         url = '' if self.url is None else self.url
+
+        import_path = '{}.{}'.format(
+            self.__class__.__module__,
+            self.__class__.__name__
+            )
+
         return {'name': self.__class__.__name__,
+                'import_path': import_path,
                 'url': url}
 
     @property
