@@ -38,6 +38,9 @@ class Model(SciUnit):
     extra_capability_checks = None
     """Optional extra checks of capabilities on a per-instance basis."""
 
+    _backend = None
+    """Optional model backend for executing some methods, e.g. simulations."""
+
     @classmethod
     def get_capabilities(cls):
         """List the model's capabilities."""
