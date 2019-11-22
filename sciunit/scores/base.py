@@ -68,7 +68,7 @@ class Score(SciUnit):
                                     (type(score), self._allowed_types))
         self._check_score(score)
 
-    def _check_score(self,score):
+    def _check_score(self, score):
         """A method for each Score subclass to impose additional constraints
         on the score, e.g. the range of the allowed score"""
         pass

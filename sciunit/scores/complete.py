@@ -54,7 +54,9 @@ class ZScore(Score):
     @classmethod
     def compute(cls, observation, prediction):
         """Compute a z-score from an observation and a prediction."""
-        assert isinstance(observation, dict)
+        assert isinstance(observation, dict),\
+            "Observation must be a dict when using ZScore, not type %s" \
+            % type(observation)
         try:
             p_value = prediction['mean']  # Use the prediction's mean.
         except (TypeError, KeyError, IndexError):  # If there isn't one...
@@ -62,14 +64,22 @@ class ZScore(Score):
                 p_value = prediction['value']  # Use the prediction's value.
             except (TypeError, IndexError):  # If there isn't one...
                 p_value = prediction  # Use the prediction (assume numeric).
-        o_mean = observation['mean']
-        o_std = observation['std']
+        try:
+            o_mean = observation['mean']
+            o_std = observation['std']
+        except KeyError:
+            error = ("Observation must have keys 'mean' and 'std' "
+                     "when using ZScore")
+            return InsufficientDataScore(error)
+        if not o_std > 0:
+            error = 'Observation standard deviation must be > 0'
+            return InsufficientDataScore(error)
         value = (p_value - o_mean)/o_std
         value = utils.assert_dimensionless(value)
         if np.isnan(value):
-            score = InsufficientDataScore('One of the input values was NaN')
-        else:
-            score = ZScore(value)
+            error = 'One of the input values was NaN'
+            return InsufficientDataScore(error)
+        score = ZScore(value)
         return score
 
     @property
@@ -206,6 +216,25 @@ class FloatScore(Score):
         value = ((observation - prediction)**2).sum()
         score = FloatScore(value)
         return score
+
+    def __str__(self):
+        return '%.3g' % self.score
+
+
+class RandomScore(Score):
+    """A random score in [0,1].
+
+    This has no scientific value and should only be used for debugging
+    purposes. For example, one might assign a random score under some error
+    condition to move forward with an application that requires a numeric
+    score, and use the presence of a RandomScore in the output as an
+    indication of an internal error.
+    """
+
+    _allowed_types = (float,)
+
+    _description = ('There is a random number in [0,1] and has no relation to '
+                    'the prediction or the observation')
 
     def __str__(self):
         return '%.3g' % self.score
