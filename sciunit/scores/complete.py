@@ -51,6 +51,10 @@ class ZScore(Score):
                     'prediction divided by the standard deviation of the '
                     'observation')
 
+    _best = 0.0  # A Z-Score of 0.0 is best
+
+    _worst = np.inf  # A Z-score of infinity (or negative infinity) is worst
+
     @classmethod
     def compute(cls, observation, prediction):
         """Compute a z-score from an observation and a prediction."""
@@ -138,6 +142,8 @@ class RatioScore(Score):
     _allowed_types = (float,)
 
     _description = ('The ratio between the prediction and the observation')
+
+    _best = 1.0  # A RatioScore of 1.0 is best
 
     def _check_score(self, score):
         if score < 0.0:
