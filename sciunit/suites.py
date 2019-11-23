@@ -194,6 +194,15 @@ class TestSuite(SciUnit, TestWeighted):
             test = test_class(observation, name=test_name)
             tests.append(test)
         return cls(tests, name=name)
+    
+    def __getitem__(self, item):
+        options = [test for test in self.tests if test.name==item]
+        if len(options) == 0:
+            raise KeyError("No test in this suite with name '%s'" % item)
+        elif len(options) >= 2:
+            raise KeyError("Multiple tests found in this suite with name '%s'" % item)
+        test = options[0]
+        return test
 
     def __str__(self):
         """Represent the TestSuite instance as a string."""
