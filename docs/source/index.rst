@@ -1,9 +1,9 @@
-.. SciUnit documentation master file, created by
-   sphinx-quickstart on Fri Mar 31 23:49:49 2017.
+.. sciunit documentation master file, created by
+   sphinx-quickstart on Fri Dec 13 02:42:53 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to SciUnit's documentation!
+Welcome to sciunit's documentation!
 ===================================
 
 .. toctree::
