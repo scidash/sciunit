@@ -1,15 +1,16 @@
-Zhiwei made following change:
+# Recipe for building the API docs from scratch:
 
 updating .rst files with sphinx-apidoc
 
 shell commands:
-$ rm -rf source
-$ sphinx-apidoc -o "./source" "../sciunit"
-$ sphinx-quickstart
+```
+rm -rf source
+sphinx-apidoc -o "./source" "../sciunit"
+sphinx-quickstart
+```
 
-Copy conf.py from the oringinal sciunit repo.
+Copy conf.py from the oringinal sciunit repo. Then:
 
-$ sphinx-build -b html ./source ./build
-
-
-I have found something new about the attribute, and I will send you an email to explain it.
+```
+sphinx-build -b html ./source ./build
+```
