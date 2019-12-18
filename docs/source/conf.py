@@ -161,3 +161,12 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
+
+# Removing those three member from the documents to avoid mess. More members can be added in the future.
+def remove_variables(app, what, name, obj, skip, options):
+    excluded = ["normalization_rules", "rules", "validation_rules"]
+    return name in excluded
+
+# Connecting remove_variables and autodoc-skip-member to setup the event handler.
+def setup(app):
+    app.connect('autodoc-skip-member', remove_variables)
