@@ -167,7 +167,7 @@ def remove_variables(app, what, name, obj, skip, options):
     if name == "_url":
         print("-----------------------")
         print(what)
-    excluded = ["normalization_rules", "rules", "validation_rules"]
+    excluded = ["normalization_rules", "rules", "validation_rules", "__dict__", "__doc__"]
     return name in excluded
 
 # Connecting remove_variables and autodoc-skip-member to setup the event handler.
