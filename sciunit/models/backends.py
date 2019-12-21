@@ -22,7 +22,8 @@ def register_backends(vars):
 
 
 class Backend(object):
-    """Base class for simulator backends.
+    """
+    Base class for simulator backends.
 
     Should only be used with model classes derived from `RunnableModel`.
     Supports caching of simulation results.
@@ -43,13 +44,13 @@ class Backend(object):
         self.load_model()
         self.model.unpicklable += ['_backend']
 
-    #:Name of the backend
+    #: Name of the backend
     name = None
 
-    #:The function that handles running the simulation
+    #: The function that handles running the simulation
     f = None
 
-    #:Optional list of state variables for a backend to record.
+    #: Optional list of state variables for a backend to record.
     recorded_variables = None
 
     def init_cache(self):
