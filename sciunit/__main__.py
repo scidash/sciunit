@@ -30,7 +30,7 @@ except ImportError:
 import codecs
 try:
     import matplotlib
-    matplotlib.use('Agg')  # Anticipate possible headless environments
+    matplotlib.use('Agg')  #:Anticipate possible headless environments
 except ImportError:
     pass
 
