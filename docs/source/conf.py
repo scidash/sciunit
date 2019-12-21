@@ -164,6 +164,9 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 
 # Removing those three member from the documents to avoid mess. More members can be added in the future.
 def remove_variables(app, what, name, obj, skip, options):
+    if name == "_url":
+        print("-----------------------")
+        print(what)
     excluded = ["normalization_rules", "rules", "validation_rules"]
     return name in excluded
 
