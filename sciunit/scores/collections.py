@@ -293,6 +293,8 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         display(js)
 
 
+"""
+DEPRECATED due to removal of `Panel` from Pandas.
 class ScorePanel(pd.Panel, SciUnit):
     def __getitem__(self, item):
         df = super(ScorePanel, self).__getitem__(item)
@@ -301,3 +303,4 @@ class ScorePanel(pd.Panel, SciUnit):
         score_matrix = ScoreMatrix(models=df.index, tests=df.columns,
                                    scores=df)
         return score_matrix
+"""
