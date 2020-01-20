@@ -3,6 +3,7 @@ Base class for SciUnit test suites.
 """
 
 import random
+from types import MethodType
 
 from .base import SciUnit, TestWeighted
 from .utils import log
@@ -16,14 +17,24 @@ class TestSuite(SciUnit, TestWeighted):
     """A collection of tests."""
 
     def __init__(self, tests, name=None, weights=None, include_models=None,
-                 skip_models=None, hooks=None):
+                 skip_models=None, hooks=None, optimizer=None):
+        """
+        optimizer: a function to bind to self.optimize (first argument must be a testsuite)
+        """
         self.name = name if name else "Suite_%d" % random.randint(0, 1e12)
+        if isinstance(tests, dict):
+            for key, value in tests.items():
+                if not isinstance(value, sciunit.Test):
+                    setattr(self, key, value)
+            tests = [test for test in tests.values if isinstance(test, sciunit.Test)]
         self.tests = self.assert_tests(tests)
         self.weights_ = [] if not weights else list(weights)
         self.include_models = include_models if include_models else []
         self.skip_models = skip_models if skip_models else []
         self.hooks = hooks
         super(TestSuite, self).__init__()
+        if optimizer:
+            self.optimize = MethodType(optimizer, self)
 
     name = None
     """The name of the test suite. Defaults to the class name."""
@@ -155,7 +166,7 @@ class TestSuite(SciUnit, TestWeighted):
         sm.loc[model, test] = score
         return score
 
-    def optimize(self, model):
+    def optimize(self, model, *args, **kwargs):
         """Optimize model parameters to get the best Test Suite scores."""
         raise NotImplementedError(("Optimization not implemented "
                                    "for TestSuite '%s'" % self))
