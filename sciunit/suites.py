@@ -24,9 +24,9 @@ class TestSuite(SciUnit, TestWeighted):
         self.name = name if name else "Suite_%d" % random.randint(0, 1e12)
         if isinstance(tests, dict):
             for key, value in tests.items():
-                if not isinstance(value, sciunit.Test):
+                if not isinstance(value, Test):
                     setattr(self, key, value)
-            tests = [test for test in tests.values if isinstance(test, sciunit.Test)]
+            tests = [test for test in tests.values() if isinstance(test, Test)]
         self.tests = self.assert_tests(tests)
         self.weights_ = [] if not weights else list(weights)
         self.include_models = include_models if include_models else []
@@ -207,13 +207,19 @@ class TestSuite(SciUnit, TestWeighted):
         return cls(tests, name=name)
     
     def __getitem__(self, item):
-        options = [test for test in self.tests if test.name==item]
-        if len(options) == 0:
-            raise KeyError("No test in this suite with name '%s'" % item)
-        elif len(options) >= 2:
-            raise KeyError("Multiple tests found in this suite with name '%s'" % item)
-        test = options[0]
+        if isinstance(item, int):
+            test = self.tests[item]
+        else:
+            options = [test for test in self.tests if test.name==item]
+            if len(options) == 0:
+                raise KeyError("No test in this suite with name '%s'" % item)
+            elif len(options) >= 2:
+                raise KeyError("Multiple tests found in this suite with name '%s'" % item)
+            test = options[0]
         return test
+    
+    def __len__(self):
+        return len(self.tests)
 
     def __str__(self):
         """Represent the TestSuite instance as a string."""
