@@ -575,7 +575,7 @@ class TestM2M(Test):
 
 
 class RangeTest(Test):
-    """Test if the model generates a number with a certain sign"""
+    """Test if the model generates a number within a certain range"""
 
     def __init__(self, observation, name=None):
         super(RangeTest, self).__init__(observation, name=name)
