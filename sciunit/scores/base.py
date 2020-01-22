@@ -83,13 +83,31 @@ class Score(SciUnit):
     def compute(cls, observation, prediction):
         """Compute whether the observation equals the prediction."""
         return NotImplementedError("")
-
+    
     @property
     def norm_score(self):
         """A floating point version of the score used for sorting.
         If normalized = True, this must be in the range 0.0 to 1.0,
         where larger is better (used for sorting and coloring tables)."""
         return self.score
+    
+    @property
+    def log_norm_score(self):
+        """The natural logarithm of the `norm_score`.
+        This is useful for guaranteeing convexity in an error surface"""
+        return np.log(self.norm_score)
+    
+    @property
+    def log2_norm_score(self):
+        """The logarithm base 2 of the `norm_score`.
+        This is useful for guaranteeing convexity in an error surface"""
+        return np.log2(self.score)
+    
+    @property
+    def log10_norm_score(self):
+        """The logarithm base 10 of the `norm_score`.
+        This is useful for guaranteeing convexity in an error surface"""
+        return np.log10(self.score)
 
     def color(self, value=None):
         """Turn the score intp an RGB color tuple of three 8-bit integers."""
