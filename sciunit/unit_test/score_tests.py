@@ -5,7 +5,7 @@ import unittest
 from IPython.display import display
 import numpy as np
 
-from sciunit import ScoreMatrix, ScoreArray, ScorePanel
+from sciunit import ScoreMatrix, ScoreArray
 from sciunit.scores import ZScore, CohenDScore, PercentScore, BooleanScore,\
                            FloatScore, RatioScore
 from sciunit.scores import ErrorScore, NAScore, TBDScore, NoneScore,\
@@ -41,16 +41,6 @@ class ScoresTestCase(SuiteBase, unittest.TestCase):
         self.assertEqual(sa.stature(t2), 2)
         self.assertEqual(sa.stature(t1), 1)
         display(sa)
-
-    @unittest.skip(("Currently failing because ScorePanel "
-                    "just stores sm1 twice"))
-    def test_score_panel(self):
-        t, t1, t2, m1, m2 = self.prep_models_and_tests()
-        sm1 = t.judge([m1, m2])
-        sm2 = t.judge([m2, m1])
-        sp = ScorePanel(data={1: sm1, 2: sm2})
-        self.assertTrue(sp[1].equals(sm1))
-        self.assertTrue(sp[2].equals(sm2))
 
     def test_regular_score_types_1(self):
         score = PercentScore(42)
