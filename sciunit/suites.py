@@ -12,7 +12,20 @@ from .models import Model
 from .scores import NoneScore
 from .scores.collections import ScoreMatrix
 
-
+try:
+    import dask.bag as db
+    import multiprocessing
+    import numpy as np
+    PARALLEL_POSSIBLE = True
+except:
+    PARALLEL_POSSIBLE = False
+def local_map(package):
+    test = package[0]
+    dtc = package[1]
+    sm = package[2]
+    model = dtc.dtc_to_model()
+    score = self.judge_one(model, test, sm)
+    return score
 class TestSuite(SciUnit, TestWeighted):
     """A collection of tests."""
 
@@ -116,7 +129,7 @@ class TestSuite(SciUnit, TestWeighted):
                 for test in self.tests]
 
     def judge(self, models,
-              skip_incapable=False, stop_on_error=True, deep_error=False):
+              skip_incapable=False, stop_on_error=True, deep_error=False, parallel=False, log_norm=False):
         """Judge the provided models against each test in the test suite.
 
         Args:
@@ -131,13 +144,31 @@ class TestSuite(SciUnit, TestWeighted):
         Returns:
             ScoreMatrix: The resulting scores for all test/model combos.
         """
+        NPART = np.min([multiprocessing.cpu_count(),len(self.tests)])
         models = self.assert_models(models)
         sm = ScoreMatrix(self.tests, models, weights=self.weights)
         for model in models:
-            for test in self.tests:
-                score = self.judge_one(model, test, sm, skip_incapable,
-                                       stop_on_error, deep_error)
-                self.set_hooks(test, score)
+            if not parallel or PARALLEL_POSSIBLE is False:
+                for test in self.tests:
+                    score = self.judge_one(model, test, sm, skip_incapable,
+                                              stop_on_error, deep_error)
+                    if log_norm:
+                        if score.get_raw() == 0:
+                            score = self.judge_one(model, test, sm, skip_incapable,
+                                           stop_on_error, deep_error)
+                            score = score.log_norm_score
+                        else:
+                            score = score.norm_score
+                    self.set_hooks(test, score)
+            else:
+                dtc = model.model_to_dtc()
+                bag = db.from_sequence([self.tests,dtc,sm], npartitions = NPART)
+                scores = list(bag.map(local_map).compute())
+                for score in scores:
+                    if log_norm:
+                       score = score.log_norm_score
+                    self.set_hooks(test, score)
+
         return sm
 
     def is_skipped(self, model):
