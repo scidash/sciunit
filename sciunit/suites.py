@@ -144,7 +144,6 @@ class TestSuite(SciUnit, TestWeighted):
         Returns:
             ScoreMatrix: The resulting scores for all test/model combos.
         """
-        NPART = np.min([multiprocessing.cpu_count(),len(self.tests)])
         models = self.assert_models(models)
         sm = ScoreMatrix(self.tests, models, weights=self.weights)
         for model in models:
@@ -162,13 +161,13 @@ class TestSuite(SciUnit, TestWeighted):
                     self.set_hooks(test, score)
             else:
                 dtc = model.model_to_dtc()
+                NPART = np.min([multiprocessing.cpu_count(),len(self.tests)])
                 bag = db.from_sequence([self.tests,dtc,sm], npartitions = NPART)
                 scores = list(bag.map(local_map).compute())
                 for score in scores:
                     if log_norm:
                        score = score.log_norm_score
                     self.set_hooks(test, score)
-
         return sm
 
     def is_skipped(self, model):
@@ -236,7 +235,7 @@ class TestSuite(SciUnit, TestWeighted):
             test = test_class(observation, name=test_name)
             tests.append(test)
         return cls(tests, name=name)
-    
+
     def __getitem__(self, item):
         if isinstance(item, int):
             test = self.tests[item]
@@ -248,7 +247,7 @@ class TestSuite(SciUnit, TestWeighted):
                 raise KeyError("Multiple tests found in this suite with name '%s'" % item)
             test = options[0]
         return test
-    
+
     def __len__(self):
         return len(self.tests)
 
