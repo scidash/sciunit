@@ -528,7 +528,7 @@ def config_get_from_path(config_path, key):
     except FileNotFoundError:
         raise Error("Config file not found at '%s'" % config_path)
     except json.JSONDecodeError:
-        log("Config file JSON at '%s' was invalid" % config_path)
+        #log("Config file JSON at '%s' was invalid" % config_path)
         raise Error("Config file not found at '%s'" % config_path)
     except KeyError:
         raise Error("Config file does not contain key '%s'" % key)
@@ -542,8 +542,8 @@ def config_get(key, default=None):
         value = config_get_from_path(config_path, key)
     except Exception as e:
         if default is not None:
-            log(e)
-            log("Using default value of %s" % default)
+            #log(e)
+            #log("Using default value of %s" % default)
             value = default
         else:
             raise e

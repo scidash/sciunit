@@ -186,13 +186,13 @@ class TestSuite(SciUnit, TestWeighted):
         if self.is_skipped(model):
             score = NoneScore(None)
         else:
-            log('Executing test <i>%s</i> on model <i>%s</i>' % (test, model),
-                end=u"... ")
+            #log('Executing test <i>%s</i> on model <i>%s</i>' % (test, model),
+            #    end=u"... ")
             score = test.judge(model, skip_incapable=skip_incapable,
                                stop_on_error=stop_on_error,
                                deep_error=deep_error)
-            log('Score is <a style="color: rgb(%d,%d,%d)">' % score.color()
-                + '%s</a>' % score)
+            #log('Score is <a style="color: rgb(%d,%d,%d)">' % score.color()
+            #    + '%s</a>' % score)
         sm.loc[model, test] = score
         return score
 
