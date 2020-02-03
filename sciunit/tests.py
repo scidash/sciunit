@@ -214,6 +214,11 @@ class Test(SciUnit):
         score = self.score_type.compute(observation, prediction)
         return score
 
+    def ace(self):
+        """Generate the best possible score of the associated score type."""
+        score = self.score_type(self.score_type._best)
+        return score
+
     def _bind_score(self, score, model, observation, prediction):
         """Bind some useful attributes to the score."""
         score.model = model
@@ -403,13 +408,18 @@ class TestM2M(Test):
         """
         try:
             # After some processing of the observation and/or the prediction(s)
-            score = self.score_type.compute(prediction1, prediction2)
-            return score
+            f = self.score_type.compute
         except Exception:
-            raise NotImplementedError(("Test %s either implements no "
-                                       "compute_score method or provides no "
-                                       "score_type with a compute method.")
-                                      % self.name)
+            msg = ("Test implemented no `compute_score` method. "
+                   "But score_type of %s also has no "
+                   "compute method.") % self.score_type
+            raise NotImplementedError(msg)
+        try:
+            score = f(prediction1, prediction2)
+        except Exception as e:
+            msg = "%s.compute failed: %s" % (self.score_type.__name__, str(e))
+            raise Exception(msg)
+        return score
 
     def _bind_score(self, score, prediction1, prediction2, model1, model2):
         """Bind some useful attributes to the score."""
@@ -447,8 +457,12 @@ class TestM2M(Test):
         return score
 
     def judge(self, models, skip_incapable=False, stop_on_error=True,
-              deep_error=False):
+              deep_error=False, only_lower_triangle=False):
         """Generate a score matrix for the provided model(s).
+        `only_lower_triangle`: Only compute the lower triangle (not include
+                               the diagonal) of this square ScoreMatrix and
+                               copy the other values across. Leave the diagonal
+                               blank.  If False, compute all.
 
         Operates as follows:
         1. Check if models have been specified as a list/tuple/set.
@@ -535,8 +549,15 @@ class TestM2M(Test):
                     model1 = models[i-1]
                     model2 = models[j-1]
 
-                scores[i][j] = self._judge(predictions[i], predictions[j],
-                                           model1, model2)
+                if i == j and only_lower_triangle:
+                    # Perfect score for self-comparison
+                    scores[i][j] = self.ace()
+                elif i > j and only_lower_triangle:
+                    # Should already be computed earlier in this loop
+                    scores[i][j] = scores[j][i]
+                else:
+                    scores[i][j] = self._judge(predictions[i], predictions[j],
+                                               model1, model2)
                 if isinstance(scores[i][j], ErrorScore) and stop_on_error:
                     raise scores[i][j].score  # An exception.
 
@@ -554,7 +575,7 @@ class TestM2M(Test):
 
 
 class RangeTest(Test):
-    """Test if the model generates a number with a certain sign"""
+    """Test if the model generates a number within a certain range"""
 
     def __init__(self, observation, name=None):
         super(RangeTest, self).__init__(observation, name=name)
