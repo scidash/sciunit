@@ -114,6 +114,6 @@ class RunnableModel(Model,
             self.temp_dir.cleanup()   # Delete the temporary directory
             s = super(RunnableModel, self)
             print('this also interferes with brian test dirs, sometimes')
-            `if hasattr(s, '__del__'):
+            if hasattr(s, '__del__'):
                 s.__del__()
 
