@@ -11,7 +11,7 @@ Concerns about project governance or code of conduct violations may be confident
 | Sharon M Crook | Professor | School of Mathematical and Statistical Sciences, Arizona State Univ., USA |
 | Andrew Davison | Senior Research Scientist, Group Leader, Neuroinformatics | CNRS, France |
 | Robin Gutzen | PhD Student | Research Centre Jülich, Germany |
-| Giovanni Idili | Chief Operating Officer | Giovanni@metacell.us |
+| Giovanni Idili | Chief Operating Officer | MetaCell, LLC, UK |
 | Cyrus Omar | Assistant Professor | Dept. of Computer Science, Univ. of Michigan, USA |
 
 *denotes current chairperson
