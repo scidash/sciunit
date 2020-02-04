@@ -33,7 +33,45 @@ class ModelsTestCase(unittest.TestCase):
         t = RangeTest([2,3])
         m = self.M(2,3)
         t.check(m)
-
+        
+    def test_check_missing_capabilities_1(self):
+        from sciunit.capabilities import Runnable
+        from sciunit.errors import CapabilityNotImplementedError
+        
+        m = self.M(2, 3, name='Not actually runnable due to lack of capability provision')
+        try:
+            m.run()
+        except AttributeError as e:
+            pass
+        else:
+            self.fail("Unprovided capability was called and not caught")
+    
+    def test_check_missing_capabilities_2(self):
+        from sciunit.capabilities import Runnable
+        from sciunit.errors import CapabilityNotImplementedError
+        
+        class MyModel(self.M, Runnable):
+            pass
+        
+        m = MyModel(2, 3, name='Not actually runnable due to lack of capability implementation')
+        try:
+            m.run()
+        except CapabilityNotImplementedError as e:
+            pass
+        else:
+            self.fail("Unimplemented capability was called and not caught")
+        
+    def test_check_missing_capabilities_3(self):
+        from sciunit.capabilities import Runnable
+        from sciunit.errors import CapabilityNotImplementedError
+        
+        class MyModel(self.M, Runnable):
+            def run(self):
+                print("Actually running!")
+        
+        m = MyModel(2, 3, name='Now actually runnable')
+        m.run()
+        
     def test_regular_models(self):
         from sciunit.models.examples\
             import ConstModel, UniformModel, SharedModel

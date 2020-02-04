@@ -2,6 +2,8 @@
 Exception classes for SciUnit
 """
 
+import inspect
+import sciunit
 
 class Error(Exception):
     """Base class for errors in sciunit's core."""
@@ -19,23 +21,42 @@ class ParametersError(Error):
 
 
 class CapabilityError(Error):
-    """Error raised when a required capability is not
-    provided by a model."""
+    """Abstract error class for capabilities"""
     def __init__(self, model, capability, details=''):
+        """
+        model: a model instance
+        capablity: a capability class
+        """
         self.model = model
         self.capability = capability
         if details:
             details = ' (%s)' % details
-
-        super(CapabilityError, self).__init__(
-            "Model '%s' does not provide required capability: '%s'%s" %
-            (model.name, capability.__name__, details))
-
+        if self.action:
+            msg = "Model '%s' does not %s required capability: '%s'%s" % \
+                  (model.name, self.action, capability.__name__, details)
+        super(CapabilityError, self).__init__(details)
+    
+    action = None
+    """The action that has failed ('provide' or 'implement')"""
+    
     model = None
-    """The model that does not have the capability."""
+    """The model instance that does not have the capability."""
 
     capability = None
-    """The capability that is not provided."""
+    """The capability class that is not provided."""
+
+
+class CapabilityNotProvidedError(CapabilityError):
+    """Error raised when a required capability is not *provided* by a model.
+    Do not use for capabilities provided but not implemented."""
+    
+    action = 'provide'
+
+class CapabilityNotImplementedError(CapabilityError):
+    """Error raised when a required capability is not *implemented* by a model.
+    Do not use for capabilities that are not provided at all."""
+    
+    action = 'implement'
 
 
 class PredictionError(Error):
