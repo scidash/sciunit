@@ -118,13 +118,13 @@ class SciUnit(Versioned):
         """Instantiate a SciUnit object."""
         self.unpicklable = []
 
-    """A list of attributes that cannot or should not be pickled."""
+    #: A list of attributes that cannot or should not be pickled.
     unpicklable = []
 
-    """A URL where the code for this object can be found."""
+    #: A URL where the code for this object can be found.
     _url = None
 
-    """A verbosity level for printing information."""
+    #: A verbosity level for printing information.
     verbose = 1
 
     def __getstate__(self):
