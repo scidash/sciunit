@@ -1,5 +1,7 @@
 """Runnable model."""
 
+import warnings
+
 from .base import Model
 import sciunit.capabilities as cap
 from .backends import available_backends
@@ -33,7 +35,7 @@ class RunnableModel(Model,
     def set_backend(self, backend):
         """Set the simulation backend."""
         if isinstance(backend, str):
-            name = backend
+            name = backend if len(backend) else None
             args = []
             kwargs = {}
         elif isinstance(backend, (tuple, list)):
@@ -48,15 +50,18 @@ class RunnableModel(Model,
                         kwargs.update(backend[i])
                     else:
                         args += backend[i]
+        elif backend is None:
+            name = None
+            args = []
+            kwargs = {}
         else:
-            raise TypeError("Backend must be string, tuple, or list")
+            raise TypeError("Backend must be string, tuple, list, or None")
         if name in available_backends:
             self.backend = name
             self._backend = available_backends[name]()
         elif name is None:
             # The base class should not be called.
-            raise Exception(("A backend (e.g. 'jNeuroML' or 'NEURON') "
-                             "must be selected"))
+            warnings.warn("The `None` backend was selected and will have limited functionality")
         else:
             raise Exception("Backend %s not found in backends.py"
                             % name)

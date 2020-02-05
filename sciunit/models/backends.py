@@ -14,7 +14,7 @@ def register_backends(vars):
     `vars` should be a dictionary of variables obtained from e.g. `locals()`,
     at least some of which are Backend classes, e.g. from imports.
     """
-    new_backends = {x.replace('Backend', ''): cls
+    new_backends = {x if x is None else x.replace('Backend', ''): cls
                     for x, cls in vars.items()
                     if inspect.isclass(cls) and issubclass(cls, Backend)}
     available_backends.update(new_backends)
@@ -144,4 +144,4 @@ class BackendException(Exception):
 # Register the base class as a Backend just so that there is
 # always something available.  This Backend won't do anything
 # useful other than caching.
-register_backends({'None': Backend})
+register_backends({None: Backend})
