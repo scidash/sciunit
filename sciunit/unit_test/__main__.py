@@ -2,7 +2,7 @@
 
 import sys
 import unittest
-from . import * # Import all the tests from the unit_test module
+from .active import * # Import all the tests from the unit_test.active module
 
 def main():
     buffer = 'buffer' in sys.argv

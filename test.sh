@@ -2,8 +2,6 @@ pip install coveralls
 if [ ! -d "../scidash" ]; then
   git clone -b cosmosuite http://github.com/scidash/scidash ../scidash
 fi
-UNIT_TEST_SUITE="sciunit.unit_test.active buffer"
-# Fundamental Python bug prevents this latter method from allowing
-# some notebook tests to pass.
-#UNIT_TEST_SUITE="setup.py test"
+# All tests listed in sciunit/unit_test/active.py will be run
+UNIT_TEST_SUITE="sciunit.unit_test buffer"
 coverage run -m --source=. --omit=*unit_test*,setup.py,.eggs $UNIT_TEST_SUITE

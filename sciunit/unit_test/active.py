@@ -1,10 +1,8 @@
 """
 All active unit tests for SciUnit. This module is the default target of
-for testing in `test.sh`. Modify this file if you want to add or remove
+for testing in `__main__.py`. Modify this file if you want to add or remove
 tests located in other modules.
 """
-
-import unittest
 
 from .backend_tests import *
 from .command_line_tests import *
