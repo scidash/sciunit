@@ -10,7 +10,11 @@ from sciunit.scores import FloatScore
 from sciunit.capabilities import ProducesNumber
 
 from sciunit.unit_test.base import SuiteBase
-
+try:
+   from neuronunit.models.very_reduced import VeryReducedModel
+   SKIP_NU_P = False
+except:
+   SKIP_NU_P = True
 class TestsTestCase(unittest.TestCase):
     """Unit tests for the sciunit module"""
 
@@ -60,6 +64,24 @@ class TestSuitesTestCase(SuiteBase,unittest.TestCase):
         t.judge([m1,m2])
         t = TestSuite([t1,t2],skip_models=[m1],include_models=[m2])
         t.judge([m1,m2])
+
+
+    def test_testsuite_parallel(self):
+        t1 = self.T([2,3])
+        t2 = self.T([5,6])
+        m1 = VeryReducedModel(backend="RAW")
+        m2 = VeryReducedModel(backend="RAW")
+
+        m1.M = None
+        m1.M = (2,3)
+        m2.M = None
+        m2.M = (5,6)
+
+        t = TestSuite([t1,t2])
+        t.judge([m1,m2],parallel=True)
+        t = TestSuite([t1,t2],skip_models=[m1],include_models=[m2])
+        t.judge([m1,m2],parallel=True)
+
 
     def test_testsuite_hooks(self):
         t1 = self.T([2,3])

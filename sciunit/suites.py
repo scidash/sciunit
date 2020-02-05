@@ -16,16 +16,10 @@ try:
     import dask.bag as db
     import multiprocessing
     import numpy as np
+    from itertools import repeat
     PARALLEL_POSSIBLE = True
 except:
     PARALLEL_POSSIBLE = False
-def local_map(package):
-    test = package[0]
-    dtc = package[1]
-    sm = package[2]
-    model = dtc.dtc_to_model()
-    score = self.judge_one(model, test, sm)
-    return score
 class TestSuite(SciUnit, TestWeighted):
     """A collection of tests."""
 
@@ -127,6 +121,16 @@ class TestSuite(SciUnit, TestWeighted):
         return [test.check_capabilities(model,
                 skip_incapable=skip_incapable, require_extra=require_extra)
                 for test in self.tests]
+    def local_map(self,package):
+        test = package[0]
+        dtc = package[1]
+        sm = package[2]
+        print(test,sm)
+
+        model = dtc.dtc_to_model()
+        print(model)
+        score = self.judge_one(model, test, sm)
+        return score
 
     def judge(self, models,
               skip_incapable=False, stop_on_error=True, deep_error=False, parallel=False, log_norm=False):
@@ -152,7 +156,7 @@ class TestSuite(SciUnit, TestWeighted):
                     score = self.judge_one(model, test, sm, skip_incapable,
                                               stop_on_error, deep_error)
                     if log_norm:
-                        if score.get_raw() == 0:
+                        if score.get_raw() != 0:
                             score = self.judge_one(model, test, sm, skip_incapable,
                                            stop_on_error, deep_error)
                             score = score.log_norm_score
@@ -162,8 +166,9 @@ class TestSuite(SciUnit, TestWeighted):
             else:
                 dtc = model.model_to_dtc()
                 NPART = np.min([multiprocessing.cpu_count(),len(self.tests)])
-                bag = db.from_sequence([self.tests,dtc,sm], npartitions = NPART)
-                scores = list(bag.map(local_map).compute())
+                seq = zip(self.tests,repeat(dtc),repeat(sm))
+                bag = db.from_sequence(seq, npartitions = NPART)
+                scores = list(bag.map(self.local_map).compute())
                 for score in scores:
                     if log_norm:
                        score = score.log_norm_score

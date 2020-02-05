@@ -35,7 +35,10 @@ class Test(SciUnit):
         # if there is a conflict.
         self.params = dict_combine(self.default_params, params)
         self.verbose = self.params.pop('verbose', 1)
-        self.validate_params(self.params)
+        try:
+           self.validate_params(self.params)
+        except:
+            print(self.params)
         # Compute possible new params from existing params
         self.compute_params()
 
@@ -96,6 +99,7 @@ class Test(SciUnit):
             raise ObservationError("Observation is not a dictionary.")
         if "mean" in observation and observation["mean"] is None:
             raise ObservationError("Observation mean cannot be 'None'.")
+        assert float(observation['std']) != 0.0
         if self.observation_schema:
             if isinstance(self.observation_schema, list):
                 schemas = [x[1] if isinstance(x, tuple) else x
@@ -106,8 +110,14 @@ class Test(SciUnit):
                 schema = {'schema': self.observation_schema,
                           'type': 'dict'}
             schema = {'observation': schema}
+            
             v = ObservationValidator(schema, test=self)
+            if float(observation['std']) == 0.0:
+                print(float(observation['std']) != 0.0)
+                print('std == 0 error')
+                raise ObservationError(v.errors)
             if not v.validate({'observation': observation}):
+               
                 raise ObservationError(v.errors)
         return observation
 
