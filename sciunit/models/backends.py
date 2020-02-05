@@ -8,7 +8,6 @@ import shelve
 
 available_backends = {}
 
-
 def register_backends(vars):
     """Register backends for use with models.
 
@@ -141,3 +140,8 @@ class Backend(object):
 class BackendException(Exception):
     """Generic backend exception class."""
     pass
+
+# Register the base class as a Backend just so that there is
+# always something available.  This Backend won't do anything
+# useful other than caching.
+register_backends({'None': Backend})
