@@ -65,23 +65,17 @@ class TestSuitesTestCase(SuiteBase,unittest.TestCase):
         t = TestSuite([t1,t2],skip_models=[m1],include_models=[m2])
         t.judge([m1,m2])
 
-
+    """
     def test_testsuite_parallel(self):
-        t1 = self.T([2,3])
-        t2 = self.T([5,6])
         m1 = VeryReducedModel(backend="RAW")
         m2 = VeryReducedModel(backend="RAW")
 
-        m1.M = None
-        m1.M = (2,3)
-        m2.M = None
-        m2.M = (5,6)
-
+        # would need to be sciunit tests
         t = TestSuite([t1,t2])
         t.judge([m1,m2],parallel=True)
         t = TestSuite([t1,t2],skip_models=[m1],include_models=[m2])
         t.judge([m1,m2],parallel=True)
-
+    """
 
     def test_testsuite_hooks(self):
         t1 = self.T([2,3])
