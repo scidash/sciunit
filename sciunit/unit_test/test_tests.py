@@ -48,7 +48,7 @@ class TestsTestCase(unittest.TestCase):
         self.assertTrue(score.model is one_model)
 
 
-class TestSuitesTestCase(SuiteBase,unittest.TestCase):
+class TestSuitesTestCase(SuiteBase, unittest.TestCase):
     """Unit tests for the sciunit module"""
 
     def test_testsuite(self):
