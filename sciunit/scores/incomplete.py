@@ -19,21 +19,24 @@ class NoneScore(Score):
             super(NoneScore, self).__init__(score, related_data=related_data)
         else:
             raise InvalidScoreError("Score must be a string or None")
-
+           
     @property
     def norm_score(self):
         return None
 
     def __str__(self):
-        return 'Unknown'
+        if self.score:
+            s = '%s (%s)' % (self.description, self.score)
+        else:
+            s = self.description
+        return s
 
 
 class TBDScore(NoneScore):
     """A TBD (to be determined) score. Indicates that the model has
     capabilities required by the test but has not yet taken it."""
 
-    def __str__(self):
-        return 'TBD'
+    description = 'None'
 
 
 class NAScore(NoneScore):
@@ -42,13 +45,12 @@ class NAScore(NoneScore):
     Indicates that the model doesn't have the
     capabilities that the test requires."""
 
-    def __str__(self):
-        return 'N/A'
+    description = 'N/A'
 
 
 class InsufficientDataScore(NoneScore):
     """A score returned when the model or test data
     is insufficient to score the test."""
 
-    def __str__(self):
-        return 'Insufficient Data'
+    description = 'Insufficient Data'
+        
