@@ -9,7 +9,7 @@ from sciunit.scores import BooleanScore, FloatScore
 from sciunit.scores import FloatScore
 from sciunit.capabilities import ProducesNumber
 
-from sciunit.unit_test.base import SuiteBase
+from .base import SuiteBase
 
 class TestsTestCase(unittest.TestCase):
     """Unit tests for the sciunit module"""
@@ -48,7 +48,7 @@ class TestsTestCase(unittest.TestCase):
         self.assertTrue(score.model is one_model)
 
 
-class TestSuitesTestCase(SuiteBase,unittest.TestCase):
+class TestSuitesTestCase(SuiteBase, unittest.TestCase):
     """Unit tests for the sciunit module"""
 
     def test_testsuite(self):

@@ -18,6 +18,6 @@ htmlcov
 Untitled*.ipynb
 GeneratedFiles
 GeneratedFiles/*.py
-
 \.idea/
 .vscode
+*scratch.ipynb*

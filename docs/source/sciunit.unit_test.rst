@@ -4,6 +4,22 @@ sciunit.unit\_test package
 Submodules
 ----------
 
+sciunit.unit\_test.active module
+--------------------------------
+
+.. automodule:: sciunit.unit_test.active
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+sciunit.unit\_test.backend\_tests module
+----------------------------------------
+
+.. automodule:: sciunit.unit_test.backend_tests
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 sciunit.unit\_test.base module
 ------------------------------
 

@@ -9,6 +9,7 @@ capabilty's methods must implemented in the model class).
 import inspect
 
 from .base import SciUnit
+from .errors import CapabilityNotImplementedError
 
 
 class Capability(SciUnit):
@@ -36,11 +37,14 @@ class Capability(SciUnit):
             instance_capable = False
         return class_capable and instance_capable
 
-    def unimplemented(self):
-        """Raise a `NotImplementedError` with details."""
-        raise NotImplementedError(("The method %s promised by capability %s "
-                                   "is not implemented") %
-                                  (inspect.stack()[1][3], self.name))
+    def unimplemented(self, message=''):
+        """Raise a `CapabilityNotImplementedError` with details."""
+        from sciunit import Model
+        capabilities = [obj for obj in self.__class__.mro() if issubclass(obj, Capability) and not issubclass(obj, Model)]
+        model = self if isinstance(self, Model) else None
+        capability = None if not capabilities else capabilities[0]
+        print(model, capability)
+        raise CapabilityNotImplementedError(model, capability, message)
 
     class __metaclass__(type):
         @property
@@ -56,7 +60,7 @@ class ProducesNumber(Capability):
 
     def produce_number(self):
         """Produce a number."""
-        raise NotImplementedError("Must implement produce_number.")
+        self.unimplemented()
 
 
 class Runnable(Capability):
@@ -64,21 +68,18 @@ class Runnable(Capability):
 
     def run(self, **run_params):
         """Run, i.e. simulate the model."""
-        return NotImplementedError("%s not implemented" %
-                                   inspect.stack()[0][3])
+        self.unimplemented()
 
     def set_run_params(self, **run_params):
         """Set parameters for the next run.
 
         Note these are parameters of the simulation itself, not the model.
         """
-        return NotImplementedError("%s not implemented" %
-                                   inspect.stack()[0][3])
+        self.unimplemented()
 
     def set_default_run_params(self, **default_run_params):
         """Set default parameters for all runs.
 
         Note these are parameters of the simulation itself, not the model.
         """
-        return NotImplementedError("%s not implemented" %
-                                   inspect.stack()[0][3])
+        self.unimplemented()

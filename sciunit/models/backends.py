@@ -8,14 +8,13 @@ import shelve
 
 available_backends = {}
 
-
 def register_backends(vars):
     """Register backends for use with models.
 
     `vars` should be a dictionary of variables obtained from e.g. `locals()`,
     at least some of which are Backend classes, e.g. from imports.
     """
-    new_backends = {x.replace('Backend', ''): cls
+    new_backends = {x if x is None else x.replace('Backend', ''): cls
                     for x, cls in vars.items()
                     if inspect.isclass(cls) and issubclass(cls, Backend)}
     available_backends.update(new_backends)
@@ -141,3 +140,8 @@ class Backend(object):
 class BackendException(Exception):
     """Generic backend exception class."""
     pass
+
+# Register the base class as a Backend just so that there is
+# always something available.  This Backend won't do anything
+# useful other than caching.
+register_backends({None: Backend})
