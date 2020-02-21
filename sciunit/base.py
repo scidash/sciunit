@@ -20,7 +20,7 @@ if PYTHON_MAJOR_VERSION < 3:  # Python 2
     try:
         import Tkinter as tkinter
     except ImportError:
-        pass  # Handled in the importing modules's fix_display()
+        tkinter = None  # Handled in the importing modules's fix_display()
     FileNotFoundError = OSError
     json.JSONDecodeError = ValueError
 else:
