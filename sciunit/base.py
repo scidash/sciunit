@@ -20,12 +20,15 @@ if PYTHON_MAJOR_VERSION < 3:  # Python 2
     try:
         import Tkinter as tkinter
     except ImportError:
-        tkinter = None  # Handled in the importing modules's fix_display()
+        tkinter = None
     FileNotFoundError = OSError
     json.JSONDecodeError = ValueError
 else:
     from io import StringIO
-    import tkinter
+    try:
+        import tkinter
+    except ImportError:
+        tkinter = None
     FileNotFoundError = FileNotFoundError
 
 KERNEL = ('ipykernel' in sys.modules)
