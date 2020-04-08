@@ -24,7 +24,10 @@ import bs4
 import nbformat
 import nbconvert
 from nbconvert.preprocessors import ExecutePreprocessor
-from nbconvert.preprocessors.execute import CellExecutionError
+try:
+    from nbconvert.preprocessors.execute import CellExecutionError
+except:
+    from nbconvert.preprocessors import CellExecutionError
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 import cypy
