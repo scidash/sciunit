@@ -2,6 +2,7 @@
 
 import sys
 import os
+from pathlib import Path
 
 try:
     from pip.req import parse_requirements
@@ -23,16 +24,20 @@ else:
 
 def read_requirements():
     '''parses requirements from requirements.txt'''
-    reqs_path = os.path.join('.', 'requirements.txt')
+    reqs_path = Path(__file__).parent / 'requirements.txt'
     install_reqs = parse_requirements(reqs_path, session=PipSession())
     reqs = [str(ir.req) for ir in install_reqs]
     return reqs
 
 def get_version():
     version = {}
-    with open("sciunit/version.py") as f:
+    with open(Path(__file__).parent / 'sciunit' / 'version.py') as f:
         exec(f.read(), version)
     return version['__version__']
+
+readme_path = Path(__file__).parent / 'README.md'
+with open(readme_path, encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name='sciunit',
@@ -43,7 +48,8 @@ setup(
     url='http://sciunit.scidash.org',
     license='MIT',
     description='A test-driven framework for formally validating scientific models against data.',
-    long_description="",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     test_suite="sciunit.unit_test.core_tests",
     install_requires=read_requirements(),
     entry_points={
