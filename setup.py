@@ -25,7 +25,7 @@ else:
 def read_requirements():
     '''parses requirements from requirements.txt'''
     reqs_path = Path(__file__).parent / 'requirements.txt'
-    install_reqs = parse_requirements(reqs_path, session=PipSession())
+    install_reqs = parse_requirements(str(reqs_path), session=PipSession())
     reqs = [str(ir.req) for ir in install_reqs]
     return reqs
 
