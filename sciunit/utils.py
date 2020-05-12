@@ -37,6 +37,8 @@ import sciunit
 from sciunit.errors import Error
 from .base import SciUnit, FileNotFoundError, tkinter
 from .base import PLATFORM, PYTHON_MAJOR_VERSION
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
 try:
     import unittest.mock
     mock = True
@@ -72,7 +74,7 @@ def set_warnings_traceback(tb=True):
         warnings.simplefilter("default")
 
 
-def dict_combine(*dict_list):
+def dict_combine(*dict_list) -> Dict[Any, Any]:
     """Return the union of several dictionaries.
     Uses the values from later dictionaries in the argument list when
     duplicate keys are encountered.
@@ -82,7 +84,7 @@ def dict_combine(*dict_list):
     return {k: v for d in dict_list for k, v in d.items()}
 
 
-def rec_apply(func, n):
+def rec_apply(func: Callable, n: int) -> Callable:
     """
     Used to determine parent directory n levels up
     by repeatedly applying os.path.dirname
@@ -93,7 +95,7 @@ def rec_apply(func, n):
     return func
 
 
-def printd_set(state):
+def printd_set(state: bool) -> None:
     """Enable the printd function.
     Call with True for all subsequent printd commands to be passed to print.
     Call with False to ignore all subsequent printd commands.
@@ -103,7 +105,7 @@ def printd_set(state):
     settings['PRINT_DEBUG_STATE'] = (state is True)
 
 
-def printd(*args, **kwargs):
+def printd(*args, **kwargs) -> bool:
     """Print if PRINT_DEBUG_STATE is True"""
 
     global settings
@@ -124,7 +126,7 @@ else:  # Python 2
         sys.stdout = original
 
 
-def assert_dimensionless(value):
+def assert_dimensionless(value: Union[float, Quantity]) -> float:
     """
     Tests for dimensionlessness of input.
     If input is dimensionless but expressed as a Quantity, it returns the
@@ -150,12 +152,12 @@ class NotebookTools(object):
     # where generated files are stored
     gen_file_level = 2
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super(NotebookTools, self).__init__(*args, **kwargs)
         self.fix_display()
 
     @classmethod
-    def convert_path(cls, file):
+    def convert_path(cls, file: str) -> str:
         """
         Check to see if an extended path is given and convert appropriately
         """
@@ -169,7 +171,7 @@ class NotebookTools(object):
             print("Incorrect path specified")
             return -1
 
-    def get_path(self, file):
+    def get_path(self, file: str) -> str:
         """Get the full path of the notebook found in the directory
         specified by self.path.
         """
@@ -179,7 +181,7 @@ class NotebookTools(object):
         path = os.path.join(parent_path, self.path, file)
         return os.path.realpath(path)
 
-    def fix_display(self):
+    def fix_display(self) -> None:
         """If this is being run on a headless system the Matplotlib
         backend must be changed to one that doesn't need a display.
         """
@@ -230,7 +232,7 @@ class NotebookTools(object):
         self.run_notebook(nb, f)
         self.assertTrue(True)
 
-    def convert_notebook(self, name):
+    def convert_notebook(self, name: str) -> None:
         """Converts a notebook into a python file."""
         exporter = nbconvert.exporters.python.PythonExporter()
         relative_path = self.convert_path(name)
@@ -239,13 +241,13 @@ class NotebookTools(object):
         self.write_code(name, code)
         self.clean_code(name, [])
 
-    def convert_and_execute_notebook(self, name):
+    def convert_and_execute_notebook(self, name: str) -> None:
         """Converts a notebook into a python file and then runs it."""
         self.convert_notebook(name)
         code = self.read_code(name)
         exec(code, globals())
 
-    def gen_file_path(self, name):
+    def gen_file_path(self, name: str) -> str:
         """
         Returns full path to generated files.  Checks to see if directory
         exists where generated files are stored and creates one otherwise.
@@ -265,7 +267,7 @@ class NotebookTools(object):
                                                              gen_file_name))
         return new_file_path
 
-    def read_code(self, name):
+    def read_code(self, name: str) -> str:
         """Reads code from a python file called 'name'"""
 
         file_path = self.gen_file_path(name)
@@ -273,7 +275,7 @@ class NotebookTools(object):
             code = f.read()
         return code
 
-    def write_code(self, name, code):
+    def write_code(self, name: str, code: str) -> None:
         """
         Writes code to a python file called 'name',
         erasing the previous contents.
@@ -285,7 +287,7 @@ class NotebookTools(object):
         with open(file_path, 'w') as f:
             f.write(code)
 
-    def clean_code(self, name, forbidden):
+    def clean_code(self, name: str, forbidden: List[Any]) -> str:
         """
         Remove lines containing items in 'forbidden' from the code.
         Helpful for executing converted notebooks that still retain IPython
@@ -310,7 +312,7 @@ class NotebookTools(object):
         return new_code
 
     @classmethod
-    def strip_line_magic(cls, line, magics_allowed):
+    def strip_line_magic(cls, line: str, magics_allowed: List[str]) -> str:
         """Handles lines that contain get_ipython.run_line_magic() commands"""
         if PYTHON_MAJOR_VERSION == 2:  # Python 2
             stripped, magic_kind = cls.strip_line_magic_v2(line)
@@ -324,7 +326,7 @@ class NotebookTools(object):
         return stripped
 
     @classmethod
-    def strip_line_magic_v3(cls, line):
+    def strip_line_magic_v3(cls, line: str) -> Tuple[str, str]:
         """strip_line_magic() implementation for Python 3"""
 
         matches = re.findall("run_line_magic\(([^]]+)", line)
@@ -358,7 +360,7 @@ class NotebookTools(object):
             magic_kind = ""
         return stripped, magic_kind
 
-    def do_notebook(self, name):
+    def do_notebook(self, name: str) -> None:
         """Run a notebook file after optionally
         converting it to a python file."""
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS', True))
@@ -373,7 +375,7 @@ class NotebookTools(object):
             self._do_notebook(name, CONVERT_NOTEBOOKS)
         self.assertTrue(True)
 
-    def _do_notebook(self, name, convert_notebooks=False):
+    def _do_notebook(self, name: str, convert_notebooks: int=False) -> None:
         """Called by do_notebook to actually run the notebook."""
         if convert_notebooks:
             self.convert_and_execute_notebook(name)
@@ -441,7 +443,7 @@ def dict_hash(d):
     return SciUnit.dict_hash(d)
 
 
-def method_cache(by='value', method='run'):
+def method_cache(by: str='value', method: str='run') -> Callable:
     """A decorator used on any model method which calls the model's 'method'
     method if that latter method has not been called using the current
     arguments or simply sets model attributes to match the run results if
@@ -493,7 +495,7 @@ class_intern = cypy.intern
 method_memoize = cypy.memoize
 
 
-def log(*args, **kwargs):
+def log(*args, **kwargs) -> None:
     if settings['LOGGING']:
         if settings['KERNEL']:
             kernel_log(*args, **kwargs)
@@ -501,7 +503,7 @@ def log(*args, **kwargs):
             non_kernel_log(*args, **kwargs)
 
 
-def non_kernel_log(*args, **kwargs):
+def non_kernel_log(*args, **kwargs) -> None:
     args = [bs4.BeautifulSoup(x, "lxml").text
             if not isinstance(x, Exception) else x
             for x in args]
@@ -523,7 +525,7 @@ def kernel_log(*args, **kwargs):
     display(HTML(output))
 
 
-def config_get_from_path(config_path, key):
+def config_get_from_path(config_path: str, key: str) -> int:
     try:
         with open(config_path) as f:
             config = json.load(f)
@@ -538,7 +540,7 @@ def config_get_from_path(config_path, key):
     return value
 
 
-def config_get(key, default=None):
+def config_get(key: str, default: Optional[int]=None) -> int:
     try:
         assert isinstance(key, str), "Config key must be a string"
         config_path = os.path.join(settings['CWD'], 'config.json')

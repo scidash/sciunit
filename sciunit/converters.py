@@ -5,6 +5,8 @@ to the value required for particular score type.
 
 from string import Template
 from .scores import BooleanScore
+from sciunit.scores.complete import BooleanScore, ZScore
+from typing import Callable, Union
 
 
 class Converter(object):
@@ -32,7 +34,7 @@ class Converter(object):
                                    "it not implemented." %
                                    self.__class__.__name__))
 
-    def convert(self, score):
+    def convert(self, score: ZScore) -> Union[ZScore, BooleanScore]:
         new_score = self._convert(score)
         new_score.set_raw(score.get_raw())
         for key,value in score.__dict__.items():
@@ -46,7 +48,7 @@ class NoConversion(Converter):
     Applies no conversion.
     """
 
-    def _convert(self, score):
+    def _convert(self, score: ZScore) -> ZScore:
         return score
 
 
@@ -54,11 +56,11 @@ class LambdaConversion(Converter):
     """
     Converts a score according to a lambda function.
     """
-    def __init__(self, f):
+    def __init__(self, f: Callable) -> None:
         """f should be a lambda function"""
         self.f = f
 
-    def _convert(self, score):
+    def _convert(self, score: ZScore) -> ZScore:
         return score.__class__(self.f(score))
 
 
@@ -66,10 +68,10 @@ class AtMostToBoolean(Converter):
     """
     Converts a score to pass if its value is at most $cutoff, otherwise False.
     """
-    def __init__(self, cutoff):
+    def __init__(self, cutoff: int) -> None:
         self.cutoff = cutoff
 
-    def _convert(self, score):
+    def _convert(self, score: ZScore) -> BooleanScore:
         return BooleanScore(bool(score <= self.cutoff))
 
 
@@ -77,10 +79,10 @@ class AtLeastToBoolean(Converter):
     """
     Converts a score to Pass if its value is at least $cutoff, otherwise False.
     """
-    def __init__(self, cutoff):
+    def __init__(self, cutoff: int) -> None:
         self.cutoff = cutoff
 
-    def _convert(self, score):
+    def _convert(self, score: ZScore) -> BooleanScore:
         return BooleanScore(score >= self.cutoff)
 
 
@@ -89,9 +91,9 @@ class RangeToBoolean(Converter):
     Converts a score to Pass if its value is within the range
     [$low_cutoff,$high_cutoff], otherwise Fail.
     """
-    def __init__(self, low_cutoff, high_cutoff):
+    def __init__(self, low_cutoff: int, high_cutoff: int) -> None:
         self.low_cutoff = low_cutoff
         self.high_cutoff = high_cutoff
 
-    def _convert(self, score):
+    def _convert(self, score: ZScore) -> BooleanScore:
         return BooleanScore(self.low_cutoff <= score <= self.high_cutoff)
