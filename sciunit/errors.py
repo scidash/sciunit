@@ -4,9 +4,6 @@ Exception classes for SciUnit
 
 import inspect
 import sciunit
-from sciunit.capabilities import Capability
-from sciunit.models.base import Model
-from typing import Type
 
 class Error(Exception):
     """Base class for errors in sciunit's core."""
@@ -25,7 +22,7 @@ class ParametersError(Error):
 
 class CapabilityError(Error):
     """Abstract error class for capabilities"""
-    def __init__(self, model: Model, capability: Type[Capability], details: str='') -> None:
+    def __init__(self, model: 'sciunit.Model', capability: 'sciunit.Capability', details: str='') -> None:
         """
         model: a model instance
         capablity: a capability class
@@ -64,7 +61,7 @@ class CapabilityNotImplementedError(CapabilityError):
 
 class PredictionError(Error):
     """Raised when a tests's generate_prediction chokes on a model's method"""
-    def __init__(self, model: Model, method: str, **args) -> None:
+    def __init__(self, model: 'sciunit.Model', method: str, **args) -> None:
         self.model = model
         self.method = method
         self.args = args
