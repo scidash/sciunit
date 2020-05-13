@@ -153,7 +153,7 @@ class TestSuite(SciUnit, TestWeighted):
         return skip
 
     def judge_one(self, model: Model, test: Test, sm: ScoreMatrix,
-                  skip_incapable: bool=True, stop_on_error: bool=True, deep_error: bool=False) -> Score:
+                  skip_incapable: bool=True, stop_on_error: bool=True, deep_error: bool=False) -> 'Score':
         """Judge model and put score in the ScoreMatrix."""
         if self.is_skipped(model):
             score = NoneScore(None)
@@ -173,7 +173,7 @@ class TestSuite(SciUnit, TestWeighted):
         raise NotImplementedError(("Optimization not implemented "
                                    "for TestSuite '%s'" % self))
 
-    def set_hooks(self, test: Test, score: Score) -> None:
+    def set_hooks(self, test: Test, score: 'Score') -> None:
         """Set hook functions to run after each test is executed."""
         if self.hooks and test in self.hooks:
             f = self.hooks[test]['f']
@@ -189,7 +189,7 @@ class TestSuite(SciUnit, TestWeighted):
             test.verbose = verbose
 
     @classmethod
-    def from_observations(cls, tests_info: List[Tuple[Type[Test], List[int]]], name: Optional[str]=None) -> TestSuite:
+    def from_observations(cls, tests_info: List[Tuple[Type[Test], List[int]]], name: Optional[str]=None) -> 'sciunit.TestSuite':
         """Instantiate a test suite from a set of observations.
 
         `tests_info` should be a list of tuples containing the test class and
