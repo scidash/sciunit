@@ -10,13 +10,15 @@ import inspect
 
 from .base import SciUnit
 from .errors import CapabilityNotImplementedError
+#from sciunit.models.examples import ConstModel, UniformModel
+from typing import Union
 
 
 class Capability(SciUnit):
     """Abstract base class for sciunit capabilities."""
 
     @classmethod
-    def check(cls, model, require_extra=False):
+    def check(cls, model: Union['sciunit.Model', 'sciunit.Model'], require_extra: bool=False) -> bool:
         """Check whether the provided model has this capability.
 
         By default, uses isinstance.  If `require_extra`, also requires that an

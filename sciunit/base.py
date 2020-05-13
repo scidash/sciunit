@@ -11,6 +11,11 @@ import pandas as pd
 import git
 from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.cmd import Git
+from git.remote import Remote
+from git.repo.base import Repo
+#from sciunit.suites import TestSuite
+#from sciunit.tests import RangeTest
+from typing import Dict, List, Optional, Tuple, Union
 
 PYTHON_MAJOR_VERSION = sys.version_info.major
 PLATFORM = sys.platform
@@ -40,7 +45,7 @@ class Versioned(object):
     is tracked. Provided in part by Andrew Davison in issue #53.
     """
 
-    def get_repo(self, cached=True):
+    def get_repo(self, cached: bool=True) -> Repo:
         """Get a git repository object for this instance."""
         module = sys.modules[self.__module__]
         # We use module.__file__ instead of module.__path__[0]
@@ -58,7 +63,7 @@ class Versioned(object):
         self.__class__._repo = repo
         return repo
 
-    def get_version(self, cached=True):
+    def get_version(self, cached: bool=True) -> str:
         """Get a git version (i.e. a git commit hash) for this instance."""
         if hasattr(self.__class__, '_version') and cached:
             version = self.__class__._version
@@ -75,7 +80,7 @@ class Versioned(object):
         return version
     version = property(get_version)
 
-    def get_remote(self, remote='origin'):
+    def get_remote(self, remote: str='origin') -> Remote:
         """Get a git remote object for this instance."""
         repo = self.get_repo()
         if repo is not None:
@@ -85,7 +90,7 @@ class Versioned(object):
             r = None
         return r
 
-    def get_remote_url(self, remote='origin', cached=True):
+    def get_remote_url(self, remote: str='origin', cached: bool=True) -> str:
         """Get a git remote URL for this instance."""
         if hasattr(self.__class__, '_remote_url') and cached:
             url = self.__class__._remote_url
@@ -114,7 +119,7 @@ class Versioned(object):
 class SciUnit(Versioned):
     """Abstract base class for models, tests, and scores."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Instantiate a SciUnit object."""
         self.unpicklable = []
 
@@ -127,7 +132,7 @@ class SciUnit(Versioned):
     #: A verbosity level for printing information.
     verbose = 1
 
-    def __getstate__(self):
+    def __getstate__(self) -> Dict[str, Optional[Union[str, List['sciunit.tests.RangeTest'], int, Tuple[int, int]]]]:
         """Copy the object's state from self.__dict__.
 
         Contains all of the instance attributes. Always uses the dict.copy()
@@ -140,7 +145,7 @@ class SciUnit(Versioned):
                 del state[key]
         return state
 
-    def _state(self, state=None, keys=None, exclude=None):
+    def _state(self, state: Optional[Union[Dict[str, Optional[Union[str, List['sciunit.tests.RangeTest']]]], Dict[str, Union[str, int, Tuple[int, int]]]]]=None, keys: None=None, exclude: Optional[List[str]]=None) -> Dict[str, Optional[Union[str, List['sciunit.tests.RangeTest'], int, Tuple[int, int]]]]:
         if state is None:
             state = self.__getstate__()
         if keys:
@@ -169,7 +174,7 @@ class SciUnit(Versioned):
                 if isinstance(getattr(self.__class__, p, None), property)]
 
     @property
-    def state(self):
+    def state(self) -> Dict[str, Optional[Union[str, List['sciunit.tests.RangeTest']]]]:
         return self._state()
 
     @property
@@ -177,7 +182,7 @@ class SciUnit(Versioned):
         return self._properties()
 
     @classmethod
-    def dict_hash(cls, d):
+    def dict_hash(cls, d: Dict[str, Union[int, Dict[str, Union[int, str, Dict[str, int]]]]]) -> str:
         od = [(key, d[key]) for key in sorted(d)]
         try:
             s = pickle.dumps(od)
@@ -190,8 +195,8 @@ class SciUnit(Versioned):
         """A unique numeric identifier of the current model state"""
         return self.dict_hash(self.state)
 
-    def json(self, add_props=False, keys=None, exclude=None, string=True,
-             indent=None):
+    def json(self, add_props: bool=False, keys: None=None, exclude: None=None, string: bool=True,
+             indent: None=None) -> str:
         result = json.dumps(self, cls=SciUnitEncoder,
                             add_props=add_props, keys=keys, exclude=exclude,
                             indent=indent)
@@ -228,14 +233,14 @@ class SciUnit(Versioned):
 class SciUnitEncoder(json.JSONEncoder):
     """Custom JSON encoder for SciUnit objects"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         for key in ['add_props', 'keys', 'exclude']:
             if key in kwargs:
                 setattr(self.__class__, key, kwargs[key])
                 kwargs.pop(key)
         super(SciUnitEncoder, self).__init__(*args, **kwargs)
 
-    def default(self, obj):
+    def default(self, obj: Union['sciunit.tests.RangeTest', 'sciunit.TestSuite']) -> Dict[str, Optional[Union[str, List['sciunit.tests.RangeTest'], int, Tuple[int, int]]]]:
         try:
             if isinstance(obj, pd.DataFrame):
                 o = obj.to_dict(orient='split')
@@ -268,7 +273,7 @@ class TestWeighted(object):
     """Base class for objects with test weights."""
 
     @property
-    def weights(self):
+    def weights(self) -> List[float]:
         """Returns a normalized list of test weights."""
 
         n = len(self.tests)
@@ -283,7 +288,7 @@ class TestWeighted(object):
         return weights
 
 
-def deep_exclude(state, exclude):
+def deep_exclude(state: Dict[str, Union[str, int, Tuple[int, int]]], exclude: List[str]) -> Dict[str, Union[str, int, Tuple[int, int]]]:
     tuples = [key for key in exclude if isinstance(key, tuple)]
     s = state
     for loc in tuples:

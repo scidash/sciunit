@@ -11,13 +11,15 @@ from .tests import Test
 from .models import Model
 from .scores import NoneScore
 from .scores.collections import ScoreMatrix
+from sciunit.scores.collections import ScoreMatrix
+from typing import Callable, Dict, List, Optional, Tuple, Type, Union
 
 
 class TestSuite(SciUnit, TestWeighted):
     """A collection of tests."""
 
-    def __init__(self, tests, name=None, weights=None, include_models=None,
-                 skip_models=None, hooks=None, optimizer=None):
+    def __init__(self, tests: List[Test], name: Optional[str]=None, weights: None=None, include_models: Optional[List[Model]]=None,
+                 skip_models: Optional[List[Model]]=None, hooks: Optional[Dict[Test, Dict[str, Union[Callable, Dict[str, int]]]]]=None, optimizer: None=None) -> None:
         """
         optimizer: a function to bind to self.optimize (first argument must be a testsuite)
         """
@@ -53,7 +55,7 @@ class TestSuite(SciUnit, TestWeighted):
     """List of names or instances of models to not judge
     (all passed to judge are judged by default)."""
 
-    def assert_tests(self, tests):
+    def assert_tests(self, tests: List[Test]) -> List[Test]:
         """Check and in some cases fixes the list of tests."""
 
         if isinstance(tests, Test):
@@ -70,7 +72,7 @@ class TestSuite(SciUnit, TestWeighted):
                                  "a test or iterable."))
         return tests
 
-    def assert_models(self, models):
+    def assert_models(self, models: Union[Model, List[Model]]) -> Union[Tuple[Model], List[Model]]:
         """Check and in some cases fixes the list of models."""
 
         if isinstance(models, Model):
@@ -115,8 +117,8 @@ class TestSuite(SciUnit, TestWeighted):
                 skip_incapable=skip_incapable, require_extra=require_extra)
                 for test in self.tests]
 
-    def judge(self, models,
-              skip_incapable=False, stop_on_error=True, deep_error=False):
+    def judge(self, models: Union[Model, List[Model]],
+              skip_incapable: bool=False, stop_on_error: bool=True, deep_error: bool=False) -> ScoreMatrix:
         """Judge the provided models against each test in the test suite.
 
         Args:
@@ -140,7 +142,7 @@ class TestSuite(SciUnit, TestWeighted):
                 self.set_hooks(test, score)
         return sm
 
-    def is_skipped(self, model):
+    def is_skipped(self, model: Model) -> bool:
         """Indicate whether `model` will be judged or not."""
         # Skip if include_models provided and model not found there
         skip = self.include_models and \
@@ -150,8 +152,8 @@ class TestSuite(SciUnit, TestWeighted):
             skip = any([model.is_match(x) for x in self.skip_models])
         return skip
 
-    def judge_one(self, model, test, sm,
-                  skip_incapable=True, stop_on_error=True, deep_error=False):
+    def judge_one(self, model: Model, test: Test, sm: ScoreMatrix,
+                  skip_incapable: bool=True, stop_on_error: bool=True, deep_error: bool=False) -> Score:
         """Judge model and put score in the ScoreMatrix."""
         if self.is_skipped(model):
             score = NoneScore(None)
@@ -171,7 +173,7 @@ class TestSuite(SciUnit, TestWeighted):
         raise NotImplementedError(("Optimization not implemented "
                                    "for TestSuite '%s'" % self))
 
-    def set_hooks(self, test, score):
+    def set_hooks(self, test: Test, score: Score) -> None:
         """Set hook functions to run after each test is executed."""
         if self.hooks and test in self.hooks:
             f = self.hooks[test]['f']
@@ -181,13 +183,13 @@ class TestSuite(SciUnit, TestWeighted):
                 kwargs = {}
             f(test, self.tests, score, **kwargs)
 
-    def set_verbose(self, verbose):
+    def set_verbose(self, verbose: bool) -> None:
         """Set the verbosity for logged information about test execution."""
         for test in self.tests:
             test.verbose = verbose
 
     @classmethod
-    def from_observations(cls, tests_info, name=None):
+    def from_observations(cls, tests_info: List[Tuple[Type[Test], List[int]]], name: Optional[str]=None) -> TestSuite:
         """Instantiate a test suite from a set of observations.
 
         `tests_info` should be a list of tuples containing the test class and
