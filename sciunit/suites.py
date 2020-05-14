@@ -89,8 +89,8 @@ class TestSuite(SciUnit, TestWeighted):
                                  "a model or iterable."))
         return models
 
-    def check(self, models, skip_incapable=True, require_extra=False,
-              stop_on_error=True):
+    def check(self, models: Union[Model, List[Model]], skip_incapable: bool=True, require_extra: bool=False,
+              stop_on_error: bool=True):
         """Like judge, but without actually running the test.
 
         Just returns a ScoreMatrix indicating whether each model can take
@@ -105,8 +105,8 @@ class TestSuite(SciUnit, TestWeighted):
                                                  require_extra=require_extra)
         return sm
 
-    def check_capabilities(self, model, skip_incapable=False,
-                           require_extra=False):
+    def check_capabilities(self, model, skip_incapable: bool=False,
+                           require_extra: bool=False):
         """Check model capabilities against those required by the suite.
 
         Returns a list of booleans (one for each test in the suite)
@@ -208,7 +208,7 @@ class TestSuite(SciUnit, TestWeighted):
             tests.append(test)
         return cls(tests, name=name)
     
-    def __getitem__(self, item):
+    def __getitem__(self, item: Union[str, int]) -> Test:
         if isinstance(item, int):
             test = self.tests[item]
         else:
@@ -220,7 +220,7 @@ class TestSuite(SciUnit, TestWeighted):
             test = options[0]
         return test
     
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.tests)
 
     def __str__(self):

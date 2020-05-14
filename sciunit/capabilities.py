@@ -39,7 +39,7 @@ class Capability(SciUnit):
             instance_capable = False
         return class_capable and instance_capable
 
-    def unimplemented(self, message=''):
+    def unimplemented(self, message: str='') -> None:
         """Raise a `CapabilityNotImplementedError` with details."""
         from sciunit import Model
         capabilities = [obj for obj in self.__class__.mro() if issubclass(obj, Capability) and not issubclass(obj, Model)]
@@ -53,14 +53,14 @@ class Capability(SciUnit):
         def name(cls):
             return cls.__name__
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class ProducesNumber(Capability):
     """An example capability for producing some generic number."""
 
-    def produce_number(self):
+    def produce_number(self) -> None:
         """Produce a number."""
         self.unimplemented()
 
@@ -68,18 +68,18 @@ class ProducesNumber(Capability):
 class Runnable(Capability):
     """Capability for models that can be run, i.e. simulated."""
 
-    def run(self, **run_params):
+    def run(self, **run_params) -> None:
         """Run, i.e. simulate the model."""
         self.unimplemented()
 
-    def set_run_params(self, **run_params):
+    def set_run_params(self, **run_params) -> None:
         """Set parameters for the next run.
 
         Note these are parameters of the simulation itself, not the model.
         """
         self.unimplemented()
 
-    def set_default_run_params(self, **default_run_params):
+    def set_default_run_params(self, **default_run_params) -> None:
         """Set default parameters for all runs.
 
         Note these are parameters of the simulation itself, not the model.

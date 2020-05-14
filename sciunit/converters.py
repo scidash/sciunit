@@ -4,7 +4,7 @@ to the value required for particular score type.
 """
 
 from string import Template
-from .scores import BooleanScore, ZScore
+from .scores import BooleanScore, ZScore, Score
 from typing import Callable, Union
 
 
@@ -24,7 +24,7 @@ class Converter(object):
             s = "No description available"
         return s
 
-    def _convert(self, score):
+    def _convert(self, score: Score) -> None:
         """
         Takes the score attribute of a score instance
         and recasts it as instance of another score type.
@@ -33,7 +33,7 @@ class Converter(object):
                                    "it not implemented." %
                                    self.__class__.__name__))
 
-    def convert(self, score: ZScore) -> Union[ZScore, BooleanScore]:
+    def convert(self, score: Score) -> Score:
         new_score = self._convert(score)
         new_score.set_raw(score.get_raw())
         for key,value in score.__dict__.items():
@@ -47,7 +47,7 @@ class NoConversion(Converter):
     Applies no conversion.
     """
 
-    def _convert(self, score: ZScore) -> ZScore:
+    def _convert(self, score: Score) -> Score:
         return score
 
 
@@ -59,7 +59,7 @@ class LambdaConversion(Converter):
         """f should be a lambda function"""
         self.f = f
 
-    def _convert(self, score: ZScore) -> ZScore:
+    def _convert(self, score: Score) -> Score:
         return score.__class__(self.f(score))
 
 

@@ -154,7 +154,7 @@ class SciUnit(Versioned):
             state = deep_exclude(state, exclude)
         return state
 
-    def _properties(self, keys=None, exclude=None):
+    def _properties(self, keys: list=None, exclude: list=None):
         result = {}
         props = self.raw_props()
         exclude = exclude if exclude else []
@@ -166,7 +166,7 @@ class SciUnit(Versioned):
                 result[prop] = getattr(self, prop)
         return result
 
-    def raw_props(self):
+    def raw_props(self) -> list:
         class_attrs = dir(self.__class__)
         return [p for p in class_attrs
                 if isinstance(getattr(self.__class__, p, None), property)]
@@ -189,11 +189,11 @@ class SciUnit(Versioned):
         return hashlib.sha224(s).hexdigest()
 
     @property
-    def hash(self):
+    def hash(self) -> str:
         """A unique numeric identifier of the current model state"""
         return self.dict_hash(self.state)
 
-    def json(self, add_props: bool=False, keys: None=None, exclude: None=None, string: bool=True,
+    def json(self, add_props: bool=False, keys: list=None, exclude: list=None, string: bool=True,
              indent: None=None) -> str:
         result = json.dumps(self, cls=SciUnitEncoder,
                             add_props=add_props, keys=keys, exclude=exclude,
