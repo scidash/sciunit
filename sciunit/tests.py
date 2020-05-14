@@ -13,12 +13,14 @@ from .validators import ObservationValidator, ParametersValidator
 from .errors import Error, CapabilityError, ObservationError,\
                     InvalidScoreError, ParametersError
 from .utils import dict_combine
+#from sciunit.models.examples import ConstModel, UniformModel
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 
 class Test(SciUnit):
     """Abstract base class for tests."""
 
-    def __init__(self, observation, name=None, **params):
+    def __init__(self, observation: Union[List[int], Tuple[int, int]], name: Optional[str]=None, **params) -> None:
         """
         Args:
             observation (dict): A dictionary of observed values to parameterize
@@ -77,7 +79,7 @@ class Test(SciUnit):
     """A schema that the params must adhere to (validated by cerberus).
     Can also be a list of schemas, one of which the params must match."""
 
-    def compute_params(self):
+    def compute_params(self) -> None:
         """Compute new params from existing `self.params`.
         Inserts those new params into `self.params`. Use this when some params
         depend upon the values of others.
@@ -121,7 +123,7 @@ class Test(SciUnit):
                          for i, x in enumerate(cls.observation_schema)]
         return names
 
-    def validate_params(self, params):
+    def validate_params(self, params: Dict[Any, Any]) -> Dict[Any, Any]:
         """Validate the params provided to the constructor.
 
         Raises an ParametersError if invalid.
@@ -147,8 +149,8 @@ class Test(SciUnit):
     """A sequence of capabilities that a model must have in order for the
     test to be run. Defaults to empty."""
 
-    def check_capabilities(self, model, skip_incapable=False,
-                           require_extra=False):
+    def check_capabilities(self, model: Union[Model, Model], skip_incapable: bool=False,
+                           require_extra: bool=False) -> bool:
         """Check that test's required capabilities are implemented by `model`.
 
         Raises an Error if model is not a Model.
@@ -161,8 +163,8 @@ class Test(SciUnit):
                        for c in self.required_capabilities])
         return capable
 
-    def check_capability(self, model, c, skip_incapable=False,
-                         require_extra=False):
+    def check_capability(self, model: Union[Model, Model], c: Type[ProducesNumber], skip_incapable: bool=False,
+                         require_extra: bool=False) -> bool:
         """Check if `model` has capability `c`.
 
         Optionally (default:True) raise a `CapabilityError` if it does not.
@@ -190,7 +192,7 @@ class Test(SciUnit):
         raise NotImplementedError(("Test %s does not implement "
                                    "generate_prediction.") % str())
 
-    def check_prediction(self, prediction):
+    def check_prediction(self, prediction: float) -> None:
         """Check the prediction for acceptable values.
 
         No default implementation.
@@ -219,7 +221,7 @@ class Test(SciUnit):
         score = self.score_type(self.score_type._best)
         return score
 
-    def _bind_score(self, score, model, observation, prediction):
+    def _bind_score(self, score: Score, model: Union[Model, Model], observation: List[int], prediction: float) -> None:
         """Bind some useful attributes to the score."""
         score.model = model
         score.test = self
@@ -229,11 +231,11 @@ class Test(SciUnit):
         score.related_data = score.related_data.copy()
         self.bind_score(score, model, observation, prediction)
 
-    def bind_score(self, score, model, observation, prediction):
+    def bind_score(self, score: Score, model: Union[Model, Model], observation: List[int], prediction: float) -> None:
         """For the user to bind additional features to the score."""
         pass
 
-    def check_score_type(self, score):
+    def check_score_type(self, score: Score) -> None:
         """Check that the score is the correct type for this test."""
         if not isinstance(score, (self.score_type, NoneScore, ErrorScore)):
             msg = (("Score for test '%s' is not of correct type. "
@@ -242,7 +244,7 @@ class Test(SciUnit):
                       score.__class__.__name__))
             raise InvalidScoreError(msg)
 
-    def _judge(self, model, skip_incapable=True):
+    def _judge(self, model: Union[Model, Model], skip_incapable: bool=True) -> BooleanScore:
         """Generate a score for the model (internal API use only)."""
         # 1.
         self.check_capabilities(model, skip_incapable=skip_incapable)
@@ -271,8 +273,8 @@ class Test(SciUnit):
 
         return score
 
-    def judge(self, model, skip_incapable=False, stop_on_error=True,
-              deep_error=False):
+    def judge(self, model: Union[Model, Model], skip_incapable: bool=False, stop_on_error: bool=True,
+              deep_error: bool=False) -> BooleanScore:
         """Generate a score for the provided model (public method).
 
         Operates as follows:
@@ -322,8 +324,8 @@ class Test(SciUnit):
             raise score.score  # An exception.
         return score
 
-    def check(self, model, skip_incapable=True, stop_on_error=True,
-              require_extra=False):
+    def check(self, model: Model, skip_incapable: bool=True, stop_on_error: bool=True,
+              require_extra: bool=False) -> Union[TBDScore, NAScore, ErrorScore]:
         """Check to see if the test can run this model.
 
         Like judge, but without actually running the test. Just returns a Score
@@ -346,7 +348,7 @@ class Test(SciUnit):
         raise NotImplementedError(("Optimization not implemented "
                                    "for Test '%s'" % self))
 
-    def describe(self):
+    def describe(self) -> str:
         """Describe the test in words."""
         result = "No description available"
         if self.description:
@@ -362,16 +364,16 @@ class Test(SciUnit):
         return result
 
     @property
-    def state(self):
+    def state(self) -> Dict[str, Union[str, int, Tuple[int, int]]]:
         """Get the frozen (pickled) model state."""
         return self._state(exclude=['last_model'])
 
     @classmethod
-    def is_test_class(cls, other_cls):
+    def is_test_class(cls, other_cls: Type['RangeTest']) -> bool:
         """Return whether `other_cls` is a subclass of this test class."""
         return inspect.isclass(other_cls) and issubclass(other_cls, cls)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the string representation of the test's name."""
         return '%s' % self.name
 
@@ -577,21 +579,21 @@ class TestM2M(Test):
 class RangeTest(Test):
     """Test if the model generates a number within a certain range"""
 
-    def __init__(self, observation, name=None):
+    def __init__(self, observation: Union[Tuple[int, int], List[int]], name: Optional[str]=None) -> None:
         super(RangeTest, self).__init__(observation, name=name)
 
     required_capabilities = (ProducesNumber,)
     score_type = BooleanScore
 
-    def validate_observation(self, observation):
+    def validate_observation(self, observation: List[int]) -> None:
         assert type(observation) in (tuple, list, set)
         assert len(observation) == 2
         assert observation[1] > observation[0]
 
-    def generate_prediction(self, model):
+    def generate_prediction(self, model: Union[Model, Model]) -> float:
         return model.produce_number()
 
-    def compute_score(self, observation, prediction):
+    def compute_score(self, observation: List[int], prediction: float) -> BooleanScore:
         low = observation[0]
         high = observation[1]
         return self.score_type(low < prediction < high)
