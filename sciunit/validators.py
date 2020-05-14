@@ -6,13 +6,13 @@ import quantities as pq
 from cerberus import TypeDefinition, Validator
 
 
-def register_type(cls, name):
+def register_type(cls, name) -> None:
     """Register `name` as a type to validate as an instance of class `cls`."""
     x = TypeDefinition(name, (cls,), ())
     Validator.types_mapping[name] = x
 
 
-def register_quantity(quantity, name):
+def register_quantity(quantity, name) -> None:
     """Register `name` as a type to validate as an instance of class `cls`."""
     x = TypeDefinition(name, (quantity.__class__,), ())
     Validator.types_mapping[name] = x
@@ -21,7 +21,7 @@ def register_quantity(quantity, name):
 class ObservationValidator(Validator):
     """Cerberus validator class for observations."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Must pass `test` as a keyword argument.
 
         Cannot be a positional argument without modifications to cerberus
@@ -33,8 +33,8 @@ class ObservationValidator(Validator):
                              "a `test` keyword argument"))
         super(ObservationValidator, self).__init__(*args, **kwargs)
         register_type(pq.quantity.Quantity, 'quantity')
-        
-    def _validate_iterable(self, is_iterable, key, value):
+
+    def _validate_iterable(self, is_iterable, key, value) -> None:
         """Validate fields with `iterable` key in schema set to True
 
         The rule's arguments are validated against this schema:
@@ -46,7 +46,7 @@ class ObservationValidator(Validator):
             except TypeError:
                 self._error(key, "Must be iterable (e.g. a list or array)")
 
-    def _validate_units(self, has_units, key, value):
+    def _validate_units(self, has_units, key, value) -> None:
         """Validate fields with `units` key in schema set to True.
 
         The rule's arguments are validated against this schema:
@@ -74,12 +74,12 @@ class ParametersValidator(Validator):
 
     units_map = {'time': 's', 'voltage': 'V', 'current': 'A'}
 
-    def validate_quantity(self, value):
+    def validate_quantity(self, value: pq.quantity.Quantity) -> None:
         """Validate that the value is of the `Quantity` type."""
         if not isinstance(value, pq.quantity.Quantity):
             self._error('%s' % value, "Must be a Python quantity.")
 
-    def validate_units(self, value):
+    def validate_units(self, value: pq.quantity.Quantity) -> bool:
         """Validate units, assuming that it was called by _validate_type_*."""
         self.validate_quantity(value)
         self.units_type = inspect.stack()[1][3].split('_')[-1]
@@ -93,14 +93,14 @@ class ParametersValidator(Validator):
                         "Must have dimensions of %s." % self.units_type)
         return True
 
-    def _validate_type_time(self, value):
+    def _validate_type_time(self, value: pq.quantity.Quantity) -> bool:
         """Validate fields requiring `units` of seconds."""
         return self.validate_units(value)
 
-    def _validate_type_voltage(self, value):
+    def _validate_type_voltage(self, value: pq.quantity.Quantity) -> bool:
         """Validate fields requiring `units` of volts."""
         return self.validate_units(value)
 
-    def _validate_type_current(self, value):
+    def _validate_type_current(self, value: pq.quantity.Quantity) -> bool:
         """Validate fields requiring `units` of amps."""
         return self.validate_units(value)

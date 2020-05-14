@@ -37,7 +37,7 @@ import sciunit
 from sciunit.errors import Error
 from .base import SciUnit, FileNotFoundError, tkinter
 from .base import PLATFORM, PYTHON_MAJOR_VERSION
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO
 
 try:
     import unittest.mock
@@ -54,7 +54,7 @@ settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
 
 
 def warn_with_traceback(message, category, filename, lineno,
-                        file=None, line=None):
+                        file=None, line=None) -> None:
     """A function to use with `warnings.showwarning` to show a traceback."""
     log = file if hasattr(file, 'write') else sys.stderr
     traceback.print_stack(file=log)
@@ -62,7 +62,7 @@ def warn_with_traceback(message, category, filename, lineno,
                 message, category, filename, lineno, line))
 
 
-def set_warnings_traceback(tb=True):
+def set_warnings_traceback(tb=True) -> None:
     """Set to `True` to give tracebacks for all warnings, or `False` to restore
     default behavior."""
     if tb:
@@ -157,7 +157,7 @@ class NotebookTools(object):
         self.fix_display()
 
     @classmethod
-    def convert_path(cls, file: str) -> str:
+    def convert_path(cls, file: str) -> Union[str, int]:
         """
         Check to see if an extended path is given and convert appropriately
         """
@@ -197,14 +197,14 @@ class NotebookTools(object):
                 printd("Setting matplotlib backend to Agg")
                 mpl.use('Agg')
 
-    def load_notebook(self, name):
+    def load_notebook(self, name: str) -> Tuple[nbformat.NotebookNode, TextIO]:
         """Loads a notebook file into memory."""
 
         with open(self.get_path('%s.ipynb' % name)) as f:
             nb = nbformat.read(f, as_version=4)
         return nb, f
 
-    def run_notebook(self, nb, f):
+    def run_notebook(self, nb: nbformat.NotebookNode, f: TextIO) -> None:
         """Runs a loaded notebook file."""
 
         if PYTHON_MAJOR_VERSION == 3:
@@ -224,7 +224,7 @@ class NotebookTools(object):
         finally:
             nbformat.write(nb, f)
 
-    def execute_notebook(self, name):
+    def execute_notebook(self, name: str) -> None:
         """Loads and then runs a notebook file."""
 
         warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -388,12 +388,12 @@ class MockDevice(TextIOWrapper):
     Similar to UNIX /dev/null.
     """
 
-    def write(self, s):
+    def write(self, s) -> None:
         if s.startswith('[') and s.endswith(']'):
             super(MockDevice, self).write(s)
 
 
-def import_all_modules(package, skip=None, verbose=False, prefix="", depth=0):
+def import_all_modules(package, skip=None, verbose=False, prefix="", depth=0) -> None:
     """Recursively imports all subpackages, modules, and submodules of a
     given package.
     'package' should be an imported package, not a string.
@@ -513,7 +513,7 @@ def non_kernel_log(*args, **kwargs) -> None:
         print(args)
 
 
-def kernel_log(*args, **kwargs):
+def kernel_log(*args, **kwargs) -> None:
     with StringIO() as f:
         kwargs['file'] = f
         args = [u'%s' % arg for arg in args]
