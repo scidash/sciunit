@@ -13,8 +13,6 @@ from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.cmd import Git
 from git.remote import Remote
 from git.repo.base import Repo
-#from sciunit.suites import TestSuite
-#from sciunit.tests import RangeTest
 from typing import Dict, List, Optional, Tuple, Union
 
 PYTHON_MAJOR_VERSION = sys.version_info.major
