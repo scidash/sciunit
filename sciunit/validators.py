@@ -4,15 +4,15 @@ import inspect
 
 import quantities as pq
 from cerberus import TypeDefinition, Validator
+from typing import Any
 
-
-def register_type(cls, name) -> None:
+def register_type(cls, name: str) -> None:
     """Register `name` as a type to validate as an instance of class `cls`."""
     x = TypeDefinition(name, (cls,), ())
     Validator.types_mapping[name] = x
+    
 
-
-def register_quantity(quantity, name) -> None:
+def register_quantity(quantity: pq.Quantity, name: str) -> None:
     """Register `name` as a type to validate as an instance of class `cls`."""
     x = TypeDefinition(name, (quantity.__class__,), ())
     Validator.types_mapping[name] = x
@@ -34,7 +34,7 @@ class ObservationValidator(Validator):
         super(ObservationValidator, self).__init__(*args, **kwargs)
         register_type(pq.quantity.Quantity, 'quantity')
 
-    def _validate_iterable(self, is_iterable, key, value) -> None:
+    def _validate_iterable(self, is_iterable: bool, key: Any, value: Any) -> None:
         """Validate fields with `iterable` key in schema set to True
 
         The rule's arguments are validated against this schema:
@@ -46,7 +46,7 @@ class ObservationValidator(Validator):
             except TypeError:
                 self._error(key, "Must be iterable (e.g. a list or array)")
 
-    def _validate_units(self, has_units, key, value) -> None:
+    def _validate_units(self, has_units: bool, key, value) -> None:
         """Validate fields with `units` key in schema set to True.
 
         The rule's arguments are validated against this schema:

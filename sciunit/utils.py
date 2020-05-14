@@ -53,8 +53,8 @@ settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
             'CWD': os.path.realpath(sciunit.__path__[0])}
 
 
-def warn_with_traceback(message, category, filename, lineno,
-                        file=None, line=None) -> None:
+def warn_with_traceback(message: str, category, filename: str, lineno: int,
+                        file: TextIO=None, line: str=None) -> None:
     """A function to use with `warnings.showwarning` to show a traceback."""
     log = file if hasattr(file, 'write') else sys.stderr
     traceback.print_stack(file=log)
@@ -62,7 +62,7 @@ def warn_with_traceback(message, category, filename, lineno,
                 message, category, filename, lineno, line))
 
 
-def set_warnings_traceback(tb=True) -> None:
+def set_warnings_traceback(tb: bool=True) -> None:
     """Set to `True` to give tracebacks for all warnings, or `False` to restore
     default behavior."""
     if tb:
@@ -341,7 +341,7 @@ class NotebookTools(object):
         return stripped, magic_kind
 
     @classmethod
-    def strip_line_magic_v2(cls, line):
+    def strip_line_magic_v2(cls, line: str) -> Tuple[str, str]:
         """strip_line_magic() implementation for Python 2"""
 
         matches = re.findall("magic\(([^]]+)", line)
@@ -393,7 +393,7 @@ class MockDevice(TextIOWrapper):
             super(MockDevice, self).write(s)
 
 
-def import_all_modules(package, skip=None, verbose=False, prefix="", depth=0) -> None:
+def import_all_modules(package, skip: list=None, verbose: bool=False, prefix: str="", depth: int=0) -> None:
     """Recursively imports all subpackages, modules, and submodules of a
     given package.
     'package' should be an imported package, not a string.
@@ -420,7 +420,7 @@ def import_all_modules(package, skip=None, verbose=False, prefix="", depth=0) ->
                                verbose=verbose, depth=depth+1)
 
 
-def import_module_from_path(module_path, name=None):
+def import_module_from_path(module_path: str, name=None):
     directory, file_name = os.path.split(module_path)
     if name is None:
         name = file_name.rstrip('.py')
@@ -555,7 +555,7 @@ def config_get(key: str, default: Optional[int]=None) -> int:
     return value
 
 
-def path_escape(path):
+def path_escape(path: str):
     """Escape a path by placing backslashes in front of disallowed characters"""
     for char in [' ', '(', ')']:
         path = path.replace(char, '\%s' % char)
