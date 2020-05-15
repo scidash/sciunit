@@ -14,17 +14,17 @@ class NoneScore(Score):
     Usually indicates that the model has not been
     checked to see if it has the capabilities required by the test."""
 
-    def __init__(self, score, related_data=None):
+    def __init__(self, score: Score, related_data: dict=None):
         if isinstance(score, str) or score is None:
             super(NoneScore, self).__init__(score, related_data=related_data)
         else:
             raise InvalidScoreError("Score must be a string or None")
            
     @property
-    def norm_score(self):
+    def norm_score(self) -> None:
         return None
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.score:
             s = '%s (%s)' % (self.description, self.score)
         else:

@@ -76,7 +76,7 @@ def main(*args):
         cleanup(config, path=args.directory)
 
 
-def create(file_path):
+def create(file_path: str) -> None:
     """Create a default .sciunit config file if one does not already exist."""
     if os.path.exists(file_path):
         raise IOError("There is already a configuration file at %s" %
@@ -98,7 +98,7 @@ def create(file_path):
         config.write(f)
 
 
-def parse(file_path=None, show=False):
+def parse(file_path: str=None, show: bool=False):
     """Parse a .sciunit config file."""
     if file_path is None:
         file_path = os.path.join(os.getcwd(), '.sciunit')
@@ -119,7 +119,7 @@ def parse(file_path=None, show=False):
     return config
 
 
-def prep(config=None, path=None):
+def prep(config=None, path=None) -> None:
     """Prepare to read the configuration information."""
     if config is None:
         config = parse()
@@ -133,7 +133,7 @@ def prep(config=None, path=None):
         sys.path.insert(0, root)
 
 
-def run(config, path=None, stop_on_error=True, just_tests=False):
+def run(config, path=None, stop_on_error: bool=True, just_tests: bool=False) -> None:
     """Run sciunit tests for the given configuration."""
     if path is None:
         path = os.getcwd()
@@ -158,14 +158,14 @@ def run(config, path=None, stop_on_error=True, just_tests=False):
             _run(suite, models, stop_on_error)
 
 
-def _run(test_or_suite, models, stop_on_error):
+def _run(test_or_suite, models: list, stop_on_error) -> None:
     score_array_or_matrix = test_or_suite.judge(models.models,
                                                 stop_on_error=stop_on_error)
     kind = 'Test' if isinstance(test_or_suite, sciunit.Test) else 'Suite'
     print('\n%s %s:\n%s\n' % (kind, test_or_suite, score_array_or_matrix))
 
 
-def nb_name_from_path(config, path):
+def nb_name_from_path(config: dict, path: str) -> typing.Tuple[Any, Any]:
     """Get a notebook name from a path to a notebook"""
     if path is None:
         path = os.getcwd()
@@ -177,7 +177,7 @@ def nb_name_from_path(config, path):
     return root, nb_name
 
 
-def make_nb(config, path=None, stop_on_error=True, just_tests=False):
+def make_nb(config, path: str=None, stop_on_error: bool=True, just_tests: bool=False) -> None:
     """Create a Jupyter notebook sciunit tests for the given configuration."""
     root, nb_name = nb_name_from_path(config, path)
     clean = lambda varStr: re.sub('\W|^(?=\d)', '_', varStr)
@@ -205,7 +205,7 @@ def make_nb(config, path=None, stop_on_error=True, just_tests=False):
     write_nb(root, nb_name, cells)
 
 
-def write_nb(root, nb_name, cells):
+def write_nb(root, nb_name, cells) -> None:
     """Write a jupyter notebook to disk.
 
     Takes a given a root directory, a notebook name, and a list of cells.
@@ -220,7 +220,7 @@ def write_nb(root, nb_name, cells):
     print("Created Jupyter notebook at:\n%s" % nb_path)
 
 
-def run_nb(config, path=None):
+def run_nb(config, path=None) -> None:
     """Run a notebook file.
 
     Runs the one specified by the config file, or the one at
@@ -245,14 +245,14 @@ def run_nb(config, path=None):
         nbformat.write(nb, nb_file, NB_VERSION)
 
 
-def add_code_cell(cells, source):
+def add_code_cell(cells, source) -> None:
     """Add a code cell containing `source` to the notebook."""
     from nbformat.v4.nbbase import new_code_cell
     n_code_cells = len([c for c in cells if c['cell_type'] == 'code'])
     cells.append(new_code_cell(source=source, execution_count=n_code_cells+1))
 
 
-def cleanup(config=None, path=None):
+def cleanup(config=None, path=None) -> None:
     """Cleanup by removing paths added during earlier in configuration."""
     if config is None:
         config = parse()

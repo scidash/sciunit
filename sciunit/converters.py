@@ -70,7 +70,7 @@ class AtMostToBoolean(Converter):
     def __init__(self, cutoff: int) -> None:
         self.cutoff = cutoff
 
-    def _convert(self, score: ZScore) -> BooleanScore:
+    def _convert(self, score: Score) -> BooleanScore:
         return BooleanScore(bool(score <= self.cutoff))
 
 
@@ -81,7 +81,7 @@ class AtLeastToBoolean(Converter):
     def __init__(self, cutoff: int) -> None:
         self.cutoff = cutoff
 
-    def _convert(self, score: ZScore) -> BooleanScore:
+    def _convert(self, score: Score) -> BooleanScore:
         return BooleanScore(score >= self.cutoff)
 
 
@@ -94,5 +94,5 @@ class RangeToBoolean(Converter):
         self.low_cutoff = low_cutoff
         self.high_cutoff = high_cutoff
 
-    def _convert(self, score: ZScore) -> BooleanScore:
+    def _convert(self, score: Score) -> BooleanScore:
         return BooleanScore(self.low_cutoff <= score <= self.high_cutoff)

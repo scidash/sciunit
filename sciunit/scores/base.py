@@ -7,12 +7,12 @@ import numpy as np
 from sciunit.base import SciUnit
 from sciunit.utils import log, config_get
 from sciunit.errors import InvalidScoreError
-
+from typing import Union
 
 class Score(SciUnit):
     """Abstract base class for scores."""
 
-    def __init__(self, score, related_data=None):
+    def __init__(self, score: 'Score', related_data: dict=None):
         """Abstract base class for scores.
 
         Args:
@@ -67,25 +67,25 @@ class Score(SciUnit):
     model = None
     """The model judged. Set automatically by Test.judge."""
 
-    def check_score(self, score):
+    def check_score(self, score: 'Score') -> None:
         if self._allowed_types and \
           not isinstance(score, self._allowed_types+(Exception,)):
             raise InvalidScoreError(self._allowed_types_message %
                                     (type(score), self._allowed_types))
         self._check_score(score)
 
-    def _check_score(self, score):
+    def _check_score(self, score: 'Score') -> None:
         """A method for each Score subclass to impose additional constraints
         on the score, e.g. the range of the allowed score"""
         pass
 
     @classmethod
-    def compute(cls, observation, prediction):
+    def compute(cls, observation: dict, prediction: dict):
         """Compute whether the observation equals the prediction."""
         return NotImplementedError("")
     
     @property
-    def norm_score(self):
+    def norm_score(self) -> 'Score':
         """A floating point version of the score used for sorting.
         If normalized = True, this must be in the range 0.0 to 1.0,
         where larger is better (used for sorting and coloring tables)."""
@@ -109,7 +109,7 @@ class Score(SciUnit):
         This is useful for guaranteeing convexity in an error surface"""
         return np.log10(self.norm_score) if self.norm_score is not None else None
 
-    def color(self, value=None):
+    def color(self, value=None) -> tuple:
         """Turn the score intp an RGB color tuple of three 8-bit integers."""
         if value is None:
             value = self.norm_score
@@ -117,7 +117,7 @@ class Score(SciUnit):
         return rgb
 
     @classmethod
-    def value_color(cls, value):
+    def value_color(cls, value) -> tuple:
         import matplotlib.cm as cm
         if value is None or np.isnan(value):
             rgb = (128, 128, 128)
@@ -139,7 +139,7 @@ class Score(SciUnit):
         if self.score is not None:
             log("%s" % self.summary)
 
-    def _describe(self):
+    def _describe(self) -> str:
         result = "No description available"
         if self.score is not None:
             if self.description:
@@ -148,7 +148,7 @@ class Score(SciUnit):
                 result = self.describe_from_docstring()
         return result
 
-    def describe_from_docstring(self):
+    def describe_from_docstring(self) -> str:
         s = [self.test.score_type.__doc__.strip().
              replace('\n', '').replace('    ', '')]
         if self.test.converter:
@@ -157,7 +157,7 @@ class Score(SciUnit):
         result = '\n'.join(s)
         return result
 
-    def describe(self, quiet=False):
+    def describe(self, quiet: bool=False) -> Union[str, None]:
         d = self._describe()
         if quiet:
             return d
@@ -188,42 +188,42 @@ class Score(SciUnit):
     def __str__(self):
         return '%s' % self.score
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, Score):
             result = self.norm_score == other.norm_score
         else:
             result = self.score == other
         return result
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         if isinstance(other, Score):
             result = self.norm_score != other.norm_score
         else:
             result = self.score != other
         return result
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         if isinstance(other, Score):
             result = self.norm_score > other.norm_score
         else:
             result = self.score > other
         return result
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         if isinstance(other, Score):
             result = self.norm_score >= other.norm_score
         else:
             result = self.score >= other
         return result
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         if isinstance(other, Score):
             result = self.norm_score < other.norm_score
         else:
             result = self.score < other
         return result
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         if isinstance(other, Score):
             result = self.norm_score <= other.norm_score
         else:
@@ -269,7 +269,7 @@ class ErrorScore(Score):
     """A score returned when an error occurs during testing."""
 
     @property
-    def norm_score(self):
+    def norm_score(self) -> float:
         return 0.0
 
     @property

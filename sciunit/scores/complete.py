@@ -25,7 +25,7 @@ class BooleanScore(Score):
                     'sufficiently similar; False otherwise')
 
     @classmethod
-    def compute(cls, observation, prediction):
+    def compute(cls, observation, prediction) -> 'BooleanScore':
         """Compute whether the observation equals the prediction."""
         return BooleanScore(observation == prediction)
 
@@ -56,7 +56,7 @@ class ZScore(Score):
     _worst = np.inf  # A Z-score of infinity (or negative infinity) is worst
 
     @classmethod
-    def compute(cls, observation, prediction):
+    def compute(cls, observation: dict, prediction: dict):
         """Compute a z-score from an observation and a prediction."""
         assert isinstance(observation, dict),\
             "Observation must be a dict when using ZScore, not type %s" \
@@ -110,7 +110,7 @@ class CohenDScore(ZScore):
     _description = ("The Cohen's D between the prediction and the observation")
 
     @classmethod
-    def compute(cls, observation, prediction):
+    def compute(cls, observation: dict, prediction: dict):
         """Compute a Cohen's D from an observation and a prediction."""
         assert isinstance(observation, dict)
         assert isinstance(prediction, dict)

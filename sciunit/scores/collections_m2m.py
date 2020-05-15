@@ -83,7 +83,7 @@ class ScoreMatrixM2M(pd.DataFrame):
                              "model,test/'observation'; or model,model"))
         return result
 
-    def get_by_name(self, name):
+    def get_by_name(self, name: str):
         for model in self.models:
             if model.name == name:
                 return self.__getitem__(model)
@@ -92,7 +92,7 @@ class ScoreMatrixM2M(pd.DataFrame):
         raise KeyError(("Doesn't match test, 'observation' or "
                         "any model: '%s'") % name)
 
-    def get_group(self, x):
+    def get_group(self, x: list):
         if isinstance(x[0], (Test, Model)) and isinstance(x[1], (Test, Model)):
             return self.loc[x[0], x[1]]
         elif isinstance(x[0], str):
