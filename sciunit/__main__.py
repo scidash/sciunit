@@ -165,7 +165,7 @@ def _run(test_or_suite, models: list, stop_on_error) -> None:
     print('\n%s %s:\n%s\n' % (kind, test_or_suite, score_array_or_matrix))
 
 
-def nb_name_from_path(config: dict, path: str) -> Tuple[Any, Any]:
+def nb_name_from_path(config: dict, path: str) -> tuple:
     """Get a notebook name from a path to a notebook"""
     if path is None:
         path = os.getcwd()
