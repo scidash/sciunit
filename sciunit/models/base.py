@@ -10,7 +10,7 @@ from typing import Any
 class Model(SciUnit):
     """Abstract base class for sciunit models."""
 
-    def __init__(self, name=None, **params) -> None:
+    def __init__(self, name=None, **params):
         """Instantiate model."""
         if name is None:
             name = self.__class__.__name__
