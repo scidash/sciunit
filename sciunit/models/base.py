@@ -5,12 +5,12 @@ from fnmatch import fnmatchcase
 
 from sciunit.base import SciUnit
 from sciunit.capabilities import Capability
-
+from typing import Any
 
 class Model(SciUnit):
     """Abstract base class for sciunit models."""
 
-    def __init__(self, name=None, **params):
+    def __init__(self, name=None, **params) -> None:
         """Instantiate model."""
         if name is None:
             name = self.__class__.__name__
@@ -42,7 +42,7 @@ class Model(SciUnit):
     """Optional model backend for executing some methods, e.g. simulations."""
 
     @classmethod
-    def get_capabilities(cls):
+    def get_capabilities(cls) -> list:
         """List the model's capabilities."""
         capabilities = []
         for _cls in cls.mro():
@@ -52,11 +52,11 @@ class Model(SciUnit):
         return capabilities
 
     @property
-    def capabilities(self):
+    def capabilities(self) -> list:
         return self.__class__.get_capabilities()
 
     @property
-    def failed_extra_capabilities(self):
+    def failed_extra_capabilities(self) -> list:
         """Check to see if instance passes its `extra_capability_checks`."""
         failed = []
         for capability, f_name in self.extra_capability_checks.items():
@@ -66,7 +66,7 @@ class Model(SciUnit):
                 failed.append(capability)
         return failed
 
-    def describe(self):
+    def describe(self) -> str:
         """Describe the model."""
         result = "No description available"
         if self.description:
@@ -79,11 +79,11 @@ class Model(SciUnit):
                 result = '\n'.join(s)
         return result
 
-    def curr_method(self, back=0):
+    def curr_method(self, back: int=0) -> str:
         """Return the name of the current method (calling this one)."""
         return(inspect.stack()[1+back][3])
 
-    def check_params(self):
+    def check_params(self) -> None:
         """Check model parameters to see if they are reasonable.
 
         For example, this method could check self.params to see if a particular
@@ -92,7 +92,7 @@ class Model(SciUnit):
         """
         pass
 
-    def is_match(self, match):
+    def is_match(self, match: Any) -> bool:
         """Return whether this model is the same as `match`.
 
         Matches if the model is the same as or has the same name as `match`.

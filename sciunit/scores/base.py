@@ -7,7 +7,7 @@ import numpy as np
 from sciunit.base import SciUnit
 from sciunit.utils import log, config_get
 from sciunit.errors import InvalidScoreError
-from typing import Union
+from typing import Union, Tuple
 
 class Score(SciUnit):
     """Abstract base class for scores."""
@@ -92,24 +92,24 @@ class Score(SciUnit):
         return self.score
     
     @property
-    def log_norm_score(self):
+    def log_norm_score(self) -> np.ndarray:
         """The natural logarithm of the `norm_score`.
         This is useful for guaranteeing convexity in an error surface"""
         return np.log(self.norm_score) if self.norm_score is not None else None
     
     @property
-    def log2_norm_score(self):
+    def log2_norm_score(self) -> np.ndarray:
         """The logarithm base 2 of the `norm_score`.
         This is useful for guaranteeing convexity in an error surface"""
         return np.log2(self.norm_score) if self.norm_score is not None else None
     
     @property
-    def log10_norm_score(self):
+    def log10_norm_score(self) -> np.ndarray:
         """The logarithm base 10 of the `norm_score`.
         This is useful for guaranteeing convexity in an error surface"""
         return np.log10(self.norm_score) if self.norm_score is not None else None
 
-    def color(self, value=None) -> tuple:
+    def color(self, value: Union[float, 'Score']=None) -> tuple:
         """Turn the score intp an RGB color tuple of three 8-bit integers."""
         if value is None:
             value = self.norm_score
@@ -117,7 +117,7 @@ class Score(SciUnit):
         return rgb
 
     @classmethod
-    def value_color(cls, value) -> tuple:
+    def value_color(cls, value: Union[float, 'Score']) -> tuple:
         import matplotlib.cm as cm
         if value is None or np.isnan(value):
             rgb = (128, 128, 128)
@@ -130,7 +130,7 @@ class Score(SciUnit):
         return rgb
 
     @property
-    def summary(self):
+    def summary(self) -> str:
         """Summarize the performance of a model on a test."""
         return "=== Model %s achieved score %s on test '%s'. ===" % \
                (str(self.model), str(self), self.test)
@@ -175,55 +175,55 @@ class Score(SciUnit):
             string = None
         return string
 
-    def get_raw(self):
+    def get_raw(self) -> float:
         value = copy(self._raw) if self._raw else copy(self.score)
         return value
 
-    def set_raw(self, raw):
+    def set_raw(self, raw: float) -> None:
         self._raw = raw
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '%s' % self.score
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Union['Score', float]) -> bool:
         if isinstance(other, Score):
             result = self.norm_score == other.norm_score
         else:
             result = self.score == other
         return result
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: Union['Score', float]) -> bool:
         if isinstance(other, Score):
             result = self.norm_score != other.norm_score
         else:
             result = self.score != other
         return result
 
-    def __gt__(self, other) -> bool:
+    def __gt__(self, other: Union['Score', float]) -> bool:
         if isinstance(other, Score):
             result = self.norm_score > other.norm_score
         else:
             result = self.score > other
         return result
 
-    def __ge__(self, other) -> bool:
+    def __ge__(self, other: Union['Score', float]) -> bool:
         if isinstance(other, Score):
             result = self.norm_score >= other.norm_score
         else:
             result = self.score >= other
         return result
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: Union['Score', float]) -> bool:
         if isinstance(other, Score):
             result = self.norm_score < other.norm_score
         else:
             result = self.score < other
         return result
 
-    def __le__(self, other) -> bool:
+    def __le__(self, other: Union['Score', float]) -> bool:
         if isinstance(other, Score):
             result = self.norm_score <= other.norm_score
         else:
@@ -235,7 +235,7 @@ class Score(SciUnit):
         return self.__class__.__name__
 
     @classmethod
-    def extract_means_or_values(cls, observation, prediction, key=None):
+    def extract_means_or_values(cls, observation: dict, prediction: dict, key: str=None) -> Tuple[dict, dict]:
         """Extracts the mean, value, or user-provided key from the observation
         and prediction dictionaries.
         """
@@ -245,7 +245,7 @@ class Score(SciUnit):
         return obs_mv, pred_mv
 
     @classmethod
-    def extract_mean_or_value(cls, obs_or_pred, key=None):
+    def extract_mean_or_value(cls, obs_or_pred: dict, key: str=None) -> float:
         """Extracts the mean, value, or user-provided key from an observation
         or prediction dictionary.
         """
@@ -273,13 +273,13 @@ class ErrorScore(Score):
         return 0.0
 
     @property
-    def summary(self):
+    def summary(self) -> str:
         """Summarize the performance of a model on a test."""
         return "== Model %s did not complete test %s due to error '%s'. ==" %\
                (str(self.model), str(self.test), str(self.score))
 
-    def _describe(self):
+    def _describe(self) -> str:
         return self.summary
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'Error'

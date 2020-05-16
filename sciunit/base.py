@@ -154,7 +154,7 @@ class SciUnit(Versioned):
             state = deep_exclude(state, exclude)
         return state
 
-    def _properties(self, keys: list=None, exclude: list=None):
+    def _properties(self, keys: list=None, exclude: list=None) -> dict:
         result = {}
         props = self.raw_props()
         exclude = exclude if exclude else []
@@ -176,7 +176,7 @@ class SciUnit(Versioned):
         return self._state()
 
     @property
-    def properties(self):
+    def properties(self) -> dict:
         return self._properties()
 
     @classmethod
@@ -203,11 +203,11 @@ class SciUnit(Versioned):
         return result
 
     @property
-    def _id(self):
+    def _id(self) -> str:
         return id(self)
 
     @property
-    def _class(self):
+    def _class(self) -> dict:
         url = '' if self.url is None else self.url
 
         import_path = '{}.{}'.format(
@@ -220,11 +220,11 @@ class SciUnit(Versioned):
                 'url': url}
 
     @property
-    def id(self):
+    def id(self) -> str:
         return str(self.json)
 
     @property
-    def url(self):
+    def url(self) -> str:
         return self._url if self._url else self.remote_url
 
 

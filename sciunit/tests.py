@@ -612,7 +612,7 @@ class ProtocolToFeaturesTest(Test):
     instead should focus on the other three methods here.
     """
 
-    def generate_prediction(self, model: Model):
+    def generate_prediction(self, model: Model) -> dict:
         run_method = getattr(model, "run", None)
         assert callable(run_method), \
             "Model must have a `run` method to use a ProtocolToFeaturesTest"

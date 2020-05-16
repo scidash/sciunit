@@ -6,7 +6,7 @@ import pandas as pd
 
 from sciunit.models import Model
 from sciunit.tests import Test
-
+from typing import List, Any, Union, Tuple
 
 class ScoreArrayM2M(pd.Series):
     """
@@ -15,25 +15,25 @@ class ScoreArrayM2M(pd.Series):
     models subject to a test or the test itself.
     """
 
-    def __init__(self, test, models, scores):
+    def __init__(self, test: Test, models: List[Model], scores: List['sciunit.scores.Score']) -> None:
         items = models if not test.observation else [test]+models
         super(ScoreArrayM2M, self).__init__(data=scores, index=items)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: Union[str, callable]) -> Any:
         if isinstance(item, str):
             result = self.get_by_name(item)
         else:
             result = super(ScoreArrayM2M, self).__getitem__(item)
         return result
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         if name in ['score', 'norm_scores', 'related_data']:
             attr = self.apply(lambda x: getattr(x, name))
         else:
             attr = super(ScoreArrayM2M,self).__getattribute__(name)
         return attr
 
-    def get_by_name(self, name):
+    def get_by_name(self, name: str) -> Any:
         for entry in self.index:
             if entry.name == name or name.lower() == "observation":
                 return self.__getitem__(entry)
@@ -52,7 +52,7 @@ class ScoreMatrixM2M(pd.DataFrame):
     columns and the index.
     """
 
-    def __init__(self, test, models, scores):
+    def __init__(self, test: Test, models: List[Model], scores: List['sciunit.scores.Score']) -> None:
         if not test.observation:
             items = models
         else:
@@ -69,7 +69,7 @@ class ScoreMatrixM2M(pd.DataFrame):
             self.test = test
             self.models = models
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: Union[Tuple[Test, Model], str, Tuple[list, tuple]]) -> Any:
         if isinstance(item, (Test, Model)):
             result = ScoreArrayM2M(self.test, self.models,
                                    scores=self.loc[item, :])
@@ -83,7 +83,7 @@ class ScoreMatrixM2M(pd.DataFrame):
                              "model,test/'observation'; or model,model"))
         return result
 
-    def get_by_name(self, name: str):
+    def get_by_name(self, name: str) -> Any:
         for model in self.models:
             if model.name == name:
                 return self.__getitem__(model)
@@ -92,14 +92,14 @@ class ScoreMatrixM2M(pd.DataFrame):
         raise KeyError(("Doesn't match test, 'observation' or "
                         "any model: '%s'") % name)
 
-    def get_group(self, x: list):
+    def get_group(self, x: list) -> Any:
         if isinstance(x[0], (Test, Model)) and isinstance(x[1], (Test, Model)):
             return self.loc[x[0], x[1]]
         elif isinstance(x[0], str):
             return self.__getitem__(x[0]).__getitem__(x[1])
         raise TypeError("Expected test/model pair")
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         if name in ['score', 'norm_score', 'related_data']:
             attr = self.applymap(lambda x: getattr(x, name))
         else:
@@ -107,5 +107,5 @@ class ScoreMatrixM2M(pd.DataFrame):
         return attr
 
     @property
-    def norm_scores(self):
+    def norm_scores(self) -> "DataFrame":
         return self.applymap(lambda x: x.norm_score)

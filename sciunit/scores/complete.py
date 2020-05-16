@@ -25,16 +25,16 @@ class BooleanScore(Score):
                     'sufficiently similar; False otherwise')
 
     @classmethod
-    def compute(cls, observation, prediction) -> 'BooleanScore':
+    def compute(cls, observation: dict, prediction: dict) -> 'BooleanScore':
         """Compute whether the observation equals the prediction."""
         return BooleanScore(observation == prediction)
 
     @property
-    def norm_score(self):
+    def norm_score(self) -> float:
         """Return 1.0 for a True score and 0.0 for False score."""
         return 1.0 if self.score else 0.0
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'Pass' if self.score else 'Fail'
 
 
@@ -56,7 +56,7 @@ class ZScore(Score):
     _worst = np.inf  # A Z-score of infinity (or negative infinity) is worst
 
     @classmethod
-    def compute(cls, observation: dict, prediction: dict):
+    def compute(cls, observation: dict, prediction: dict) -> 'ZScore':
         """Compute a z-score from an observation and a prediction."""
         assert isinstance(observation, dict),\
             "Observation must be a dict when using ZScore, not type %s" \
@@ -87,7 +87,7 @@ class ZScore(Score):
         return score
 
     @property
-    def norm_score(self):
+    def norm_score(self) -> float:
         """Return the normalized score.
 
         Equals 1.0 for a z-score of 0, falling to 0.0 for extremely positive
@@ -96,7 +96,7 @@ class ZScore(Score):
         cdf = (1.0 + math.erf(self.score / math.sqrt(2.0))) / 2.0
         return 1 - 2*math.fabs(0.5 - cdf)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'Z = %.2f' % self.score
 
 
@@ -110,7 +110,7 @@ class CohenDScore(ZScore):
     _description = ("The Cohen's D between the prediction and the observation")
 
     @classmethod
-    def compute(cls, observation: dict, prediction: dict):
+    def compute(cls, observation: dict, prediction: dict) -> 'CohenDScore':
         """Compute a Cohen's D from an observation and a prediction."""
         assert isinstance(observation, dict)
         assert isinstance(prediction, dict)
@@ -128,7 +128,7 @@ class CohenDScore(ZScore):
         value = utils.assert_dimensionless(value)
         return CohenDScore(value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'D = %.2f' % self.score
 
 
@@ -145,14 +145,14 @@ class RatioScore(Score):
 
     _best = 1.0  # A RatioScore of 1.0 is best
 
-    def _check_score(self, score):
+    def _check_score(self, score: Score) -> None:
         if score < 0.0:
             raise errors.InvalidScoreError(("RatioScore was initialized with "
                                             "a score of %f, but a RatioScore "
                                             "must be non-negative.") % score)
 
     @classmethod
-    def compute(cls, observation, prediction, key=None):
+    def compute(cls, observation: dict, prediction: dict, key=None) -> 'RatioScore':
         """Compute a ratio from an observation and a prediction."""
         assert isinstance(observation, (dict, float, int, pq.Quantity))
         assert isinstance(prediction, (dict, float, int, pq.Quantity))
@@ -164,7 +164,7 @@ class RatioScore(Score):
         return RatioScore(value)
 
     @property
-    def norm_score(self):
+    def norm_score(self) -> str:
         """Return 1.0 for a ratio of 1, falling to 0.0 for extremely small
         or large values."""
         score = math.log10(self.score)
@@ -185,17 +185,17 @@ class PercentScore(Score):
                     'observation and the prediction. 0.0 is the worst possible'
                     ' agreement')
 
-    def _check_score(self, score):
+    def _check_score(self, score: Score) -> None:
         if not (0.0 <= score <= 100.0):
             raise errors.InvalidScoreError(("Score of %f must be in "
                                             "range 0.0-100.0" % score))
 
     @property
-    def norm_score(self):
+    def norm_score(self) -> float:
         """Return 1.0 for a percent score of 100, and 0.0 for 0."""
         return float(self.score)/100
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '%.1f%%' % self.score
 
 
@@ -207,7 +207,7 @@ class FloatScore(Score):
 
     _allowed_types = (float, pq.Quantity,)
 
-    def _check_score(self, score):
+    def _check_score(self, score: Score) -> None:
         if isinstance(score, pq.Quantity) and score.size != 1:
             raise errors.InvalidScoreError("Score must have size 1.")
 
@@ -216,14 +216,14 @@ class FloatScore(Score):
                     'prediction')
 
     @classmethod
-    def compute_ssd(cls, observation, prediction):
+    def compute_ssd(cls, observation: dict, prediction: dict) -> Score:
         """Compute sum-squared diff between observation and prediction."""
         # The sum of the squared differences.
         value = ((observation - prediction)**2).sum()
         score = FloatScore(value)
         return score
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '%.3g' % self.score
 
 
@@ -242,5 +242,5 @@ class RandomScore(Score):
     _description = ('There is a random number in [0,1] and has no relation to '
                     'the prediction or the observation')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '%.3g' % self.score

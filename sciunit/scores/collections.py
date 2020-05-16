@@ -16,7 +16,7 @@ from sciunit.base import SciUnit, TestWeighted
 from sciunit.models import Model
 from sciunit.tests import Test
 from sciunit.scores import Score, NoneScore
-
+from typing import Union
 
 class ScoreArray(pd.Series, SciUnit,TestWeighted):
     """Represents an array of scores derived from a test suite.
@@ -47,7 +47,7 @@ class ScoreArray(pd.Series, SciUnit,TestWeighted):
 
     direct_attrs = ['score', 'norm_scores', 'related_data']
 
-    def check_tests_and_models(self, tests_or_models):
+    def check_tests_and_models(self, tests_or_models: Union[Test, Model]) -> Union[Test, Model]:
         assert all([isinstance(tom, Test) for tom in tests_or_models]) or \
                all([isinstance(tom, Model) for tom in tests_or_models]), \
                "A ScoreArray may be indexed by only test or models"

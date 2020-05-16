@@ -90,7 +90,7 @@ class TestSuite(SciUnit, TestWeighted):
         return models
 
     def check(self, models: Union[Model, List[Model]], skip_incapable: bool=True, require_extra: bool=False,
-              stop_on_error: bool=True):
+              stop_on_error: bool=True) -> ScoreMatrix:
         """Like judge, but without actually running the test.
 
         Just returns a ScoreMatrix indicating whether each model can take
@@ -105,8 +105,8 @@ class TestSuite(SciUnit, TestWeighted):
                                                  require_extra=require_extra)
         return sm
 
-    def check_capabilities(self, model, skip_incapable: bool=False,
-                           require_extra: bool=False):
+    def check_capabilities(self, model: Model, skip_incapable: bool=False,
+                           require_extra: bool=False) -> list:
         """Check model capabilities against those required by the suite.
 
         Returns a list of booleans (one for each test in the suite)
@@ -168,7 +168,7 @@ class TestSuite(SciUnit, TestWeighted):
         sm.loc[model, test] = score
         return score
 
-    def optimize(self, model, *args, **kwargs):
+    def optimize(self, model: Model, *args, **kwargs) -> None:
         """Optimize model parameters to get the best Test Suite scores."""
         raise NotImplementedError(("Optimization not implemented "
                                    "for TestSuite '%s'" % self))
@@ -189,7 +189,7 @@ class TestSuite(SciUnit, TestWeighted):
             test.verbose = verbose
 
     @classmethod
-    def from_observations(cls, tests_info: List[Tuple[Type[Test], List[int]]], name: Optional[str]=None) -> 'sciunit.TestSuite':
+    def from_observations(cls, tests_info: List[Tuple[Type[Test], List[int]]], name: Optional[str]=None):
         """Instantiate a test suite from a set of observations.
 
         `tests_info` should be a list of tuples containing the test class and

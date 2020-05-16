@@ -5,16 +5,16 @@ from cypy import memoize  # Decorator for caching of capability method results.
 from sciunit.models import Model
 from sciunit.capabilities import ProducesNumber
 from sciunit.utils import class_intern, method_cache
-
+from typing import Union
 
 class ConstModel(Model, ProducesNumber):
     """A model that always produces a constant number as output."""
 
-    def __init__(self, constant, name=None):
+    def __init__(self, constant: Union[int, float], name: str=None) -> None:
         self.constant = constant
         super(ConstModel, self).__init__(name=name, constant=constant)
 
-    def produce_number(self):
+    def produce_number(self) -> Union[int, float]:
         return self.constant
 
 
@@ -22,11 +22,11 @@ class UniformModel(Model, ProducesNumber):
     """A model that always produces a random uniformly distributed number
     in [a,b] as output."""
 
-    def __init__(self, a, b, name=None):
+    def __init__(self, a, b, name=None) -> None:
         self.a, self.b = a, b
         super(UniformModel, self).__init__(name=name, a=a, b=b)
 
-    def produce_number(self):
+    def produce_number(self) -> float:
         return random.uniform(self.a, self.b)
 
 
@@ -38,7 +38,7 @@ class UniformModel(Model, ProducesNumber):
 class UniqueRandomNumberModel(Model, ProducesNumber):
     """An example model to ProducesNumber."""
 
-    def produce_number(self):
+    def produce_number(self) -> float:
         """Each call to this method will produce a different random number."""
         return random.random()
 
@@ -47,7 +47,7 @@ class RepeatedRandomNumberModel(Model, ProducesNumber):
     """An example model to demonstrate ProducesNumber with cypy.lazy."""
 
     @memoize
-    def produce_number(self):
+    def produce_number(self) -> float:
         """Each call to this method will produce the same random number as
         was returned in the first call, ensuring reproducibility and
         eliminating computational overhead."""
@@ -66,10 +66,10 @@ class SharedModel(Model):
 class PersistentUniformModel(UniformModel):
     """TODO"""
 
-    def run(self):
+    def run(self) -> None:
         self._x = random.uniform(self.a, self.b)
 
-    def produce_number(self):
+    def produce_number(self) -> float:
         return self._x
 
 
@@ -77,7 +77,7 @@ class CacheByInstancePersistentUniformModel(PersistentUniformModel):
     """TODO"""
 
     @method_cache(by='instance', method='run')
-    def produce_number(self):
+    def produce_number(self) -> float:
         return self._x
 
 
@@ -85,5 +85,5 @@ class CacheByValuePersistentUniformModel(PersistentUniformModel):
     """TODO"""
 
     @method_cache(by='value', method='run')
-    def produce_number(self):
+    def produce_number(self) -> float:
         return self._x
