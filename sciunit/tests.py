@@ -20,7 +20,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 class Test(SciUnit):
     """Abstract base class for tests."""
 
-    def __init__(self, observation: Union[List[int], Tuple[int, int]], name: Optional[str]=None, **params) -> None:
+    def __init__(self, observation: Union[List[int], Tuple[int, int]], name: Optional[str]=None, **params):
         """
         Args:
             observation (dict): A dictionary of observed values to parameterize

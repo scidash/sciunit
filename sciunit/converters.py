@@ -55,7 +55,7 @@ class LambdaConversion(Converter):
     """
     Converts a score according to a lambda function.
     """
-    def __init__(self, f: Callable) -> None:
+    def __init__(self, f: Callable):
         """f should be a lambda function"""
         self.f = f
 
@@ -67,7 +67,7 @@ class AtMostToBoolean(Converter):
     """
     Converts a score to pass if its value is at most $cutoff, otherwise False.
     """
-    def __init__(self, cutoff: int) -> None:
+    def __init__(self, cutoff: int):
         self.cutoff = cutoff
 
     def _convert(self, score: Score) -> BooleanScore:
@@ -78,7 +78,7 @@ class AtLeastToBoolean(Converter):
     """
     Converts a score to Pass if its value is at least $cutoff, otherwise False.
     """
-    def __init__(self, cutoff: int) -> None:
+    def __init__(self, cutoff: int):
         self.cutoff = cutoff
 
     def _convert(self, score: Score) -> BooleanScore:
@@ -90,7 +90,7 @@ class RangeToBoolean(Converter):
     Converts a score to Pass if its value is within the range
     [$low_cutoff,$high_cutoff], otherwise Fail.
     """
-    def __init__(self, low_cutoff: int, high_cutoff: int) -> None:
+    def __init__(self, low_cutoff: int, high_cutoff: int):
         self.low_cutoff = low_cutoff
         self.high_cutoff = high_cutoff
 

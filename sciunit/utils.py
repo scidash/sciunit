@@ -152,7 +152,7 @@ class NotebookTools(object):
     # where generated files are stored
     gen_file_level = 2
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs):
         super(NotebookTools, self).__init__(*args, **kwargs)
         self.fix_display()
 

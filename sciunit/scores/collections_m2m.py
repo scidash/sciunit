@@ -15,7 +15,7 @@ class ScoreArrayM2M(pd.Series):
     models subject to a test or the test itself.
     """
 
-    def __init__(self, test: Test, models: List[Model], scores: List['sciunit.scores.Score']) -> None:
+    def __init__(self, test: Test, models: List[Model], scores: List['sciunit.scores.Score']):
         items = models if not test.observation else [test]+models
         super(ScoreArrayM2M, self).__init__(data=scores, index=items)
 
@@ -52,7 +52,7 @@ class ScoreMatrixM2M(pd.DataFrame):
     columns and the index.
     """
 
-    def __init__(self, test: Test, models: List[Model], scores: List['sciunit.scores.Score']) -> None:
+    def __init__(self, test: Test, models: List[Model], scores: List['sciunit.scores.Score']):
         if not test.observation:
             items = models
         else:

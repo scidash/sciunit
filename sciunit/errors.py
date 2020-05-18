@@ -22,7 +22,7 @@ class ParametersError(Error):
 
 class CapabilityError(Error):
     """Abstract error class for capabilities"""
-    def __init__(self, model: 'sciunit.Model', capability: 'sciunit.Capability', details: str='') -> None:
+    def __init__(self, model: 'sciunit.Model', capability: 'sciunit.Capability', details: str=''):
         """
         model: a model instance
         capablity: a capability class
@@ -61,7 +61,7 @@ class CapabilityNotImplementedError(CapabilityError):
 
 class PredictionError(Error):
     """Raised when a tests's generate_prediction chokes on a model's method"""
-    def __init__(self, model: 'sciunit.Model', method: str, **args) -> None:
+    def __init__(self, model: 'sciunit.Model', method: str, **args):
         self.model = model
         self.method = method
         self.args = args
@@ -84,7 +84,7 @@ class InvalidScoreError(Error):
 
 class BadParameterValueError(Error):
     """Error raised when a model parameter value is unreasonable."""
-    def __init__(self, name: str, value: int) -> None:
+    def __init__(self, name: str, value: int):
         self.name = name
         self.value = value
 

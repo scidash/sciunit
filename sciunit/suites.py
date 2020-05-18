@@ -19,7 +19,7 @@ class TestSuite(SciUnit, TestWeighted):
     """A collection of tests."""
 
     def __init__(self, tests: List[Test], name: Optional[str]=None, weights: None=None, include_models: Optional[List[Model]]=None,
-                 skip_models: Optional[List[Model]]=None, hooks: Optional[Dict[Test, Dict[str, Union[Callable, Dict[str, int]]]]]=None, optimizer: None=None) -> None:
+                 skip_models: Optional[List[Model]]=None, hooks: Optional[Dict[Test, Dict[str, Union[Callable, Dict[str, int]]]]]=None, optimizer: None=None):
         """
         optimizer: a function to bind to self.optimize (first argument must be a testsuite)
         """

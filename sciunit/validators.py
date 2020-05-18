@@ -21,7 +21,7 @@ def register_quantity(quantity: pq.Quantity, name: str) -> None:
 class ObservationValidator(Validator):
     """Cerberus validator class for observations."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs):
         """Must pass `test` as a keyword argument.
 
         Cannot be a positional argument without modifications to cerberus

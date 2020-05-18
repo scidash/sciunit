@@ -10,7 +10,7 @@ from typing import Union
 class ConstModel(Model, ProducesNumber):
     """A model that always produces a constant number as output."""
 
-    def __init__(self, constant: Union[int, float], name: str=None) -> None:
+    def __init__(self, constant: Union[int, float], name: str=None):
         self.constant = constant
         super(ConstModel, self).__init__(name=name, constant=constant)
 
@@ -22,7 +22,7 @@ class UniformModel(Model, ProducesNumber):
     """A model that always produces a random uniformly distributed number
     in [a,b] as output."""
 
-    def __init__(self, a, b, name=None) -> None:
+    def __init__(self, a, b, name=None):
         self.a, self.b = a, b
         super(UniformModel, self).__init__(name=name, a=a, b=b)
 

@@ -117,7 +117,7 @@ class Versioned(object):
 class SciUnit(Versioned):
     """Abstract base class for models, tests, and scores."""
 
-    def __init__(self) -> None:
+    def __init__(self):
         """Instantiate a SciUnit object."""
         self.unpicklable = []
 
@@ -231,7 +231,7 @@ class SciUnit(Versioned):
 class SciUnitEncoder(json.JSONEncoder):
     """Custom JSON encoder for SciUnit objects"""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs):
         for key in ['add_props', 'keys', 'exclude']:
             if key in kwargs:
                 setattr(self.__class__, key, kwargs[key])
