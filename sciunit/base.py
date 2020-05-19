@@ -19,13 +19,7 @@ PYTHON_MAJOR_VERSION = sys.version_info.major
 PLATFORM = sys.platform
 
 if PYTHON_MAJOR_VERSION < 3:  # Python 2
-    from StringIO import StringIO
-    try:
-        import Tkinter as tkinter
-    except ImportError:
-        pass  # Handled in the importing modules's fix_display()
-    FileNotFoundError = OSError
-    json.JSONDecodeError = ValueError
+    raise Exception('Only Python 3 are supported')
 else:
     from io import StringIO
     import tkinter

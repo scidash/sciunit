@@ -147,12 +147,7 @@ def printd(*args, **kwargs) -> bool:
 if PYTHON_MAJOR_VERSION == 3:
     redirect_stdout = contextlib.redirect_stdout
 else:  # Python 2
-    @contextlib.contextmanager
-    def redirect_stdout(target):
-        original = sys.stdout
-        sys.stdout = target
-        yield
-        sys.stdout = original
+    raise Exception('Only Python 3 are supported')
 
 
 def assert_dimensionless(value: Union[float, Quantity]) -> float:
@@ -283,10 +278,8 @@ class NotebookTools(object):
 
         if PYTHON_MAJOR_VERSION == 3:
             kernel_name = 'python3'
-        elif PYTHON_MAJOR_VERSION == 2:
-            kernel_name = 'python2'
         else:
-            raise Exception('Only Python 2 and 3 are supported')
+            raise Exception('Only Python 3 are supported')
         ep = ExecutePreprocessor(timeout=600, kernel_name=kernel_name)
         try:
             ep.preprocess(nb, {'metadata': {'path': '.'}})
@@ -433,10 +426,10 @@ class NotebookTools(object):
         Returns:
             str: line after being stripped
         """
-        if PYTHON_MAJOR_VERSION == 2:  # Python 2
-            stripped, magic_kind = cls.strip_line_magic_v2(line)
-        else:  # Python 3+
+        if PYTHON_MAJOR_VERSION == 3:
             stripped, magic_kind = cls.strip_line_magic_v3(line)
+        else:
+            raise Exception('Only Python 3 are supported')
         if line == stripped:
             printd("No line magic pattern match in '%s'" % line)
         if magic_kind and magic_kind not in magics_allowed:
@@ -461,26 +454,6 @@ class NotebookTools(object):
             if match[-1] == ')':
                 match = match[:-1]  # Just because the re way is hard
             magic_kind, stripped = eval(match)
-        else:
-            stripped = line
-            magic_kind = ""
-        return stripped, magic_kind
-
-    @classmethod
-    def strip_line_magic_v2(cls, line: str) -> Tuple[str, str]:
-        """strip_line_magic() implementation for Python 2"""
-
-        matches = re.findall("magic\(([^]]+)", line)
-        if matches and matches[0]:  # This line contains the pattern
-            match = matches[0]
-            if match[-1] == ')':
-                match = match[:-1]  # Just because the re way is hard
-            stripped = eval(match)
-            magic_kind = stripped.split(' ')[0]
-            if len(stripped.split(' ')) > 1:
-                stripped = stripped.split(' ')[1:]
-            else:
-                stripped = ""
         else:
             stripped = line
             magic_kind = ""
