@@ -7,22 +7,22 @@ from cerberus import TypeDefinition, Validator
 from typing import Any
 
 def register_type(cls, name: str) -> None:
-    """[summary]
+    """Register `name` as a type to validate as an instance of class `cls`
 
     Args:
         cls: a class
-        name (str): Register `name` as a type to validate as an instance of class `cls`
+        name (str): the name to be registered
     """
     x = TypeDefinition(name, (cls,), ())
     Validator.types_mapping[name] = x
     
 
 def register_quantity(quantity: pq.Quantity, name: str) -> None:
-    """[summary]
+    """Register `name` as a type to validate as an instance of the class of `quantity`
 
     Args:
         quantity (pq.Quantity): a quantity
-        name (str): Register `name` as a type to validate as an instance of the class of `quantity`
+        name (str): the name to be registered
     """
 
     x = TypeDefinition(name, (quantity.__class__,), ())
