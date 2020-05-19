@@ -18,7 +18,30 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 
 class Test(SciUnit):
-    """Abstract base class for tests."""
+    """Abstract base class for tests.
+
+    Attributes:
+        name (str):                 The name of the test. Defaults to the test class name.
+        description (str):          A description of the test. Defaults to the docstring for the class.
+        verbose (str):              [description]
+        
+        score_type (str):           A score type for this test's `judge` method to return.
+
+        params (str):               [description]
+        default_params (str):       A dictionary containing the parameters to the test.
+        params_schema (str):        A schema that the params must adhere to (validated by cerberus).
+                                    Can also be a list of schemas, one of which the params must match.
+
+        converter (str):            A conversion to be done on the score after it is computed.
+
+        observation (str):          The empirical observation that the test is using.
+        observation_schema (str):   A schema that the observation must adhere to (validated by cerberus).
+                                    Can also be a list of schemas, one of which the observation must match.
+                                    If it is a list, each schema in the list can optionally be named by putting
+                                    (name, schema) tuples in that list.
+
+
+    """
 
     def __init__(self, observation: Union[List[int], Tuple[int, int]], name: Optional[str]=None, **params):
         """
@@ -90,7 +113,14 @@ class Test(SciUnit):
     def validate_observation(self, observation: Dict[Any, Any]) -> Dict[Any, Any]:
         """Validate the observation provided to the constructor.
 
-        Raises an ObservationError if invalid.
+        Args:
+            observation (Dict[Any, Any]): The observation to be validated
+
+        Raises:
+            ObservationError: Raises an ObservationError if invalid.
+
+        Returns:
+            Dict[Any, Any]: The observation that was validated.
         """
         if not observation:
             raise ObservationError("Observation is missing.")
@@ -115,7 +145,11 @@ class Test(SciUnit):
 
     @classmethod
     def observation_schema_names(cls) -> List[str]:
-        """Return a list of names of observation schema, if they are set."""
+        """Return a list of names of observation schema, if they are set.
+
+        Returns:
+            List[str]: [description]
+        """
         names = []
         if cls.observation_schema:
             if isinstance(cls.observation_schema, list):
@@ -126,7 +160,14 @@ class Test(SciUnit):
     def validate_params(self, params: Dict[Any, Any]) -> Dict[Any, Any]:
         """Validate the params provided to the constructor.
 
-        Raises an ParametersError if invalid.
+        Args:
+            params (Dict[Any, Any]): [description]
+
+        Raises:
+            ParametersError: Raises an ParametersError if invalid.
+
+        Returns:
+            Dict[Any, Any]: [description]
         """
         if params is None:
             raise ParametersError("Parameters cannot be `None`.")
