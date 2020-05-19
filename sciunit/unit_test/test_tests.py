@@ -9,7 +9,7 @@ from sciunit.scores import BooleanScore, FloatScore
 from sciunit.scores import FloatScore
 from sciunit.capabilities import ProducesNumber
 
-from base import SuiteBase
+from .base import SuiteBase
 
 class TestsTestCase(unittest.TestCase):
     """Unit tests for the sciunit module"""
