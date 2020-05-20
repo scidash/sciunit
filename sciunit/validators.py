@@ -56,14 +56,8 @@ class ObservationValidator(Validator):
 
     def _validate_iterable(self, is_iterable: bool, key: str, value: Any) -> None:
         """Validate fields with `iterable` key in schema set to True
-        
         The rule's arguments are validated against this schema:
         {'type': 'boolean'}
-
-        Args:
-            is_iterable (bool): [description]
-            key (str): [description]
-            value (Any): [description]
         """
         if is_iterable:
             try:
@@ -74,14 +68,8 @@ class ObservationValidator(Validator):
 
     def _validate_units(self, has_units: bool, key: str, value: Any) -> None:
         """Validate fields with `units` key in schema set to True.
-
         The rule's arguments are validated against this schema:
         {'type': 'boolean'}
-
-        Args:
-            has_units (bool): [description]
-            key (str): [description]
-            value (Any): [description]
         """
         if has_units:
             if isinstance(self.test.units, dict):
