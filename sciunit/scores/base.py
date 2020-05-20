@@ -68,6 +68,14 @@ class Score(SciUnit):
     """The model judged. Set automatically by Test.judge."""
 
     def check_score(self, score: 'Score') -> None:
+        """[summary]
+
+        Args:
+            score ([type]): [description]
+
+        Raises:
+            InvalidScoreError: [description]
+        """
         if self._allowed_types and \
           not isinstance(score, self._allowed_types+(Exception,)):
             raise InvalidScoreError(self._allowed_types_message %
@@ -75,42 +83,76 @@ class Score(SciUnit):
         self._check_score(score)
 
     def _check_score(self, score: 'Score') -> None:
-        """A method for each Score subclass to impose additional constraints
-        on the score, e.g. the range of the allowed score"""
+        """A method for each Score subclass to impose additional constraints on the score, e.g. the range of the allowed score
+
+        Args:
+            score ([type]): [description]
+        """
         pass
 
     @classmethod
     def compute(cls, observation: dict, prediction: dict):
-        """Compute whether the observation equals the prediction."""
+        """Compute whether the observation equals the prediction.
+
+        Args:
+            observation (dict): [description]
+            prediction (dict): [description]
+
+        Returns:
+            [type]: [description]
+        """
         return NotImplementedError("")
     
     @property
     def norm_score(self) -> 'Score':
         """A floating point version of the score used for sorting.
         If normalized = True, this must be in the range 0.0 to 1.0,
-        where larger is better (used for sorting and coloring tables)."""
+        where larger is better (used for sorting and coloring tables).
+
+        Returns:
+            [type]: [description]
+        """
         return self.score
     
     @property
     def log_norm_score(self) -> np.ndarray:
         """The natural logarithm of the `norm_score`.
-        This is useful for guaranteeing convexity in an error surface"""
+        This is useful for guaranteeing convexity in an error surface
+
+        Returns:
+            np.ndarray: [description]
+        """
         return np.log(self.norm_score) if self.norm_score is not None else None
     
     @property
     def log2_norm_score(self) -> np.ndarray:
         """The logarithm base 2 of the `norm_score`.
-        This is useful for guaranteeing convexity in an error surface"""
+        This is useful for guaranteeing convexity in an error surface
+
+        Returns:
+            np.ndarray: [description]
+        """
         return np.log2(self.norm_score) if self.norm_score is not None else None
     
     @property
     def log10_norm_score(self) -> np.ndarray:
         """The logarithm base 10 of the `norm_score`.
-        This is useful for guaranteeing convexity in an error surface"""
+        This is useful for guaranteeing convexity in an error surface
+
+        Returns:
+            np.ndarray: [description]
+        """
         return np.log10(self.norm_score) if self.norm_score is not None else None
 
     def color(self, value: Union[float, 'Score']=None) -> tuple:
-        """Turn the score intp an RGB color tuple of three 8-bit integers."""
+        """Turn the score intp an RGB color tuple of three 8-bit integers.
+
+        Args:
+            value (Union[float,, optional): [description]. Defaults to None.
+
+        Returns:
+            tuple: [description]
+        """
         if value is None:
             value = self.norm_score
         rgb = Score.value_color(value)
@@ -118,6 +160,14 @@ class Score(SciUnit):
 
     @classmethod
     def value_color(cls, value: Union[float, 'Score']) -> tuple:
+        """[summary]
+
+        Args:
+            value (Union[float,): [description]
+
+        Returns:
+            tuple: [description]
+        """
         import matplotlib.cm as cm
         if value is None or np.isnan(value):
             rgb = (128, 128, 128)
@@ -131,15 +181,26 @@ class Score(SciUnit):
 
     @property
     def summary(self) -> str:
-        """Summarize the performance of a model on a test."""
+        """Summarize the performance of a model on a test.
+
+        Returns:
+            str: [description]
+        """
         return "=== Model %s achieved score %s on test '%s'. ===" % \
                (str(self.model), str(self), self.test)
 
     def summarize(self):
+        """[summary]
+        """
         if self.score is not None:
             log("%s" % self.summary)
 
     def _describe(self) -> str:
+        """[summary]
+
+        Returns:
+            str: [description]
+        """
         result = "No description available"
         if self.score is not None:
             if self.description:
@@ -149,6 +210,11 @@ class Score(SciUnit):
         return result
 
     def describe_from_docstring(self) -> str:
+        """[summary]
+
+        Returns:
+            str: [description]
+        """
         s = [self.test.score_type.__doc__.strip().
              replace('\n', '').replace('    ', '')]
         if self.test.converter:
@@ -158,6 +224,14 @@ class Score(SciUnit):
         return result
 
     def describe(self, quiet: bool=False) -> Union[str, None]:
+        """[summary]
+
+        Args:
+            quiet (bool, optional): [description]. Defaults to False.
+
+        Returns:
+            Union[str, None]: [description]
+        """
         d = self._describe()
         if quiet:
             return d
@@ -166,6 +240,11 @@ class Score(SciUnit):
 
     @property
     def raw(self):
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         value = self._raw if self._raw else self.score
         if isinstance(value, (float, np.ndarray)):
             string = '%.4g' % value
@@ -176,19 +255,47 @@ class Score(SciUnit):
         return string
 
     def get_raw(self) -> float:
+        """[summary]
+
+        Returns:
+            float: [description]
+        """
         value = copy(self._raw) if self._raw else copy(self.score)
         return value
 
     def set_raw(self, raw: float) -> None:
+        """[summary]
+
+        Args:
+            raw (float): [description]
+        """
         self._raw = raw
 
     def __repr__(self) -> str:
+        """[summary]
+
+        Returns:
+            str: [description]
+        """
         return self.__str__()
 
     def __str__(self) -> str:
+        """[summary]
+
+        Returns:
+            str: [description]
+        """
         return '%s' % self.score
 
     def __eq__(self, other: Union['Score', float]) -> bool:
+        """[summary]
+
+        Args:
+            other (Union[): [description]
+
+        Returns:
+            bool: [description]
+        """
         if isinstance(other, Score):
             result = self.norm_score == other.norm_score
         else:
@@ -196,6 +303,14 @@ class Score(SciUnit):
         return result
 
     def __ne__(self, other: Union['Score', float]) -> bool:
+        """[summary]
+
+        Args:
+            other (Union[): [description]
+
+        Returns:
+            bool: [description]
+        """
         if isinstance(other, Score):
             result = self.norm_score != other.norm_score
         else:
@@ -203,6 +318,14 @@ class Score(SciUnit):
         return result
 
     def __gt__(self, other: Union['Score', float]) -> bool:
+        """[summary]
+
+        Args:
+            other (Union[): [description]
+
+        Returns:
+            bool: [description]
+        """
         if isinstance(other, Score):
             result = self.norm_score > other.norm_score
         else:
@@ -210,6 +333,14 @@ class Score(SciUnit):
         return result
 
     def __ge__(self, other: Union['Score', float]) -> bool:
+        """[summary]
+
+        Args:
+            other (Union[): [description]
+
+        Returns:
+            bool: [description]
+        """
         if isinstance(other, Score):
             result = self.norm_score >= other.norm_score
         else:
@@ -217,6 +348,14 @@ class Score(SciUnit):
         return result
 
     def __lt__(self, other: Union['Score', float]) -> bool:
+        """[summary]
+
+        Args:
+            other (Union[): [description]
+
+        Returns:
+            bool: [description]
+        """
         if isinstance(other, Score):
             result = self.norm_score < other.norm_score
         else:
@@ -224,6 +363,14 @@ class Score(SciUnit):
         return result
 
     def __le__(self, other: Union['Score', float]) -> bool:
+        """[summary]
+
+        Args:
+            other (Union[): [description]
+
+        Returns:
+            bool: [description]
+        """
         if isinstance(other, Score):
             result = self.norm_score <= other.norm_score
         else:
@@ -232,12 +379,24 @@ class Score(SciUnit):
 
     @property
     def score_type(self):
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         return self.__class__.__name__
 
     @classmethod
     def extract_means_or_values(cls, observation: dict, prediction: dict, key: str=None) -> Tuple[dict, dict]:
-        """Extracts the mean, value, or user-provided key from the observation
-        and prediction dictionaries.
+        """Extracts the mean, value, or user-provided key from the observation and prediction dictionaries.
+
+        Args:
+            observation (dict): [description]
+            prediction (dict): [description]
+            key (str, optional): [description]. Defaults to None.
+
+        Returns:
+            Tuple[dict, dict]: [description]
         """
 
         obs_mv = cls.extract_mean_or_value(observation, key)
@@ -246,8 +405,17 @@ class Score(SciUnit):
 
     @classmethod
     def extract_mean_or_value(cls, obs_or_pred: dict, key: str=None) -> float:
-        """Extracts the mean, value, or user-provided key from an observation
-        or prediction dictionary.
+        """Extracts the mean, value, or user-provided key from an observation or prediction dictionary.
+
+        Args:
+            obs_or_pred (dict): [description]
+            key (str, optional): [description]. Defaults to None.
+
+        Raises:
+            KeyError: [description]
+
+        Returns:
+            float: [description]
         """
 
         result = None
@@ -270,11 +438,20 @@ class ErrorScore(Score):
 
     @property
     def norm_score(self) -> float:
+        """[summary]
+
+        Returns:
+            float: [description]
+        """
         return 0.0
 
     @property
     def summary(self) -> str:
-        """Summarize the performance of a model on a test."""
+        """Summarize the performance of a model on a test.
+
+        Returns:
+            str: [description]
+        """
         return "== Model %s did not complete test %s due to error '%s'. ==" %\
                (str(self.model), str(self.test), str(self.score))
 

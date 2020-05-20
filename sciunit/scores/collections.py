@@ -61,6 +61,17 @@ class ScoreArray(pd.Series, SciUnit,TestWeighted):
         return result
 
     def get_by_name(self, name):
+        """[summary]
+
+        Args:
+            name ([type]): [description]
+
+        Raises:
+            KeyError: [description]
+
+        Returns:
+            [type]: [description]
+        """
         item = None
         for test_or_model in self.index:
             if test_or_model.name == name:
@@ -78,14 +89,21 @@ class ScoreArray(pd.Series, SciUnit,TestWeighted):
 
     @property
     def norm_scores(self):
-        """Return the `norm_score` for each test."""
+        """Return the `norm_score` for each test.
+
+        Returns:
+            [type]: [description]
+        """
         return self.map(lambda x: x.norm_score)
 
-    def mean(self):
+    def mean(self) -> tuple:
         """Compute a total score for each model over all the tests.
 
         Uses the `norm_score` attribute, since otherwise direct comparison
         across different kinds of scores would not be possible.
+
+        Returns:
+            tuple: [description]
         """
 
         return np.dot(np.array(self.norm_scores), self.weights)
@@ -94,16 +112,20 @@ class ScoreArray(pd.Series, SciUnit,TestWeighted):
         """Compute the relative rank of a model on a test.
 
         Rank is against other models that were asked to take the test.
+
+        Args:
+            test_or_model ([type]): [description]
+
+        Returns:
+            [type]: [description]
         """
         return self.norm_scores.rank(ascending=False)[test_or_model]
 
 
 class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
-    """
-    Represents a matrix of scores derived from a test suite.
+    """ Represents a matrix of scores derived from a test suite.
     Extends the pandas DataFrame such that tests are columns and models
-    are the index.
-    Also displays and compute score summaries in sciunit-specific ways.
+    are the index. Also displays and compute score summaries in sciunit-specific ways.
 
     Can use like this, assuming n tests and m models:
 
@@ -113,6 +135,11 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
     (score_1, ..., score_m)
     >>> sm[model]
     (score_1, ..., score_n)
+
+    Args:
+        pd ([type]): [description]
+        SciUnit ([type]): [description]
+        TestWeighted ([type]): [description]
     """
 
     def __init__(self, tests, models,
@@ -139,6 +166,16 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
     direct_attrs = ['score', 'norm_scores', 'related_data']
 
     def check_tests_models_scores(self, tests, models, scores):
+        """[summary]
+
+        Args:
+            tests ([type]): [description]
+            models ([type]): [description]
+            scores ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         if isinstance(tests, Test):
             tests = [tests]
         if isinstance(models, Model):
@@ -159,16 +196,43 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         raise TypeError("Expected test; model; test,model; or model,test")
 
     def get_test(self, test):
+        """[summary]
+
+        Args:
+            test ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         return ScoreArray(self.models,
                           scores=super(ScoreMatrix, self).__getitem__(test),
                           weights=self.weights)
 
     def get_model(self, model):
+        """[summary]
+
+        Args:
+            model ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         return ScoreArray(self.tests,
                           scores=self.loc[model, :],
                           weights=self.weights)
 
     def get_group(self, x):
+        """[summary]
+
+        Args:
+            x ([type]): [description]
+
+        Raises:
+            TypeError: [description]
+
+        Returns:
+            [type]: [description]
+        """
         t = int(bool(self.transposed))
         if isinstance(x[0], Test) and isinstance(x[1], Model):
             result = self.loc[x[1-t], x[t]]
@@ -181,6 +245,17 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         return result
 
     def get_by_name(self, name):
+        """[summary]
+
+        Args:
+            name ([type]): [description]
+
+        Raises:
+            KeyError: [description]
+
+        Returns:
+            [type]: [description]
+        """
         for model in self.models:
             if model.name == name:
                 return self.__getitem__(model)
@@ -198,24 +273,48 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
 
     @property
     def norm_scores(self):
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         return self.applymap(lambda x: x.norm_score)
 
     def stature(self, test, model):
-        """Computes the relative rank of a model on a test compared to other
-        models that were asked to take the test."""
+        """Computes the relative rank of a model on a test compared to other models that were asked to take the test.
+
+        Args:
+            test ([type]): [description]
+            model ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
 
         return self[test].stature(model)
 
     @property
-    def T(self):
-        """Get transpose of this ScoreMatrix."""
+    def T(self) -> "ScoreMatrix":
+        """Get transpose of this ScoreMatrix.
+
+        Returns:
+            ScoreMatrix: [description]
+        """
         return ScoreMatrix(self.tests, self.models, scores=self.values,
                            weights=self.weights, transpose=True)
 
     def to_html(self, show_mean=None, sortable=None, colorize=True, *args,
-                **kwargs):
-        """Extend Pandas built in `to_html` method for rendering a DataFrame
-        and use it to render a ScoreMatrix."""
+                **kwargs) -> str:
+        """Extend Pandas built in `to_html` method for rendering a DataFrame and use it to render a ScoreMatrix.
+
+        Args:
+            show_mean ([type], optional): [description]. Defaults to None.
+            sortable ([type], optional): [description]. Defaults to None.
+            colorize (bool, optional): [description]. Defaults to True.
+
+        Returns:
+            str: [description]
+        """
         if show_mean is None:
             show_mean = self.show_mean
         if sortable is None:
@@ -231,6 +330,17 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         return html
 
     def annotate(self, df, html, show_mean, colorize):
+        """[summary]
+
+        Args:
+            df ([type]): [description]
+            html ([type]): [description]
+            show_mean ([type]): [description]
+            colorize ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         soup = bs4.BeautifulSoup(html, "lxml")
         if colorize:
             self.annotate_headers(soup, df, show_mean)
@@ -241,11 +351,27 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         return html, table_id
 
     def annotate_headers(self, soup, df, show_mean):
+        """[summary]
+
+        Args:
+            soup ([type]): [description]
+            df ([type]): [description]
+            show_mean ([type]): [description]
+        """
         for i, row in enumerate(soup.find('thead').findAll('tr')):
             for j, cell in enumerate(row.findAll('th')[1:]):
                 self.annotate_header_cell(cell, df, show_mean, i, j)
 
     def annotate_header_cell(self, cell, df, show_mean, i, j):
+        """[summary]
+
+        Args:
+            cell ([type]): [description]
+            df ([type]): [description]
+            show_mean ([type]): [description]
+            i ([type]): [description]
+            j ([type]): [description]
+        """
         if show_mean and j == 0:
             self.annotate_mean(cell, df, i)
         else:
@@ -257,6 +383,13 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             cell.string = cell.string[:-5]
 
     def annotate_body(self, soup, df, show_mean):
+        """[summary]
+
+        Args:
+            soup ([type]): [description]
+            df ([type]): [description]
+            show_mean ([type]): [description]
+        """
         for i, row in enumerate(soup.find('tbody').findAll('tr')):
             cell = row.find('th')
             if self.transposed:
@@ -267,6 +400,15 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
                 self.annotate_body_cell(cell, df, show_mean, i, j)
 
     def annotate_body_cell(self, cell, df, show_mean, i, j):
+        """[summary]
+
+        Args:
+            cell ([type]): [description]
+            df ([type]): [description]
+            show_mean ([type]): [description]
+            i ([type]): [description]
+            j ([type]): [description]
+        """
         if show_mean and j == 0:
             value = self.annotate_mean(cell, df, i)
         else:
@@ -281,11 +423,26 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         cell['style'] = 'background-color: rgb(%d,%d,%d);' % rgb
 
     def annotate_mean(self, cell, df, i):
+        """[summary]
+
+        Args:
+            cell ([type]): [description]
+            df ([type]): [description]
+            i ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         value = float(df.loc[self.models[i], 'Mean'])
         cell['title'] = 'Mean sort key value across tests'
         return value
 
     def dynamify(self, table_id):
+        """[summary]
+
+        Args:
+            table_id ([type]): [description]
+        """
         prefix = "//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0"
         js = Javascript("$('#%s').dataTable();" % table_id,
                         lib=["%s/jquery.dataTables.min.js" % prefix],

@@ -33,7 +33,18 @@ class ScoreArrayM2M(pd.Series):
             attr = super(ScoreArrayM2M,self).__getattribute__(name)
         return attr
 
-    def get_by_name(self, name: str) -> Any:
+    def get_by_name(self, name: str) -> str:
+        """[summary]
+
+        Args:
+            name (str): [description]
+
+        Raises:
+            KeyError: [description]
+
+        Returns:
+            Any: [description]
+        """
         for entry in self.index:
             if entry.name == name or name.lower() == "observation":
                 return self.__getitem__(entry)
@@ -42,6 +53,11 @@ class ScoreArrayM2M(pd.Series):
 
     @property
     def norm_scores(self):
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         return self.map(lambda x: x.norm_score)
 
 
@@ -84,6 +100,17 @@ class ScoreMatrixM2M(pd.DataFrame):
         return result
 
     def get_by_name(self, name: str) -> Any:
+        """[summary]
+
+        Args:
+            name (str): [description]
+
+        Raises:
+            KeyError: [description]
+
+        Returns:
+            Any: [description]
+        """
         for model in self.models:
             if model.name == name:
                 return self.__getitem__(model)
@@ -93,6 +120,17 @@ class ScoreMatrixM2M(pd.DataFrame):
                         "any model: '%s'") % name)
 
     def get_group(self, x: list) -> Any:
+        """[summary]
+
+        Args:
+            x (list): [description]
+
+        Raises:
+            TypeError: [description]
+
+        Returns:
+            Any: [description]
+        """
         if isinstance(x[0], (Test, Model)) and isinstance(x[1], (Test, Model)):
             return self.loc[x[0], x[1]]
         elif isinstance(x[0], str):
@@ -108,4 +146,9 @@ class ScoreMatrixM2M(pd.DataFrame):
 
     @property
     def norm_scores(self) -> "DataFrame":
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         return self.applymap(lambda x: x.norm_score)

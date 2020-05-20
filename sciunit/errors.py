@@ -25,8 +25,8 @@ class CapabilityError(Error):
     def __init__(self, model: 'sciunit.Model', capability: 'sciunit.Capability', details: str=''):
         """ A constructor
         Args:
-            model ([type]): a model instance
-            capability ([type]): a capability class
+            model (Model): a model instance
+            capability (Capability): a capability class
             details (str, optional): [description]. Defaults to ''.
         """
         self.model = model
@@ -93,6 +93,12 @@ class InvalidScoreError(Error):
 class BadParameterValueError(Error):
     """Error raised when a model parameter value is unreasonable."""
     def __init__(self, name: str, value: int):
+        """[summary]
+
+        Args:
+            name (str): [description]
+            value (int): [description]
+        """
         self.name = name
         self.value = value
 

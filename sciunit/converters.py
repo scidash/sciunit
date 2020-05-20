@@ -68,7 +68,11 @@ class LambdaConversion(Converter):
     Converts a score according to a lambda function.
     """
     def __init__(self, f: Callable):
-        """f should be a lambda function"""
+        """f should be a lambda function
+
+        Args:
+            f (Callable): [description]
+        """
         self.f = f
 
     def _convert(self, score: Score) -> Score:

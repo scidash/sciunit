@@ -27,6 +27,11 @@ class UniformModel(Model, ProducesNumber):
         super(UniformModel, self).__init__(name=name, a=a, b=b)
 
     def produce_number(self) -> float:
+        """[summary]
+
+        Returns:
+            float: [description]
+        """
         return random.uniform(self.a, self.b)
 
 
@@ -39,7 +44,11 @@ class UniqueRandomNumberModel(Model, ProducesNumber):
     """An example model to ProducesNumber."""
 
     def produce_number(self) -> float:
-        """Each call to this method will produce a different random number."""
+        """Each call to this method will produce a different random number.
+
+        Returns:
+            float: [description]
+        """
         return random.random()
 
 
@@ -48,9 +57,11 @@ class RepeatedRandomNumberModel(Model, ProducesNumber):
 
     @memoize
     def produce_number(self):
-        """Each call to this method will produce the same random number as
-        was returned in the first call, ensuring reproducibility and
-        eliminating computational overhead."""
+        """Each call to this method will produce the same random number as was returned in the first call, ensuring reproducibility and eliminating computational overhead.
+
+        Returns:
+            [type]: [description]
+        """
         return random.random()
 
 

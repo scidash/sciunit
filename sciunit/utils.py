@@ -724,7 +724,7 @@ def config_get(key: str, default: Optional[int]=None) -> int:
     return value
 
 
-def path_escape(path: str):
+def path_escape(path: Union[str, "pathlib.Path"]):
     """Escape a path by placing backslashes in front of disallowed characters
 
     Args:

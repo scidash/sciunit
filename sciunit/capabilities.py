@@ -47,7 +47,14 @@ class Capability(SciUnit):
         return class_capable and instance_capable
 
     def unimplemented(self, message: str='') -> None:
-        """Raise a `CapabilityNotImplementedError` with details."""
+        """Raise a `CapabilityNotImplementedError` with details.
+
+        Args:
+            message (str, optional): Message for not implemented exception. Defaults to ''.
+
+        Raises:
+            CapabilityNotImplementedError: Raise a `CapabilityNotImplementedError` with details.
+        """
         from sciunit import Model
         capabilities = [obj for obj in self.__class__.mro() if issubclass(obj, Capability) and not issubclass(obj, Model)]
         model = self if isinstance(self, Model) else None

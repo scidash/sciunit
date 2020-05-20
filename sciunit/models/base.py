@@ -67,7 +67,11 @@ class Model(SciUnit):
         return failed
 
     def describe(self) -> str:
-        """Describe the model."""
+        """Describe the model.
+
+        Returns:
+            str: [description]
+        """
         result = "No description available"
         if self.description:
             result = "%s" % self.description
@@ -80,7 +84,14 @@ class Model(SciUnit):
         return result
 
     def curr_method(self, back: int=0) -> str:
-        """Return the name of the current method (calling this one)."""
+        """Return the name of the current method (calling this one).
+
+        Args:
+            back (int, optional): [description]. Defaults to 0.
+
+        Returns:
+            str: [description]
+        """
         return(inspect.stack()[1+back][3])
 
     def check_params(self) -> None:
@@ -96,6 +107,12 @@ class Model(SciUnit):
         """Return whether this model is the same as `match`.
 
         Matches if the model is the same as or has the same name as `match`.
+
+        Args:
+            match (Any): [description]
+
+        Returns:
+            bool: [description]
         """
         result = False
         if self == match:

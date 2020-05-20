@@ -22,6 +22,11 @@ class NoneScore(Score):
            
     @property
     def norm_score(self) -> None:
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         return None
 
     def __str__(self) -> str:

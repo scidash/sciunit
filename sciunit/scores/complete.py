@@ -26,12 +26,20 @@ class BooleanScore(Score):
 
     @classmethod
     def compute(cls, observation: dict, prediction: dict) -> 'BooleanScore':
-        """Compute whether the observation equals the prediction."""
+        """Compute whether the observation equals the prediction.
+
+        Returns:
+            BooleanScore: [description]
+        """
         return BooleanScore(observation == prediction)
 
     @property
     def norm_score(self) -> float:
-        """Return 1.0 for a True score and 0.0 for False score."""
+        """Return 1.0 for a True score and 0.0 for False score.
+
+        Returns:
+            float: [description]
+        """
         return 1.0 if self.score else 0.0
 
     def __str__(self) -> str:
@@ -57,7 +65,11 @@ class ZScore(Score):
 
     @classmethod
     def compute(cls, observation: dict, prediction: dict) -> 'ZScore':
-        """Compute a z-score from an observation and a prediction."""
+        """Compute a z-score from an observation and a prediction.
+
+        Returns:
+            ZScore: [description]
+        """
         assert isinstance(observation, dict),\
             "Observation must be a dict when using ZScore, not type %s" \
             % type(observation)
@@ -111,7 +123,11 @@ class CohenDScore(ZScore):
 
     @classmethod
     def compute(cls, observation: dict, prediction: dict) -> 'CohenDScore':
-        """Compute a Cohen's D from an observation and a prediction."""
+        """Compute a Cohen's D from an observation and a prediction.
+
+        Returns:
+            CohenDScore: [description]
+        """
         assert isinstance(observation, dict)
         assert isinstance(prediction, dict)
         p_mean = prediction['mean']  # Use the prediction's mean.
@@ -153,7 +169,11 @@ class RatioScore(Score):
 
     @classmethod
     def compute(cls, observation: dict, prediction: dict, key=None) -> 'RatioScore':
-        """Compute a ratio from an observation and a prediction."""
+        """Compute a ratio from an observation and a prediction.
+
+        Returns:
+            [type]: [description]
+        """
         assert isinstance(observation, (dict, float, int, pq.Quantity))
         assert isinstance(prediction, (dict, float, int, pq.Quantity))
 
@@ -165,8 +185,11 @@ class RatioScore(Score):
 
     @property
     def norm_score(self) -> str:
-        """Return 1.0 for a ratio of 1, falling to 0.0 for extremely small
-        or large values."""
+        """Return 1.0 for a ratio of 1, falling to 0.0 for extremely small or large values.
+
+        Returns:
+            str: [description]
+        """
         score = math.log10(self.score)
         cdf = (1.0 + math.erf(score / math.sqrt(2.0))) / 2.0
         return 1 - 2*math.fabs(0.5 - cdf)
@@ -192,7 +215,11 @@ class PercentScore(Score):
 
     @property
     def norm_score(self) -> float:
-        """Return 1.0 for a percent score of 100, and 0.0 for 0."""
+        """Return 1.0 for a percent score of 100, and 0.0 for 0.
+
+        Returns:
+            float: [description]
+        """
         return float(self.score)/100
 
     def __str__(self) -> str:
@@ -217,7 +244,15 @@ class FloatScore(Score):
 
     @classmethod
     def compute_ssd(cls, observation: dict, prediction: dict) -> Score:
-        """Compute sum-squared diff between observation and prediction."""
+        """Compute sum-squared diff between observation and prediction.
+
+        Args:
+            observation (dict): [description]
+            prediction (dict): [description]
+
+        Returns:
+            Score: [description]
+        """
         # The sum of the squared differences.
         value = ((observation - prediction)**2).sum()
         score = FloatScore(value)

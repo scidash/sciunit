@@ -33,7 +33,15 @@ class RunnableModel(Model,
         return self._backend
 
     def set_backend(self, backend):
-        """Set the simulation backend."""
+        """Set the simulation backend.
+
+        Args:
+            backend ([type]): [description]
+
+        Raises:
+            TypeError: [description]
+            Exception: [description]
+        """
         if isinstance(backend, str):
             name = backend if len(backend) else None
             args = []

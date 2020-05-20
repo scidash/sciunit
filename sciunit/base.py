@@ -38,7 +38,14 @@ class Versioned(object):
     """
 
     def get_repo(self, cached: bool=True) -> Repo:
-        """Get a git repository object for this instance."""
+        """Get a git repository object for this instance.
+
+        Args:
+            cached (bool, optional): [description]. Defaults to True.
+
+        Returns:
+            Repo: [description]
+        """
         module = sys.modules[self.__module__]
         # We use module.__file__ instead of module.__path__[0]
         # to include modules without a __path__ attribute.
@@ -56,7 +63,14 @@ class Versioned(object):
         return repo
 
     def get_version(self, cached: bool=True) -> str:
-        """Get a git version (i.e. a git commit hash) for this instance."""
+        """Get a git version (i.e. a git commit hash) for this instance.
+
+        Args:
+            cached (bool, optional): [description]. Defaults to True.
+
+        Returns:
+            str: The git version for this instance
+        """
         if hasattr(self.__class__, '_version') and cached:
             version = self.__class__._version
         else:
@@ -73,7 +87,14 @@ class Versioned(object):
     version = property(get_version)
 
     def get_remote(self, remote: str='origin') -> Remote:
-        """Get a git remote object for this instance."""
+        """Get a git remote object for this instance.
+
+        Args:
+            remote (str, optional): [description]. Defaults to 'origin'.
+
+        Returns:
+            Remote: The git remote object for this instance.
+        """
         repo = self.get_repo()
         if repo is not None:
             remotes = {r.name: r for r in repo.remotes}
@@ -83,7 +104,18 @@ class Versioned(object):
         return r
 
     def get_remote_url(self, remote: str='origin', cached: bool=True) -> str:
-        """Get a git remote URL for this instance."""
+        """Get a git remote URL for this instance.
+
+        Args:
+            remote (str, optional): [description]. Defaults to 'origin'.
+            cached (bool, optional): [description]. Defaults to True.
+
+        Raises:
+            ex: [description]
+
+        Returns:
+            str: The git remote URL for this instance
+        """
         if hasattr(self.__class__, '_remote_url') and cached:
             url = self.__class__._remote_url
         else:
@@ -124,11 +156,14 @@ class SciUnit(Versioned):
     #: A verbosity level for printing information.
     verbose = 1
 
-    def __getstate__(self) -> Dict[str, Optional[Union[str, List['sciunit.tests.RangeTest'], int, Tuple[int, int]]]]:
+    def __getstate__(self) -> Dict[str, Union[str, list, int, tuple]]:
         """Copy the object's state from self.__dict__.
 
         Contains all of the instance attributes. Always uses the dict.copy()
         method to avoid modifying the original state.
+
+        Returns:
+            [type]: [description]
         """
         state = self.__dict__.copy()
         # Remove the unpicklable entries.
@@ -137,7 +172,12 @@ class SciUnit(Versioned):
                 del state[key]
         return state
 
-    def _state(self, state: Union[Dict[str, Union[str, int, Tuple[int, int], List['sciunit.tests.RangeTest']]]]=None, keys: None=None, exclude: List[str]=None) -> Dict[str, Union[str, List['sciunit.tests.RangeTest'], int, Tuple[int, int]]]:
+    def _state(self, state: Dict[str, Union[str, int, tuple, list]]=None, keys: dict=None, exclude: List[str]=None) -> Dict[str, Union[str, list, int, tuple]]:
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         if state is None:
             state = self.__getstate__()
         if keys:
@@ -149,6 +189,15 @@ class SciUnit(Versioned):
         return state
 
     def _properties(self, keys: list=None, exclude: list=None) -> dict:
+        """[summary]
+
+        Args:
+            keys (list, optional): [description]. Defaults to None.
+            exclude (list, optional): [description]. Defaults to None.
+
+        Returns:
+            dict: [description]
+        """
         result = {}
         props = self.raw_props()
         exclude = exclude if exclude else []
@@ -161,20 +210,43 @@ class SciUnit(Versioned):
         return result
 
     def raw_props(self) -> list:
+        """[summary]
+
+        Returns:
+            list: [description]
+        """
         class_attrs = dir(self.__class__)
         return [p for p in class_attrs
                 if isinstance(getattr(self.__class__, p, None), property)]
 
     @property
-    def state(self) -> Dict[str, Optional[Union[str, List['sciunit.tests.RangeTest']]]]:
+    def state(self) -> Dict[str, Union[str, list]]:
+        """[summary]
+
+        Returns:
+            Dict[str, Union[str, list]]: [description]
+        """
         return self._state()
 
     @property
     def properties(self) -> dict:
+        """[summary]
+
+        Returns:
+            dict: [description]
+        """
         return self._properties()
 
     @classmethod
-    def dict_hash(cls, d: Dict[str, Union[int, Dict[str, Union[int, str, Dict[str, int]]]]]) -> str:
+    def dict_hash(cls, d: Dict[str, Union[int, dict]]) -> str:
+        """[summary]
+
+        Args:
+            d (Dict[str, Union[int, dict]]): [description]
+
+        Returns:
+            str: [description]
+        """
         od = [(key, d[key]) for key in sorted(d)]
         try:
             s = pickle.dumps(od)
@@ -184,7 +256,11 @@ class SciUnit(Versioned):
 
     @property
     def hash(self) -> str:
-        """A unique numeric identifier of the current model state"""
+        """A unique numeric identifier of the current model state
+
+        Returns:
+            str: The unique numeric identifier of the current model state
+        """
         return self.dict_hash(self.state)
 
     def json(self, add_props: bool=False, keys: list=None, exclude: list=None, string: bool=True,
@@ -232,7 +308,15 @@ class SciUnitEncoder(json.JSONEncoder):
                 kwargs.pop(key)
         super(SciUnitEncoder, self).__init__(*args, **kwargs)
 
-    def default(self, obj: Union['sciunit.tests.RangeTest', 'sciunit.TestSuite']) -> Dict[str, Optional[Union[str, List['sciunit.tests.RangeTest'], int, Tuple[int, int]]]]:
+    def default(self, obj: Union['sciunit.tests.RangeTest', 'sciunit.TestSuite']) -> Dict[str, Union[str, list, int, tuple]]:
+        """[summary]
+
+        Raises:
+            e: [description]
+
+        Returns:
+            [type]: [description]
+        """
         try:
             if isinstance(obj, pd.DataFrame):
                 o = obj.to_dict(orient='split')
@@ -266,7 +350,11 @@ class TestWeighted(object):
 
     @property
     def weights(self) -> List[float]:
-        """Returns a normalized list of test weights."""
+        """Returns a normalized list of test weights.
+
+        Returns:
+            List[float]: The normalized list of test weights.
+        """
 
         n = len(self.tests)
         if self.weights_:
@@ -280,7 +368,16 @@ class TestWeighted(object):
         return weights
 
 
-def deep_exclude(state: Dict[str, Union[str, int, Tuple[int, int]]], exclude: List[str]) -> Dict[str, Union[str, int, Tuple[int, int]]]:
+def deep_exclude(state: Dict[str, Union[str, int, tuple]], exclude: List[str]) -> Dict[str, Union[str, int, tuple]]:
+    """[summary]
+
+    Args:
+        state (Dict[str, Union[str, int, Tuple[int, int]]]): [description]
+        exclude (List[str]): [description]
+
+    Returns:
+        Dict[str, Union[str, int, Tuple[int, int]]]: [description]
+    """
     tuples = [key for key in exclude if isinstance(key, tuple)]
     s = state
     for loc in tuples:

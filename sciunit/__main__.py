@@ -22,7 +22,7 @@ from nbformat.v4.nbbase import new_notebook, new_markdown_cell
 from nbconvert.preprocessors import ExecutePreprocessor
 from typing import Tuple
 import sciunit
-
+from typing import Union
 try:
     import configparser
 except ImportError:
@@ -77,7 +77,14 @@ def main(*args):
 
 
 def create(file_path: str) -> None:
-    """Create a default .sciunit config file if one does not already exist."""
+    """Create a default .sciunit config file if one does not already exist.
+
+    Args:
+        file_path (str): The path of sciunit config file that will be created.
+
+    Raises:
+        IOError: [description]
+    """
     if os.path.exists(file_path):
         raise IOError("There is already a configuration file at %s" %
                       file_path)
@@ -98,8 +105,19 @@ def create(file_path: str) -> None:
         config.write(f)
 
 
-def parse(file_path: str=None, show: bool=False):
-    """Parse a .sciunit config file."""
+def parse(file_path: str=None, show: bool=False) -> "RawConfigParser":
+    """Parse a .sciunit config file.
+
+    Args:
+        file_path (str, optional): The path of sciunit config file that will be parsed. Defaults to None.
+        show (bool, optional): Whether or not print the sections in the config file. Defaults to False.
+
+    Raises:
+        IOError: Raise an exception if no .sciunit file was found
+
+    Returns:
+        [type]: [description]
+    """
     if file_path is None:
         file_path = os.path.join(os.getcwd(), '.sciunit')
     if not os.path.exists(file_path):
@@ -119,8 +137,13 @@ def parse(file_path: str=None, show: bool=False):
     return config
 
 
-def prep(config=None, path=None) -> None:
-    """Prepare to read the configuration information."""
+def prep(config: "RawConfigParser"=None, path: Union[str, "pathlib.Path"]=None) -> None:
+    """Prepare to read the configuration information.
+
+    Args:
+        config ([type], optional): [description]. Defaults to None.
+        path ([type], optional): [description]. Defaults to None.
+    """
     if config is None:
         config = parse()
     if path is None:
@@ -134,7 +157,14 @@ def prep(config=None, path=None) -> None:
 
 
 def run(config, path=None, stop_on_error: bool=True, just_tests: bool=False) -> None:
-    """Run sciunit tests for the given configuration."""
+    """Run sciunit tests for the given configuration.
+
+    Args:
+        config ([type]): [description]
+        path ([type], optional): [description]. Defaults to None.
+        stop_on_error (bool, optional): [description]. Defaults to True.
+        just_tests (bool, optional): [description]. Defaults to False.
+    """
     if path is None:
         path = os.getcwd()
     prep(config, path=path)
@@ -159,14 +189,29 @@ def run(config, path=None, stop_on_error: bool=True, just_tests: bool=False) -> 
 
 
 def _run(test_or_suite, models: list, stop_on_error) -> None:
+    """[summary]
+
+    Args:
+        test_or_suite ([type]): [description]
+        models (list): [description]
+        stop_on_error ([type]): [description]
+    """
     score_array_or_matrix = test_or_suite.judge(models.models,
                                                 stop_on_error=stop_on_error)
     kind = 'Test' if isinstance(test_or_suite, sciunit.Test) else 'Suite'
     print('\n%s %s:\n%s\n' % (kind, test_or_suite, score_array_or_matrix))
 
 
-def nb_name_from_path(config: dict, path: str) -> tuple:
-    """Get a notebook name from a path to a notebook"""
+def nb_name_from_path(config: dict, path: Union[str, "pathlib.Path"]) -> tuple:
+    """Get a notebook name from a path to a notebook
+
+    Args:
+        config (dict): [description]
+        path (str): [description]
+
+    Returns:
+        tuple: [description]
+    """
     if path is None:
         path = os.getcwd()
     root = config.get('root', 'path')
@@ -177,8 +222,15 @@ def nb_name_from_path(config: dict, path: str) -> tuple:
     return root, nb_name
 
 
-def make_nb(config, path: str=None, stop_on_error: bool=True, just_tests: bool=False) -> None:
-    """Create a Jupyter notebook sciunit tests for the given configuration."""
+def make_nb(config, path: Union[str, "pathlib.Path"]=None, stop_on_error: bool=True, just_tests: bool=False) -> None:
+    """Create a Jupyter notebook sciunit tests for the given configuration.
+
+    Args:
+        config ([type]): [description]
+        path (str, optional): [description]. Defaults to None.
+        stop_on_error (bool, optional): [description]. Defaults to True.
+        just_tests (bool, optional): [description]. Defaults to False.
+    """
     root, nb_name = nb_name_from_path(config, path)
     clean = lambda varStr: re.sub('\W|^(?=\d)', '_', varStr)
     name = clean(nb_name)
@@ -209,6 +261,11 @@ def write_nb(root, nb_name, cells) -> None:
     """Write a jupyter notebook to disk.
 
     Takes a given a root directory, a notebook name, and a list of cells.
+
+    Args:
+        root ([type]): [description]
+        nb_name ([type]): [description]
+        cells ([type]): [description]
     """
     nb = new_notebook(cells=cells,
                       metadata={
@@ -220,11 +277,15 @@ def write_nb(root, nb_name, cells) -> None:
     print("Created Jupyter notebook at:\n%s" % nb_path)
 
 
-def run_nb(config, path=None) -> None:
+def run_nb(config, path: Union[str, "pathlib.Path"]=None) -> None:
     """Run a notebook file.
 
     Runs the one specified by the config file, or the one at
     the location specificed by 'path'.
+
+    Args:
+        config ([type]): [description]
+        path ([type], optional): [description]. Defaults to None.
     """
     if path is None:
         path = os.getcwd()
@@ -246,14 +307,24 @@ def run_nb(config, path=None) -> None:
 
 
 def add_code_cell(cells, source) -> None:
-    """Add a code cell containing `source` to the notebook."""
+    """Add a code cell containing `source` to the notebook.
+
+    Args:
+        cells ([type]): [description]
+        source ([type]): [description]
+    """
     from nbformat.v4.nbbase import new_code_cell
     n_code_cells = len([c for c in cells if c['cell_type'] == 'code'])
     cells.append(new_code_cell(source=source, execution_count=n_code_cells+1))
 
 
-def cleanup(config=None, path=None) -> None:
-    """Cleanup by removing paths added during earlier in configuration."""
+def cleanup(config=None, path: Union[str, "pathlib.Path"]=None) -> None:
+    """Cleanup by removing paths added during earlier in configuration.
+
+    Args:
+        config ([type], optional): [description]. Defaults to None.
+        path (Union[str,, optional): [description]. Defaults to None.
+    """
     if config is None:
         config = parse()
     if path is None:
