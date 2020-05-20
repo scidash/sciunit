@@ -23,6 +23,13 @@ class Capability(SciUnit):
 
         By default, uses isinstance.  If `require_extra`, also requires that an
         instance check be present in `model.extra_capability_checks`.
+
+        Args:
+            model (Union[): [description]
+            require_extra (bool, optional): [description]. Defaults to False.
+
+        Returns:
+            bool: [description]
         """
         class_capable = isinstance(model, cls)
 

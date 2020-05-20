@@ -23,9 +23,11 @@ class ParametersError(Error):
 class CapabilityError(Error):
     """Abstract error class for capabilities"""
     def __init__(self, model: 'sciunit.Model', capability: 'sciunit.Capability', details: str=''):
-        """
-        model: a model instance
-        capablity: a capability class
+        """ A constructor
+        Args:
+            model ([type]): a model instance
+            capability ([type]): a capability class
+            details (str, optional): [description]. Defaults to ''.
         """
         self.model = model
         self.capability = capability
@@ -62,6 +64,12 @@ class CapabilityNotImplementedError(CapabilityError):
 class PredictionError(Error):
     """Raised when a tests's generate_prediction chokes on a model's method"""
     def __init__(self, model: 'sciunit.Model', method: str, **args):
+        """[summary]
+
+        Args:
+            model ([type]): [description]
+            method (str): [description]
+        """
         self.model = model
         self.method = method
         self.args = args
