@@ -137,7 +137,7 @@ class SciUnit(Versioned):
                 del state[key]
         return state
 
-    def _state(self, state: Optional[Union[Dict[str, Optional[Union[str, List['sciunit.tests.RangeTest']]]], Dict[str, Union[str, int, Tuple[int, int]]]]]=None, keys: None=None, exclude: Optional[List[str]]=None) -> Dict[str, Optional[Union[str, List['sciunit.tests.RangeTest'], int, Tuple[int, int]]]]:
+    def _state(self, state: Union[Dict[str, Union[str, int, Tuple[int, int], List['sciunit.tests.RangeTest']]]]=None, keys: None=None, exclude: List[str]=None) -> Dict[str, Union[str, List['sciunit.tests.RangeTest'], int, Tuple[int, int]]]:
         if state is None:
             state = self.__getstate__()
         if keys:

@@ -18,11 +18,20 @@ from typing import Callable, Dict, List, Optional, Tuple, Type, Union
 class TestSuite(SciUnit, TestWeighted):
     """A collection of tests."""
 
-    def __init__(self, tests: List[Test], name: Optional[str]=None, weights: None=None, include_models: Optional[List[Model]]=None,
-                 skip_models: Optional[List[Model]]=None, hooks: Optional[Dict[Test, Dict[str, Union[Callable, Dict[str, int]]]]]=None, optimizer: None=None):
+    def __init__(self, tests: List[Test], name: str=None, weights=None, include_models: List[Model]=None,
+                 skip_models: List[Model]=None, hooks: Dict[Test, Dict[str, Union[Callable, Dict[str, int]]]]=None, optimizer: None=None):
+        """optimizer: a function to bind to self.optimize (first argument must be a testsuite)
+
+        Args:
+            tests (List[Test]): The list of tests
+            name (str, optional): The name of this test suite. Defaults to None.
+            weights (optional): [description]. Defaults to None.
+            include_models (List[Model], optional): The list of models. Defaults to None.
+            skip_models (List[Model], optional): [description]. Defaults to None.
+            hooks (Dict[Test, Dict[str, Union[Callable, Dict[str, int]]]], optional): [description]. Defaults to None.
+            optimizer (None, optional): [description]. Defaults to None.
         """
-        optimizer: a function to bind to self.optimize (first argument must be a testsuite)
-        """
+
         self.name = name if name else "Suite_%d" % random.randint(0, 1e12)
         if isinstance(tests, dict):
             for key, value in tests.items():
@@ -55,8 +64,19 @@ class TestSuite(SciUnit, TestWeighted):
     """List of names or instances of models to not judge
     (all passed to judge are judged by default)."""
 
-    def assert_tests(self, tests: List[Test]) -> List[Test]:
-        """Check and in some cases fixes the list of tests."""
+    def assert_tests(self, tests: Union[List[Test], Test]) -> Union[List[Test], Test]:
+        """Check and in some cases fixes the list of tests.
+
+        Args:
+            tests (Union[List[Test], Test])): The test suite to be checked and fixed
+
+        Raises:
+            TypeError: `tests` contains a non-Test.
+            TypeError: `tests` was not provided with a test or iterable.
+
+        Returns:
+            Union[List[Test], Test]): Checked and fixed test(s)
+        """
 
         if isinstance(tests, Test):
             # Turn singleton test into a sequence
@@ -73,7 +93,18 @@ class TestSuite(SciUnit, TestWeighted):
         return tests
 
     def assert_models(self, models: Union[Model, List[Model]]) -> Union[Tuple[Model], List[Model]]:
-        """Check and in some cases fixes the list of models."""
+        """Check and in some cases fixes the list of models.
+
+        Args:
+            models (Union[Model, List[Model]]): The model(s) to be checked and fixed
+
+        Raises:
+            TypeError: `models` contains a non-Test.
+            TypeError: `models` Test suite's judge method not provided with a model or iterable."
+
+        Returns:
+            Union[Tuple[Model], List[Model]]: Checked and fixed model(s)
+        """
 
         if isinstance(models, Model):
             models = (models,)
@@ -96,6 +127,17 @@ class TestSuite(SciUnit, TestWeighted):
         Just returns a ScoreMatrix indicating whether each model can take
         each test or not.  A TBDScore indicates that it can, and an NAScore
         indicates that it cannot.
+
+        Args:
+            models (Union[Model, List[Model]]): [description]
+            skip_incapable (bool, optional): Whether to skip incapable models
+                                             (or raise an exception). Defaults to True.
+            require_extra (bool, optional):  [description]. Defaults to False.
+            stop_on_error (bool, optional):  Whether to raise an Exception if an error
+                                             is encountered or just produce an ErrorScore. Defaults to True.
+
+        Returns:
+            ScoreMatrix: [description]
         """
         models = self.assert_models(models)
         sm = ScoreMatrix(self.tests, models)
@@ -112,6 +154,15 @@ class TestSuite(SciUnit, TestWeighted):
         Returns a list of booleans (one for each test in the suite)
         corresponding to whether the test's required capabilities are satisfied
         by the model.
+
+        Args:
+            model (Model): [description]
+            skip_incapable (bool, optional): Whether to skip incapable models
+                (or raise an exception). Defaults to False.
+            require_extra (bool, optional): [description]. Defaults to False.
+
+        Returns:
+            list: [description]
         """
         return [test.check_capabilities(model,
                 skip_incapable=skip_incapable, require_extra=require_extra)
@@ -143,7 +194,14 @@ class TestSuite(SciUnit, TestWeighted):
         return sm
 
     def is_skipped(self, model: Model) -> bool:
-        """Indicate whether `model` will be judged or not."""
+        """Indicate whether `model` will be judged or not.
+
+        Args:
+            model (Model): A sciunit model
+
+        Returns:
+            bool: Whether `model` will be judged or not.
+        """
         # Skip if include_models provided and model not found there
         skip = self.include_models and \
             not any([model.is_match(x) for x in self.include_models])
@@ -154,7 +212,11 @@ class TestSuite(SciUnit, TestWeighted):
 
     def judge_one(self, model: Model, test: Test, sm: ScoreMatrix,
                   skip_incapable: bool=True, stop_on_error: bool=True, deep_error: bool=False) -> 'Score':
-        """Judge model and put score in the ScoreMatrix."""
+        """Judge model and put score in the ScoreMatrix.
+
+        Returns:
+            Score: The generated score
+        """
         if self.is_skipped(model):
             score = NoneScore(None)
         else:
@@ -169,12 +231,24 @@ class TestSuite(SciUnit, TestWeighted):
         return score
 
     def optimize(self, model: Model, *args, **kwargs) -> None:
-        """Optimize model parameters to get the best Test Suite scores."""
+        """Optimize model parameters to get the best Test Suite scores.
+
+        Args:
+            model (Model): A sciunit Model
+
+        Raises:
+            NotImplementedError: Exception raised if this method is not implemented (not overrided in the subclass)
+        """
         raise NotImplementedError(("Optimization not implemented "
                                    "for TestSuite '%s'" % self))
 
     def set_hooks(self, test: Test, score: 'Score') -> None:
-        """Set hook functions to run after each test is executed."""
+        """Set hook functions to run after each test is executed.
+
+        Args:
+            test (Test): [description]
+            score ([type]): [description]
+        """
         if self.hooks and test in self.hooks:
             f = self.hooks[test]['f']
             if 'kwargs' in self.hooks[test]:
@@ -184,12 +258,16 @@ class TestSuite(SciUnit, TestWeighted):
             f(test, self.tests, score, **kwargs)
 
     def set_verbose(self, verbose: bool) -> None:
-        """Set the verbosity for logged information about test execution."""
+        """Set the verbosity for logged information about test execution.
+
+        Args:
+            verbose (bool): The verbosity to be set for each test.
+        """
         for test in self.tests:
             test.verbose = verbose
 
     @classmethod
-    def from_observations(cls, tests_info: List[Tuple[Type[Test], List[int]]], name: Optional[str]=None):
+    def from_observations(cls, tests_info: List[Tuple["Test", List[int]]], name: Optional[str]=None):
         """Instantiate a test suite from a set of observations.
 
         `tests_info` should be a list of tuples containing the test class and
@@ -197,6 +275,13 @@ class TestSuite(SciUnit, TestWeighted):
         The desired test name may appear as an optional third item in the
         tuple, e.g. (TestClass1,obse1,"my_test").  The same test class may be
         used multiple times, e.g. [(TestClass1,obs1a),(TestClass1,obs1b),...].
+
+        Args:
+            tests_info (List[Tuple[Test, List[int]]]): [description]
+            name (Optional[str], optional): [description]. Defaults to None.
+
+        Returns:
+            [type]: [description]
         """
         tests = []
         for test_info in tests_info:
