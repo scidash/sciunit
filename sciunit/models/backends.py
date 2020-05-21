@@ -74,27 +74,27 @@ class Backend(object):
             pass
         self.disk_cache_location = os.path.join(tempfile.mkdtemp(), 'cache')
 
-    def get_memory_cache(self, key: str=None):
+    def get_memory_cache(self, key: str=None) -> dict:
         """Return result in memory cache for key 'key' or None if not found.
 
         Args:
             key (str, optional): [description]. Defaults to None.
 
         Returns:
-            [type]: [description]
+            dict: [description]
         """
         key = self.model.hash if key is None else key
         self._results = self.memory_cache.get(key)
         return self._results
 
-    def get_disk_cache(self, key: str=None):
+    def get_disk_cache(self, key: str=None) -> Any:
         """Return result in disk cache for key 'key' or None if not found.
 
         Args:
             key (str, optional): [description]. Defaults to None.
 
         Returns:
-            [type]: [description]
+            Any: [description]
         """
         key = self.model.hash if key is None else key
         if not getattr(self, 'disk_cache_location', False):

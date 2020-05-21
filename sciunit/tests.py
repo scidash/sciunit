@@ -196,7 +196,7 @@ class Test(SciUnit):
         """Check that test's required capabilities are implemented by `model`.
         
         Args:
-            model (Model): The sciunit model
+            model (Model): A sciunit model instance
             skip_incapable (bool, optional): [description]. Defaults to False.
             require_extra (bool, optional): [description]. Defaults to False.
 
@@ -222,7 +222,7 @@ class Test(SciUnit):
         
 
         Args:
-            model (Model): The model to be checked
+            model (Model): The sciunit model instance to be checked
             c (Capability): A sciunit Capability
             skip_incapable (bool, optional): If true, then skip the raising of the error. Defaults to False.
             require_extra (bool, optional): [description]. Defaults to False.
@@ -248,7 +248,7 @@ class Test(SciUnit):
         
 
         Args:
-            model (Model): The sciunit model
+            model (Model): A sciunit model instance
         """
         pass
 
@@ -258,7 +258,7 @@ class Test(SciUnit):
         No default implementation.
 
         Args:
-            model (Model): The sciunit model
+            model (Model): A sciunit model instance
 
         Raises:
             NotImplementedError: Exception raised if this method is not implemented (overrided in the subclass)
@@ -317,7 +317,7 @@ class Test(SciUnit):
 
         Args:
             score (Score): The sciunit score
-            model (Model): The sciunit model
+            model (Model): A sciunit model instance
             observation (List[int]): [description]
             prediction (float): [description]
         """
@@ -334,7 +334,7 @@ class Test(SciUnit):
 
         Args:
             score (Score): The sciunit score
-            model (Model): The sciunit model
+            model (Model): A sciunit model instance
             observation (List[int]): [description]
             prediction (float): [description]
         """
@@ -360,7 +360,7 @@ class Test(SciUnit):
         """Generate a score for the model (internal API use only).
 
         Args:
-            model (Model): The sciunit model
+            model (Model): A sciunit model instance
             skip_incapable (bool, optional): [description]. Defaults to True.
 
         Returns:
@@ -418,7 +418,7 @@ class Test(SciUnit):
         actual code execution error, instead of the content of an ErrorScore.
 
         Args:
-            model (Model): [description]
+            model (Model): A sciunit model instance
             skip_incapable (bool, optional): [description]. Defaults to False.
             stop_on_error (bool, optional): [description]. Defaults to True.
             deep_error (bool, optional): [description]. Defaults to False.
@@ -464,7 +464,7 @@ class Test(SciUnit):
         indicating whether the model can take the test or not.
 
         Args:
-            model (Model): The sciunit model
+            model (Model): A sciunit model instance
             skip_incapable (bool, optional): [description]. Defaults to True.
             stop_on_error (bool, optional): [description]. Defaults to True.
             require_extra (bool, optional): [description]. Defaults to False.
@@ -491,7 +491,7 @@ class Test(SciUnit):
         """Optimize the parameters of the model to get the best score.
 
         Args:
-            model (Model): The model to be optimized
+            model (Model): A sciunit model instance to be optimized
 
         Raises:
             NotImplementedError: Raise the exception if this method is not implemented (not overrided in the subclass)
@@ -607,15 +607,15 @@ class TestM2M(Test):
             raise Exception(msg)
         return score
 
-    def _bind_score(self, score, prediction1, prediction2, model1, model2):
+    def _bind_score(self, score: Score, prediction1, prediction2, model1: Model, model2: Model):
         """Bind some useful attributes to the score.
 
         Args:
-            score ([type]): [description]
+            score (Score): [description]
             prediction1 ([type]): [description]
             prediction2 ([type]): [description]
-            model1 ([type]): [description]
-            model2 ([type]): [description]
+            model1 (Model): [description]
+            model2 (Model): [description]
         """
         score.model1 = model1
         score.model2 = model2
@@ -626,32 +626,32 @@ class TestM2M(Test):
         score.related_data = score.related_data.copy()
         self.bind_score(score, prediction1, prediction2, model1, model2)
 
-    def bind_score(self, score, prediction1, prediction2, model1, model2):
+    def bind_score(self, score: Score, prediction1, prediction2, model1: Model, model2: Model):
         """For the user to bind additional features to the score.
 
         Args:
-            score ([type]): [description]
+            score (Score): [description]
             prediction1 ([type]): [description]
             prediction2 ([type]): [description]
-            model1 ([type]): [description]
-            model2 ([type]): [description]
+            model1 (Model): [description]
+            model2 (Model): [description]
         """
         pass
 
-    def _judge(self, prediction1, prediction2, model1, model2=None):
+    def _judge(self, prediction1, prediction2, model1: Model, model2: Model=None) -> Score:
         """[summary]
 
         Args:
             prediction1 ([type]): [description]
             prediction2 ([type]): [description]
-            model1 ([type]): [description]
-            model2 ([type], optional): [description]. Defaults to None.
+            model1 (Model): [description]
+            model2 (Model, optional): [description]. Defaults to None.
 
         Raises:
             InvalidScoreError: [description]
 
         Returns:
-            [type]: [description]
+            Score: [description]
         """
         # TODO: Not sure if below statement is required
         # self.last_model = model
@@ -828,7 +828,7 @@ class RangeTest(Test):
         """Using the model to generate a prediction
 
         Args:
-            model (Model): A sciunit model
+            model (Model): A sciunit model instance
 
         Returns:
             float: The prediction generated
@@ -867,7 +867,7 @@ class ProtocolToFeaturesTest(Test):
         """[summary]
 
         Args:
-            model (Model): A sciunit model
+            model (Model): A sciunit model instance
 
         Returns:
             dict: The prediction generated by the sciunit model
@@ -884,7 +884,7 @@ class ProtocolToFeaturesTest(Test):
         """[summary]
 
         Args:
-            model (Model): A sciunit model
+            model (Model): A sciunit model instance
 
         Returns:
             NotImplementedError: Exception raised if this method is not implemented (not overrided in the subclass)
@@ -895,7 +895,7 @@ class ProtocolToFeaturesTest(Test):
         """[summary]
 
         Args:
-            model (Model): A sciunit model
+            model (Model): A sciunit model instance
 
         Returns:
             NotImplementedError: Exception raised if this method is not implemented (not overrided in the subclass)
@@ -906,7 +906,7 @@ class ProtocolToFeaturesTest(Test):
         """[summary]
 
         Args:
-            model (Model): A sciunit model
+            model (Model): A sciunit model instance
             result ([type]): [description]
 
         Returns:

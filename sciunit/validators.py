@@ -33,7 +33,7 @@ class ObservationValidator(Validator):
     """Cerberus validator class for observations.
 
     Attributes:
-        test ([type]): [Description of `test`].
+        test (Test): [Description of `test`].
         _error (str, str): [Description of `_error`].
     """
 

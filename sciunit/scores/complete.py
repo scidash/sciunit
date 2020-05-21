@@ -172,7 +172,7 @@ class RatioScore(Score):
         """Compute a ratio from an observation and a prediction.
 
         Returns:
-            [type]: [description]
+            RatioScore: [description]
         """
         assert isinstance(observation, (dict, float, int, pq.Quantity))
         assert isinstance(prediction, (dict, float, int, pq.Quantity))

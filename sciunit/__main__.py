@@ -116,7 +116,7 @@ def parse(file_path: str=None, show: bool=False) -> "RawConfigParser":
         IOError: Raise an exception if no .sciunit file was found
 
     Returns:
-        [type]: [description]
+        RawConfigParser: The basic configuration object.
     """
     if file_path is None:
         file_path = os.path.join(os.getcwd(), '.sciunit')
@@ -137,12 +137,12 @@ def parse(file_path: str=None, show: bool=False) -> "RawConfigParser":
     return config
 
 
-def prep(config: "RawConfigParser"=None, path: Union[str, "pathlib.Path"]=None) -> None:
+def prep(config: configparser.RawConfigParser=None, path: Union[str, "pathlib.Path"]=None) -> None:
     """Prepare to read the configuration information.
 
     Args:
-        config ([type], optional): [description]. Defaults to None.
-        path ([type], optional): [description]. Defaults to None.
+        config (RawConfigParser, optional): The configuration object. Defaults to None.
+        path (Union[str, pathlib.Path], optional): The path of config file. Defaults to None.
     """
     if config is None:
         config = parse()
@@ -156,12 +156,12 @@ def prep(config: "RawConfigParser"=None, path: Union[str, "pathlib.Path"]=None) 
         sys.path.insert(0, root)
 
 
-def run(config, path=None, stop_on_error: bool=True, just_tests: bool=False) -> None:
+def run(config: configparser.RawConfigParser, path: Union[str, "pathlib.Path"]=None, stop_on_error: bool=True, just_tests: bool=False) -> None:
     """Run sciunit tests for the given configuration.
 
     Args:
-        config ([type]): [description]
-        path ([type], optional): [description]. Defaults to None.
+        config (RawConfigParser): The configuration object.
+        path (Union[str, pathlib.Path], optional): [description]. Defaults to None.
         stop_on_error (bool, optional): [description]. Defaults to True.
         just_tests (bool, optional): [description]. Defaults to False.
     """
@@ -207,10 +207,10 @@ def nb_name_from_path(config: dict, path: Union[str, "pathlib.Path"]) -> tuple:
 
     Args:
         config (dict): [description]
-        path (str): [description]
+        path (Union[str, pathlib.Path]): The path of the notebook file.
 
     Returns:
-        tuple: [description]
+        tuple: Notebook root node and 
     """
     if path is None:
         path = os.getcwd()

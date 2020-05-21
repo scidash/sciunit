@@ -71,7 +71,7 @@ class Score(SciUnit):
         """[summary]
 
         Args:
-            score ([type]): [description]
+            score (Score): [description]
 
         Raises:
             InvalidScoreError: [description]
@@ -86,7 +86,7 @@ class Score(SciUnit):
         """A method for each Score subclass to impose additional constraints on the score, e.g. the range of the allowed score
 
         Args:
-            score ([type]): [description]
+            score (Score): [description]
         """
         pass
 
@@ -110,7 +110,7 @@ class Score(SciUnit):
         where larger is better (used for sorting and coloring tables).
 
         Returns:
-            [type]: [description]
+            Score: [description]
         """
         return self.score
     
@@ -239,11 +239,11 @@ class Score(SciUnit):
             log(d)
 
     @property
-    def raw(self):
+    def raw(self) -> str:
         """[summary]
 
         Returns:
-            [type]: [description]
+            str: [description]
         """
         value = self._raw if self._raw else self.score
         if isinstance(value, (float, np.ndarray)):

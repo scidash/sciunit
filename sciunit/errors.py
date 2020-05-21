@@ -25,7 +25,7 @@ class CapabilityError(Error):
     def __init__(self, model: 'sciunit.Model', capability: 'sciunit.Capability', details: str=''):
         """ A constructor
         Args:
-            model (Model): a model instance
+            model (Model): A sciunit model instance
             capability (Capability): a capability class
             details (str, optional): [description]. Defaults to ''.
         """
@@ -67,7 +67,7 @@ class PredictionError(Error):
         """[summary]
 
         Args:
-            model ([type]): [description]
+            model (Model): [description]
             method (str): [description]
         """
         self.model = model

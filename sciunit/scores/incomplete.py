@@ -25,7 +25,7 @@ class NoneScore(Score):
         """[summary]
 
         Returns:
-            [type]: [description]
+            None: [description]
         """
         return None
 

@@ -156,7 +156,7 @@ class TestSuite(SciUnit, TestWeighted):
         by the model.
 
         Args:
-            model (Model): [description]
+            model (Model): A sciunit model instance
             skip_incapable (bool, optional): Whether to skip incapable models
                 (or raise an exception). Defaults to False.
             require_extra (bool, optional): [description]. Defaults to False.
@@ -197,7 +197,7 @@ class TestSuite(SciUnit, TestWeighted):
         """Indicate whether `model` will be judged or not.
 
         Args:
-            model (Model): A sciunit model
+            model (Model): A sciunit model instance
 
         Returns:
             bool: Whether `model` will be judged or not.
@@ -234,7 +234,7 @@ class TestSuite(SciUnit, TestWeighted):
         """Optimize model parameters to get the best Test Suite scores.
 
         Args:
-            model (Model): A sciunit Model
+            model (Model): A sciunit model instance
 
         Raises:
             NotImplementedError: Exception raised if this method is not implemented (not overrided in the subclass)
@@ -247,7 +247,7 @@ class TestSuite(SciUnit, TestWeighted):
 
         Args:
             test (Test): [description]
-            score ([type]): [description]
+            score (Score): [description]
         """
         if self.hooks and test in self.hooks:
             f = self.hooks[test]['f']

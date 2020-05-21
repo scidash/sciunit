@@ -16,7 +16,7 @@ from sciunit.base import SciUnit, TestWeighted
 from sciunit.models import Model
 from sciunit.tests import Test
 from sciunit.scores import Score, NoneScore
-from typing import Union
+from typing import Union, Tuple
 
 class ScoreArray(pd.Series, SciUnit,TestWeighted):
     """Represents an array of scores derived from a test suite.
@@ -60,11 +60,11 @@ class ScoreArray(pd.Series, SciUnit,TestWeighted):
             result = super(ScoreArray, self).__getitem__(item)
         return result
 
-    def get_by_name(self, name):
+    def get_by_name(self, name: str):
         """[summary]
 
         Args:
-            name ([type]): [description]
+            name (str): [description]
 
         Raises:
             KeyError: [description]
@@ -108,13 +108,13 @@ class ScoreArray(pd.Series, SciUnit,TestWeighted):
 
         return np.dot(np.array(self.norm_scores), self.weights)
 
-    def stature(self, test_or_model):
+    def stature(self, test_or_model: Union[Model, Test]):
         """Compute the relative rank of a model on a test.
 
         Rank is against other models that were asked to take the test.
 
         Args:
-            test_or_model ([type]): [description]
+            test_or_model (Union[Model, Test]): [description]
 
         Returns:
             [type]: [description]
@@ -208,14 +208,14 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
                           scores=super(ScoreMatrix, self).__getitem__(test),
                           weights=self.weights)
 
-    def get_model(self, model):
+    def get_model(self, model: Model):
         """[summary]
 
         Args:
-            model ([type]): [description]
+            model (Model): [description]
 
         Returns:
-            [type]: [description]
+            ScoreArray: [description]
         """
         return ScoreArray(self.tests,
                           scores=self.loc[model, :],
@@ -272,20 +272,20 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         return attr
 
     @property
-    def norm_scores(self):
+    def norm_scores(self) -> "DaraFrame":
         """[summary]
 
         Returns:
-            [type]: [description]
+            DaraFrame: [description]
         """
         return self.applymap(lambda x: x.norm_score)
 
-    def stature(self, test, model):
+    def stature(self, test: Test, model: Model):
         """Computes the relative rank of a model on a test compared to other models that were asked to take the test.
 
         Args:
-            test ([type]): [description]
-            model ([type]): [description]
+            test (Test): [description]
+            model (Model): [description]
 
         Returns:
             [type]: [description]
@@ -329,17 +329,17 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             self.dynamify(table_id)
         return html
 
-    def annotate(self, df, html, show_mean, colorize):
+    def annotate(self, df, html, show_mean: bool, colorize) -> Tuple[str, int]:
         """[summary]
 
         Args:
             df ([type]): [description]
             html ([type]): [description]
-            show_mean ([type]): [description]
+            show_mean (bool): [description]
             colorize ([type]): [description]
 
         Returns:
-            [type]: [description]
+            Tuple[str, int]: [description]
         """
         soup = bs4.BeautifulSoup(html, "lxml")
         if colorize:
@@ -350,27 +350,27 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         html = str(soup)
         return html, table_id
 
-    def annotate_headers(self, soup, df, show_mean):
+    def annotate_headers(self, soup, df, show_mean: bool) -> None:
         """[summary]
 
         Args:
             soup ([type]): [description]
             df ([type]): [description]
-            show_mean ([type]): [description]
+            show_mean (bool): [description]
         """
         for i, row in enumerate(soup.find('thead').findAll('tr')):
             for j, cell in enumerate(row.findAll('th')[1:]):
                 self.annotate_header_cell(cell, df, show_mean, i, j)
 
-    def annotate_header_cell(self, cell, df, show_mean, i, j):
+    def annotate_header_cell(self, cell, df, show_mean: bool, i: int, j: int) -> None:
         """[summary]
 
         Args:
             cell ([type]): [description]
             df ([type]): [description]
-            show_mean ([type]): [description]
-            i ([type]): [description]
-            j ([type]): [description]
+            show_mean (bool): [description]
+            i (int): [description]
+            j (int): [description]
         """
         if show_mean and j == 0:
             self.annotate_mean(cell, df, i)
@@ -382,7 +382,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         if cell.string[-5:] == ' test':
             cell.string = cell.string[:-5]
 
-    def annotate_body(self, soup, df, show_mean):
+    def annotate_body(self, soup, df, show_mean: bool) -> None:
         """[summary]
 
         Args:
@@ -399,15 +399,15 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             for j, cell in enumerate(row.findAll('td')):
                 self.annotate_body_cell(cell, df, show_mean, i, j)
 
-    def annotate_body_cell(self, cell, df, show_mean, i, j):
+    def annotate_body_cell(self, cell, df, show_mean: bool, i: int, j: int) -> None:
         """[summary]
 
         Args:
             cell ([type]): [description]
             df ([type]): [description]
-            show_mean ([type]): [description]
-            i ([type]): [description]
-            j ([type]): [description]
+            show_mean (bool): [description]
+            i (int): [description]
+            j (int): [description]
         """
         if show_mean and j == 0:
             value = self.annotate_mean(cell, df, i)
@@ -422,22 +422,22 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         rgb = Score.value_color(value)
         cell['style'] = 'background-color: rgb(%d,%d,%d);' % rgb
 
-    def annotate_mean(self, cell, df, i):
+    def annotate_mean(self, cell, df, i: int) -> float:
         """[summary]
 
         Args:
             cell ([type]): [description]
             df ([type]): [description]
-            i ([type]): [description]
+            i (int): [description]
 
         Returns:
-            [type]: [description]
+            float: [description]
         """
         value = float(df.loc[self.models[i], 'Mean'])
         cell['title'] = 'Mean sort key value across tests'
         return value
 
-    def dynamify(self, table_id):
+    def dynamify(self, table_id) -> None:
         """[summary]
 
         Args:

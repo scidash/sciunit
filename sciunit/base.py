@@ -163,7 +163,7 @@ class SciUnit(Versioned):
         method to avoid modifying the original state.
 
         Returns:
-            [type]: [description]
+            Dict[str, Union[str, list, int, tuple]]: [description]
         """
         state = self.__dict__.copy()
         # Remove the unpicklable entries.
@@ -176,7 +176,7 @@ class SciUnit(Versioned):
         """[summary]
 
         Returns:
-            [type]: [description]
+            Dict[str, Union[str, list, int, tuple]]: [description]
         """
         if state is None:
             state = self.__getstate__()
@@ -220,8 +220,8 @@ class SciUnit(Versioned):
                 if isinstance(getattr(self.__class__, p, None), property)]
 
     @property
-    def state(self) -> Dict[str, Union[str, list]]:
-        """[summary]
+    def state(self) -> Dict[str, Union[str, list, int, tuple]]:
+        """Get the state of the instance
 
         Returns:
             Dict[str, Union[str, list]]: [description]
@@ -315,7 +315,7 @@ class SciUnitEncoder(json.JSONEncoder):
             e: [description]
 
         Returns:
-            [type]: [description]
+            Dict[str, Union[str, list, int, tuple]]: [description]
         """
         try:
             if isinstance(obj, pd.DataFrame):

@@ -18,14 +18,14 @@ class Capability(SciUnit):
     """Abstract base class for sciunit capabilities."""
 
     @classmethod
-    def check(cls, model: Union['sciunit.Model', 'sciunit.Model'], require_extra: bool=False) -> bool:
+    def check(cls, model: 'sciunit.Model', require_extra: bool=False) -> bool:
         """Check whether the provided model has this capability.
 
         By default, uses isinstance.  If `require_extra`, also requires that an
         instance check be present in `model.extra_capability_checks`.
 
         Args:
-            model (Union[): [description]
+            model (Model): A sciunit model instance
             require_extra (bool, optional): [description]. Defaults to False.
 
         Returns:
