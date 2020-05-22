@@ -535,7 +535,7 @@ class Test(SciUnit):
             other_cls (RangeTest): [description]
 
         Returns:
-            bool: [description]
+            bool: Whether `other_cls` is a subclass of this test class.
         """
         return inspect.isclass(other_cls) and issubclass(other_cls, cls)
 

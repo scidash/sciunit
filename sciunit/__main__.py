@@ -188,13 +188,13 @@ def run(config: configparser.RawConfigParser, path: Union[str, "pathlib.Path"]=N
             _run(suite, models, stop_on_error)
 
 
-def _run(test_or_suite, models: list, stop_on_error) -> None:
+def _run(test_or_suite: Union["Test", "Suite"], models: list, stop_on_error: bool) -> None:
     """[summary]
 
     Args:
-        test_or_suite ([type]): [description]
+        test_or_suite (Union[Test, Suite]): A test or suite instance to be executed.
         models (list): The list of sciunit Model.
-        stop_on_error ([type]): [description]
+        stop_on_error (bool): Whether to stop on error. 
     """
     score_array_or_matrix = test_or_suite.judge(models.models,
                                                 stop_on_error=stop_on_error)
@@ -227,8 +227,8 @@ def make_nb(config, path: Union[str, "pathlib.Path"]=None, stop_on_error: bool=T
 
     Args:
         config ([type]): [description]
-        path (str, optional): [description]. Defaults to None.
-        stop_on_error (bool, optional): [description]. Defaults to True.
+        path (str, optional): A path to the notebook file. Defaults to None.
+        stop_on_error (bool, optional): Whether to stop on an error. Defaults to True.
         just_tests (bool, optional): [description]. Defaults to False.
     """
     root, nb_name = nb_name_from_path(config, path)
@@ -263,9 +263,9 @@ def write_nb(root, nb_name, cells) -> None:
     Takes a given a root directory, a notebook name, and a list of cells.
 
     Args:
-        root ([type]): [description]
+        root ([type]): The root node (section) of the notebook.
         nb_name ([type]): [description]
-        cells ([type]): [description]
+        cells ([type]): The cells of the notebook.
     """
     nb = new_notebook(cells=cells,
                       metadata={

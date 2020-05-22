@@ -111,7 +111,7 @@ class Versioned(object):
             cached (bool, optional): Whether to use cached data. Defaults to True.
 
         Raises:
-            ex: [description]
+            ex: A Git Command Error
 
         Returns:
             str: The git remote URL for this instance
