@@ -29,7 +29,7 @@ class Capability(SciUnit):
             require_extra (bool, optional): [description]. Defaults to False.
 
         Returns:
-            bool: [description]
+            bool: Whether the provided model has this capability.
         """
         class_capable = isinstance(model, cls)
 

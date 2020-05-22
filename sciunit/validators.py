@@ -103,7 +103,7 @@ class ParametersValidator(Validator):
         """Validate that the value is of the `Quantity` type.
 
         Args:
-            value (pq.quantity.Quantity): [description]
+            value (pq.quantity.Quantity): The Quantity instance to be validated.
         """
         if not isinstance(value, pq.quantity.Quantity):
             self._error('%s' % value, "Must be a Python quantity.")
@@ -115,7 +115,7 @@ class ParametersValidator(Validator):
             value (pq.quantity.Quantity): [description]
 
         Returns:
-            bool: [description]
+            bool: Whether it is valid.
         """
         self.validate_quantity(value)
         self.units_type = inspect.stack()[1][3].split('_')[-1]
@@ -136,7 +136,7 @@ class ParametersValidator(Validator):
             value (pq.quantity.Quantity): [description]
 
         Returns:
-            bool: [description]
+            bool: Whether it is valid.
         """
         return self.validate_units(value)
 
@@ -147,7 +147,7 @@ class ParametersValidator(Validator):
             value (pq.quantity.Quantity): [description]
 
         Returns:
-            bool: [description]
+            bool: Whether it is valid.
         """
         return self.validate_units(value)
 
@@ -158,6 +158,6 @@ class ParametersValidator(Validator):
             value (pq.quantity.Quantity): [description]
 
         Returns:
-            bool: [description]
+            bool: Whether it is valid.
         """
         return self.validate_units(value)

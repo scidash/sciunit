@@ -37,16 +37,16 @@ class ScoreArrayM2M(pd.Series):
         return attr
 
     def get_by_name(self, name: str) -> str:
-        """Get item in `index` by name
+        """Get item (can be a model, observation, or test) in `index` by name
 
         Args:
-            name (str): [description]
+            name (str): name of the item
 
         Raises:
-            KeyError: [description]
+            KeyError: Item not found
 
         Returns:
-            Any: [description]
+            Any: Item found
         """
         for entry in self.index:
             if entry.name == name or name.lower() == "observation":

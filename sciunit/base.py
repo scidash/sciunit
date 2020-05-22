@@ -41,10 +41,10 @@ class Versioned(object):
         """Get a git repository object for this instance.
 
         Args:
-            cached (bool, optional): [description]. Defaults to True.
+            cached (bool, optional): Whether to use cached data. Defaults to True.
 
         Returns:
-            Repo: [description]
+            Repo: The git repo for this instance.
         """
         module = sys.modules[self.__module__]
         # We use module.__file__ instead of module.__path__[0]
@@ -66,12 +66,12 @@ class Versioned(object):
         """Get a git version (i.e. a git commit hash) for this instance.
 
         Args:
-            cached (bool, optional): [description]. Defaults to True.
+            cached (bool, optional): Whether to use the cached data. Defaults to True.
 
         Returns:
             str: The git version for this instance
         """
-        if hasattr(self.__class__, '_version') and cached:
+        if cached and hasattr(self.__class__, '_version'):
             version = self.__class__._version
         else:
             repo = self.get_repo()
@@ -108,7 +108,7 @@ class Versioned(object):
 
         Args:
             remote (str, optional): [description]. Defaults to 'origin'.
-            cached (bool, optional): [description]. Defaults to True.
+            cached (bool, optional): Whether to use cached data. Defaults to True.
 
         Raises:
             ex: [description]
@@ -163,7 +163,7 @@ class SciUnit(Versioned):
         method to avoid modifying the original state.
 
         Returns:
-            Dict[str, Union[str, list, int, tuple]]: [description]
+            Dict[str, Union[str, list, int, tuple]]: The state of this instance.
         """
         state = self.__dict__.copy()
         # Remove the unpicklable entries.
@@ -193,10 +193,10 @@ class SciUnit(Versioned):
 
         Args:
             keys (list, optional): [description]. Defaults to None.
-            exclude (list, optional): [description]. Defaults to None.
+            exclude (list, optional): The list of properties that will not be included in return data. Defaults to None.
 
         Returns:
-            dict: [description]
+            dict: The dict of properties of the instance.
         """
         result = {}
         props = self.raw_props()
@@ -213,7 +213,7 @@ class SciUnit(Versioned):
         """Get the raw properties of the instance
 
         Returns:
-            list: [description]
+            list: The list of raw properties
         """
         class_attrs = dir(self.__class__)
         return [p for p in class_attrs
@@ -313,7 +313,7 @@ class SciUnitEncoder(json.JSONEncoder):
         """[summary]
 
         Raises:
-            e: [description]
+            e: Could not JSON encode the object
 
         Returns:
             Dict[str, Union[str, list, int, tuple]]: [description]

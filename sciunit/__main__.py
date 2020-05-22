@@ -83,7 +83,7 @@ def create(file_path: str) -> None:
         file_path (str): The path of sciunit config file that will be created.
 
     Raises:
-        IOError: [description]
+        IOError: There is already a configuration file at the path
     """
     if os.path.exists(file_path):
         raise IOError("There is already a configuration file at %s" %
@@ -193,7 +193,7 @@ def _run(test_or_suite, models: list, stop_on_error) -> None:
 
     Args:
         test_or_suite ([type]): [description]
-        models (list): [description]
+        models (list): The list of sciunit Model.
         stop_on_error ([type]): [description]
     """
     score_array_or_matrix = test_or_suite.judge(models.models,
@@ -285,7 +285,7 @@ def run_nb(config, path: Union[str, "pathlib.Path"]=None) -> None:
 
     Args:
         config ([type]): [description]
-        path ([type], optional): [description]. Defaults to None.
+        path (Union[str, "pathlib.Path"], optional): The path to the notebook file. Defaults to None.
     """
     if path is None:
         path = os.getcwd()

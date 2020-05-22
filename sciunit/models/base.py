@@ -70,7 +70,7 @@ class Model(SciUnit):
         """Describe the model.
 
         Returns:
-            str: [description]
+            str: The description of the model.
         """
         result = "No description available"
         if self.description:
@@ -112,7 +112,7 @@ class Model(SciUnit):
             match (Any): [description]
 
         Returns:
-            bool: [description]
+            bool: Whether this model is the same as `match`.
         """
         result = False
         if self == match:

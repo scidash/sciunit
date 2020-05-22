@@ -29,7 +29,7 @@ class BooleanScore(Score):
         """Compute whether the observation equals the prediction.
 
         Returns:
-            BooleanScore: [description]
+            BooleanScore: Boolean score of the observation equals the prediction.
         """
         return BooleanScore(observation == prediction)
 
@@ -38,7 +38,7 @@ class BooleanScore(Score):
         """Return 1.0 for a True score and 0.0 for False score.
 
         Returns:
-            float: [description]
+            float: 1.0 for a True score and 0.0 for False score.
         """
         return 1.0 if self.score else 0.0
 
@@ -68,7 +68,7 @@ class ZScore(Score):
         """Compute a z-score from an observation and a prediction.
 
         Returns:
-            ZScore: [description]
+            ZScore: The computed Z-Score
         """
         assert isinstance(observation, dict),\
             "Observation must be a dict when using ZScore, not type %s" \
@@ -126,7 +126,7 @@ class CohenDScore(ZScore):
         """Compute a Cohen's D from an observation and a prediction.
 
         Returns:
-            CohenDScore: [description]
+            CohenDScore: The computed Cohen's D Score.
         """
         assert isinstance(observation, dict)
         assert isinstance(prediction, dict)
@@ -172,7 +172,7 @@ class RatioScore(Score):
         """Compute a ratio from an observation and a prediction.
 
         Returns:
-            RatioScore: [description]
+            RatioScore: A RatioScore of ratio from an observation and a prediction.
         """
         assert isinstance(observation, (dict, float, int, pq.Quantity))
         assert isinstance(prediction, (dict, float, int, pq.Quantity))
@@ -218,7 +218,7 @@ class PercentScore(Score):
         """Return 1.0 for a percent score of 100, and 0.0 for 0.
 
         Returns:
-            float: [description]
+            float: 1.0 if the percent score is 100, else 0.0.
         """
         return float(self.score)/100
 
@@ -247,11 +247,11 @@ class FloatScore(Score):
         """Compute sum-squared diff between observation and prediction.
 
         Args:
-            observation (dict): [description]
-            prediction (dict): [description]
+            observation (dict): The observation to be used for computing the sum-squared diff.
+            prediction (dict): The prediction to be used for computing the sum-squared diff.
 
         Returns:
-            Score: [description]
+            Score: The sum-squared diff between observation and prediction.
         """
         # The sum of the squared differences.
         value = ((observation - prediction)**2).sum()

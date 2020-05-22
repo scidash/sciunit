@@ -129,7 +129,7 @@ class TestSuite(SciUnit, TestWeighted):
         indicates that it cannot.
 
         Args:
-            models (Union[Model, List[Model]]): [description]
+            models (Union[Model, List[Model]]): A list of sciunit model or a single sciunit model
             skip_incapable (bool, optional): Whether to skip incapable models
                                              (or raise an exception). Defaults to True.
             require_extra (bool, optional):  [description]. Defaults to False.
@@ -246,8 +246,8 @@ class TestSuite(SciUnit, TestWeighted):
         """Set hook functions to run after each test is executed.
 
         Args:
-            test (Test): [description]
-            score (Score): [description]
+            test (Test): A sciunit Test instance
+            score (Score): A sciunit Model instance
         """
         if self.hooks and test in self.hooks:
             f = self.hooks[test]['f']

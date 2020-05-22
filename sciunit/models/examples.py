@@ -47,7 +47,7 @@ class UniqueRandomNumberModel(Model, ProducesNumber):
         """Each call to this method will produce a different random number.
 
         Returns:
-            float: [description]
+            float: A random number produced.
         """
         return random.random()
 
@@ -60,7 +60,7 @@ class RepeatedRandomNumberModel(Model, ProducesNumber):
         """Each call to this method will produce the same random number as was returned in the first call, ensuring reproducibility and eliminating computational overhead.
 
         Returns:
-            float: [description]
+            float: A random number produced.
         """
         return random.random()
 

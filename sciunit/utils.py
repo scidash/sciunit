@@ -58,12 +58,12 @@ def warn_with_traceback(message: str, category, filename: str, lineno: int,
     """A function to use with `warnings.showwarning` to show a traceback.
 
     Args:
-        message (str): [description]
-        category ([type]): [description]
-        filename (str): [description]
-        lineno (int): [description]
-        file (TextIO, optional): [description]. Defaults to None.
-        line (str, optional): [description]. Defaults to None.
+        message (str): A message that will be included in the warning.
+        category ([type]): A category of the warning.
+        filename (str): Name of the file that raises the warning
+        lineno (int): Number of line in the file that causes this warning.
+        file (TextIO, optional): A file object for recording the log. Defaults to None.
+        line (str, optional): A line of source code to be included in the warning message. Defaults to None.
     """
     log = file if hasattr(file, 'write') else sys.stderr
     traceback.print_stack(file=log)
@@ -705,7 +705,7 @@ def config_get(key: str, default: int=None) -> int:
         default (int, optional): [description]. Defaults to None.
 
     Raises:
-        e: [description]
+        e: An exception raised during get config process.
 
     Returns:
         int: [description]

@@ -81,7 +81,7 @@ class Backend(object):
             key (str, optional): [description]. Defaults to None.
 
         Returns:
-            dict: [description]
+            dict: The memory cache for key 'key' or None if not found.
         """
         key = self.model.hash if key is None else key
         self._results = self.memory_cache.get(key)
@@ -91,10 +91,10 @@ class Backend(object):
         """Return result in disk cache for key 'key' or None if not found.
 
         Args:
-            key (str, optional): [description]. Defaults to None.
+            key (str, optional): keys that will be used to find cached data. Defaults to None.
 
         Returns:
-            Any: [description]
+            Any: The disk cache for key 'key' or None if not found.
         """
         key = self.model.hash if key is None else key
         if not getattr(self, 'disk_cache_location', False):
