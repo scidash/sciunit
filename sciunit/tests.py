@@ -111,17 +111,17 @@ class Test(SciUnit):
         """
         pass
 
-    def validate_observation(self, observation: Dict[Any, Any]) -> Dict[Any, Any]:
+    def validate_observation(self, observation: dict) -> dict:
         """Validate the observation provided to the constructor.
 
         Args:
-            observation (Dict[Any, Any]): The observation to be validated
+            observation (dict): The observation to be validated
 
         Raises:
             ObservationError: Raises an ObservationError if invalid.
 
         Returns:
-            Dict[Any, Any]: The observation that was validated.
+            dict: The observation that was validated.
         """
         if not observation:
             raise ObservationError("Observation is missing.")
@@ -149,7 +149,7 @@ class Test(SciUnit):
         """Return a list of names of observation schema, if they are set.
 
         Returns:
-            List[str]: [description]
+            List[str]: The list of names of observation schema
         """
         names = []
         if cls.observation_schema:
@@ -158,17 +158,17 @@ class Test(SciUnit):
                          for i, x in enumerate(cls.observation_schema)]
         return names
 
-    def validate_params(self, params: Dict[Any, Any]) -> Dict[Any, Any]:
+    def validate_params(self, params: dict) -> dict:
         """Validate the params provided to the constructor.
 
         Args:
-            params (Dict[Any, Any]): [description]
+            params (dict): the params provided to the constructor
 
         Raises:
             ParametersError: Raises an ParametersError if invalid.
 
         Returns:
-            Dict[Any, Any]: [description]
+            dict: `params` that is validated
         """
         if params is None:
             raise ParametersError("Parameters cannot be `None`.")
@@ -836,7 +836,7 @@ class RangeTest(Test):
         return model.produce_number()
 
     def compute_score(self, observation: List[int], prediction: float) -> Score:
-        """[summary]
+        """Get the score of the predictions
 
         Args:
             observation (List[int]): The observation to be used in computing the score
@@ -864,7 +864,7 @@ class ProtocolToFeaturesTest(Test):
     """
 
     def generate_prediction(self, model: Model) -> dict:
-        """[summary]
+        """Generate a prediction by the sciunit model
 
         Args:
             model (Model): A sciunit model instance

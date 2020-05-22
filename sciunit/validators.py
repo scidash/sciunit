@@ -94,18 +94,29 @@ class ParametersValidator(Validator):
     Attributes:
         units_type ([type]): [description]
         _error (str, str): [description]
-        units_map (dict): [description]
     """
 
+    # doc is needed here
     units_map = {'time': 's', 'voltage': 'V', 'current': 'A'}
 
     def validate_quantity(self, value: pq.quantity.Quantity) -> None:
-        """Validate that the value is of the `Quantity` type."""
+        """Validate that the value is of the `Quantity` type.
+
+        Args:
+            value (pq.quantity.Quantity): [description]
+        """
         if not isinstance(value, pq.quantity.Quantity):
             self._error('%s' % value, "Must be a Python quantity.")
 
     def validate_units(self, value: pq.quantity.Quantity) -> bool:
-        """Validate units, assuming that it was called by _validate_type_*."""
+        """Validate units, assuming that it was called by _validate_type_*.
+
+        Args:
+            value (pq.quantity.Quantity): [description]
+
+        Returns:
+            bool: [description]
+        """
         self.validate_quantity(value)
         self.units_type = inspect.stack()[1][3].split('_')[-1]
         assert self.units_type, ("`validate_units` should not be called "
@@ -119,13 +130,34 @@ class ParametersValidator(Validator):
         return True
 
     def _validate_type_time(self, value: pq.quantity.Quantity) -> bool:
-        """Validate fields requiring `units` of seconds."""
+        """Validate fields requiring `units` of seconds.
+
+        Args:
+            value (pq.quantity.Quantity): [description]
+
+        Returns:
+            bool: [description]
+        """
         return self.validate_units(value)
 
     def _validate_type_voltage(self, value: pq.quantity.Quantity) -> bool:
-        """Validate fields requiring `units` of volts."""
+        """Validate fields requiring `units` of volts.
+
+        Args:
+            value (pq.quantity.Quantity): [description]
+
+        Returns:
+            bool: [description]
+        """
         return self.validate_units(value)
 
     def _validate_type_current(self, value: pq.quantity.Quantity) -> bool:
-        """Validate fields requiring `units` of amps."""
+        """Validate fields requiring `units` of amps.
+
+        Args:
+            value (pq.quantity.Quantity): [description]
+
+        Returns:
+            bool: [description]
+        """
         return self.validate_units(value)

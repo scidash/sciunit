@@ -64,10 +64,10 @@ class CapabilityNotImplementedError(CapabilityError):
 class PredictionError(Error):
     """Raised when a tests's generate_prediction chokes on a model's method"""
     def __init__(self, model: 'sciunit.Model', method: str, **args):
-        """[summary]
+        """Constructor of PredictionError object
 
         Args:
-            model (Model): [description]
+            model (Model): A sciunit Model
             method (str): [description]
         """
         self.model = model
@@ -93,7 +93,7 @@ class InvalidScoreError(Error):
 class BadParameterValueError(Error):
     """Error raised when a model parameter value is unreasonable."""
     def __init__(self, name: str, value: int):
-        """[summary]
+        """Constructor of BadParameterValueError object
 
         Args:
             name (str): [description]

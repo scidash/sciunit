@@ -13,6 +13,9 @@ class ScoreArrayM2M(pd.Series):
     Represents an array of scores derived from TestM2M.
     Extends the pandas Series such that items are either
     models subject to a test or the test itself.
+
+    Attributes:
+        index ([type]): [description]
     """
 
     def __init__(self, test: Test, models: List[Model], scores: List['sciunit.scores.Score']):
@@ -34,7 +37,7 @@ class ScoreArrayM2M(pd.Series):
         return attr
 
     def get_by_name(self, name: str) -> str:
-        """[summary]
+        """Get item in `index` by name
 
         Args:
             name (str): [description]
@@ -99,17 +102,17 @@ class ScoreMatrixM2M(pd.DataFrame):
                              "model,test/'observation'; or model,model"))
         return result
 
-    def get_by_name(self, name: str) -> Any:
-        """[summary]
+    def get_by_name(self, name: str) -> Union[Model, Test]:
+        """Get the model or test from the `models` or `tests` by name
 
         Args:
-            name (str): [description]
+            name (str): The name of the model or test
 
         Raises:
-            KeyError: [description]
+            KeyError: Raise an exception if there is not a model or test named `name`
 
         Returns:
-            Any: [description]
+            Union[Model, Test]: The test or model found.
         """
         for model in self.models:
             if model.name == name:

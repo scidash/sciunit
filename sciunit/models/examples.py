@@ -27,10 +27,10 @@ class UniformModel(Model, ProducesNumber):
         super(UniformModel, self).__init__(name=name, a=a, b=b)
 
     def produce_number(self) -> float:
-        """[summary]
+        """Produece a number between `a` and `b`
 
         Returns:
-            float: [description]
+            float: The number between a and b
         """
         return random.uniform(self.a, self.b)
 

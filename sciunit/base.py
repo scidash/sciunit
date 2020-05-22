@@ -173,10 +173,10 @@ class SciUnit(Versioned):
         return state
 
     def _state(self, state: Dict[str, Union[str, int, tuple, list]]=None, keys: dict=None, exclude: List[str]=None) -> Dict[str, Union[str, list, int, tuple]]:
-        """[summary]
+        """Get the state of the instance.
 
         Returns:
-            Dict[str, Union[str, list, int, tuple]]: [description]
+            Dict[str, Union[str, list, int, tuple]]: The state of the current instance.
         """
         if state is None:
             state = self.__getstate__()
@@ -189,7 +189,7 @@ class SciUnit(Versioned):
         return state
 
     def _properties(self, keys: list=None, exclude: list=None) -> dict:
-        """[summary]
+        """Get the properties of the instance
 
         Args:
             keys (list, optional): [description]. Defaults to None.
@@ -210,7 +210,7 @@ class SciUnit(Versioned):
         return result
 
     def raw_props(self) -> list:
-        """[summary]
+        """Get the raw properties of the instance
 
         Returns:
             list: [description]
@@ -224,16 +224,16 @@ class SciUnit(Versioned):
         """Get the state of the instance
 
         Returns:
-            Dict[str, Union[str, list]]: [description]
+            Dict[str, Union[str, list]]: The state of the instance
         """
         return self._state()
 
     @property
     def properties(self) -> dict:
-        """[summary]
+        """Get the properties of the instance
 
         Returns:
-            dict: [description]
+            dict: The properties of the instance
         """
         return self._properties()
 
@@ -252,6 +252,7 @@ class SciUnit(Versioned):
             s = pickle.dumps(od)
         except AttributeError:
             s = json.dumps(od, cls=SciUnitEncoder).encode('utf-8')
+
         return hashlib.sha224(s).hexdigest()
 
     @property
@@ -368,12 +369,12 @@ class TestWeighted(object):
         return weights
 
 
-def deep_exclude(state: Dict[str, Union[str, int, tuple]], exclude: List[str]) -> Dict[str, Union[str, int, tuple]]:
+def deep_exclude(state: Dict[str, Union[str, int, tuple]], exclude: list) -> Dict[str, Union[str, int, tuple]]:
     """[summary]
 
     Args:
         state (Dict[str, Union[str, int, Tuple[int, int]]]): [description]
-        exclude (List[str]): [description]
+        exclude (list): [description]
 
     Returns:
         Dict[str, Union[str, int, Tuple[int, int]]]: [description]

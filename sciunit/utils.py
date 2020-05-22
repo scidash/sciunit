@@ -87,7 +87,7 @@ def set_warnings_traceback(tb: bool=True) -> None:
         warnings.simplefilter("default")
 
 
-def dict_combine(*dict_list) -> Dict[Any, Any]:
+def dict_combine(*dict_list) -> dict:
     """Return the union of several dictionaries.
     Uses the values from later dictionaries in the argument list when
     duplicate keys are encountered.
@@ -95,7 +95,7 @@ def dict_combine(*dict_list) -> Dict[Any, Any]:
     but Python 2 does not support this dict unpacking syntax.
 
     Returns:
-        Dict[Any, Any]: the dict from combining the dicts
+        dict: the dict from combining the dicts
     """
     return {k: v for d in dict_list for k, v in d.items()}
 
@@ -541,7 +541,7 @@ def import_all_modules(package, skip: list=None, verbose: bool=False, prefix: st
 
 
 def import_module_from_path(module_path: str, name=None) -> "ModuleType":
-    """[summary]
+    """Import the python modual by the path to the file (module)
 
     Args:
         module_path (str): [description]
@@ -697,12 +697,12 @@ def config_get_from_path(config_path: str, key: str) -> int:
     return value
 
 
-def config_get(key: str, default: Optional[int]=None) -> int:
+def config_get(key: str, default: int=None) -> int:
     """[summary]
 
     Args:
         key (str): [description]
-        default (Optional[int], optional): [description]. Defaults to None.
+        default (int, optional): [description]. Defaults to None.
 
     Raises:
         e: [description]

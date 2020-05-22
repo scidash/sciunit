@@ -60,17 +60,17 @@ class ScoreArray(pd.Series, SciUnit,TestWeighted):
             result = super(ScoreArray, self).__getitem__(item)
         return result
 
-    def get_by_name(self, name: str):
-        """[summary]
+    def get_by_name(self, name: str) -> Union[Model, Test]:
+        """Get a test or a model by `name`
 
         Args:
-            name (str): [description]
+            name (str): The name of the model or test
 
         Raises:
-            KeyError: [description]
+            KeyError: No model or test with name `name`
 
         Returns:
-            [type]: [description]
+            Union[Model, Test]: The model or test found
         """
         item = None
         for test_or_model in self.index:
@@ -195,27 +195,27 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             return self.get_group(item)
         raise TypeError("Expected test; model; test,model; or model,test")
 
-    def get_test(self, test):
-        """[summary]
+    def get_test(self, test: Test) -> ScoreArray:
+        """Generate a `ScoreArray` instance with all models and the `test`.
 
         Args:
-            test ([type]): [description]
+            test (Test): The test that will be included in the `ScoreArray` instance.
 
         Returns:
-            [type]: [description]
+            ScoreArray: The generated ScoreArray instance.
         """
         return ScoreArray(self.models,
                           scores=super(ScoreMatrix, self).__getitem__(test),
                           weights=self.weights)
 
-    def get_model(self, model: Model):
-        """[summary]
+    def get_model(self, model: Model) -> ScoreArray:
+        """Generate a `ScoreArray` instance with all tests and the `model`.
 
         Args:
-            model (Model): [description]
+            model (Model): The model that will be included in the `ScoreArray` instance.
 
         Returns:
-            ScoreArray: [description]
+            ScoreArray: The generated ScoreArray instance.
         """
         return ScoreArray(self.tests,
                           scores=self.loc[model, :],
@@ -244,17 +244,17 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             raise TypeError("Expected test,model or model,test")
         return result
 
-    def get_by_name(self, name):
-        """[summary]
+    def get_by_name(self, name: str) -> Union[Model, Test]:
+        """Get a model or a test from the model or test list by `name`
 
         Args:
-            name ([type]): [description]
+            name (str): The name of the test or model
 
         Raises:
-            KeyError: [description]
+            KeyError: No model or test found by `name`
 
         Returns:
-            [type]: [description]
+            Union[Model, Test]: The model or test found
         """
         for model in self.models:
             if model.name == name:
