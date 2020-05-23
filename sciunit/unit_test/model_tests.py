@@ -74,12 +74,16 @@ class ModelsTestCase(unittest.TestCase):
         
     def test_regular_models(self):
         from sciunit.models.examples\
-            import ConstModel, UniformModel, SharedModel
+            import ConstModel, UniformModel, SharedModel, PersistentUniformModel
 
         m = ConstModel(3)
         self.assertEqual(m.produce_number(),3)
 
         m = UniformModel(3,4)
+        self.assertTrue(3 < m.produce_number() < 4)
+
+        m = PersistentUniformModel(3, 4)
+        m.run()
         self.assertTrue(3 < m.produce_number() < 4)
 
     def test_irregular_models(self):
@@ -102,6 +106,7 @@ class ModelsTestCase(unittest.TestCase):
         d = CacheByValuePersistentUniformModel(2,3)
         d1 = d.produce_number()
         self.assertEqual(d1,c2)
+        
 
 
 class CapabilitiesTestCase(unittest.TestCase):
