@@ -7,6 +7,26 @@ import tempfile
 class UtilsTestCase(unittest.TestCase):
     """Unit tests for sciunit.utils"""
 
+    def test_warnings_traceback(self):
+        from sciunit.utils import set_warnings_traceback, warn_with_traceback
+        set_warnings_traceback(True)
+        warn_with_traceback("This is a test warning", Warning, "utils_tests.py", 13)
+
+        set_warnings_traceback(False)
+        warn_with_traceback("This is a test warning", Warning, "utils_tests.py", 16)
+
+    def test_notebook(self):
+        from sciunit.utils import NotebookTools
+        notebookObj = NotebookTools()
+        #notebookObj.execute_notebook("../docs/chapter1")
+        notebookObj.load_notebook("../docs/chapter1")
+
+    def test_path_escape(self):
+        test_str = "(( ) )"
+        from sciunit.utils import path_escape
+        test_str = path_escape(test_str)
+        self.assertEqual(test_str, "\(\(\ \)\ \)")
+
     def test_log(self):
         from sciunit.utils import log
 
