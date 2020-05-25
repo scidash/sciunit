@@ -5,7 +5,7 @@ from fnmatch import fnmatchcase
 
 from sciunit.base import SciUnit
 from sciunit.capabilities import Capability
-from typing import Any
+from typing import Any, Union
 
 class Model(SciUnit):
     """Abstract base class for sciunit models."""

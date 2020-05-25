@@ -5,7 +5,7 @@ import warnings
 from .base import Model
 import sciunit.capabilities as cap
 from .backends import available_backends
-
+from typing import Union
 
 class RunnableModel(Model,
                     cap.Runnable):

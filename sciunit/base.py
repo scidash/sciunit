@@ -13,7 +13,7 @@ from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.cmd import Git
 from git.remote import Remote
 from git.repo.base import Repo
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, Any
 
 PYTHON_MAJOR_VERSION = sys.version_info.major
 PLATFORM = sys.platform
@@ -321,7 +321,7 @@ class SciUnitEncoder(json.JSONEncoder):
 
         Args:
             obj (Any): [description]
-            
+
         Raises:
             e: Could not JSON encode the object.
 
