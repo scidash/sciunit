@@ -227,11 +227,11 @@ class SciUnit(Versioned):
                 if isinstance(getattr(self.__class__, p, None), property)]
 
     @property
-    def state(self) -> Dict[str, Union[str, list, int, tuple]]:
+    def state(self) -> dict:
         """Get the state of the instance.
 
         Returns:
-            Dict[str, Union[str, list]]: The state of the instance.
+            dict: The state of the instance.
         """
         return self._state()
 
@@ -245,11 +245,11 @@ class SciUnit(Versioned):
         return self._properties()
 
     @classmethod
-    def dict_hash(cls, d: Dict[str, Union[int, dict]]) -> str:
+    def dict_hash(cls, d: dict) -> str:
         """[summary]
 
         Args:
-            d (Dict[str, Union[int, dict]]): [description]
+            d (dict): [description]
 
         Returns:
             str: [description]
@@ -316,14 +316,17 @@ class SciUnitEncoder(json.JSONEncoder):
                 kwargs.pop(key)
         super(SciUnitEncoder, self).__init__(*args, **kwargs)
 
-    def default(self, obj: Union['sciunit.tests.RangeTest', 'sciunit.TestSuite']) -> Dict[str, Union[str, list, int, tuple]]:
+    def default(self, obj: Any) -> dict:
         """[summary]
 
+        Args:
+            obj (Any): [description]
+            
         Raises:
             e: Could not JSON encode the object.
 
         Returns:
-            Dict[str, Union[str, list, int, tuple]]: [description]
+            dict: [description]
         """
         try:
             if isinstance(obj, pd.DataFrame):
@@ -376,15 +379,15 @@ class TestWeighted(object):
         return weights
 
 
-def deep_exclude(state: Dict[str, Union[str, int, tuple]], exclude: list) -> Dict[str, Union[str, int, tuple]]:
+def deep_exclude(state: dict, exclude: list) -> dict:
     """[summary]
 
     Args:
-        state (Dict[str, Union[str, int, Tuple[int, int]]]): [description]
+        state (dict): [description]
         exclude (list): [description]
 
     Returns:
-        Dict[str, Union[str, int, Tuple[int, int]]]: [description]
+        dict: [description]
     """
     tuples = [key for key in exclude if isinstance(key, tuple)]
     s = state

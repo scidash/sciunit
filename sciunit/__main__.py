@@ -22,11 +22,13 @@ from nbformat.v4.nbbase import new_notebook, new_markdown_cell
 from nbconvert.preprocessors import ExecutePreprocessor
 from typing import Tuple
 import sciunit
+from pathlib import Path
 from typing import Union
 try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
+
 import codecs
 try:
     import matplotlib
@@ -105,7 +107,7 @@ def create(file_path: str) -> None:
         config.write(f)
 
 
-def parse(file_path: str=None, show: bool=False) -> "RawConfigParser":
+def parse(file_path: str=None, show: bool=False) -> configparser.RawConfigParser:
     """Parse a .sciunit config file.
 
     Args:
@@ -137,12 +139,12 @@ def parse(file_path: str=None, show: bool=False) -> "RawConfigParser":
     return config
 
 
-def prep(config: configparser.RawConfigParser=None, path: Union[str, "pathlib.Path"]=None) -> None:
+def prep(config: configparser.RawConfigParser=None, path: Union[str, Path]=None) -> None:
     """Prepare to read the configuration information.
 
     Args:
         config (RawConfigParser, optional): The configuration object. Defaults to None.
-        path (Union[str, pathlib.Path], optional): The path of config file. Defaults to None.
+        path (Union[str, Path], optional): The path of config file. Defaults to None.
     """
     if config is None:
         config = parse()
@@ -156,13 +158,13 @@ def prep(config: configparser.RawConfigParser=None, path: Union[str, "pathlib.Pa
         sys.path.insert(0, root)
 
 
-def run(config: configparser.RawConfigParser, path: Union[str, "pathlib.Path"]=None, 
+def run(config: configparser.RawConfigParser, path: Union[str, Path]=None, 
         stop_on_error: bool=True, just_tests: bool=False) -> None:
     """Run sciunit tests for the given configuration.
 
     Args:
         config (RawConfigParser): The configuration object.
-        path (Union[str, pathlib.Path], optional): [description]. Defaults to None.
+        path (Union[str, Path], optional): [description]. Defaults to None.
         stop_on_error (bool, optional): [description]. Defaults to True.
         just_tests (bool, optional): [description]. Defaults to False.
     """
@@ -203,12 +205,12 @@ def _run(test_or_suite: Union["Test", "Suite"], models: list, stop_on_error: boo
     print('\n%s %s:\n%s\n' % (kind, test_or_suite, score_array_or_matrix))
 
 
-def nb_name_from_path(config: dict, path: Union[str, "pathlib.Path"]) -> tuple:
+def nb_name_from_path(config: dict, path: Union[str, Path]) -> tuple:
     """Get a notebook name from a path to a notebook.
 
     Args:
         config (dict): [description]
-        path (Union[str, pathlib.Path]): The path of the notebook file.
+        path (Union[str, Path]): The path of the notebook file.
 
     Returns:
         tuple: Notebook root node and name of the notebook.
@@ -223,12 +225,12 @@ def nb_name_from_path(config: dict, path: Union[str, "pathlib.Path"]) -> tuple:
     return root, nb_name
 
 
-def make_nb(config, path: Union[str, "pathlib.Path"]=None, stop_on_error: bool=True, just_tests: bool=False) -> None:
+def make_nb(config, path: Union[str, Path]=None, stop_on_error: bool=True, just_tests: bool=False) -> None:
     """Create a Jupyter notebook sciunit tests for the given configuration.
 
     Args:
         config ([type]): [description]
-        path (str, optional): A path to the notebook file. Defaults to None.
+        path (Union[str, Path], optional): A path to the notebook file. Defaults to None.
         stop_on_error (bool, optional): Whether to stop on an error. Defaults to True.
         just_tests (bool, optional): [description]. Defaults to False.
     """
@@ -278,7 +280,7 @@ def write_nb(root, nb_name, cells) -> None:
     print("Created Jupyter notebook at:\n%s" % nb_path)
 
 
-def run_nb(config, path: Union[str, "pathlib.Path"]=None) -> None:
+def run_nb(config, path: Union[str, Path]=None) -> None:
     """Run a notebook file.
 
     Runs the one specified by the config file, or the one at
@@ -286,7 +288,7 @@ def run_nb(config, path: Union[str, "pathlib.Path"]=None) -> None:
 
     Args:
         config ([type]): [description]
-        path (Union[str, "pathlib.Path"], optional): The path to the notebook file. Defaults to None.
+        path (Union[str, Path], optional): The path to the notebook file. Defaults to None.
     """
     if path is None:
         path = os.getcwd()
@@ -319,12 +321,12 @@ def add_code_cell(cells, source) -> None:
     cells.append(new_code_cell(source=source, execution_count=n_code_cells+1))
 
 
-def cleanup(config=None, path: Union[str, "pathlib.Path"]=None) -> None:
+def cleanup(config=None, path: Union[str, Path]=None) -> None:
     """Cleanup by removing paths added during earlier in configuration.
 
     Args:
         config ([type], optional): [description]. Defaults to None.
-        path (Union[str,, optional): [description]. Defaults to None.
+        path (Union[str, Path], optional): [description]. Defaults to None.
     """
     if config is None:
         config = parse()

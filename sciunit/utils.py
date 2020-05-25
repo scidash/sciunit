@@ -38,7 +38,7 @@ from sciunit.errors import Error
 from .base import SciUnit, FileNotFoundError, tkinter
 from .base import PLATFORM, PYTHON_MAJOR_VERSION
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO
-
+from types import ModuleType
 try:
     import unittest.mock
     mock = True
@@ -544,7 +544,7 @@ def import_all_modules(package, skip: list=None, verbose: bool=False,
                                verbose=verbose, depth=depth+1)
 
 
-def import_module_from_path(module_path: str, name=None) -> "ModuleType":
+def import_module_from_path(module_path: str, name=None) -> ModuleType:
     """Import the python modual by the path to the file (module).
 
     Args:

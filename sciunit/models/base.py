@@ -103,13 +103,13 @@ class Model(SciUnit):
         """
         pass
 
-    def is_match(self, match: Any) -> bool:
+    def is_match(self, match: Union[str, 'Model']) -> bool:
         """Return whether this model is the same as `match`.
 
         Matches if the model is the same as or has the same name as `match`.
 
         Args:
-            match (Any): [description]
+            match (Union[str, 'Model']): [description]
 
         Returns:
             bool: Whether this model is the same as `match`.

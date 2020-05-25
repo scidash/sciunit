@@ -519,11 +519,11 @@ class Test(SciUnit):
         return result
 
     @property
-    def state(self) -> Dict[str, Union[str, int, Tuple[int, int]]]:
+    def state(self) -> dict:
         """Get the frozen (pickled) model state.
 
         Returns:
-            Dict[str, Union[str, int, Tuple[int, int]]]: [description]
+            dict: [description]
         """
         return self._state(exclude=['last_model'])
 

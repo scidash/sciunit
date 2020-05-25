@@ -5,6 +5,7 @@ import inspect
 import tempfile
 import pickle
 import shelve
+from pathlib import Path
 from typing import Any, Union
 available_backends = {}
 
@@ -105,7 +106,7 @@ class Backend(object):
         return self._results
 
     def set_memory_cache(self, results: Any, key: str=None) -> None:
-        """tore result in memory cache with key matching model state.
+        """Store result in memory cache with key matching model state.
 
         Args:
             results (Any): [description]
@@ -162,11 +163,11 @@ class Backend(object):
         """Run the model via the backend."""
         raise NotImplementedError("Each backend must implement '_backend_run'")
 
-    def save_results(self, path: Union[str, "pathlib.Path"]='.') -> None:
+    def save_results(self, path: Union[str, Path]='.') -> None:
         """Save results on disk.
 
         Args:
-            path (Union[str,, optional): [description]. Defaults to '.'.
+            path (Union[str, Path], optional): [description]. Defaults to '.'.
         """
         with open(path, 'wb') as f:
             pickle.dump(self.results, f)

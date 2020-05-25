@@ -19,7 +19,7 @@ class TestSuite(SciUnit, TestWeighted):
     """A collection of tests."""
 
     def __init__(self, tests: List[Test], name: str=None, weights=None, include_models: List[Model]=None,
-                 skip_models: List[Model]=None, hooks: Dict[Test, Dict[str, Union[Callable, Dict[str, int]]]]=None, 
+                 skip_models: List[Model]=None, hooks: dict=None, 
                  optimizer: None=None):
         """optimizer: a function to bind to self.optimize (first argument must be a testsuite).
 
@@ -29,7 +29,7 @@ class TestSuite(SciUnit, TestWeighted):
             weights (optional): [description]. Defaults to None.
             include_models (List[Model], optional): The list of models. Defaults to None.
             skip_models (List[Model], optional): [description]. Defaults to None.
-            hooks (Dict[Test, Dict[str, Union[Callable, Dict[str, int]]]], optional): [description]. Defaults to None.
+            hooks (dict, optional): [description]. Defaults to None.
             optimizer (None, optional): [description]. Defaults to None.
         """
 
@@ -268,7 +268,7 @@ class TestSuite(SciUnit, TestWeighted):
             test.verbose = verbose
 
     @classmethod
-    def from_observations(cls, tests_info: List[Tuple["Test", List[int]]], name: Optional[str]=None):
+    def from_observations(cls, tests_info: List[Tuple["Test", dict]], name: Optional[str]=None):
         """Instantiate a test suite from a set of observations.
 
         `tests_info` should be a list of tuples containing the test class and
@@ -278,7 +278,7 @@ class TestSuite(SciUnit, TestWeighted):
         used multiple times, e.g. [(TestClass1,obs1a),(TestClass1,obs1b),...].
 
         Args:
-            tests_info (List[Tuple[Test, List[int]]]): [description]
+            tests_info (List[Tuple["Test", dict]]): [description]
             name (Optional[str], optional): [description]. Defaults to None.
 
         Returns:

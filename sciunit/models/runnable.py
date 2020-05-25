@@ -32,11 +32,11 @@ class RunnableModel(Model,
         """Return the simulation backend."""
         return self._backend
 
-    def set_backend(self, backend):
+    def set_backend(self, backend: Union[str, tuple, list, None]):
         """Set the simulation backend.
 
         Args:
-            backend ([type]): [description]
+            backend (Union[str, tuple, list, None]): [description]
 
         Raises:
             TypeError: [description]
