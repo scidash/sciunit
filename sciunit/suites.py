@@ -19,11 +19,12 @@ class TestSuite(SciUnit, TestWeighted):
     """A collection of tests."""
 
     def __init__(self, tests: List[Test], name: str=None, weights=None, include_models: List[Model]=None,
-                 skip_models: List[Model]=None, hooks: Dict[Test, Dict[str, Union[Callable, Dict[str, int]]]]=None, optimizer: None=None):
-        """optimizer: a function to bind to self.optimize (first argument must be a testsuite)
+                 skip_models: List[Model]=None, hooks: Dict[Test, Dict[str, Union[Callable, Dict[str, int]]]]=None, 
+                 optimizer: None=None):
+        """optimizer: a function to bind to self.optimize (first argument must be a testsuite).
 
         Args:
-            tests (List[Test]): The list of tests
+            tests (List[Test]): The list of tests.
             name (str, optional): The name of this test suite. Defaults to None.
             weights (optional): [description]. Defaults to None.
             include_models (List[Model], optional): The list of models. Defaults to None.
@@ -68,14 +69,14 @@ class TestSuite(SciUnit, TestWeighted):
         """Check and in some cases fixes the list of tests.
 
         Args:
-            tests (Union[List[Test], Test])): The test suite to be checked and fixed
+            tests (Union[List[Test], Test])): The test suite to be checked and fixed.
 
         Raises:
             TypeError: `tests` contains a non-Test.
             TypeError: `tests` was not provided with a test or iterable.
 
         Returns:
-            Union[List[Test], Test]): Checked and fixed test(s)
+            Union[List[Test], Test]): Checked and fixed test(s).
         """
 
         if isinstance(tests, Test):
@@ -96,14 +97,14 @@ class TestSuite(SciUnit, TestWeighted):
         """Check and in some cases fixes the list of models.
 
         Args:
-            models (Union[Model, List[Model]]): The model(s) to be checked and fixed
+            models (Union[Model, List[Model]]): The model(s) to be checked and fixed.
 
         Raises:
             TypeError: `models` contains a non-Test.
             TypeError: `models` Test suite's judge method not provided with a model or iterable."
 
         Returns:
-            Union[Tuple[Model], List[Model]]: Checked and fixed model(s)
+            Union[Tuple[Model], List[Model]]: Checked and fixed model(s).
         """
 
         if isinstance(models, Model):
@@ -129,7 +130,7 @@ class TestSuite(SciUnit, TestWeighted):
         indicates that it cannot.
 
         Args:
-            models (Union[Model, List[Model]]): A list of sciunit model or a single sciunit model
+            models (Union[Model, List[Model]]): A list of sciunit model or a single sciunit model.
             skip_incapable (bool, optional): Whether to skip incapable models
                                              (or raise an exception). Defaults to True.
             require_extra (bool, optional):  [description]. Defaults to False.
@@ -156,8 +157,8 @@ class TestSuite(SciUnit, TestWeighted):
         by the model.
 
         Args:
-            model (Model): A sciunit model instance
-            skip_incapable (bool, optional): Whether to skip incapable models
+            model (Model): A sciunit model instance.
+            skip_incapable (bool, optional): Whether to skip incapable models.
                 (or raise an exception). Defaults to False.
             require_extra (bool, optional): [description]. Defaults to False.
 
@@ -197,7 +198,7 @@ class TestSuite(SciUnit, TestWeighted):
         """Indicate whether `model` will be judged or not.
 
         Args:
-            model (Model): A sciunit model instance
+            model (Model): A sciunit model instance.
 
         Returns:
             bool: Whether `model` will be judged or not.
@@ -215,7 +216,7 @@ class TestSuite(SciUnit, TestWeighted):
         """Judge model and put score in the ScoreMatrix.
 
         Returns:
-            Score: The generated score
+            Score: The generated score.
         """
         if self.is_skipped(model):
             score = NoneScore(None)
@@ -234,10 +235,10 @@ class TestSuite(SciUnit, TestWeighted):
         """Optimize model parameters to get the best Test Suite scores.
 
         Args:
-            model (Model): A sciunit model instance
+            model (Model): A sciunit model instance.
 
         Raises:
-            NotImplementedError: Exception raised if this method is not implemented (not overrided in the subclass)
+            NotImplementedError: Exception raised if this method is not implemented (not overrided in the subclass).
         """
         raise NotImplementedError(("Optimization not implemented "
                                    "for TestSuite '%s'" % self))
@@ -246,8 +247,8 @@ class TestSuite(SciUnit, TestWeighted):
         """Set hook functions to run after each test is executed.
 
         Args:
-            test (Test): A sciunit Test instance
-            score (Score): A sciunit Model instance
+            test (Test): A sciunit Test instance.
+            score (Score): A sciunit Model instance.
         """
         if self.hooks and test in self.hooks:
             f = self.hooks[test]['f']

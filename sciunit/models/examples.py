@@ -19,7 +19,7 @@ class ConstModel(Model, ProducesNumber):
 
 
 class UniformModel(Model, ProducesNumber):
-    """A model that always produces a random uniformly distributed number
+    """A model that always produces a random uniformly distributed number.
     in [a,b] as output."""
 
     def __init__(self, a, b, name=None):
@@ -27,10 +27,10 @@ class UniformModel(Model, ProducesNumber):
         super(UniformModel, self).__init__(name=name, a=a, b=b)
 
     def produce_number(self) -> float:
-        """Produece a number between `a` and `b`
+        """Produece a number between `a` and `b`.
 
         Returns:
-            float: The number between a and b
+            float: The number between a and b.
         """
         return random.uniform(self.a, self.b)
 

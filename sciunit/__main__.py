@@ -83,7 +83,7 @@ def create(file_path: str) -> None:
         file_path (str): The path of sciunit config file that will be created.
 
     Raises:
-        IOError: There is already a configuration file at the path
+        IOError: There is already a configuration file at the path.
     """
     if os.path.exists(file_path):
         raise IOError("There is already a configuration file at %s" %
@@ -113,7 +113,7 @@ def parse(file_path: str=None, show: bool=False) -> "RawConfigParser":
         show (bool, optional): Whether or not print the sections in the config file. Defaults to False.
 
     Raises:
-        IOError: Raise an exception if no .sciunit file was found
+        IOError: Raise an exception if no .sciunit file was found.
 
     Returns:
         RawConfigParser: The basic configuration object.
@@ -156,7 +156,8 @@ def prep(config: configparser.RawConfigParser=None, path: Union[str, "pathlib.Pa
         sys.path.insert(0, root)
 
 
-def run(config: configparser.RawConfigParser, path: Union[str, "pathlib.Path"]=None, stop_on_error: bool=True, just_tests: bool=False) -> None:
+def run(config: configparser.RawConfigParser, path: Union[str, "pathlib.Path"]=None, 
+        stop_on_error: bool=True, just_tests: bool=False) -> None:
     """Run sciunit tests for the given configuration.
 
     Args:
@@ -203,14 +204,14 @@ def _run(test_or_suite: Union["Test", "Suite"], models: list, stop_on_error: boo
 
 
 def nb_name_from_path(config: dict, path: Union[str, "pathlib.Path"]) -> tuple:
-    """Get a notebook name from a path to a notebook
+    """Get a notebook name from a path to a notebook.
 
     Args:
         config (dict): [description]
         path (Union[str, pathlib.Path]): The path of the notebook file.
 
     Returns:
-        tuple: Notebook root node and 
+        tuple: Notebook root node and name of the notebook.
     """
     if path is None:
         path = os.getcwd()

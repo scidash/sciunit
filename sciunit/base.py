@@ -19,7 +19,7 @@ PYTHON_MAJOR_VERSION = sys.version_info.major
 PLATFORM = sys.platform
 
 if PYTHON_MAJOR_VERSION < 3:  # Python 2
-    raise Exception('Only Python 3 are supported')
+    raise Exception('Only Python 3 is supported')
 else:
     from io import StringIO
     import tkinter
@@ -69,7 +69,7 @@ class Versioned(object):
             cached (bool, optional): Whether to use the cached data. Defaults to True.
 
         Returns:
-            str: The git version for this instance
+            str: The git version for this instance.
         """
         if cached and hasattr(self.__class__, '_version'):
             version = self.__class__._version
@@ -111,10 +111,10 @@ class Versioned(object):
             cached (bool, optional): Whether to use cached data. Defaults to True.
 
         Raises:
-            ex: A Git Command Error
+            ex: A Git command error.
 
         Returns:
-            str: The git remote URL for this instance
+            str: The git remote URL for this instance.
         """
         if hasattr(self.__class__, '_remote_url') and cached:
             url = self.__class__._remote_url
@@ -156,14 +156,14 @@ class SciUnit(Versioned):
     #: A verbosity level for printing information.
     verbose = 1
 
-    def __getstate__(self) -> Dict[str, Union[str, list, int, tuple]]:
+    def __getstate__(self) -> dict:
         """Copy the object's state from self.__dict__.
 
         Contains all of the instance attributes. Always uses the dict.copy()
         method to avoid modifying the original state.
 
         Returns:
-            Dict[str, Union[str, list, int, tuple]]: The state of this instance.
+            dict: The state of this instance.
         """
         state = self.__dict__.copy()
         # Remove the unpicklable entries.
@@ -172,12 +172,19 @@ class SciUnit(Versioned):
                 del state[key]
         return state
 
-    def _state(self, state: Dict[str, Union[str, int, tuple, list]]=None, keys: dict=None, exclude: List[str]=None) -> Dict[str, Union[str, list, int, tuple]]:
+    def _state(self, state: dict=None, keys: dict=None, 
+                exclude: List[str]=None) -> dict:
         """Get the state of the instance.
 
+        Args:
+            state (dict, optional): [description]. Defaults to None.
+            keys (dict, optional): [description]. Defaults to None.
+            exclude (List[str], optional): [description]. Defaults to None.
+
         Returns:
-            Dict[str, Union[str, list, int, tuple]]: The state of the current instance.
+            dict: The state of the current instance.
         """
+
         if state is None:
             state = self.__getstate__()
         if keys:
@@ -189,7 +196,7 @@ class SciUnit(Versioned):
         return state
 
     def _properties(self, keys: list=None, exclude: list=None) -> dict:
-        """Get the properties of the instance
+        """Get the properties of the instance.
 
         Args:
             keys (list, optional): [description]. Defaults to None.
@@ -210,10 +217,10 @@ class SciUnit(Versioned):
         return result
 
     def raw_props(self) -> list:
-        """Get the raw properties of the instance
+        """Get the raw properties of the instance.
 
         Returns:
-            list: The list of raw properties
+            list: The list of raw properties.
         """
         class_attrs = dir(self.__class__)
         return [p for p in class_attrs
@@ -221,19 +228,19 @@ class SciUnit(Versioned):
 
     @property
     def state(self) -> Dict[str, Union[str, list, int, tuple]]:
-        """Get the state of the instance
+        """Get the state of the instance.
 
         Returns:
-            Dict[str, Union[str, list]]: The state of the instance
+            Dict[str, Union[str, list]]: The state of the instance.
         """
         return self._state()
 
     @property
     def properties(self) -> dict:
-        """Get the properties of the instance
+        """Get the properties of the instance.
 
         Returns:
-            dict: The properties of the instance
+            dict: The properties of the instance.
         """
         return self._properties()
 
@@ -257,10 +264,10 @@ class SciUnit(Versioned):
 
     @property
     def hash(self) -> str:
-        """A unique numeric identifier of the current model state
+        """A unique numeric identifier of the current model state.
 
         Returns:
-            str: The unique numeric identifier of the current model state
+            str: The unique numeric identifier of the current model state.
         """
         return self.dict_hash(self.state)
 
@@ -300,7 +307,7 @@ class SciUnit(Versioned):
 
 
 class SciUnitEncoder(json.JSONEncoder):
-    """Custom JSON encoder for SciUnit objects"""
+    """Custom JSON encoder for SciUnit objects."""
 
     def __init__(self, *args, **kwargs):
         for key in ['add_props', 'keys', 'exclude']:
@@ -313,7 +320,7 @@ class SciUnitEncoder(json.JSONEncoder):
         """[summary]
 
         Raises:
-            e: Could not JSON encode the object
+            e: Could not JSON encode the object.
 
         Returns:
             Dict[str, Union[str, list, int, tuple]]: [description]

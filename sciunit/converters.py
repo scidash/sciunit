@@ -28,23 +28,23 @@ class Converter(object):
         """Takes the score attribute of a score instance and recasts it as instance of another score type.
 
         Args:
-            score (Score): An instance of Score
+            score (Score): An instance of Score.
 
         Raises:
-            NotImplementedError: Not implemented if not overrided
+            NotImplementedError: Not implemented if not overrided.
         """
         raise NotImplementedError(("The '_convert' method for %s "
                                    "it not implemented." %
                                    self.__class__.__name__))
 
     def convert(self, score: Score) -> Score:
-        """Convert a type of score to another type of score
+        """Convert a type of score to another type of score.
 
         Args:
-            score (Score): The original score
+            score (Score): The original score.
 
         Returns:
-            Score: The converted score
+            Score: The converted score.
         """
         new_score = self._convert(score)
         new_score.set_raw(score.get_raw())

@@ -61,16 +61,16 @@ class ScoreArray(pd.Series, SciUnit,TestWeighted):
         return result
 
     def get_by_name(self, name: str) -> Union[Model, Test]:
-        """Get a test or a model by `name`
+        """Get a test or a model by `name`.
 
         Args:
-            name (str): The name of the model or test
+            name (str): The name of the model or test.
 
         Raises:
-            KeyError: No model or test with name `name`
+            KeyError: No model or test with name `name`.
 
         Returns:
-            Union[Model, Test]: The model or test found
+            Union[Model, Test]: The model or test found.
         """
         item = None
         for test_or_model in self.index:
@@ -245,16 +245,16 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         return result
 
     def get_by_name(self, name: str) -> Union[Model, Test]:
-        """Get a model or a test from the model or test list by `name`
+        """Get a model or a test from the model or test list by `name`.
 
         Args:
-            name (str): The name of the test or model
+            name (str): The name of the test or model.
 
         Raises:
-            KeyError: No model or test found by `name`
+            KeyError: No model or test found by `name`.
 
         Returns:
-            Union[Model, Test]: The model or test found
+            Union[Model, Test]: The model or test found.
         """
         for model in self.models:
             if model.name == name:

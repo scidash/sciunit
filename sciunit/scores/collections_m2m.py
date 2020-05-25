@@ -37,16 +37,16 @@ class ScoreArrayM2M(pd.Series):
         return attr
 
     def get_by_name(self, name: str) -> str:
-        """Get item (can be a model, observation, or test) in `index` by name
+        """Get item (can be a model, observation, or test) in `index` by name.
 
         Args:
-            name (str): name of the item
+            name (str): name of the item.
 
         Raises:
-            KeyError: Item not found
+            KeyError: Item not found.
 
         Returns:
-            Any: Item found
+            Any: Item found.
         """
         for entry in self.index:
             if entry.name == name or name.lower() == "observation":
@@ -103,13 +103,13 @@ class ScoreMatrixM2M(pd.DataFrame):
         return result
 
     def get_by_name(self, name: str) -> Union[Model, Test]:
-        """Get the model or test from the `models` or `tests` by name
+        """Get the model or test from the `models` or `tests` by name.
 
         Args:
-            name (str): The name of the model or test
+            name (str): The name of the model or test.
 
         Raises:
-            KeyError: Raise an exception if there is not a model or test named `name`
+            KeyError: Raise an exception if there is not a model or test named `name`.
 
         Returns:
             Union[Model, Test]: The test or model found.

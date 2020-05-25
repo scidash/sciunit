@@ -22,7 +22,7 @@ if sys.version_info < (3, 3):
 else:
     ipython = "ipython>=5.1"
 
-def read_requirements():
+def read_requirements() -> list:
     '''parses requirements from requirements.txt'''
     reqs_path = Path(__file__).parent / 'requirements.txt'
     reqs = None
@@ -30,7 +30,7 @@ def read_requirements():
         reqs = reqs_file.read().splitlines()
     return reqs
 
-def get_version():
+def get_version() -> dict:
     version = {}
     with open(Path(__file__).parent / 'sciunit' / 'version.py') as f:
         exec(f.read(), version)

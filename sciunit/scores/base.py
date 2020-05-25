@@ -68,13 +68,13 @@ class Score(SciUnit):
     """The model judged. Set automatically by Test.judge."""
 
     def check_score(self, score: 'Score') -> None:
-        """Check the score with imposed additional constraints in the subclass on the score, e.g. the range of the allowed score
+        """Check the score with imposed additional constraints in the subclass on the score, e.g. the range of the allowed score.
 
         Args:
-            score (Score): A sciunit score instance
+            score (Score): A sciunit score instance.
 
         Raises:
-            InvalidScoreError: Exception raised if `score` is not a instance of sciunit score
+            InvalidScoreError: Exception raised if `score` is not a instance of sciunit score.
         """
         if self._allowed_types and \
           not isinstance(score, self._allowed_types+(Exception,)):
@@ -83,10 +83,10 @@ class Score(SciUnit):
         self._check_score(score)
 
     def _check_score(self, score: 'Score') -> None:
-        """A method for each Score subclass to impose additional constraints on the score, e.g. the range of the allowed score
+        """A method for each Score subclass to impose additional constraints on the score, e.g. the range of the allowed score.
 
         Args:
-            score (Score): A sciunit score instance
+            score (Score): A sciunit score instance.
         """
         pass
 
@@ -117,7 +117,7 @@ class Score(SciUnit):
     @property
     def log_norm_score(self) -> np.ndarray:
         """The natural logarithm of the `norm_score`.
-        This is useful for guaranteeing convexity in an error surface
+        This is useful for guaranteeing convexity in an error surface.
 
         Returns:
             np.ndarray: [description]
@@ -127,7 +127,7 @@ class Score(SciUnit):
     @property
     def log2_norm_score(self) -> np.ndarray:
         """The logarithm base 2 of the `norm_score`.
-        This is useful for guaranteeing convexity in an error surface
+        This is useful for guaranteeing convexity in an error surface.
 
         Returns:
             np.ndarray: [description]
@@ -137,7 +137,7 @@ class Score(SciUnit):
     @property
     def log10_norm_score(self) -> np.ndarray:
         """The logarithm base 10 of the `norm_score`.
-        This is useful for guaranteeing convexity in an error surface
+        This is useful for guaranteeing convexity in an error surface.
 
         Returns:
             np.ndarray: [description]
@@ -196,10 +196,10 @@ class Score(SciUnit):
             log("%s" % self.summary)
 
     def _describe(self) -> str:
-        """Get the description of this score
+        """Get the description of this score.
 
         Returns:
-            str: The description of this score
+            str: The description of this score.
         """
         result = "No description available"
         if self.score is not None:
@@ -210,10 +210,10 @@ class Score(SciUnit):
         return result
 
     def describe_from_docstring(self) -> str:
-        """Get the description of this score from the docstring
+        """Get the description of this score from the docstring.
 
         Returns:
-            str: The description of this score
+            str: The description of this score.
         """
         s = [self.test.score_type.__doc__.strip().
              replace('\n', '').replace('    ', '')]
@@ -224,7 +224,7 @@ class Score(SciUnit):
         return result
 
     def describe(self, quiet: bool=False) -> Union[str, None]:
-        """Get the description of this score instance
+        """Get the description of this score instance.
 
         Args:
             quiet (bool, optional): [description]. Defaults to False.
@@ -240,10 +240,10 @@ class Score(SciUnit):
 
     @property
     def raw(self) -> str:
-        """The raw score in string type
+        """The raw score in string type.
 
         Returns:
-            str: The raw score
+            str: The raw score.
         """
         value = self._raw if self._raw else self.score
         if isinstance(value, (float, np.ndarray)):
@@ -255,19 +255,19 @@ class Score(SciUnit):
         return string
 
     def get_raw(self) -> float:
-        """Get the raw score
+        """Get the raw score.
 
         Returns:
-            float: The raw score
+            float: The raw score.
         """
         value = copy(self._raw) if self._raw else copy(self.score)
         return value
 
     def set_raw(self, raw: float) -> None:
-        """Set the raw score
+        """Set the raw score.
 
         Args:
-            raw (float): The raw score to be set
+            raw (float): The raw score to be set.
         """
         self._raw = raw
 
@@ -379,10 +379,10 @@ class Score(SciUnit):
 
     @property
     def score_type(self):
-        """The type of the score
+        """The type of the score.
 
         Returns:
-            [type]: the name of the score type
+            [type]: the name of the score type.
         """
         return self.__class__.__name__
 

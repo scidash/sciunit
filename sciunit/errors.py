@@ -23,10 +23,10 @@ class ParametersError(Error):
 class CapabilityError(Error):
     """Abstract error class for capabilities"""
     def __init__(self, model: 'sciunit.Model', capability: 'sciunit.Capability', details: str=''):
-        """ A constructor
+        """ A constructor.
         Args:
-            model (Model): A sciunit model instance
-            capability (Capability): a capability class
+            model (Model): A sciunit model instance.
+            capability (Capability): a capability class.
             details (str, optional): [description]. Defaults to ''.
         """
         self.model = model
@@ -39,7 +39,7 @@ class CapabilityError(Error):
         super(CapabilityError, self).__init__(details)
     
     action = None
-    """The action that has failed ('provide' or 'implement')"""
+    """The action that has failed ('provide' or 'implement')."""
     
     model = None
     """The model instance that does not have the capability."""
@@ -62,12 +62,12 @@ class CapabilityNotImplementedError(CapabilityError):
 
 
 class PredictionError(Error):
-    """Raised when a tests's generate_prediction chokes on a model's method"""
+    """Raised when a tests's generate_prediction chokes on a model's method."""
     def __init__(self, model: 'sciunit.Model', method: str, **args):
-        """Constructor of PredictionError object
+        """Constructor of PredictionError object.
 
         Args:
-            model (Model): A sciunit Model
+            model (Model): A sciunit Model.
             method (str): [description]
         """
         self.model = model
@@ -93,7 +93,7 @@ class InvalidScoreError(Error):
 class BadParameterValueError(Error):
     """Error raised when a model parameter value is unreasonable."""
     def __init__(self, name: str, value: int):
-        """Constructor of BadParameterValueError object
+        """Constructor of BadParameterValueError object.
 
         Args:
             name (str): [description]

@@ -7,22 +7,22 @@ from cerberus import TypeDefinition, Validator
 from typing import Any
 
 def register_type(cls, name: str) -> None:
-    """Register `name` as a type to validate as an instance of class `cls`
+    """Register `name` as a type to validate as an instance of class `cls`.
 
     Args:
         cls: a class
-        name (str): the name to be registered
+        name (str): the name to be registered.
     """
     x = TypeDefinition(name, (cls,), ())
     Validator.types_mapping[name] = x
     
 
 def register_quantity(quantity: pq.Quantity, name: str) -> None:
-    """Register `name` as a type to validate as an instance of the class of `quantity`
+    """Register `name` as a type to validate as an instance of the class of `quantity`.
 
     Args:
-        quantity (pq.Quantity): a quantity
-        name (str): the name to be registered
+        quantity (pq.Quantity): a quantity.
+        name (str): the name to be registered.
     """
 
     x = TypeDefinition(name, (quantity.__class__,), ())
@@ -38,12 +38,12 @@ class ObservationValidator(Validator):
     """
 
     def __init__(self, *args, **kwargs):
-        """ Constructor of ObservationValidator
+        """ Constructor of ObservationValidator.
 
-        Must pass `test` as a keyword argument. Cannot be a positional argument without modifications to cerberus
+        Must pass `test` as a keyword argument. Cannot be a positional argument without modifications to cerberus.
 
         Raises:
-            Exception: "Observation validator constructor must have a `test` keyword argument"
+            Exception: "Observation validator constructor must have a `test` keyword argument."
         """
 
         try:
@@ -57,7 +57,7 @@ class ObservationValidator(Validator):
     def _validate_iterable(self, is_iterable: bool, key: str, value: Any) -> None:
         """Validate fields with `iterable` key in schema set to True
         The rule's arguments are validated against this schema:
-        {'type': 'boolean'}
+        {'type': 'boolean'}.
         """
         if is_iterable:
             try:
@@ -69,7 +69,7 @@ class ObservationValidator(Validator):
     def _validate_units(self, has_units: bool, key: str, value: Any) -> None:
         """Validate fields with `units` key in schema set to True.
         The rule's arguments are validated against this schema:
-        {'type': 'boolean'}
+        {'type': 'boolean'}.
         """
         if has_units:
             if isinstance(self.test.units, dict):

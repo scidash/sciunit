@@ -68,7 +68,7 @@ class ZScore(Score):
         """Compute a z-score from an observation and a prediction.
 
         Returns:
-            ZScore: The computed Z-Score
+            ZScore: The computed Z-Score.
         """
         assert isinstance(observation, dict),\
             "Observation must be a dict when using ZScore, not type %s" \

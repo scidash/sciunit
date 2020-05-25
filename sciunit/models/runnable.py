@@ -9,7 +9,7 @@ from .backends import available_backends
 
 class RunnableModel(Model,
                     cap.Runnable):
-    """A model which can be run to produce simulation results"""
+    """A model which can be run to produce simulation results."""
 
     def __init__(self,
                  name,  # Name of the model
