@@ -18,8 +18,7 @@ class UtilsTestCase(unittest.TestCase):
     def test_notebook(self):
         from sciunit.utils import NotebookTools
         notebookObj = NotebookTools()
-        #notebookObj.execute_notebook("../docs/chapter1")
-        notebookObj.load_notebook("../docs/chapter1")
+        notebookObj.execute_notebook("../docs/chapter1")
 
     def test_path_escape(self):
         test_str = "(( ) )"

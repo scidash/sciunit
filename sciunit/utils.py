@@ -44,6 +44,8 @@ try:
     mock = True
 except ImportError:
     mock = False
+
+from pathlib import Path
 mock = False  # mock is probably obviated by the unittest -b flag.
 
 settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
@@ -251,29 +253,30 @@ class NotebookTools(object):
                 printd("Setting matplotlib backend to Agg")
                 mpl.use('Agg')
 
-    def load_notebook(self, name: str) -> Tuple[nbformat.NotebookNode, TextIO]:
+    def load_notebook(self, name: str) -> Tuple[nbformat.NotebookNode, Union[str, Path]]:
         """Loads a notebook file into memory.
 
         Args:
             name (str): name of the notebook file.
 
         Returns:
-            Tuple[nbformat.NotebookNode, TextIO]: The notebook that was read and the file object of the notebook file.
+            Tuple[nbformat.NotebookNode, Union[str, Path]]: The notebook that was read and the path to the notebook file.
         """
         
         #with open(self.get_path('%s.ipynb' % name)) as f:
         #    nb = nbformat.read(f, as_version=4)
+        file_path = self.get_path('%s.ipynb' % name)
 
-        f = open(self.get_path('%s.ipynb' % name),'r+')
-        nb = nbformat.read(f, as_version=4)
-        return nb, f
+        with open(file_path) as f:
+            nb = nbformat.read(f, as_version=4)
+        return nb, file_path
 
-    def run_notebook(self, nb: nbformat.NotebookNode, f: TextIO) -> None:
+    def run_notebook(self, nb: nbformat.NotebookNode, file_path: Union[str, Path]) -> None:
         """Runs a loaded notebook file.
 
         Args:
             nb (nbformat.NotebookNode): The notebook that was loaded.
-            f (TextIO): the file object of the notebook file.
+            f (Union[str, Path]): The path to the notebook file.
 
         Raises:
             Exception: The exception that is thrown when running the notebook.
@@ -287,12 +290,12 @@ class NotebookTools(object):
         try:
             ep.preprocess(nb, {'metadata': {'path': '.'}})
         except CellExecutionError:
-            msg = 'Error executing the notebook "%s".\n\n' % f.name
-            msg += 'See notebook "%s" for the traceback.' % f.name
+            msg = 'Error executing the notebook "%s".\n\n' % file_path
+            msg += 'See notebook "%s" for the traceback.' % file_path
             print(msg)
             raise
         finally:
-            nbformat.write(nb, f)
+            nbformat.write(nb, file_path)
 
     def execute_notebook(self, name: str) -> None:
         """Loads and then runs a notebook file.
@@ -302,9 +305,8 @@ class NotebookTools(object):
         """
 
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        nb, f = self.load_notebook(name)
-        self.run_notebook(nb, f)
-        self.assertTrue(True)
+        nb, file_path = self.load_notebook(name)
+        self.run_notebook(nb, file_path)
 
     def convert_notebook(self, name: str) -> None:
         """Converts a notebook into a python file.
