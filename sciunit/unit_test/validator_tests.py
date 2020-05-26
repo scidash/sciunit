@@ -1,5 +1,9 @@
 import unittest
+import random
 import quantities as pq
+from sciunit.validators import ObservationValidator
+from sciunit import Test
+
 
 class ValidatorTestCase(unittest.TestCase):
 
@@ -7,6 +11,7 @@ class ValidatorTestCase(unittest.TestCase):
 
         class TestClass():
             intValue = 0
+
             def getIntValue(self):
                 return self.intValue
 
@@ -14,10 +19,55 @@ class ValidatorTestCase(unittest.TestCase):
         from cerberus import TypeDefinition, Validator
 
         register_type(TestClass, "TestType1")
-        q = pq.Quantity([1,2,3], 'J')
+        q = pq.Quantity([1, 2, 3], 'J')
         register_quantity(q, "TestType2")
-        self.assertTrue(isinstance(Validator.types_mapping['TestType1'], TypeDefinition))
-        self.assertTrue(isinstance(Validator.types_mapping['TestType2'], TypeDefinition))
+        self.assertTrue(isinstance(
+            Validator.types_mapping['TestType1'], TypeDefinition))
+        self.assertTrue(isinstance(
+            Validator.types_mapping['TestType2'], TypeDefinition))
+
+    def test_ObservationValidator(self):
+
+        long_test_list = [None] * 100
+        for index in range(100):
+            long_test_list[index] = random.randint(1, 1000)
+
+        test_dict = {'a': 1, 'b': 2, 'c': 3}
+        # test constructor
+        obsVal = ObservationValidator(test=Test(long_test_list))
+        self.assertTrue(isinstance(obsVal, ObservationValidator))
+        self.assertRaises(BaseException, ObservationValidator)
+
+        # test _validate_iterable
+        obsVal._validate_iterable(True, "key", long_test_list)
+        self.assertRaises(
+            BaseException, obsVal._validate_iterable, is_iterable=True, key="Test key", value=0)
+
+        # test _validate_units
+        self.assertRaises(
+            BaseException, obsVal._validate_units, has_units=True, key="Test Key", value=0)
+
+        q = pq.Quantity([1,2,3], 'ft')
+        units = q.simplified.units
+        units.name = "UnitName"
+        testObj = Test(long_test_list)
+        obsVal = ObservationValidator(test=testObj)
+
+
+        # units in test object is a dict
+        testObj.units = {'TestKey' : units}
+        obsVal._validate_units(has_units=True, key="TestKey", value=q)
+
+        # units in test object is q.simplified.units
+        testObj.units = units
+        obsVal._validate_units(has_units=True, key="TestKey", value=q)
+        
+        # Units dismatch
+        q = pq.Quantity([1], 'J')
+        self.assertRaises(
+            BaseException, obsVal._validate_units, has_units=True, key="", value=q)
+        
+
 
 if __name__ == '__main__':
     unittest.main()
