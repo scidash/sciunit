@@ -3,10 +3,7 @@ import quantities as pq
 
 class ValidatorTestCase(unittest.TestCase):
 
-    def test1(self):
-        self.assertEqual(1, 1)
-
-    def register_test(self):
+    def test_register(self):
 
         class TestClass():
             intValue = 0
