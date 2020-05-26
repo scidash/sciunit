@@ -222,7 +222,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
                           scores=self.loc[model, :],
                           weights=self.weights)
 
-    def get_group(self, x: Tuple[Union[Test, Model]]) -> Union[Test, Model]:
+    def get_group(self, x: Tuple[Union[Test, Model]]) -> Union[Model, Test]:
         """[summary]
 
         Args:

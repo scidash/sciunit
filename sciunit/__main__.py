@@ -36,7 +36,6 @@ try:
 except ImportError:
     pass
 
-from sciunit import Test, Suite
 NB_VERSION = 4
 
 
@@ -192,11 +191,11 @@ def run(config: configparser.RawConfigParser, path: Union[str, Path]=None,
             _run(suite, models, stop_on_error)
 
 
-def _run(test_or_suite: Union[Test, Suite], models: list, stop_on_error: bool) -> None:
+def _run(test_or_suite: Union[sciunit.Test, sciunit.TestSuite], models: list, stop_on_error: bool) -> None:
     """[summary]
 
     Args:
-        test_or_suite (Union[Test, Suite]): A test or suite instance to be executed.
+        test_or_suite (Union[Test, TestSuite]): A test or suite instance to be executed.
         models (list): The list of sciunit Model.
         stop_on_error (bool): Whether to stop on error. 
     """
