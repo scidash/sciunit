@@ -232,7 +232,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             TypeError: [description]
 
         Returns:
-            Union[Test, Model]: [description]
+            Union[Model, Test]: [description]
         """
         t = int(bool(self.transposed))
         if isinstance(x[0], Test) and isinstance(x[1], Model):

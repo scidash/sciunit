@@ -78,8 +78,6 @@ class ObservationValidator(Validator):
                 required_units = self.test.units
             if not isinstance(value, pq.quantity.Quantity):
                 self._error(key, "Must be a python quantity")
-            if not isinstance(value, pq.quantity.Quantity):
-                self._error(key, "Must be a python quantity")
             provided_units = value.simplified.units
             if not isinstance(required_units, pq.Dimensionless):
                 required_units = required_units.simplified.units
