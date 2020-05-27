@@ -11,25 +11,21 @@ import pandas as pd
 import git
 from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.cmd import Git
+from git.remote import Remote
+from git.repo.base import Repo
+from typing import Dict, List, Optional, Tuple, Union, Any
 
 PYTHON_MAJOR_VERSION = sys.version_info.major
 PLATFORM = sys.platform
 
 if PYTHON_MAJOR_VERSION < 3:  # Python 2
-    from StringIO import StringIO
-    try:
-        import Tkinter as tkinter
-    except ImportError:
-        tkinter = None
-    FileNotFoundError = OSError
-    json.JSONDecodeError = ValueError
-else:
-    from io import StringIO
-    try:
-        import tkinter
-    except ImportError:
-        tkinter = None
-    FileNotFoundError = FileNotFoundError
+    raise Exception('Only Python 3 is supported')
+
+from io import StringIO
+try:
+    import tkinter
+except ImportError:
+    tkinter = None
 
 KERNEL = ('ipykernel' in sys.modules)
 LOGGING = True
@@ -43,8 +39,15 @@ class Versioned(object):
     is tracked. Provided in part by Andrew Davison in issue #53.
     """
 
-    def get_repo(self, cached=True):
-        """Get a git repository object for this instance."""
+    def get_repo(self, cached: bool=True) -> Repo:
+        """Get a git repository object for this instance.
+
+        Args:
+            cached (bool, optional): Whether to use cached data. Defaults to True.
+
+        Returns:
+            Repo: The git repo for this instance.
+        """
         module = sys.modules[self.__module__]
         # We use module.__file__ instead of module.__path__[0]
         # to include modules without a __path__ attribute.
@@ -61,9 +64,16 @@ class Versioned(object):
         self.__class__._repo = repo
         return repo
 
-    def get_version(self, cached=True):
-        """Get a git version (i.e. a git commit hash) for this instance."""
-        if hasattr(self.__class__, '_version') and cached:
+    def get_version(self, cached: bool=True) -> str:
+        """Get a git version (i.e. a git commit hash) for this instance.
+
+        Args:
+            cached (bool, optional): Whether to use the cached data. Defaults to True.
+
+        Returns:
+            str: The git version for this instance.
+        """
+        if cached and hasattr(self.__class__, '_version'):
             version = self.__class__._version
         else:
             repo = self.get_repo()
@@ -78,8 +88,15 @@ class Versioned(object):
         return version
     version = property(get_version)
 
-    def get_remote(self, remote='origin'):
-        """Get a git remote object for this instance."""
+    def get_remote(self, remote: str='origin') -> Remote:
+        """Get a git remote object for this instance.
+
+        Args:
+            remote (str, optional): [description]. Defaults to 'origin'.
+
+        Returns:
+            Remote: The git remote object for this instance.
+        """
         repo = self.get_repo()
         if repo is not None:
             remotes = {r.name: r for r in repo.remotes}
@@ -88,8 +105,19 @@ class Versioned(object):
             r = None
         return r
 
-    def get_remote_url(self, remote='origin', cached=True):
-        """Get a git remote URL for this instance."""
+    def get_remote_url(self, remote: str='origin', cached: bool=True) -> str:
+        """Get a git remote URL for this instance.
+
+        Args:
+            remote (str, optional): [description]. Defaults to 'origin'.
+            cached (bool, optional): Whether to use cached data. Defaults to True.
+
+        Raises:
+            ex: A Git command error.
+
+        Returns:
+            str: The git remote URL for this instance.
+        """
         if hasattr(self.__class__, '_remote_url') and cached:
             url = self.__class__._remote_url
         else:
@@ -130,11 +158,14 @@ class SciUnit(Versioned):
     #: A verbosity level for printing information.
     verbose = 1
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict:
         """Copy the object's state from self.__dict__.
 
         Contains all of the instance attributes. Always uses the dict.copy()
         method to avoid modifying the original state.
+
+        Returns:
+            dict: The state of this instance.
         """
         state = self.__dict__.copy()
         # Remove the unpicklable entries.
@@ -143,7 +174,19 @@ class SciUnit(Versioned):
                 del state[key]
         return state
 
-    def _state(self, state=None, keys=None, exclude=None):
+    def _state(self, state: dict=None, keys: dict=None, 
+                exclude: List[str]=None) -> dict:
+        """Get the state of the instance.
+
+        Args:
+            state (dict, optional): [description]. Defaults to None.
+            keys (dict, optional): [description]. Defaults to None.
+            exclude (List[str], optional): [description]. Defaults to None.
+
+        Returns:
+            dict: The state of the current instance.
+        """
+
         if state is None:
             state = self.__getstate__()
         if keys:
@@ -154,7 +197,16 @@ class SciUnit(Versioned):
             state = deep_exclude(state, exclude)
         return state
 
-    def _properties(self, keys=None, exclude=None):
+    def _properties(self, keys: list=None, exclude: list=None) -> dict:
+        """Get the properties of the instance.
+
+        Args:
+            keys (list, optional): [description]. Defaults to None.
+            exclude (list, optional): The list of properties that will not be included in return data. Defaults to None.
+
+        Returns:
+            dict: The dict of properties of the instance.
+        """
         result = {}
         props = self.raw_props()
         exclude = exclude if exclude else []
@@ -166,35 +218,75 @@ class SciUnit(Versioned):
                 result[prop] = getattr(self, prop)
         return result
 
-    def raw_props(self):
+    def raw_props(self) -> list:
+        """Get the raw properties of the instance.
+
+        Returns:
+            list: The list of raw properties.
+        """
         class_attrs = dir(self.__class__)
         return [p for p in class_attrs
                 if isinstance(getattr(self.__class__, p, None), property)]
 
     @property
-    def state(self):
+    def state(self) -> dict:
+        """Get the state of the instance.
+
+        Returns:
+            dict: The state of the instance.
+        """
         return self._state()
 
     @property
-    def properties(self):
+    def properties(self) -> dict:
+        """Get the properties of the instance.
+
+        Returns:
+            dict: The properties of the instance.
+        """
         return self._properties()
 
     @classmethod
-    def dict_hash(cls, d):
+    def dict_hash(cls, d: dict) -> str:
+        """[summary]
+
+        Args:
+            d (dict): [description]
+
+        Returns:
+            str: [description]
+        """
         od = [(key, d[key]) for key in sorted(d)]
         try:
             s = pickle.dumps(od)
         except AttributeError:
             s = json.dumps(od, cls=SciUnitEncoder).encode('utf-8')
+
         return hashlib.sha224(s).hexdigest()
 
     @property
-    def hash(self):
-        """A unique numeric identifier of the current model state"""
+    def hash(self) -> str:
+        """A unique numeric identifier of the current model state.
+
+        Returns:
+            str: The unique numeric identifier of the current model state.
+        """
         return self.dict_hash(self.state)
 
-    def json(self, add_props=False, keys=None, exclude=None, string=True,
-             indent=None):
+    def json(self, add_props: bool=False, keys: list=None, exclude: list=None, string: bool=True,
+             indent: None=None) -> str:
+        """[summary]
+
+        Args:
+            add_props (bool, optional): [description]. Defaults to False.
+            keys (list, optional): [description]. Defaults to None.
+            exclude (list, optional): [description]. Defaults to None.
+            string (bool, optional): [description]. Defaults to True.
+            indent (None, optional): [description]. Defaults to None.
+
+        Returns:
+            str: [description]
+        """
         result = json.dumps(self, cls=SciUnitEncoder,
                             add_props=add_props, keys=keys, exclude=exclude,
                             indent=indent)
@@ -203,11 +295,11 @@ class SciUnit(Versioned):
         return result
 
     @property
-    def _id(self):
+    def _id(self) -> str:
         return id(self)
 
     @property
-    def _class(self):
+    def _class(self) -> dict:
         url = '' if self.url is None else self.url
 
         import_path = '{}.{}'.format(
@@ -220,16 +312,16 @@ class SciUnit(Versioned):
                 'url': url}
 
     @property
-    def id(self):
+    def id(self) -> str:
         return str(self.json)
 
     @property
-    def url(self):
+    def url(self) -> str:
         return self._url if self._url else self.remote_url
 
 
 class SciUnitEncoder(json.JSONEncoder):
-    """Custom JSON encoder for SciUnit objects"""
+    """Custom JSON encoder for SciUnit objects."""
 
     def __init__(self, *args, **kwargs):
         for key in ['add_props', 'keys', 'exclude']:
@@ -238,7 +330,18 @@ class SciUnitEncoder(json.JSONEncoder):
                 kwargs.pop(key)
         super(SciUnitEncoder, self).__init__(*args, **kwargs)
 
-    def default(self, obj):
+    def default(self, obj: Any) -> dict:
+        """[summary]
+
+        Args:
+            obj (Any): [description]
+
+        Raises:
+            e: Could not JSON encode the object.
+
+        Returns:
+            dict: [description]
+        """
         try:
             if isinstance(obj, pd.DataFrame):
                 o = obj.to_dict(orient='split')
@@ -271,8 +374,12 @@ class TestWeighted(object):
     """Base class for objects with test weights."""
 
     @property
-    def weights(self):
-        """Returns a normalized list of test weights."""
+    def weights(self) -> List[float]:
+        """Returns a normalized list of test weights.
+
+        Returns:
+            List[float]: The normalized list of test weights.
+        """
 
         n = len(self.tests)
         if self.weights_:
@@ -286,7 +393,16 @@ class TestWeighted(object):
         return weights
 
 
-def deep_exclude(state, exclude):
+def deep_exclude(state: dict, exclude: list) -> dict:
+    """[summary]
+
+    Args:
+        state (dict): [description]
+        exclude (list): [description]
+
+    Returns:
+        dict: [description]
+    """
     tuples = [key for key in exclude if isinstance(key, tuple)]
     s = state
     for loc in tuples:

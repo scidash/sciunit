@@ -8,6 +8,29 @@ class ModelsTestCase(unittest.TestCase):
     def setUp(self):
         from sciunit.models.examples import UniformModel
         self.M = UniformModel
+        
+    def test_curr_method(self):
+        from sciunit import Model
+        class TestModel(Model):
+            def test_calling_curr_method(self):
+                return self.curr_method()
+        m = TestModel()
+        test_method_name = m.test_calling_curr_method()
+        self.assertEqual(test_method_name, "test_calling_curr_method")
+
+    def test_failed_extra_capabilities(self):
+        from sciunit import Model
+
+        class TestModel(Model):
+            def test_return_none_function(self):
+                return None
+        
+        m = TestModel()
+        m.extra_capability_checks = {TestModel : "test_return_none_function"}
+        test_list = m.failed_extra_capabilities
+
+        self.assertEqual(test_list[0], TestModel)
+        self.assertEqual(len(test_list), 1)
 
     def test_get_model_state(self):
         from sciunit import Model
@@ -74,12 +97,16 @@ class ModelsTestCase(unittest.TestCase):
         
     def test_regular_models(self):
         from sciunit.models.examples\
-            import ConstModel, UniformModel, SharedModel
+            import ConstModel, UniformModel, SharedModel, PersistentUniformModel
 
         m = ConstModel(3)
         self.assertEqual(m.produce_number(),3)
 
         m = UniformModel(3,4)
+        self.assertTrue(3 < m.produce_number() < 4)
+
+        m = PersistentUniformModel(3, 4)
+        m.run()
         self.assertTrue(3 < m.produce_number() < 4)
 
     def test_irregular_models(self):
@@ -102,6 +129,7 @@ class ModelsTestCase(unittest.TestCase):
         d = CacheByValuePersistentUniformModel(2,3)
         d1 = d.produce_number()
         self.assertEqual(d1,c2)
+        
 
 
 class CapabilitiesTestCase(unittest.TestCase):
@@ -125,3 +153,6 @@ class CapabilitiesTestCase(unittest.TestCase):
 
         m = RepeatedRandomNumberModel()
         self.assertEqual(m.produce_number(),m.produce_number())
+
+if __name__ == '__main__':
+    unittest.main()

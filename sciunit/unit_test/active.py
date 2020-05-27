@@ -16,3 +16,5 @@ from .model_tests import *
 from .score_tests import *
 from .test_tests import *
 from .utils_tests import *
+from .validator_tests import *
+from .base_tests import *

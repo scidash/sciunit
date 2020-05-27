@@ -13,12 +13,37 @@ from .validators import ObservationValidator, ParametersValidator
 from .errors import Error, CapabilityError, ObservationError,\
                     InvalidScoreError, ParametersError
 from .utils import dict_combine
+#from sciunit.models.examples import ConstModel, UniformModel
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 
 class Test(SciUnit):
-    """Abstract base class for tests."""
+    """Abstract base class for tests.
 
-    def __init__(self, observation, name=None, **params):
+    Attributes:
+        name (str):                 The name of the test. Defaults to the test class name.
+        description (str):          A description of the test. Defaults to the docstring for the class.
+        verbose (str):              [description]
+        
+        score_type (str):           A score type for this test's `judge` method to return.
+
+        params (str):               [description]
+        default_params (str):       A dictionary containing the parameters to the test.
+        params_schema (str):        A schema that the params must adhere to (validated by cerberus).
+                                    Can also be a list of schemas, one of which the params must match.
+
+        converter (str):            A conversion to be done on the score after it is computed.
+
+        observation (str):          The empirical observation that the test is using.
+        observation_schema (str):   A schema that the observation must adhere to (validated by cerberus).
+                                    Can also be a list of schemas, one of which the observation must match.
+                                    If it is a list, each schema in the list can optionally be named by putting
+                                    (name, schema) tuples in that list.
+
+
+    """
+
+    def __init__(self, observation: Union[List[int], Tuple[int, int]], name: Optional[str]=None, **params):
         """
         Args:
             observation (dict): A dictionary of observed values to parameterize
@@ -77,18 +102,26 @@ class Test(SciUnit):
     """A schema that the params must adhere to (validated by cerberus).
     Can also be a list of schemas, one of which the params must match."""
 
-    def compute_params(self):
+    def compute_params(self) -> None:
         """Compute new params from existing `self.params`.
         Inserts those new params into `self.params`. Use this when some params
         depend upon the values of others.
         Example: `self.params['c'] = self.params['a'] + self.params['b']`
+        
         """
         pass
 
-    def validate_observation(self, observation):
+    def validate_observation(self, observation: dict) -> dict:
         """Validate the observation provided to the constructor.
 
-        Raises an ObservationError if invalid.
+        Args:
+            observation (dict): The observation to be validated.
+
+        Raises:
+            ObservationError: Raises an ObservationError if invalid.
+
+        Returns:
+            dict: The observation that was validated.
         """
         if not observation:
             raise ObservationError("Observation is missing.")
@@ -112,8 +145,12 @@ class Test(SciUnit):
         return observation
 
     @classmethod
-    def observation_schema_names(cls):
-        """Return a list of names of observation schema, if they are set."""
+    def observation_schema_names(cls) -> List[str]:
+        """Return a list of names of observation schema, if they are set.
+
+        Returns:
+            List[str]: The list of names of observation schema.
+        """
         names = []
         if cls.observation_schema:
             if isinstance(cls.observation_schema, list):
@@ -121,10 +158,17 @@ class Test(SciUnit):
                          for i, x in enumerate(cls.observation_schema)]
         return names
 
-    def validate_params(self, params):
+    def validate_params(self, params: dict) -> dict:
         """Validate the params provided to the constructor.
 
-        Raises an ParametersError if invalid.
+        Args:
+            params (dict): the params provided to the constructor.
+
+        Raises:
+            ParametersError: Raises an ParametersError if invalid.
+
+        Returns:
+            dict: `params` that is validated.
         """
         if params is None:
             raise ParametersError("Parameters cannot be `None`.")
@@ -147,12 +191,21 @@ class Test(SciUnit):
     """A sequence of capabilities that a model must have in order for the
     test to be run. Defaults to empty."""
 
-    def check_capabilities(self, model, skip_incapable=False,
-                           require_extra=False):
+    def check_capabilities(self, model: Model, skip_incapable: bool=False,
+                           require_extra: bool=False) -> bool:
         """Check that test's required capabilities are implemented by `model`.
+        
+        Args:
+            model (Model): A sciunit model instance
+            skip_incapable (bool, optional): [description]. Defaults to False.
+            require_extra (bool, optional): [description]. Defaults to False.
 
-        Raises an Error if model is not a Model.
-        Raises a CapabilityError if model does not have a capability.
+        Raises:
+            Error: Raises an Error if model is not a Model.
+                   Raises a CapabilityError if model does not have a capability.
+
+        Returns:
+            bool: true if the test's required capabilities are implemented.
         """
         if not isinstance(model, Model):
             raise Error("Model %s is not a sciunit.Model." % str(model))
@@ -161,48 +214,84 @@ class Test(SciUnit):
                        for c in self.required_capabilities])
         return capable
 
-    def check_capability(self, model, c, skip_incapable=False,
-                         require_extra=False):
+    def check_capability(self, model: Model, c: "Capability", skip_incapable: bool=False,
+                         require_extra: bool=False) -> bool:
         """Check if `model` has capability `c`.
 
         Optionally (default:True) raise a `CapabilityError` if it does not.
+        
+
+        Args:
+            model (Model): The sciunit model instance to be checked.
+            c (Capability): A sciunit Capability instance.
+            skip_incapable (bool, optional): If true, then skip the raising of the error. Defaults to False.
+            require_extra (bool, optional): [description]. Defaults to False.
+
+        Raises:
+            CapabilityError: raise a `CapabilityError` if it does not has the capability.
+
+        Returns:
+            bool: True if `model` has the capability.
         """
         capable = c.check(model, require_extra=require_extra)
         if not capable and not skip_incapable:
             raise CapabilityError(model, c)
         return capable
 
-    def condition_model(self, model):
+    def condition_model(self, model: Model):
         """Update the model in any way needed before generating the prediction.
 
         This could include updating parameters such as simulation durations
         that do not define the model but do define experiments performed on
         the model.
         No default implementation.
+        
+
+        Args:
+            model (Model): A sciunit model instance.
         """
         pass
 
-    def generate_prediction(self, model):
+    def generate_prediction(self, model: Model) -> None:
         """Generate a prediction from a model using the required capabilities.
 
         No default implementation.
+
+        Args:
+            model (Model): A sciunit model instance.
+
+        Raises:
+            NotImplementedError: Exception raised if this method is not implemented (overrided in the subclass).
         """
         raise NotImplementedError(("Test %s does not implement "
                                    "generate_prediction.") % str())
 
-    def check_prediction(self, prediction):
+    def check_prediction(self, prediction: float) -> None:
         """Check the prediction for acceptable values.
 
         No default implementation.
+
+        Args:
+            prediction (float): The predicted value.
         """
         pass
 
-    def compute_score(self, observation, prediction):
+    def compute_score(self, observation: dict, prediction: dict) -> Score:
         """Generates a score given the observations provided in the constructor
         and the prediction generated by generate_prediction.
 
         Must generate a score of score_type.
         No default implementation.
+
+        Args:
+            observation (dict): The observation from the real world.
+            prediction (dict): The prediction generated by a model.
+
+        Raises:
+            NotImplementedError: Exception raised if this method is not implemented (overrided in the subclass).
+
+        Returns:
+            Score: The generated score.
         """
         if not hasattr(self, 'score_type') or \
            not hasattr(self.score_type, 'compute'):
@@ -214,13 +303,24 @@ class Test(SciUnit):
         score = self.score_type.compute(observation, prediction)
         return score
 
-    def ace(self):
-        """Generate the best possible score of the associated score type."""
+    def ace(self) -> Score:
+        """Generate the best possible score of the associated score type.
+
+        Returns:
+            Score: The best possible score of the associated score type.
+        """
         score = self.score_type(self.score_type._best)
         return score
 
-    def _bind_score(self, score, model, observation, prediction):
-        """Bind some useful attributes to the score."""
+    def _bind_score(self, score: Score, model: Model, observation: List[int], prediction: float) -> None:
+        """Bind some useful attributes to the score.
+
+        Args:
+            score (Score): The sciunit score.
+            model (Model): A sciunit model instance.
+            observation (List[int]): [description]
+            prediction (float): [description]
+        """
         score.model = model
         score.test = self
         score.prediction = prediction
@@ -229,12 +329,26 @@ class Test(SciUnit):
         score.related_data = score.related_data.copy()
         self.bind_score(score, model, observation, prediction)
 
-    def bind_score(self, score, model, observation, prediction):
-        """For the user to bind additional features to the score."""
+    def bind_score(self, score: Score, model: Model, observation: List[int], prediction: float) -> None:
+        """For the user to bind additional features to the score.
+
+        Args:
+            score (Score): The sciunit score.
+            model (Model): A sciunit model instance.
+            observation (List[int]): [description]
+            prediction (float): [description]
+        """
         pass
 
-    def check_score_type(self, score):
-        """Check that the score is the correct type for this test."""
+    def check_score_type(self, score: Score) -> None:
+        """Check that the score is the correct type for this test.
+
+        Args:
+            score (Score): A sciunit score instance.
+
+        Raises:
+            InvalidScoreError: Raise an exception if `score` is not a sciunit Score.
+        """
         if not isinstance(score, (self.score_type, NoneScore, ErrorScore)):
             msg = (("Score for test '%s' is not of correct type. "
                     "The test requires type %s but %s was provided.")
@@ -242,8 +356,16 @@ class Test(SciUnit):
                       score.__class__.__name__))
             raise InvalidScoreError(msg)
 
-    def _judge(self, model, skip_incapable=True):
-        """Generate a score for the model (internal API use only)."""
+    def _judge(self, model: Model, skip_incapable: bool=True) -> Score:
+        """Generate a score for the model (internal API use only).
+
+        Args:
+            model (Model): A sciunit model instance.
+            skip_incapable (bool, optional): [description]. Defaults to True.
+
+        Returns:
+            Score: The generated score.
+        """
         # 1.
         self.check_capabilities(model, skip_incapable=skip_incapable)
 
@@ -271,8 +393,8 @@ class Test(SciUnit):
 
         return score
 
-    def judge(self, model, skip_incapable=False, stop_on_error=True,
-              deep_error=False):
+    def judge(self, model: Model, skip_incapable: bool=False, stop_on_error: bool=True,
+              deep_error: bool=False) -> Score:
         """Generate a score for the provided model (public method).
 
         Operates as follows:
@@ -294,6 +416,18 @@ class Test(SciUnit):
 
         If deep_error is true (not default), the traceback will contain the
         actual code execution error, instead of the content of an ErrorScore.
+
+        Args:
+            model (Model): A sciunit model instance
+            skip_incapable (bool, optional): [description]. Defaults to False.
+            stop_on_error (bool, optional): [description]. Defaults to True.
+            deep_error (bool, optional): [description]. Defaults to False.
+
+        Raises:
+            score.score: [description]
+
+        Returns:
+            Score: The generated score for the provided model.
         """
         if isinstance(model, (list, tuple, set)):
             # If a collection of models is provided
@@ -322,12 +456,24 @@ class Test(SciUnit):
             raise score.score  # An exception.
         return score
 
-    def check(self, model, skip_incapable=True, stop_on_error=True,
-              require_extra=False):
+    def check(self, model: Model, skip_incapable: bool=True, stop_on_error: bool=True,
+              require_extra: bool=False) -> Score:
         """Check to see if the test can run this model.
 
         Like judge, but without actually running the test. Just returns a Score
         indicating whether the model can take the test or not.
+
+        Args:
+            model (Model): A sciunit model instance
+            skip_incapable (bool, optional): [description]. Defaults to True.
+            stop_on_error (bool, optional): [description]. Defaults to True.
+            require_extra (bool, optional): [description]. Defaults to False.
+
+        Raises:
+            e: Raise if there is any exception.
+
+        Returns:
+            Score: [description]
         """
         try:
             if self.check_capabilities(model, skip_incapable=skip_incapable,
@@ -341,13 +487,24 @@ class Test(SciUnit):
                 raise e
         return score
 
-    def optimize(self, model):
-        """Optimize the parameters of the model to get the best score."""
+    def optimize(self, model: Model) -> None:
+        """Optimize the parameters of the model to get the best score.
+
+        Args:
+            model (Model): A sciunit model instance to be optimized.
+
+        Raises:
+            NotImplementedError: Raise the exception if this method is not implemented (not overrided in the subclass).
+        """
         raise NotImplementedError(("Optimization not implemented "
                                    "for Test '%s'" % self))
 
-    def describe(self):
-        """Describe the test in words."""
+    def describe(self) -> str:
+        """Describe the test in words.
+
+        Returns:
+            str: The description of the test.
+        """
         result = "No description available"
         if self.description:
             result = "%s" % self.description
@@ -362,17 +519,32 @@ class Test(SciUnit):
         return result
 
     @property
-    def state(self):
-        """Get the frozen (pickled) model state."""
+    def state(self) -> dict:
+        """Get the frozen (pickled) model state.
+
+        Returns:
+            dict: [description]
+        """
         return self._state(exclude=['last_model'])
 
     @classmethod
-    def is_test_class(cls, other_cls):
-        """Return whether `other_cls` is a subclass of this test class."""
+    def is_test_class(cls, other_cls: Type['RangeTest']) -> bool:
+        """Return whether `other_cls` is a subclass of this test class.
+
+        Args:
+            other_cls (RangeTest): [description]
+
+        Returns:
+            bool: Whether `other_cls` is a subclass of this test class.
+        """
         return inspect.isclass(other_cls) and issubclass(other_cls, cls)
 
-    def __str__(self):
-        """Return the string representation of the test's name."""
+    def __str__(self) -> str:
+        """Return the string representation of the test's name.
+
+        Returns:
+            str: The string representation of the test's name.
+        """
         return '%s' % self.name
 
 
@@ -390,21 +562,35 @@ class TestM2M(Test):
     def __init__(self, observation=None, name=None, **params):
         super(TestM2M, self).__init__(observation, name=name, **params)
 
-    def validate_observation(self, observation):
+    def validate_observation(self, observation: dict) -> None:
         """Validate the observation provided to the constructor.
 
         Note: TestM2M does not compulsorily require an observation
         (i.e. None allowed).
+
+        Args:
+            observation (dict): The observation to be validated.
         """
         pass
 
-    def compute_score(self, prediction1, prediction2):
+    def compute_score(self, prediction1: dict, prediction2: dict) -> Score:
         """Generate a score given the observations provided in the constructor
         and/or the prediction(s) generated by generate_prediction.
 
         Must generate a score of score_type.
 
         No default implementation.
+
+        Args:
+            prediction1 (dict): [description]
+            prediction2 (dict): [description]
+
+        Raises:
+            NotImplementedError: Error raised if this method is not implemented.
+            Exception: [description]
+
+        Returns:
+            Score: Computed score.
         """
         try:
             # After some processing of the observation and/or the prediction(s)
@@ -421,8 +607,16 @@ class TestM2M(Test):
             raise Exception(msg)
         return score
 
-    def _bind_score(self, score, prediction1, prediction2, model1, model2):
-        """Bind some useful attributes to the score."""
+    def _bind_score(self, score: Score, prediction1, prediction2, model1: Model, model2: Model):
+        """Bind some useful attributes to the score.
+
+        Args:
+            score (Score): A sciunit score instance
+            prediction1 ([type]): [description]
+            prediction2 ([type]): [description]
+            model1 (Model): [description]
+            model2 (Model): [description]
+        """
         score.model1 = model1
         score.model2 = model2
         score.test = self
@@ -432,11 +626,33 @@ class TestM2M(Test):
         score.related_data = score.related_data.copy()
         self.bind_score(score, prediction1, prediction2, model1, model2)
 
-    def bind_score(self, score, prediction1, prediction2, model1, model2):
-        """For the user to bind additional features to the score."""
+    def bind_score(self, score: Score, prediction1, prediction2, model1: Model, model2: Model):
+        """For the user to bind additional features to the score.
+
+        Args:
+            score (Score): A sciunit score instance.
+            prediction1 ([type]): [description]
+            prediction2 ([type]): [description]
+            model1 (Model): [description]
+            model2 (Model): [description]
+        """
         pass
 
-    def _judge(self, prediction1, prediction2, model1, model2=None):
+    def _judge(self, prediction1, prediction2, model1: Model, model2: Model=None) -> Score:
+        """[summary]
+
+        Args:
+            prediction1 ([type]): [description]
+            prediction2 ([type]): [description]
+            model1 (Model): [description]
+            model2 (Model, optional): [description]. Defaults to None.
+
+        Raises:
+            InvalidScoreError: [description]
+
+        Returns:
+            Score: A sciunit score instance.
+        """
         # TODO: Not sure if below statement is required
         # self.last_model = model
 
@@ -456,8 +672,8 @@ class TestM2M(Test):
 
         return score
 
-    def judge(self, models, skip_incapable=False, stop_on_error=True,
-              deep_error=False, only_lower_triangle=False):
+    def judge(self, models: List[Model], skip_incapable: bool=False, stop_on_error: bool=True,
+              deep_error: bool=False, only_lower_triangle: bool=False):
         """Generate a score matrix for the provided model(s).
         `only_lower_triangle`: Only compute the lower triangle (not include
                                the diagonal) of this square ScoreMatrix and
@@ -489,6 +705,21 @@ class TestM2M(Test):
 
         If deep_error is true (not default), the traceback will contain the
         actual code execution error, instead of the content of an ErrorScore.
+
+        Args:
+            models (List[Model]): [description]
+            skip_incapable (bool, optional): [description]. Defaults to False.
+            stop_on_error (bool, optional): [description]. Defaults to True.
+            deep_error (bool, optional): [description]. Defaults to False.
+            only_lower_triangle (bool, optional): [description]. Defaults to False.
+
+        Raises:
+            TypeError: The `model` is not a sciunit model.
+            Exception: TestM2M's judge method resulted in error.
+            CapabilityError: [description]
+
+        Returns:
+            [type]: [description]
         """
 
         # 1.
@@ -575,23 +806,45 @@ class TestM2M(Test):
 
 
 class RangeTest(Test):
-    """Test if the model generates a number within a certain range"""
+    """Test if the model generates a number within a certain range."""
 
-    def __init__(self, observation, name=None):
+    def __init__(self, observation: Union[Tuple[int, int], List[int]], name: Optional[str]=None) -> None:
         super(RangeTest, self).__init__(observation, name=name)
 
     required_capabilities = (ProducesNumber,)
     score_type = BooleanScore
 
-    def validate_observation(self, observation):
+    def validate_observation(self, observation: List[int]) -> None:
+        """Validate the observation.
+
+        Args:
+            observation (List[int]): [description]
+        """
         assert type(observation) in (tuple, list, set)
         assert len(observation) == 2
         assert observation[1] > observation[0]
 
-    def generate_prediction(self, model):
+    def generate_prediction(self, model: Model) -> float:
+        """Using the model to generate a prediction.
+
+        Args:
+            model (Model): A sciunit model instance.
+
+        Returns:
+            float: The prediction generated.
+        """
         return model.produce_number()
 
-    def compute_score(self, observation, prediction):
+    def compute_score(self, observation: List[int], prediction: float) -> Score:
+        """Get the score of the predictions
+
+        Args:
+            observation (List[int]): The observation to be used in computing the score.
+            prediction (float): The prediction to be used in computing the score.
+
+        Returns:
+            Score: Computed score.
+        """
         low = observation[0]
         high = observation[1]
         return self.score_type(low < prediction < high)
@@ -603,14 +856,22 @@ class ProtocolToFeaturesTest(Test):
     Depending on the backend, this could include editing simulation parameters
     in memory or editing a model file.  It could include any kind of
     experimental protocol, such as a perturbation.
-    2) Running a model (using e.g. RunnableModel)
-    3) Extract features from the results
+    2) Running a model (using e.g. RunnableModel).
+    3) Extract features from the results.
 
     Developers should not need to manually implement `generate_prediction`, and
     instead should focus on the other three methods here.
     """
 
-    def generate_prediction(self, model):
+    def generate_prediction(self, model: Model) -> dict:
+        """Generate a prediction by the sciunit model.
+
+        Args:
+            model (Model): A sciunit model instance.
+
+        Returns:
+            dict: The prediction generated by the sciunit model.
+        """
         run_method = getattr(model, "run", None)
         assert callable(run_method), \
             "Model must have a `run` method to use a ProtocolToFeaturesTest"
@@ -619,11 +880,36 @@ class ProtocolToFeaturesTest(Test):
         prediction = self.extract_features(model, result)
         return prediction
 
-    def setup_protocol(self, model):
+    def setup_protocol(self, model: Model) -> NotImplementedError:
+        """[summary]
+
+        Args:
+            model (Model): A sciunit model instance.
+
+        Returns:
+            NotImplementedError: Exception raised if this method is not implemented (not overrided in the subclass).
+        """
         return NotImplementedError()
 
-    def get_result(self, model):
+    def get_result(self, model: Model) -> NotImplementedError:
+        """[summary]
+
+        Args:
+            model (Model): A sciunit model instance.
+
+        Returns:
+            NotImplementedError: Exception raised if this method is not implemented (not overrided in the subclass).
+        """
         return NotImplementedError()
 
-    def extract_features(self, model, result):
+    def extract_features(self, model: Model, result) -> NotImplementedError:
+        """[summary]
+
+        Args:
+            model (Model): A sciunit model instance.
+            result ([type]): [description]
+
+        Returns:
+            NotImplementedError: Exception raised if this method is not implemented (overrided in the subclass).
+        """
         return NotImplementedError()
