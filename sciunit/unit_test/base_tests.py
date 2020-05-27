@@ -5,9 +5,9 @@ class BaseCase(unittest.TestCase):
     """Unit tests for config files"""
     def test_deep_exclude(self):
         from sciunit.base import deep_exclude
-        test_dict = {'a' : 1, 'b' : 2, 'c' : 3, 'd' : 4, 'e' : 5}
+        test_state = {'a' : 1, 'b' : 2, 'c' : 3, 'd' : 4, 'e' : 5}
         test_exclude = [('a', 'b'), ('c', 'd')]
-
+        deep_exclude(test_state, test_exclude)
     def test_default(self):
         # TODO
         pass
