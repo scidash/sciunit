@@ -1,8 +1,5 @@
 import unittest
-import random
 import quantities as pq
-from sciunit.validators import ObservationValidator
-from sciunit import Test
 
 
 class ValidatorTestCase(unittest.TestCase):
@@ -27,6 +24,9 @@ class ValidatorTestCase(unittest.TestCase):
             Validator.types_mapping['TestType2'], TypeDefinition))
 
     def test_ObservationValidator(self):
+        from sciunit.validators import ObservationValidator
+        from sciunit import Test
+        import random
 
         long_test_list = [None] * 100
         for index in range(100):
@@ -47,27 +47,39 @@ class ValidatorTestCase(unittest.TestCase):
         self.assertRaises(
             BaseException, obsVal._validate_units, has_units=True, key="Test Key", value=0)
 
-        q = pq.Quantity([1,2,3], 'ft')
+        q = pq.Quantity([1, 2, 3], 'ft')
         units = q.simplified.units
         units.name = "UnitName"
         testObj = Test(long_test_list)
         obsVal = ObservationValidator(test=testObj)
 
-
         # units in test object is a dict
-        testObj.units = {'TestKey' : units}
+        testObj.units = {'TestKey': units}
         obsVal._validate_units(has_units=True, key="TestKey", value=q)
 
         # units in test object is q.simplified.units
         testObj.units = units
         obsVal._validate_units(has_units=True, key="TestKey", value=q)
-        
+
         # Units dismatch
         q = pq.Quantity([1], 'J')
         self.assertRaises(
             BaseException, obsVal._validate_units, has_units=True, key="", value=q)
-        
 
+    def test_ParametersValidator(self):
+        from sciunit.validators import ParametersValidator
+        paraVal = ParametersValidator()
+
+        # test validate_quantity
+        q = pq.Quantity([1, 2, 3], 'A')
+        paraVal.validate_quantity(q)
+        self.assertRaises(
+            BaseException, paraVal.validate_quantity, "I am not a quantity")
+
+        # TODO
+        # test validate_units
+
+        
 
 if __name__ == '__main__':
     unittest.main()
