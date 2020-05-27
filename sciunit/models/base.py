@@ -90,9 +90,9 @@ class Model(SciUnit):
             back (int, optional): [description]. Defaults to 0.
 
         Returns:
-            str: [description]
+            str: The name of the current method that calls this one.
         """
-        return(inspect.stack()[1+back][3])
+        return inspect.stack()[1+back][3]
 
     def check_params(self) -> None:
         """Check model parameters to see if they are reasonable.
