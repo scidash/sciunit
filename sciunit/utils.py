@@ -35,7 +35,7 @@ from IPython.display import HTML, display
 
 import sciunit
 from sciunit.errors import Error
-from .base import SciUnit, FileNotFoundError, tkinter
+from .base import SciUnit, tkinter
 from .base import PLATFORM, PYTHON_MAJOR_VERSION
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO
 from types import ModuleType
