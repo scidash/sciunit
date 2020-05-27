@@ -9,6 +9,20 @@ class ModelsTestCase(unittest.TestCase):
         from sciunit.models.examples import UniformModel
         self.M = UniformModel
 
+    def test_failed_extra_capabilities(self):
+        from sciunit import Model
+
+        class TestModel(Model):
+            def test_return_none_function(self):
+                return None
+        
+        m = TestModel()
+        m.extra_capability_checks = {TestModel : "test_return_none_function"}
+        test_list = m.failed_extra_capabilities
+        
+        self.assertEqual(test_list[0], TestModel)
+        self.assertEqual(len(test_list), 1)
+
     def test_get_model_state(self):
         from sciunit import Model
 
@@ -130,3 +144,6 @@ class CapabilitiesTestCase(unittest.TestCase):
 
         m = RepeatedRandomNumberModel()
         self.assertEqual(m.produce_number(),m.produce_number())
+
+if __name__ == '__main__':
+    unittest.main()
