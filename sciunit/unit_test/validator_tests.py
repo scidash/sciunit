@@ -18,10 +18,8 @@ class ValidatorTestCase(unittest.TestCase):
         register_type(TestClass, "TestType1")
         q = pq.Quantity([1, 2, 3], 'J')
         register_quantity(q, "TestType2")
-        self.assertTrue(isinstance(
-            Validator.types_mapping['TestType1'], TypeDefinition))
-        self.assertTrue(isinstance(
-            Validator.types_mapping['TestType2'], TypeDefinition))
+        self.assertIsInstance(Validator.types_mapping['TestType1'], TypeDefinition)
+        self.assertIsInstance(Validator.types_mapping['TestType2'], TypeDefinition)
 
     def test_ObservationValidator(self):
         from sciunit.validators import ObservationValidator
@@ -35,7 +33,7 @@ class ValidatorTestCase(unittest.TestCase):
         test_dict = {'a': 1, 'b': 2, 'c': 3}
         # test constructor
         obsVal = ObservationValidator(test=Test(long_test_list))
-        self.assertTrue(isinstance(obsVal, ObservationValidator))
+        self.assertIsInstance(obsVal, ObservationValidator)
         self.assertRaises(BaseException, ObservationValidator)
 
         # test _validate_iterable
