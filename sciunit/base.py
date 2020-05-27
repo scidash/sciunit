@@ -20,10 +20,12 @@ PLATFORM = sys.platform
 
 if PYTHON_MAJOR_VERSION < 3:  # Python 2
     raise Exception('Only Python 3 is supported')
-else:
-    from io import StringIO
+
+from io import StringIO
+try:
     import tkinter
-    FileNotFoundError = FileNotFoundError
+except ImportError:
+    tkinter = None
 
 KERNEL = ('ipykernel' in sys.modules)
 LOGGING = True
