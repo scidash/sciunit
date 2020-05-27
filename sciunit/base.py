@@ -273,6 +273,18 @@ class SciUnit(Versioned):
 
     def json(self, add_props: bool=False, keys: list=None, exclude: list=None, string: bool=True,
              indent: None=None) -> str:
+        """[summary]
+
+        Args:
+            add_props (bool, optional): [description]. Defaults to False.
+            keys (list, optional): [description]. Defaults to None.
+            exclude (list, optional): [description]. Defaults to None.
+            string (bool, optional): [description]. Defaults to True.
+            indent (None, optional): [description]. Defaults to None.
+
+        Returns:
+            str: [description]
+        """
         result = json.dumps(self, cls=SciUnitEncoder,
                             add_props=add_props, keys=keys, exclude=exclude,
                             indent=indent)
