@@ -9,6 +9,14 @@ class ModelsTestCase(unittest.TestCase):
         from sciunit.models.examples import UniformModel
         self.M = UniformModel
     
+    def test_is_match(self):
+        from sciunit import Model
+        m = Model()
+        m2 = Model()
+        self.assertFalse(m.is_match(m2))
+        self.assertTrue(m.is_match(m))
+        self.assertTrue(m.is_match("Model"))
+
     def test_getattr(self):
         from sciunit import Model
         m = Model()
