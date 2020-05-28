@@ -8,7 +8,12 @@ class ModelsTestCase(unittest.TestCase):
     def setUp(self):
         from sciunit.models.examples import UniformModel
         self.M = UniformModel
-        
+    
+    def test_getattr(self):
+        from sciunit import Model
+        m = Model()
+        self.assertEqual(m.name, m.__getattr__("name"))
+
     def test_curr_method(self):
         from sciunit import Model
         class TestModel(Model):
