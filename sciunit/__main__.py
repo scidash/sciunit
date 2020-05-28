@@ -24,17 +24,12 @@ from typing import Tuple
 import sciunit
 from pathlib import Path
 from typing import Union
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
+import configparser
 
 import codecs
-try:
-    import matplotlib
-    matplotlib.use('Agg')  #: Anticipate possible headless environments
-except ImportError:
-    pass
+
+import matplotlib
+matplotlib.use('Agg')  #: Anticipate possible headless environments
 
 NB_VERSION = 4
 
