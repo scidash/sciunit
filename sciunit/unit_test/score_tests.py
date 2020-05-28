@@ -10,8 +10,8 @@ from sciunit.scores import ZScore, CohenDScore, PercentScore, BooleanScore,\
                            FloatScore, RatioScore
 from sciunit.scores import ErrorScore, NAScore, TBDScore, NoneScore,\
                            InsufficientDataScore
-from sciunit.tests import RangeTest
-
+from sciunit.tests import RangeTest, Test
+from sciunit.models import Model
 from sciunit.unit_test.base import SuiteBase
 from sciunit.utils import NotebookTools
 
@@ -19,7 +19,18 @@ from sciunit.utils import NotebookTools
 class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
     
     path = '.'
-        
+    
+    def test_constructor(self):
+        tests = [Test([1, 2, 3])]
+        models = [Model()]
+        scores = ZScore(1.0)
+        scoreArray = ScoreArray(tests)
+
+        # TODO 
+        # figue out how ro test the following
+        # scoreMatrix = ScoreMatrix(tests, models, scores, transpose=True)
+
+
     def test_score_matrix(self):
         t, t1, t2, m1, m2 = self.prep_models_and_tests()
         sm = t.judge(m1)
@@ -96,3 +107,6 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
     def test_only_lower_triangle(self):
         """Test validation of observations against the `observation_schema`."""
         self.do_notebook('test_only_lower_triangle')
+
+if __name__ == '__main__':
+    unittest.main()
