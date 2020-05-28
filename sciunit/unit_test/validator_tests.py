@@ -74,10 +74,26 @@ class ValidatorTestCase(unittest.TestCase):
         self.assertRaises(
             BaseException, paraVal.validate_quantity, "I am not a quantity")
 
-        # TODO
-        # test validate_units
+        q = pq.Quantity([1,2,3], pq.s)
+        self.assertTrue(paraVal._validate_type_time(q))
+        self.assertRaises(
+            BaseException, paraVal._validate_type_voltage, q)
+        self.assertRaises(
+            BaseException, paraVal._validate_type_current, q)
 
-        
+        q = pq.Quantity([1,2,3], pq.V)
+        self.assertTrue(paraVal._validate_type_voltage(q))
+        self.assertRaises(
+            BaseException, paraVal._validate_type_time, q)
+        self.assertRaises(
+            BaseException, paraVal._validate_type_current, q)
+
+        q = pq.Quantity([1,2,3], pq.A)
+        self.assertTrue(paraVal._validate_type_current(q))
+        self.assertRaises(
+            BaseException, paraVal._validate_type_voltage, q)
+        self.assertRaises(
+            BaseException, paraVal._validate_type_time, q)
 
 if __name__ == '__main__':
     unittest.main()
