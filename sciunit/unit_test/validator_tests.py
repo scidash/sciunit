@@ -30,11 +30,16 @@ class ValidatorTestCase(unittest.TestCase):
         for index in range(100):
             long_test_list[index] = random.randint(1, 1000)
 
-        test_dict = {'a': 1, 'b': 2, 'c': 3}
+        q = pq.Quantity([1, 2, 3], 'ft')
+        units = q.simplified.units
+        units.name = "UnitName"
+        testObj = Test(long_test_list)
+        testObj.units = units
+        obsVal = ObservationValidator(test=testObj)
+
         # test constructor
-        obsVal = ObservationValidator(test=Test(long_test_list))
-        self.assertIsInstance(obsVal, ObservationValidator)
         self.assertRaises(BaseException, ObservationValidator)
+        self.assertIsInstance(obsVal, ObservationValidator)
 
         # test _validate_iterable
         obsVal._validate_iterable(True, "key", long_test_list)
@@ -43,26 +48,21 @@ class ValidatorTestCase(unittest.TestCase):
 
         # test _validate_units
         self.assertRaises(
-            BaseException, obsVal._validate_units, has_units=True, key="Test Key", value=0)
-
-        q = pq.Quantity([1, 2, 3], 'ft')
-        units = q.simplified.units
-        units.name = "UnitName"
-        testObj = Test(long_test_list)
-        obsVal = ObservationValidator(test=testObj)
+            BaseException, obsVal._validate_units, has_units=True, key="Test Key", value="I am not units")
+        
+        # units in test object is q.simplified.units
+        obsVal._validate_units(has_units=True, key="TestKey", value=q)
 
         # units in test object is a dict
         testObj.units = {'TestKey': units}
-        obsVal._validate_units(has_units=True, key="TestKey", value=q)
-
-        # units in test object is q.simplified.units
-        testObj.units = units
         obsVal._validate_units(has_units=True, key="TestKey", value=q)
 
         # Units dismatch
         q = pq.Quantity([1], 'J')
         self.assertRaises(
             BaseException, obsVal._validate_units, has_units=True, key="", value=q)
+
+        
 
     def test_ParametersValidator(self):
         from sciunit.validators import ParametersValidator
