@@ -95,5 +95,12 @@ class ValidatorTestCase(unittest.TestCase):
         self.assertRaises(
             BaseException, paraVal._validate_type_time, q)
 
+        self.assertRaises(
+            BaseException, paraVal._validate_type_current, "I am not a quantity")
+        self.assertRaises(
+            BaseException, paraVal._validate_type_voltage, "I am not a quantity")
+        self.assertRaises(
+            BaseException, paraVal._validate_type_time, "I am not a quantity")
+
 if __name__ == '__main__':
     unittest.main()
