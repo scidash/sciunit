@@ -11,7 +11,10 @@ class ErrorsTestCase(unittest.TestCase):
         from sciunit import Model, Capability
 
         CapabilityError(Model(),Capability)
+        CapabilityError(Model(),Capability, "this is a test detail")
         PredictionError(Model(),'foo')
         InvalidScoreError()
         BadParameterValueError('x',3)
         
+if __name__ == '__main__':
+    unittest.main()
