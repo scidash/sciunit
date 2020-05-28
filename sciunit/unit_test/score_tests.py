@@ -23,12 +23,10 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
     def test_constructor(self):
         tests = [Test([1, 2, 3])]
         models = [Model()]
-        scores = ZScore(1.0)
+        scores = np.array([ZScore(1.0)])
         scoreArray = ScoreArray(tests)
-
-        # TODO 
-        # figue out how ro test the following
-        # scoreMatrix = ScoreMatrix(tests, models, scores, transpose=True)
+        scoreMatrix = ScoreMatrix(tests, models, scores)
+        scoreMatrix = ScoreMatrix(tests, models, scores, transpose=True)
 
 
     def test_score_matrix(self):
