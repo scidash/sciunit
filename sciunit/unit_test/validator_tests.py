@@ -57,10 +57,12 @@ class ValidatorTestCase(unittest.TestCase):
         testObj.units = {'TestKey': units}
         obsVal._validate_units(has_units=True, key="TestKey", value=q)
 
+
+        print("debug here...............................................................................")
         # Units dismatch
-        q = pq.Quantity([1], 'J')
+        q2 = pq.Quantity([1], 'J')
         self.assertRaises(
-            BaseException, obsVal._validate_units, has_units=True, key="", value=q)
+            BaseException, obsVal._validate_units, has_units=True, key="TestKey", value=q2)
 
         
 
