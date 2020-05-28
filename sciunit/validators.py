@@ -48,7 +48,7 @@ class ObservationValidator(Validator):
 
         try:
             self.test = kwargs['test']
-        except AttributeError:
+        except KeyError:
             raise Exception(("Observation validator constructor must have "
                              "a `test` keyword argument"))
         super(ObservationValidator, self).__init__(*args, **kwargs)
