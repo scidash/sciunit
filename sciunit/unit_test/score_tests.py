@@ -20,7 +20,7 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
     
     path = '.'
     
-    def test_constructor(self):
+    def test_score_matrix_constructor(self):
         tests = [Test([1, 2, 3])]
         models = [Model()]
         scores = np.array([ZScore(1.0)])
@@ -28,10 +28,31 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         scoreMatrix = ScoreMatrix(tests, models, scores)
         scoreMatrix = ScoreMatrix(tests, models, scores, transpose=True)
 
+        tests = Test([1, 2, 3])
+        models = Model()
+        scoreMatrix = ScoreMatrix(tests, models, scores)
 
     def test_score_matrix(self):
         t, t1, t2, m1, m2 = self.prep_models_and_tests()
         sm = t.judge(m1)
+
+        self.assertRaises(TypeError, sm.__getitem__, 0)
+        
+        self.assertEqual(str(sm.get_group((t1, m1))), "Pass")
+        self.assertEqual(str(sm.get_group((m1, t1))), "Pass")
+        self.assertEqual(str(sm.get_group((m1.name, t1.name))), "Pass")
+        self.assertEqual(str(sm.get_group((t1.name, m1.name))), "Pass")
+
+        self.assertRaises(TypeError, sm.get_group, (0, 0))
+        self.assertRaises(KeyError, sm.get_by_name, "This name does not exist")
+        
+        from pandas.core.frame import DataFrame
+        self.assertIsInstance(sm.__getattr__("score"), DataFrame)
+        self.assertIsInstance(sm.norm_scores, DataFrame)
+        self.assertIsInstance(sm.T, ScoreMatrix)
+        self.assertIsInstance(sm.to_html(True, True, True), str)
+        self.assertIsInstance(sm.to_html(), str)
+
         self.assertTrue(type(sm) is ScoreMatrix)
         self.assertTrue(sm[t1][m1].score)
         self.assertTrue(sm['test1'][m1].score)
@@ -43,6 +64,8 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         self.assertEqual(sm.stature(t1, m1), 1)
         self.assertEqual(sm.stature(t1, m2), 2)
         display(sm)
+
+
 
     def test_score_arrays(self):
         t, t1, t2, m1, m2 = self.prep_models_and_tests()
