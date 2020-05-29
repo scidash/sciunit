@@ -14,8 +14,8 @@ from sciunit.tests import RangeTest, Test
 from sciunit.models import Model
 from sciunit.unit_test.base import SuiteBase
 from sciunit.utils import NotebookTools
-
-
+from pandas.core.frame import DataFrame
+from pandas.core.series import Series
 class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
     
     path = '.'
@@ -46,7 +46,6 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         self.assertRaises(TypeError, sm.get_group, (0, 0))
         self.assertRaises(KeyError, sm.get_by_name, "This name does not exist")
         
-        from pandas.core.frame import DataFrame
         self.assertIsInstance(sm.__getattr__("score"), DataFrame)
         self.assertIsInstance(sm.norm_scores, DataFrame)
         self.assertIsInstance(sm.T, ScoreMatrix)
@@ -72,6 +71,8 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         sm = t.judge(m1)
         sa = sm[m1]
         self.assertTrue(type(sa) is ScoreArray)
+        self.assertIsInstance(sa.__getattr__("score"), Series)
+        self.assertRaises(KeyError, sa.get_by_name, "This name does not exist")
         self.assertEqual(list(sa.norm_scores.values), [1.0, 0.0])
         self.assertEqual(sa.stature(t1), 1)
         self.assertEqual(sa.stature(t2), 2)
