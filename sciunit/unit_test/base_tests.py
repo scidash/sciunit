@@ -21,6 +21,20 @@ class BaseCase(unittest.TestCase):
         sciunitObj.json(string=False)
         self.assertIsInstance(sciunitObj._class, dict)
 
+        sciunitObj.unpicklable.append("testState")
+        sciunitObj.testState = "testState"
+        self.assertFalse("testState" in sciunitObj.__getstate__())
+        
+
     def test_Versioned(self):
-        # TODO
-        pass
+        from sciunit.base import Versioned
+        from git import Remote, Repo
+        ver = Versioned()
+        self.assertEqual('origin', str(ver.get_remote("I am not a remote")))
+        self.assertEqual('origin', str(ver.get_remote()))
+        self.assertIsInstance(ver.get_repo(), Repo)
+        self.assertIsInstance(ver.get_remote_url("I am not a remote"), str)
+        
+
+if __name__ == '__main__':
+    unittest.main()

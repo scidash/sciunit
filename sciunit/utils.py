@@ -15,19 +15,13 @@ import contextlib
 import traceback
 from io import TextIOWrapper, StringIO
 from datetime import datetime
-try:
-    from tempfile import TemporaryDirectory
-except ImportError:
-    from backports.tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory
 
 import bs4
 import nbformat
 import nbconvert
 from nbconvert.preprocessors import ExecutePreprocessor
-try:
-    from nbconvert.preprocessors.execute import CellExecutionError
-except:
-    from nbconvert.preprocessors import CellExecutionError
+from nbconvert.preprocessors.execute import CellExecutionError
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 import cypy
@@ -39,11 +33,7 @@ from .base import SciUnit, tkinter
 from .base import PLATFORM, PYTHON_MAJOR_VERSION
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO
 from types import ModuleType
-try:
-    import unittest.mock
-    mock = True
-except ImportError:
-    mock = False
+import unittest.mock
 
 from pathlib import Path
 mock = False  # mock is probably obviated by the unittest -b flag.
@@ -473,14 +463,11 @@ class NotebookTools(object):
         """
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS', True))
         s = StringIO()
-        if mock:
-            out = unittest.mock.patch('sys.stdout', new=MockDevice(s))
-            err = unittest.mock.patch('sys.stderr', new=MockDevice(s))
-            self._do_notebook(name, CONVERT_NOTEBOOKS)
-            out.close()
-            err.close()
-        else:
-            self._do_notebook(name, CONVERT_NOTEBOOKS)
+        out = unittest.mock.patch('sys.stdout', new=MockDevice(s))
+        err = unittest.mock.patch('sys.stderr', new=MockDevice(s))
+        self._do_notebook(name, CONVERT_NOTEBOOKS)
+        out.close()
+        err.close()
         self.assertTrue(True)
 
     def _do_notebook(self, name: str, convert_notebooks: bool=False) -> None:
