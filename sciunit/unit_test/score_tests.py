@@ -9,13 +9,15 @@ from sciunit import ScoreMatrix, ScoreArray
 from sciunit.scores import ZScore, CohenDScore, PercentScore, BooleanScore,\
                            FloatScore, RatioScore
 from sciunit.scores import ErrorScore, NAScore, TBDScore, NoneScore,\
-                           InsufficientDataScore
+                           InsufficientDataScore, RandomScore
 from sciunit.tests import RangeTest, Test
 from sciunit.models import Model
 from sciunit.unit_test.base import SuiteBase
 from sciunit.utils import NotebookTools
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
+from sciunit.errors import InvalidScoreError
+from quantities import Quantity
 class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
     
     path = '.'
@@ -83,15 +85,32 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         score = PercentScore(42)
         self.assertEqual(score.norm_score, 0.42)
 
+        self.assertEqual(1, ZScore(0.0).norm_score)
+        self.assertEqual(0, ZScore(1e12).norm_score)
+        self.assertEqual(0, ZScore(-1e12).norm_score)
+
         ZScore(0.7)
         score = ZScore.compute({'mean': 3., 'std': 1.},
                                {'value': 2.})
+
+        self.assertIsInstance(ZScore.compute({'mean': 3.}, {'value': 2.}), InsufficientDataScore)
+        self.assertIsInstance(ZScore.compute({'mean': 3., 'std': -1.}, {'value': 2.}), InsufficientDataScore)
+        self.assertIsInstance(ZScore.compute({'mean': np.nan, 'std': np.nan}, {'value': np.nan}), InsufficientDataScore)
         self.assertEqual(score.score, -1.)
 
+        self.assertEqual(1, CohenDScore(0.0).norm_score)
+        self.assertEqual(0, CohenDScore(1e12).norm_score)
+        self.assertEqual(0, CohenDScore(-1e12).norm_score)
         CohenDScore(-0.3)
         score = CohenDScore.compute({'mean': 3., 'std': 1.},
                                     {'mean': 2., 'std': 1.})
-        self.assertTrue(-0.708 < score.score < -0.707)
+
+        self.assertAlmostEqual(-0.707, score.score, 3)
+        self.assertEqual('D = -0.71', str(score))
+
+        score = CohenDScore.compute({'mean': 3.0, 'std': 10.0, 'n' : 10},
+                                    {'mean': 2.5, 'std': 10.0, 'n' : 10})
+        self.assertAlmostEqual(-0.05, score.score, 2)
 
     def test_regular_score_types_2(self):
         BooleanScore(True)
@@ -101,6 +120,9 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         score = BooleanScore.compute(4, 5)
         self.assertEqual(score.norm_score, 0)
 
+        self.assertEqual(1, BooleanScore(True).norm_score)
+        self.assertEqual(0, BooleanScore(False).norm_score)
+
         t = RangeTest([2, 3])
         score.test = t
         score.describe()
@@ -108,13 +130,24 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         score.describe()
 
         score = FloatScore(3.14)
+        self.assertRaises(InvalidScoreError, score.check_score, Quantity([1,2,3], 'J'))
+
         obs = np.array([1.0, 2.0, 3.0])
         pred = np.array([1.0, 2.0, 4.0])
         score = FloatScore.compute_ssd(obs, pred)
+        self.assertEqual(str(score), '1')
         self.assertEqual(score.score, 1.0)
 
-        RatioScore(1.2)
+        score = RatioScore(1.2)
+        self.assertEqual(1, RatioScore(1.0).norm_score)
+        self.assertEqual(0, RatioScore(1e12).norm_score)
+        self.assertEqual(0, RatioScore(1e-12).norm_score)
+
+        self.assertEqual(str(score), 'Ratio = 1.20')
+
+        self.assertRaises(InvalidScoreError, RatioScore, -1.0)
         score = RatioScore.compute({'mean': 4., 'std': 1.}, {'value': 2.})
+        
         self.assertEqual(score.score, 0.5)
 
     def test_irregular_score_types(self):
@@ -129,6 +162,12 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
     def test_only_lower_triangle(self):
         """Test validation of observations against the `observation_schema`."""
         self.do_notebook('test_only_lower_triangle')
+
+    def test_RandomScore(self):
+        """Note: RandomScore is only used for debugging purposes"""
+        score = RandomScore(0.5)
+        self.assertEqual('0.5', str(score))
+
 
 if __name__ == '__main__':
     unittest.main()
