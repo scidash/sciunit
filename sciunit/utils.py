@@ -34,7 +34,6 @@ from .base import PLATFORM, PYTHON_MAJOR_VERSION
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO
 from types import ModuleType
 import unittest.mock
-
 from pathlib import Path
 mock = False  # mock is probably obviated by the unittest -b flag.
 
@@ -463,12 +462,14 @@ class NotebookTools(object):
         """
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS', True))
         s = StringIO()
-        out = unittest.mock.patch('sys.stdout', new=MockDevice(s))
-        err = unittest.mock.patch('sys.stderr', new=MockDevice(s))
-        self._do_notebook(name, CONVERT_NOTEBOOKS)
-        out.close()
-        err.close()
-        self.assertTrue(True)
+        if mock:
+            out = unittest.mock.patch('sys.stdout', new=MockDevice(s))
+            err = unittest.mock.patch('sys.stderr', new=MockDevice(s))
+            self._do_notebook(name, CONVERT_NOTEBOOKS)
+            out.close()
+            err.close()
+        else:
+            self._do_notebook(name, CONVERT_NOTEBOOKS)
 
     def _do_notebook(self, name: str, convert_notebooks: bool=False) -> None:
         """ Called by do_notebook to actually run the notebook.
