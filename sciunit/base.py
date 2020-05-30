@@ -1,31 +1,27 @@
 """The base class for many SciUnit objects."""
 
+
+
 import os
 import sys
-import json
-import pickle
-import hashlib
+
+PLATFORM = sys.platform
+PYTHON_MAJOR_VERSION = sys.version_info.major
+if PYTHON_MAJOR_VERSION < 3:  # Python 2
+    raise Exception('Only Python 3 is supported')
+
+import json, git, tkinter, pickle, hashlib
 
 import numpy as np
 import pandas as pd
-import git
+
 from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.cmd import Git
 from git.remote import Remote
 from git.repo.base import Repo
 from typing import Dict, List, Optional, Tuple, Union, Any
-
-PYTHON_MAJOR_VERSION = sys.version_info.major
-PLATFORM = sys.platform
-
-if PYTHON_MAJOR_VERSION < 3:  # Python 2
-    raise Exception('Only Python 3 is supported')
-
 from io import StringIO
-try:
-    import tkinter
-except ImportError:
-    tkinter = None
+
 
 KERNEL = ('ipykernel' in sys.modules)
 LOGGING = True
