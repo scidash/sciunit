@@ -82,7 +82,13 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         display(sa)
 
     def test_regular_score_types_1(self):
+        self.assertEqual(PercentScore(0).norm_score, 0)
+        self.assertEqual(PercentScore(100).norm_score, 1)
+
         score = PercentScore(42)
+        self.assertRaises(InvalidScoreError, PercentScore, 101)
+        self.assertRaises(InvalidScoreError, PercentScore, -1)
+        self.assertEqual(str(score), "42.0%")
         self.assertEqual(score.norm_score, 0.42)
 
         self.assertEqual(1, ZScore(0.0).norm_score)
