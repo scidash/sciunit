@@ -8,15 +8,15 @@ from sciunit.base import SciUnit
 from sciunit.utils import log, config_get
 from sciunit.errors import InvalidScoreError
 from typing import Union, Tuple
-
+from quantities import Quantity
 class Score(SciUnit):
     """Abstract base class for scores."""
 
-    def __init__(self, score: 'Score', related_data: dict=None):
+    def __init__(self, score: Union['Score', float, int, Quantity], related_data: dict=None):
         """Abstract base class for scores.
 
         Args:
-            score (int, float, bool): A raw value to wrap in a Score class.
+            score (Union['Score', float, int, Quantity], bool): A raw value to wrap in a Score class.
             related_data (dict, optional): Artifacts to store with the score.
         """
         self.check_score(score)
