@@ -29,6 +29,7 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         myModel = Model()
         backend = Backend()
         backend.model = myModel
+        backend.init_memory_cache()
         self.assertIsNone(backend.get_disk_cache("key1"))
         self.assertIsNone(backend.get_disk_cache("key2"))
         self.assertIsNone(backend.get_memory_cache("key1"))
@@ -77,6 +78,7 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
 
         backend = MyBackend()
         backend.init_backend(use_disk_cache=True, use_memory_cache=False)
+        backend.init_memory_cache()
         backend.backend_run()
         backend.set_disk_cache("value1", "key1")
         backend.set_memory_cache("value1", "key1")
@@ -87,6 +89,7 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
 
         backend = MyBackend()
         backend.init_backend(use_disk_cache=False, use_memory_cache=False)
+        backend.init_memory_cache()
         backend.backend_run()
         backend.set_disk_cache("value1", "key1")
         backend.set_memory_cache("value1", "key1")
