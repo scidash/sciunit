@@ -3,7 +3,8 @@
 from sciunit.models.backends import Backend
 from sciunit.utils import NotebookTools
 from sciunit import Model
-import unittest
+import unittest, pathlib
+
 
 class BackendsTestCase(unittest.TestCase, NotebookTools):
     """Unit tests for the sciunit module"""
@@ -29,7 +30,7 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         myModel = Model()
         backend = Backend()
         backend.model = myModel
-        backend.init_memory_cache()
+        #backend.init_memory_cache()
         self.assertIsNone(backend.get_disk_cache("key1"))
         self.assertIsNone(backend.get_disk_cache("key2"))
         self.assertIsNone(backend.get_memory_cache("key1"))
@@ -65,7 +66,7 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         backend.set_disk_cache("value2")
         backend.set_memory_cache("value2")
         backend.backend_run()
-        backend.save_results()
+        backend.save_results(pathlib.Path().absolute())
 
         backend = MyBackend()
         backend.init_backend(use_disk_cache=False, use_memory_cache=True)
@@ -76,11 +77,11 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         backend.set_disk_cache("value2")
         backend.set_memory_cache("value2")
         backend.backend_run()
-        backend.save_results()
+        backend.save_results(pathlib.Path().absolute())
 
         backend = MyBackend()
         backend.init_backend(use_disk_cache=True, use_memory_cache=False)
-        backend.init_memory_cache()
+        #backend.init_memory_cache()
         backend.backend_run()
         backend.set_disk_cache("value1", "key1")
         backend.set_memory_cache("value1", "key1")
@@ -88,11 +89,11 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         backend.set_disk_cache("value2")
         backend.set_memory_cache("value2")
         backend.backend_run()
-        backend.save_results()
+        backend.save_results(pathlib.Path().absolute())
 
         backend = MyBackend()
         backend.init_backend(use_disk_cache=False, use_memory_cache=False)
-        backend.init_memory_cache()
+        #backend.init_memory_cache()
         backend.backend_run()
         backend.set_disk_cache("value1", "key1")
         backend.set_memory_cache("value1", "key1")
@@ -100,7 +101,7 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         backend.set_disk_cache("value2")
         backend.set_memory_cache("value2")
         backend.backend_run()
-        backend.save_results()
+        backend.save_results(pathlib.Path().absolute())
     
 if __name__ == '__main__':
     unittest.main()
