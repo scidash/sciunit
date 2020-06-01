@@ -27,8 +27,9 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(test_str, "\(\(\ \)\ \)")
 
     def test_log(self):
-        from sciunit.utils import log
-
+        from sciunit.utils import log, kernel_log, non_kernel_log
+        non_kernel_log("test log1", "test log2")
+        kernel_log("test log1", "test log2")
         log("Lorem Ipsum")
 
     def test_assert_dimensionless(self):
@@ -53,11 +54,12 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_dict_hash(self):
         from sciunit.base import SciUnit
+        from sciunit.utils import dict_hash
 
         d1 = {'a': 1, 'b': 2, 'c': 3}
         d2 = {'c': 3, 'a': 1, 'b': 2}
-        dh1 = SciUnit.dict_hash(d1)
-        dh2 = SciUnit.dict_hash(d2)
+        dh1 = dict_hash(d1)
+        dh2 = dict_hash(d2)
         self.assertTrue(type(dh1) is str)
         self.assertTrue(type(dh2) is str)
         self.assertEqual(d1, d2)
@@ -78,3 +80,14 @@ class UtilsTestCase(unittest.TestCase):
         print("Commit hash is %s" % m.version)
         print("Remote URL is %s" % m.remote_url)
         self.assertTrue('sciunit' in m.remote_url)
+
+    def test_MockDevice(self):
+        from sciunit.utils import MockDevice
+        from io import StringIO
+        s = StringIO()
+        myMD = MockDevice(s)
+        myMD.write("test mock device writing")
+
+
+if __name__ == '__main__':
+    unittest.main()
