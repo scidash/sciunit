@@ -642,10 +642,7 @@ def non_kernel_log(*args, **kwargs) -> None:
     args = [bs4.BeautifulSoup(x, "lxml").text
             if not isinstance(x, Exception) else x
             for x in args]
-    try:
-        print(*args, **kwargs)
-    except SyntaxError:  # Python 2
-        print(args)
+    print(*args, **kwargs)
 
 
 def kernel_log(*args, **kwargs) -> None:
@@ -654,10 +651,7 @@ def kernel_log(*args, **kwargs) -> None:
     with StringIO() as f:
         kwargs['file'] = f
         args = [u'%s' % arg for arg in args]
-        try:
-            print(*args, **kwargs)
-        except SyntaxError:  # Python 2
-            print(args)
+        print(*args, **kwargs)
         output = f.getvalue()
     display(HTML(output))
 
