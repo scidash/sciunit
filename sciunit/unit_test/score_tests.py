@@ -162,6 +162,7 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         score = NAScore(None)
         score = TBDScore(None)
         score = NoneScore(None)
+        score = NoneScore("this is a string")
         self.assertIsInstance(str(score), str)
         self.assertRaises(InvalidScoreError, NoneScore,["this is a string list"])
         
