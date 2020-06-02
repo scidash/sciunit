@@ -5,7 +5,7 @@ import unittest
 from IPython.display import display
 import numpy as np
 
-from sciunit import ScoreMatrix, ScoreArray
+from sciunit import ScoreMatrix, ScoreArray, Score
 from sciunit.scores import ZScore, CohenDScore, PercentScore, BooleanScore,\
                            FloatScore, RatioScore
 from sciunit.scores import ErrorScore, NAScore, TBDScore, NoneScore,\
@@ -177,7 +177,50 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         """Note: RandomScore is only used for debugging purposes"""
         score = RandomScore(0.5)
         self.assertEqual('0.5', str(score))
+    
+    def test_Score(self):
+        self.assertIsInstance(Score.compute({}, {}), NotImplementedError)
+        score = Score(0.5)
+        self.assertEqual(score.norm_score, 0.5)
+        self.assertAlmostEqual(score.log_norm_score, -0.693, 2)
+        self.assertAlmostEqual(score.log2_norm_score, -1.0, 1)
+        self.assertAlmostEqual(score.log10_norm_score, -0.301, 1)
+        self.assertIsInstance(score.raw, str)
+        score._raw = "this is a string"
+        self.assertIsNone(score.raw)
+        self.assertIsInstance(score.__repr__(), str)
+        self.assertIsInstance(score.__str__(), str)
 
+        self.assertFalse(score.__ne__(score))
+        self.assertTrue(score.__ne__(Score(998.0)))
+        self.assertFalse(score.__ne__(0.5))
+        self.assertTrue(score.__ne__(0.6))
+
+        self.assertFalse(score.__gt__(score))
+        self.assertTrue(score.__gt__(Score(0.2)))
+        self.assertFalse(score.__gt__(0.5))
+        self.assertTrue(score.__gt__(0.2))
+
+        self.assertFalse(score.__lt__(score))
+        self.assertTrue(score.__lt__(Score(0.9)))
+        self.assertFalse(score.__lt__(0.5))
+        self.assertTrue(score.__lt__(0.9))
+
+        self.assertTrue(score.__le__(score))
+        self.assertTrue(score.__le__(Score(0.5)))
+        self.assertTrue(score.__le__(0.5))
+        self.assertTrue(score.__le__(0.5))
+        self.assertFalse(score.__le__(0.1))
+        self.assertFalse(score.__le__(Score(0.1)))
+
+        self.assertIsInstance(score.score_type, str)
+
+    def test_ErrorScore(self):
+        score = ErrorScore(0.5)
+        self.assertEqual(0.0, score.norm_score)
+        self.assertIsInstance(score.summary, str)
+        self.assertIsInstance(score._describe(), str)
+        self.assertIsInstance(str(score), str)
 
 if __name__ == '__main__':
     unittest.main()
