@@ -1,6 +1,6 @@
 | Master  | Dev |
 | ------------- | ------------- |
-| [![Travis](https://travis-ci.org/scidash/sciunit.svg?branch=master)](https://travis-ci.org/scidash/sciunit) | [![Travis](https://travis-ci.org/scidash/sciunit.svg?branch=dev)](https://travis-ci.org/scidash/sciunit)  |
+| [![Travis](https://img.shields.io/travis/scidash/sciunit/master.svg)](https://travis-ci.org/scidash/sciunit) | [![Travis](https://travis-ci.org/scidash/sciunit.svg?branch=dev)](https://travis-ci.org/scidash/sciunit)  |
 | [![RTFD](https://readthedocs.org/projects/sciunit/badge/?version=master)](http://sciunit.readthedocs.io/en/latest/?badge=master) | [![RTFD](https://readthedocs.org/projects/sciunit/badge/?version=dev)](http://sciunit.readthedocs.io/en/latest/?badge=dev) |
 | [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/scidash/sciunit/master?filepath=docs%2Fchapter1.ipynb) | |
 | [![Coveralls](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=master)](https://coveralls.io/github/scidash/sciunit?branch=master) | [![Coveralls](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=dev)](https://coveralls.io/github/scidash/sciunit?branch=dev) |
