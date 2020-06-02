@@ -29,3 +29,21 @@ class ConvertersTestCase(unittest.TestCase):
         new_score = RangeToBoolean(3,5).convert(old_score)
         self.assertEqual(new_score,BooleanScore(False))
         self.assertEqual(new_score.raw,str(old_score.score))
+
+    def test_converters2(self):
+        from sciunit.converters import Converter
+        from sciunit import Score
+
+        converterObj = Converter()
+
+        self.assertIsInstance(converterObj.description, str)
+        self.assertRaises(NotImplementedError, converterObj._convert, Score(0.5))
+        class MyConverter (Converter):
+            pass
+        myConverterObj = MyConverter()
+        self.assertEqual(myConverterObj.description, "No description available")
+
+    
+
+if __name__ == '__main__':
+    unittest.main()

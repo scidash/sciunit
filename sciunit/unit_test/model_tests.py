@@ -167,5 +167,27 @@ class CapabilitiesTestCase(unittest.TestCase):
         m = RepeatedRandomNumberModel()
         self.assertEqual(m.produce_number(),m.produce_number())
 
+
+class RunnableTestCase(unittest.TestCase):
+
+    def test_backend(self):
+
+        from sciunit.models import RunnableModel
+        from sciunit.models.backends import Backend
+        model = RunnableModel(name="test name")
+        self.assertIsInstance(model.get_backend(), Backend)
+        self.assertRaises(TypeError, model.set_backend, 0)
+
+        model.set_backend(None)
+        model.set_attrs(test_attr="test attribute")
+        model.set_run_params(test_run_params="test runtime parameter")
+        model.check_run_params()
+        model.reset_run_params()
+        model.set_default_run_params(test_run_params="test runtime parameter")
+        model.reset_default_run_params()
+        self.assertIsInstance(model.state, dict)
+
+
+        
 if __name__ == '__main__':
     unittest.main()
