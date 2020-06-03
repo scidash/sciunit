@@ -10,7 +10,7 @@ from sciunit.scores.collections import ScoreMatrix
 from sciunit.capabilities import ProducesNumber
 from sciunit.errors import ObservationError, ParametersError, \
                             Error, InvalidScoreError
-from base import SuiteBase
+from .base import SuiteBase
 
 class TestsTestCase(unittest.TestCase):
     """Unit tests for the sciunit module"""
