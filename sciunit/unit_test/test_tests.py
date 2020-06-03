@@ -5,8 +5,8 @@ import unittest
 from sciunit import TestSuite
 from sciunit.tests import RangeTest, TestM2M
 from sciunit.models.examples import ConstModel, UniformModel
-from sciunit.scores import BooleanScore, FloatScore
-from sciunit.scores import FloatScore
+from sciunit.scores import BooleanScore, FloatScore, FloatScore
+from sciunit.scores.collections import ScoreMatrix
 from sciunit.capabilities import ProducesNumber
 
 from .base import SuiteBase
@@ -58,8 +58,26 @@ class TestSuitesTestCase(SuiteBase, unittest.TestCase):
         m2 = self.M(5,6)
         t = TestSuite([t1,t2])
         t.judge([m1,m2])
+        self.assertIsInstance(t.check([m1,m2]), ScoreMatrix)
+        capa_list = t.check_capabilities(m1)
+        self.assertTrue(capa_list[0])
+        self.assertTrue(capa_list[1])
+
+        t = TestSuite({"test 1": t1, "test 2": t2, "test 3 (non-Test)": "I am not a Test"})
+        self.assertRaises(TypeError, t.assert_tests, 0)
+        self.assertRaises(TypeError, t.assert_tests, [0])
+        self.assertRaises(TypeError, t.assert_models, 0)
+        self.assertRaises(TypeError, t.assert_models, [0])
+        self.assertRaises(NotImplementedError, t.optimize, m1)
+        self.assertRaises(KeyError, t.__getitem__, "wrong name")
+        self.assertIsInstance(t[0], RangeTest)
+
+
+        t.judge([m1,m2])
         t = TestSuite([t1,t2],skip_models=[m1],include_models=[m2])
         t.judge([m1,m2])
+
+        
 
     def test_testsuite_hooks(self):
         t1 = self.T([2,3])
@@ -153,3 +171,6 @@ class M2MsTestCase(unittest.TestCase):
         self.assertEqual(myScore["Model2"][self.myModel1], 10.0)
         self.assertEqual(myScore[self.myModel1][self.myModel1], 0.0)
         self.assertEqual(myScore["Model2"]["Model2"], 0.0)
+
+if __name__ == '__main__':
+    unittest.main()

@@ -149,8 +149,9 @@ class CapabilitiesTestCase(unittest.TestCase):
     """Unit tests for sciunit Capability classes"""
 
     def test_capabilities(self):
+        from sciunit.errors import CapabilityNotImplementedError
         from sciunit import Model
-        from sciunit.capabilities import ProducesNumber
+        from sciunit.capabilities import ProducesNumber, Capability, ProducesNumber, Runnable
         from sciunit.models import Model
         from sciunit.models.examples import UniqueRandomNumberModel,\
             RepeatedRandomNumberModel
@@ -167,6 +168,17 @@ class CapabilitiesTestCase(unittest.TestCase):
         m = RepeatedRandomNumberModel()
         self.assertEqual(m.produce_number(),m.produce_number())
 
+        m = Runnable()
+        self.assertRaises(BaseException, m.run)
+        self.assertRaises(BaseException, m.set_run_params)
+        self.assertRaises(BaseException, m.set_default_run_params)
+
+        m = ProducesNumber()
+        self.assertRaises(BaseException, m.produce_number)
+
+        m = Capability()
+        m.name = "test name"
+        self.assertEqual(str(m), "test name")
 
 class RunnableTestCase(unittest.TestCase):
 
@@ -188,6 +200,6 @@ class RunnableTestCase(unittest.TestCase):
         self.assertIsInstance(model.state, dict)
 
 
-        
+
 if __name__ == '__main__':
     unittest.main()
