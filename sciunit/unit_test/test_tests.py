@@ -2,14 +2,15 @@
 
 import unittest
 
-from sciunit import TestSuite
-from sciunit.tests import RangeTest, TestM2M
+from sciunit import TestSuite, Model
+from sciunit.tests import RangeTest, TestM2M, Test
 from sciunit.models.examples import ConstModel, UniformModel
-from sciunit.scores import BooleanScore, FloatScore, FloatScore
+from sciunit.scores import BooleanScore, FloatScore
 from sciunit.scores.collections import ScoreMatrix
 from sciunit.capabilities import ProducesNumber
-
-from .base import SuiteBase
+from sciunit.errors import ObservationError, ParametersError, \
+                            Error, InvalidScoreError
+from base import SuiteBase
 
 class TestsTestCase(unittest.TestCase):
     """Unit tests for the sciunit module"""
@@ -46,6 +47,41 @@ class TestsTestCase(unittest.TestCase):
         self.assertEqual(score.score,True)
         self.assertTrue(score.test is range_2_3_test)
         self.assertTrue(score.model is one_model)
+
+    def test_Test(self):
+        t = Test(None)
+        self.assertRaises(ObservationError, t.validate_observation, None)
+        self.assertRaises(ObservationError, t.validate_observation, "I am not a observation")
+        self.assertRaises(ObservationError, t.validate_observation, {"mean" : None})
+        t = Test([0, 1])
+        t.observation_schema = {}
+        t.validate_observation({0: 0, 1: 1})
+        Test.observation_schema = [{}, {}]
+        self.assertListEqual(t.observation_schema_names(), ['Schema 1', 'Schema 2'])
+
+        self.assertRaises(ParametersError, t.validate_params, None)
+        self.assertRaises(ParametersError, t.validate_params, "I am not a observation")
+        t.params_schema = {}
+        t.validate_params({0: 1, 1: 2})
+
+        self.assertRaises(Error, t.check_capabilities, "I am not a model")
+        t.condition_model(Model())
+        self.assertRaises(NotImplementedError, t.generate_prediction, Model())
+        self.assertRaises(NotImplementedError, t.optimize, Model())
+        
+        self.assertTrue(t.compute_score({0: 2, 1: 2}, {0: 2, 1: 2}).score)
+        self.assertFalse(t.compute_score({0: -2, 1: 2}, {0: 2, 1: -2}).score)
+        t.score_type = None
+        self.assertRaises(NotImplementedError, t.compute_score, {}, {})
+
+        t.score_type = BooleanScore
+        self.assertRaises(InvalidScoreError, t.check_score_type, FloatScore(0.5))
+        self.assertRaises(NotImplementedError, t.judge, [Model(), Model()])
+        self.assertRaises(NotImplementedError, t.judge, [Model(), Model()], deep_error=True)
+        
+
+
+
 
 
 class TestSuitesTestCase(SuiteBase, unittest.TestCase):

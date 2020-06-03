@@ -10,6 +10,7 @@ from sciunit.scores import ZScore, CohenDScore, PercentScore, BooleanScore,\
                            FloatScore, RatioScore
 from sciunit.scores import ErrorScore, NAScore, TBDScore, NoneScore,\
                            InsufficientDataScore, RandomScore
+from sciunit.scores.collections_m2m import ScoreArrayM2M, ScoreMatrixM2M
 from sciunit.tests import RangeTest, Test
 from sciunit.models import Model
 from sciunit.unit_test.base import SuiteBase
@@ -18,6 +19,7 @@ from pandas.core.frame import DataFrame
 from pandas.core.series import Series
 from sciunit.errors import InvalidScoreError
 from quantities import Quantity
+from pandas import DataFrame
 class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
     
     path = '.'
@@ -66,7 +68,21 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         self.assertEqual(sm.stature(t1, m2), 2)
         display(sm)
 
+        ######### m2m #################
+        t1.observation = [2, 3]
+        smm2m = ScoreMatrixM2M(test=t1, models=[m1], scores=[[Score(1), Score(1)], [Score(1), Score(1)]])
 
+        self.assertIsInstance(smm2m.__getattr__('score'), DataFrame)
+        self.assertIsInstance(smm2m.__getattr__('norm_scores'), DataFrame)
+        self.assertIsInstance(smm2m.__getattr__('related_data'), DataFrame)
+        self.assertRaises(KeyError, smm2m.get_by_name, "Not Exist")
+        self.assertIsInstance(smm2m.norm_scores, DataFrame)
+        self.assertRaises(KeyError, smm2m.get_by_name, "Not Exist")
+        self.assertRaises(TypeError, smm2m.get_group, [0])
+        self.assertIsInstance(smm2m.get_group([m1.name, t1.name]), Score)
+        self.assertEqual(smm2m.get_group([m1.name, t1.name]).score, 1)
+        self.assertIsInstance(smm2m.get_group([m1, t1]), Score)
+        self.assertEqual(smm2m.get_group([m1, t1]).score, 1)
 
     def test_score_arrays(self):
         t, t1, t2, m1, m2 = self.prep_models_and_tests()
@@ -80,6 +96,10 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         self.assertEqual(sa.stature(t2), 2)
         self.assertEqual(sa.stature(t1), 1)
         display(sa)
+
+        ######### m2m #################
+        sam2m = ScoreArrayM2M(test=t1, models=[m1], scores=[[Score(1), Score(1)], [Score(1), Score(1)]])
+        self.assertRaises(KeyError, sam2m.get_by_name, "Not Exist")
 
     def test_regular_score_types_1(self):
         self.assertEqual(PercentScore(0).norm_score, 0)
