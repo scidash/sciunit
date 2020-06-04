@@ -6,10 +6,22 @@ from IPython.display import display
 import numpy as np
 
 from sciunit import ScoreMatrix, ScoreArray, Score
-from sciunit.scores import ZScore, CohenDScore, PercentScore, BooleanScore,\
-                           FloatScore, RatioScore
-from sciunit.scores import ErrorScore, NAScore, TBDScore, NoneScore,\
-                           InsufficientDataScore, RandomScore
+from sciunit.scores import (
+    ZScore,
+    CohenDScore,
+    PercentScore,
+    BooleanScore,
+    FloatScore,
+    RatioScore,
+)
+from sciunit.scores import (
+    ErrorScore,
+    NAScore,
+    TBDScore,
+    NoneScore,
+    InsufficientDataScore,
+    RandomScore,
+)
 from sciunit.scores.collections_m2m import ScoreArrayM2M, ScoreMatrixM2M
 from sciunit.tests import RangeTest, Test
 from sciunit.models import Model
@@ -20,10 +32,12 @@ from pandas.core.series import Series
 from sciunit.errors import InvalidScoreError
 from quantities import Quantity
 from pandas import DataFrame
+
+
 class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
-    
-    path = '.'
-    
+
+    path = "."
+
     def test_score_matrix_constructor(self):
         tests = [Test([1, 2, 3])]
         models = [Model()]
@@ -41,7 +55,7 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         sm = t.judge(m1)
 
         self.assertRaises(TypeError, sm.__getitem__, 0)
-        
+
         self.assertEqual(str(sm.get_group((t1, m1))), "Pass")
         self.assertEqual(str(sm.get_group((m1, t1))), "Pass")
         self.assertEqual(str(sm.get_group((m1.name, t1.name))), "Pass")
@@ -49,7 +63,7 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
 
         self.assertRaises(TypeError, sm.get_group, (0, 0))
         self.assertRaises(KeyError, sm.get_by_name, "This name does not exist")
-        
+
         self.assertIsInstance(sm.__getattr__("score"), DataFrame)
         self.assertIsInstance(sm.norm_scores, DataFrame)
         self.assertIsInstance(sm.T, ScoreMatrix)
@@ -58,8 +72,8 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
 
         self.assertTrue(type(sm) is ScoreMatrix)
         self.assertTrue(sm[t1][m1].score)
-        self.assertTrue(sm['test1'][m1].score)
-        self.assertTrue(sm[m1]['test1'].score)
+        self.assertTrue(sm["test1"][m1].score)
+        self.assertTrue(sm[m1]["test1"].score)
         self.assertFalse(sm[t2][m1].score)
         self.assertEqual(sm[(m1, t1)].score, True)
         self.assertEqual(sm[(m1, t2)].score, False)
@@ -70,11 +84,13 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
 
         ######### m2m #################
         t1.observation = [2, 3]
-        smm2m = ScoreMatrixM2M(test=t1, models=[m1], scores=[[Score(1), Score(1)], [Score(1), Score(1)]])
+        smm2m = ScoreMatrixM2M(
+            test=t1, models=[m1], scores=[[Score(1), Score(1)], [Score(1), Score(1)]]
+        )
 
-        self.assertIsInstance(smm2m.__getattr__('score'), DataFrame)
-        self.assertIsInstance(smm2m.__getattr__('norm_scores'), DataFrame)
-        self.assertIsInstance(smm2m.__getattr__('related_data'), DataFrame)
+        self.assertIsInstance(smm2m.__getattr__("score"), DataFrame)
+        self.assertIsInstance(smm2m.__getattr__("norm_scores"), DataFrame)
+        self.assertIsInstance(smm2m.__getattr__("related_data"), DataFrame)
         self.assertRaises(KeyError, smm2m.get_by_name, "Not Exist")
         self.assertIsInstance(smm2m.norm_scores, DataFrame)
         self.assertRaises(KeyError, smm2m.get_by_name, "Not Exist")
@@ -98,7 +114,9 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         display(sa)
 
         ######### m2m #################
-        sam2m = ScoreArrayM2M(test=t1, models=[m1], scores=[[Score(1), Score(1)], [Score(1), Score(1)]])
+        sam2m = ScoreArrayM2M(
+            test=t1, models=[m1], scores=[[Score(1), Score(1)], [Score(1), Score(1)]]
+        )
         self.assertRaises(KeyError, sam2m.get_by_name, "Not Exist")
 
     def test_regular_score_types_1(self):
@@ -116,26 +134,35 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         self.assertEqual(0, ZScore(-1e12).norm_score)
 
         ZScore(0.7)
-        score = ZScore.compute({'mean': 3., 'std': 1.},
-                               {'value': 2.})
+        score = ZScore.compute({"mean": 3.0, "std": 1.0}, {"value": 2.0})
 
-        self.assertIsInstance(ZScore.compute({'mean': 3.}, {'value': 2.}), InsufficientDataScore)
-        self.assertIsInstance(ZScore.compute({'mean': 3., 'std': -1.}, {'value': 2.}), InsufficientDataScore)
-        self.assertIsInstance(ZScore.compute({'mean': np.nan, 'std': np.nan}, {'value': np.nan}), InsufficientDataScore)
-        self.assertEqual(score.score, -1.)
+        self.assertIsInstance(
+            ZScore.compute({"mean": 3.0}, {"value": 2.0}), InsufficientDataScore
+        )
+        self.assertIsInstance(
+            ZScore.compute({"mean": 3.0, "std": -1.0}, {"value": 2.0}),
+            InsufficientDataScore,
+        )
+        self.assertIsInstance(
+            ZScore.compute({"mean": np.nan, "std": np.nan}, {"value": np.nan}),
+            InsufficientDataScore,
+        )
+        self.assertEqual(score.score, -1.0)
 
         self.assertEqual(1, CohenDScore(0.0).norm_score)
         self.assertEqual(0, CohenDScore(1e12).norm_score)
         self.assertEqual(0, CohenDScore(-1e12).norm_score)
         CohenDScore(-0.3)
-        score = CohenDScore.compute({'mean': 3., 'std': 1.},
-                                    {'mean': 2., 'std': 1.})
+        score = CohenDScore.compute(
+            {"mean": 3.0, "std": 1.0}, {"mean": 2.0, "std": 1.0}
+        )
 
         self.assertAlmostEqual(-0.707, score.score, 3)
-        self.assertEqual('D = -0.71', str(score))
+        self.assertEqual("D = -0.71", str(score))
 
-        score = CohenDScore.compute({'mean': 3.0, 'std': 10.0, 'n' : 10},
-                                    {'mean': 2.5, 'std': 10.0, 'n' : 10})
+        score = CohenDScore.compute(
+            {"mean": 3.0, "std": 10.0, "n": 10}, {"mean": 2.5, "std": 10.0, "n": 10}
+        )
         self.assertAlmostEqual(-0.05, score.score, 2)
 
     def test_regular_score_types_2(self):
@@ -156,12 +183,14 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         score.describe()
 
         score = FloatScore(3.14)
-        self.assertRaises(InvalidScoreError, score.check_score, Quantity([1,2,3], 'J'))
+        self.assertRaises(
+            InvalidScoreError, score.check_score, Quantity([1, 2, 3], "J")
+        )
 
         obs = np.array([1.0, 2.0, 3.0])
         pred = np.array([1.0, 2.0, 4.0])
         score = FloatScore.compute_ssd(obs, pred)
-        self.assertEqual(str(score), '1')
+        self.assertEqual(str(score), "1")
         self.assertEqual(score.score, 1.0)
 
         score = RatioScore(1.2)
@@ -169,11 +198,11 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         self.assertEqual(0, RatioScore(1e12).norm_score)
         self.assertEqual(0, RatioScore(1e-12).norm_score)
 
-        self.assertEqual(str(score), 'Ratio = 1.20')
+        self.assertEqual(str(score), "Ratio = 1.20")
 
         self.assertRaises(InvalidScoreError, RatioScore, -1.0)
-        score = RatioScore.compute({'mean': 4., 'std': 1.}, {'value': 2.})
-        
+        score = RatioScore.compute({"mean": 4.0, "std": 1.0}, {"value": 2.0})
+
         self.assertEqual(score.score, 0.5)
 
     def test_irregular_score_types(self):
@@ -184,20 +213,20 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         score = NoneScore(None)
         score = NoneScore("this is a string")
         self.assertIsInstance(str(score), str)
-        self.assertRaises(InvalidScoreError, NoneScore,["this is a string list"])
-        
+        self.assertRaises(InvalidScoreError, NoneScore, ["this is a string list"])
+
         score = InsufficientDataScore(None)
         self.assertEqual(score.norm_score, None)
 
     def test_only_lower_triangle(self):
         """Test validation of observations against the `observation_schema`."""
-        self.do_notebook('test_only_lower_triangle')
+        self.do_notebook("test_only_lower_triangle")
 
     def test_RandomScore(self):
         """Note: RandomScore is only used for debugging purposes"""
         score = RandomScore(0.5)
-        self.assertEqual('0.5', str(score))
-    
+        self.assertEqual("0.5", str(score))
+
     def test_Score(self):
         self.assertIsInstance(Score.compute({}, {}), NotImplementedError)
         score = Score(0.5)
@@ -242,5 +271,6 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         self.assertIsInstance(score._describe(), str)
         self.assertIsInstance(str(score), str)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

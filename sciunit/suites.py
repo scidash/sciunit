@@ -30,7 +30,7 @@ class TestSuite(SciUnit, TestWeighted):
             include_models (List[Model], optional): The list of models. Defaults to None.
             skip_models (List[Model], optional): [description]. Defaults to None.
             hooks (dict, optional): [description]. Defaults to None.
-            optimizer ([type], optional): [description]. Defaults to None.
+            optimizer (optional): [description]. Defaults to None.
         """
 
         self.name = name if name else "Suite_%d" % random.randint(0, 1e12)

@@ -330,7 +330,7 @@ class SciUnitEncoder(json.JSONEncoder):
         super(SciUnitEncoder, self).__init__(*args, **kwargs)
 
     def default(self, obj: Any) -> Union[str, dict, list]:
-        """Tyr to encode the object.
+        """Try to encode the object.
 
         Args:
             obj (Any): Any object to be encoded

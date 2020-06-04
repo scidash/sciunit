@@ -9,6 +9,7 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_warnings_traceback(self):
         from sciunit.utils import set_warnings_traceback, warn_with_traceback
+
         set_warnings_traceback(True)
         warn_with_traceback("This is a test warning", Warning, "utils_tests.py", 13)
 
@@ -17,17 +18,20 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_notebook(self):
         from sciunit.utils import NotebookTools
+
         notebookObj = NotebookTools()
         notebookObj.execute_notebook("../docs/chapter1")
 
     def test_path_escape(self):
         test_str = "(( ) )"
         from sciunit.utils import path_escape
+
         test_str = path_escape(test_str)
         self.assertEqual(test_str, "\(\(\ \)\ \)")
 
     def test_log(self):
         from sciunit.utils import log, kernel_log, non_kernel_log
+
         non_kernel_log("test log1", "test log2")
         kernel_log("test log1", "test log2")
         log("Lorem Ipsum")
@@ -36,9 +40,9 @@ class UtilsTestCase(unittest.TestCase):
         import quantities as pq
         from sciunit.utils import assert_dimensionless
 
-        assert_dimensionless(3*pq.s*pq.Hz)
+        assert_dimensionless(3 * pq.s * pq.Hz)
         try:
-            assert_dimensionless(3*pq.s)
+            assert_dimensionless(3 * pq.s)
         except TypeError:
             pass
         else:
@@ -56,8 +60,8 @@ class UtilsTestCase(unittest.TestCase):
         from sciunit.base import SciUnit
         from sciunit.utils import dict_hash
 
-        d1 = {'a': 1, 'b': 2, 'c': 3}
-        d2 = {'c': 3, 'a': 1, 'b': 2}
+        d1 = {"a": 1, "b": 2, "c": 3}
+        d2 = {"c": 3, "a": 1, "b": 2}
         dh1 = dict_hash(d1)
         dh2 = dict_hash(d2)
         self.assertTrue(type(dh1) is str)
@@ -67,9 +71,9 @@ class UtilsTestCase(unittest.TestCase):
     def test_import_module_from_path(self):
         from sciunit.utils import import_module_from_path
 
-        temp_file = tempfile.mkstemp(suffix='.py')[1]
-        with open(temp_file, 'w') as f:
-            f.write('value = 42')
+        temp_file = tempfile.mkstemp(suffix=".py")[1]
+        with open(temp_file, "w") as f:
+            f.write("value = 42")
         module = import_module_from_path(temp_file)
         self.assertEqual(module.value, 42)
 
@@ -79,15 +83,16 @@ class UtilsTestCase(unittest.TestCase):
         m = ConstModel(37)
         print("Commit hash is %s" % m.version)
         print("Remote URL is %s" % m.remote_url)
-        self.assertTrue('sciunit' in m.remote_url)
+        self.assertTrue("sciunit" in m.remote_url)
 
     def test_MockDevice(self):
         from sciunit.utils import MockDevice
         from io import StringIO
+
         s = StringIO()
         myMD = MockDevice(s)
         myMD.write("test mock device writing")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

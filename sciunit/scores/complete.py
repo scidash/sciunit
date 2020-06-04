@@ -87,7 +87,7 @@ class ZScore(Score):
             error = ("Observation must have keys 'mean' and 'std' "
                      "when using ZScore")
             return InsufficientDataScore(error)
-        if o_std < 0:
+        if o_std <= 0:
             error = 'Observation standard deviation must be > 0'
             return InsufficientDataScore(error)
         value = (p_value - o_mean)/o_std
