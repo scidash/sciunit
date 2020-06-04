@@ -16,8 +16,6 @@ class Model(SciUnit):
             name = self.__class__.__name__
         self.name = name
         self.params = params
-        if params is None:
-            params = {}
         super(Model, self).__init__()
         self.check_params()
 

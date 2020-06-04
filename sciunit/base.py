@@ -1,26 +1,25 @@
 """The base class for many SciUnit objects."""
 
+
+
 import os
 import sys
-import json
-import pickle
-import hashlib
+
+PLATFORM = sys.platform
+PYTHON_MAJOR_VERSION = sys.version_info.major
+if PYTHON_MAJOR_VERSION < 3:  # Python 2
+    raise Exception('Only Python 3 is supported')
+
+import json, git, pickle, hashlib
 
 import numpy as np
 import pandas as pd
-import git
+
 from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.cmd import Git
 from git.remote import Remote
 from git.repo.base import Repo
 from typing import Dict, List, Optional, Tuple, Union, Any
-
-PYTHON_MAJOR_VERSION = sys.version_info.major
-PLATFORM = sys.platform
-
-if PYTHON_MAJOR_VERSION < 3:  # Python 2
-    raise Exception('Only Python 3 is supported')
-
 from io import StringIO
 try:
     import tkinter
@@ -174,13 +173,13 @@ class SciUnit(Versioned):
                 del state[key]
         return state
 
-    def _state(self, state: dict=None, keys: dict=None, 
+    def _state(self, state: dict=None, keys: list=None, 
                 exclude: List[str]=None) -> dict:
         """Get the state of the instance.
 
         Args:
             state (dict, optional): [description]. Defaults to None.
-            keys (dict, optional): [description]. Defaults to None.
+            keys (list, optional): [description]. Defaults to None.
             exclude (List[str], optional): [description]. Defaults to None.
 
         Returns:
@@ -274,7 +273,7 @@ class SciUnit(Versioned):
         return self.dict_hash(self.state)
 
     def json(self, add_props: bool=False, keys: list=None, exclude: list=None, string: bool=True,
-             indent: None=None) -> str:
+             indent: None=None) -> Any:
         """[summary]
 
         Args:
@@ -295,7 +294,7 @@ class SciUnit(Versioned):
         return result
 
     @property
-    def _id(self) -> str:
+    def _id(self) -> Any:
         return id(self)
 
     @property
@@ -330,17 +329,17 @@ class SciUnitEncoder(json.JSONEncoder):
                 kwargs.pop(key)
         super(SciUnitEncoder, self).__init__(*args, **kwargs)
 
-    def default(self, obj: Any) -> dict:
-        """[summary]
+    def default(self, obj: Any) -> Union[str, dict, list]:
+        """Try to encode the object.
 
         Args:
-            obj (Any): [description]
+            obj (Any): Any object to be encoded
 
         Raises:
-            e: Could not JSON encode the object.
+            e: Could not JSON serialize the object.
 
         Returns:
-            dict: [description]
+            Union[str, dict, list]: Encoded object.
         """
         try:
             if isinstance(obj, pd.DataFrame):

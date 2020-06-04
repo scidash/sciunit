@@ -20,7 +20,7 @@ class TestSuite(SciUnit, TestWeighted):
 
     def __init__(self, tests: List[Test], name: str=None, weights=None, include_models: List[Model]=None,
                  skip_models: List[Model]=None, hooks: dict=None, 
-                 optimizer: None=None):
+                 optimizer=None):
         """optimizer: a function to bind to self.optimize (first argument must be a testsuite).
 
         Args:
@@ -30,7 +30,7 @@ class TestSuite(SciUnit, TestWeighted):
             include_models (List[Model], optional): The list of models. Defaults to None.
             skip_models (List[Model], optional): [description]. Defaults to None.
             hooks (dict, optional): [description]. Defaults to None.
-            optimizer (None, optional): [description]. Defaults to None.
+            optimizer (optional): [description]. Defaults to None.
         """
 
         self.name = name if name else "Suite_%d" % random.randint(0, 1e12)

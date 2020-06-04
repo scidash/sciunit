@@ -85,6 +85,8 @@ class Backend(object):
             dict: The memory cache for key 'key' or None if not found.
         """
         key = self.model.hash if key is None else key
+        if not getattr(self, 'memory_cache', False):
+            self.init_memory_cache()
         self._results = self.memory_cache.get(key)
         return self._results
 
@@ -113,6 +115,8 @@ class Backend(object):
             key (str, optional): [description]. Defaults to None.
         """
         key = self.model.hash if key is None else key
+        if not getattr(self, 'memory_cache', False):
+            self.init_memory_cache()
         self.memory_cache[key] = results
 
     def set_disk_cache(self, results: Any, key: str=None) -> None:

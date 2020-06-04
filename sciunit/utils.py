@@ -15,19 +15,13 @@ import contextlib
 import traceback
 from io import TextIOWrapper, StringIO
 from datetime import datetime
-try:
-    from tempfile import TemporaryDirectory
-except ImportError:
-    from backports.tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory
 
 import bs4
 import nbformat
 import nbconvert
 from nbconvert.preprocessors import ExecutePreprocessor
-try:
-    from nbconvert.preprocessors.execute import CellExecutionError
-except:
-    from nbconvert.preprocessors import CellExecutionError
+from nbconvert.preprocessors.execute import CellExecutionError
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 import cypy
@@ -39,12 +33,7 @@ from .base import SciUnit, tkinter
 from .base import PLATFORM, PYTHON_MAJOR_VERSION
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO
 from types import ModuleType
-try:
-    import unittest.mock
-    mock = True
-except ImportError:
-    mock = False
-
+import unittest.mock
 from pathlib import Path
 mock = False  # mock is probably obviated by the unittest -b flag.
 
@@ -481,7 +470,6 @@ class NotebookTools(object):
             err.close()
         else:
             self._do_notebook(name, CONVERT_NOTEBOOKS)
-        self.assertTrue(True)
 
     def _do_notebook(self, name: str, convert_notebooks: bool=False) -> None:
         """ Called by do_notebook to actually run the notebook.
@@ -654,10 +642,7 @@ def non_kernel_log(*args, **kwargs) -> None:
     args = [bs4.BeautifulSoup(x, "lxml").text
             if not isinstance(x, Exception) else x
             for x in args]
-    try:
-        print(*args, **kwargs)
-    except SyntaxError:  # Python 2
-        print(args)
+    print(*args, **kwargs)
 
 
 def kernel_log(*args, **kwargs) -> None:
@@ -666,10 +651,7 @@ def kernel_log(*args, **kwargs) -> None:
     with StringIO() as f:
         kwargs['file'] = f
         args = [u'%s' % arg for arg in args]
-        try:
-            print(*args, **kwargs)
-        except SyntaxError:  # Python 2
-            print(args)
+        print(*args, **kwargs)
         output = f.getvalue()
     display(HTML(output))
 

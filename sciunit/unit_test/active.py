@@ -5,6 +5,7 @@ tests located in other modules.
 """
 
 from .backend_tests import *
+from .base_tests import *
 from .command_line_tests import *
 from .config_tests import *
 from .converter_tests import *
@@ -17,4 +18,3 @@ from .score_tests import *
 from .test_tests import *
 from .utils_tests import *
 from .validator_tests import *
-from .base_tests import *
