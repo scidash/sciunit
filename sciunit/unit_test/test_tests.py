@@ -3,7 +3,7 @@
 import unittest
 
 from sciunit import TestSuite, Model
-from sciunit.tests import RangeTest, TestM2M, Test
+from sciunit.tests import RangeTest, TestM2M, Test, ProtocolToFeaturesTest
 from sciunit.models.examples import ConstModel, UniformModel
 from sciunit.scores import BooleanScore, FloatScore
 from sciunit.scores.collections import ScoreMatrix
@@ -207,6 +207,25 @@ class M2MsTestCase(unittest.TestCase):
         self.assertEqual(myScore["Model2"][self.myModel1], 10.0)
         self.assertEqual(myScore[self.myModel1][self.myModel1], 0.0)
         self.assertEqual(myScore["Model2"]["Model2"], 0.0)
+
+    def test_testm2m(self):
+        myTest = TestM2M(observation=95.0)
+        myTest.validate_observation(None)
+        myTest.score_type = None
+        self.assertRaises(NotImplementedError, myTest.compute_score, {}, {})
+        myTest.score_type = BooleanScore
+        self.assertTrue(myTest.compute_score(95, 96))
+
+class ProtocolToFeaturesTestCase(unittest.TestCase):
+    def test_ProtocolToFeaturesTest(self):
+        t = ProtocolToFeaturesTest([1, 2, 3])
+        m = Model()
+        m.run = lambda: 0
+        
+        self.assertIsInstance(t.generate_prediction(m), NotImplementedError)
+        self.assertIsInstance(t.setup_protocol(m), NotImplementedError)
+        self.assertIsInstance(t.get_result(m), NotImplementedError)
+        self.assertIsInstance(t.extract_features(m, list()), NotImplementedError)
 
 if __name__ == '__main__':
     unittest.main()
