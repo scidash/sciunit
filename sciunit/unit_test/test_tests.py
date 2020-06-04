@@ -39,7 +39,9 @@ class TestsTestCase(unittest.TestCase):
         t.check(m)
 
     def test_rangetest(self):
+        from sciunit.converters import NoConversion
         range_2_3_test = RangeTest(observation=[2, 3])
+        range_2_3_test.converter = NoConversion()
         one_model = ConstModel(2.5)
         self.assertTrue(range_2_3_test.check_capabilities(one_model))
         score = range_2_3_test.judge(one_model)
@@ -215,6 +217,8 @@ class M2MsTestCase(unittest.TestCase):
         self.assertRaises(NotImplementedError, myTest.compute_score, {}, {})
         myTest.score_type = BooleanScore
         self.assertTrue(myTest.compute_score(95, 96))
+        self.assertRaises(TypeError, myTest.judge, "str")
+        
 
 class ProtocolToFeaturesTestCase(unittest.TestCase):
     def test_ProtocolToFeaturesTest(self):

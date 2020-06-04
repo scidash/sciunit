@@ -180,17 +180,20 @@ class CapabilitiesTestCase(unittest.TestCase):
         m.name = "test name"
         self.assertEqual(str(m), "test name")
 
-class RunnableTestCase(unittest.TestCase):
+class RunnableModelTestCase(unittest.TestCase):
 
     def test_backend(self):
 
         from sciunit.models import RunnableModel
         from sciunit.models.backends import Backend
+        self.assertRaises(TypeError, RunnableModel, name="", attrs=1)
         model = RunnableModel(name="test name")
         self.assertIsInstance(model.get_backend(), Backend)
         self.assertRaises(TypeError, model.set_backend, 0)
 
         model.set_backend(None)
+        self.assertRaises(Exception, model.set_backend, "invalid backend")
+        
         model.set_attrs(test_attr="test attribute")
         model.set_run_params(test_run_params="test runtime parameter")
         model.check_run_params()
