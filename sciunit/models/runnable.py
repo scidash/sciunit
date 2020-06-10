@@ -5,11 +5,11 @@ import warnings
 from .base import Model
 import sciunit.capabilities as cap
 from .backends import available_backends
-
+from typing import Union
 
 class RunnableModel(Model,
                     cap.Runnable):
-    """A model which can be run to produce simulation results"""
+    """A model which can be run to produce simulation results."""
 
     def __init__(self,
                  name,  # Name of the model
@@ -32,8 +32,16 @@ class RunnableModel(Model,
         """Return the simulation backend."""
         return self._backend
 
-    def set_backend(self, backend):
-        """Set the simulation backend."""
+    def set_backend(self, backend: Union[str, tuple, list, None]):
+        """Set the simulation backend.
+
+        Args:
+            backend (Union[str, tuple, list, None]): [description]
+
+        Raises:
+            TypeError: [description]
+            Exception: [description]
+        """
         if isinstance(backend, str):
             name = backend if len(backend) else None
             args = []
@@ -68,7 +76,7 @@ class RunnableModel(Model,
         self._backend.model = self
         self._backend.init_backend(*args, **kwargs)
 
-    def run(self, **run_params):
+    def run(self, **run_params) -> None:
         """Run the simulation (or lookup the results in the cache)."""
         self.use_default_run_params()
         self.set_run_params(**run_params)
@@ -76,36 +84,36 @@ class RunnableModel(Model,
             print("Run Params:", self.run_params)
         self.results = self._backend.backend_run()
 
-    def set_attrs(self, **attrs):
+    def set_attrs(self, **attrs) -> None:
         """Set model attributes, e.g. input resistance of a cell."""
         self.attrs.update(attrs)
         self._backend.set_attrs(**attrs)
 
-    def set_run_params(self, **run_params):
+    def set_run_params(self, **run_params) -> None:
         """Set run-time parameters, e.g. the somatic current to inject."""
         self.run_params.update(run_params)
         self.check_run_params()
         self._backend.set_run_params(**run_params)
 
-    def check_run_params(self):
+    def check_run_params(self) -> None:
         """Check if run parameters are reasonable for this model class.
 
         Raise a sciunit.BadParameterValueError if any of them are not.
         """
         pass
 
-    def reset_run_params(self):
+    def reset_run_params(self) -> None:
         self.run_params = {}
 
-    def set_default_run_params(self, **params):
+    def set_default_run_params(self, **params) -> None:
         self.default_run_params.update(params)
 
-    def use_default_run_params(self):
+    def use_default_run_params(self) -> None:
         for key, value in self.default_run_params.items():
             if key not in self.run_params:
                 self.set_run_params(**{key: value})
 
-    def reset_default_run_params(self):
+    def reset_default_run_params(self) -> None:
         self.default_run_params = {}
 
     @property
@@ -113,7 +121,7 @@ class RunnableModel(Model,
         return self._state(keys=['name', 'url', 'attrs', 'run_params',
                                  'backend'])
 
-    def __del__(self):
+    def __del__(self) -> None:
         if hasattr(self, 'temp_dir'):
             self.temp_dir.cleanup()   # Delete the temporary directory
             s = super(RunnableModel, self)

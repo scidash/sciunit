@@ -29,16 +29,24 @@ class BooleanScore(Score):
     _worst = False
 
     @classmethod
-    def compute(cls, observation, prediction):
-        """Compute whether the observation equals the prediction."""
+    def compute(cls, observation: dict, prediction: dict) -> 'BooleanScore':
+        """Compute whether the observation equals the prediction.
+
+        Returns:
+            BooleanScore: Boolean score of the observation equals the prediction.
+        """
         return BooleanScore(observation == prediction)
 
     @property
-    def norm_score(self):
-        """Return 1.0 for a True score and 0.0 for False score."""
+    def norm_score(self) -> float:
+        """Return 1.0 for a True score and 0.0 for False score.
+
+        Returns:
+            float: 1.0 for a True score and 0.0 for False score.
+        """
         return 1.0 if self.score else 0.0
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'Pass' if self.score else 'Fail'
 
 
@@ -60,8 +68,12 @@ class ZScore(Score):
     _worst = np.inf  # A Z-score of infinity (or negative infinity) is worst
 
     @classmethod
-    def compute(cls, observation, prediction):
-        """Compute a z-score from an observation and a prediction."""
+    def compute(cls, observation: dict, prediction: dict) -> 'ZScore':
+        """Compute a z-score from an observation and a prediction.
+
+        Returns:
+            ZScore: The computed Z-Score.
+        """
         assert isinstance(observation, dict),\
             "Observation must be a dict when using ZScore, not type %s" \
             % type(observation)
@@ -79,7 +91,7 @@ class ZScore(Score):
             error = ("Observation must have keys 'mean' and 'std' "
                      "when using ZScore")
             return InsufficientDataScore(error)
-        if not o_std > 0:
+        if o_std <= 0:
             error = 'Observation standard deviation must be > 0'
             return InsufficientDataScore(error)
         value = (p_value - o_mean)/o_std
@@ -91,7 +103,7 @@ class ZScore(Score):
         return score
 
     @property
-    def norm_score(self):
+    def norm_score(self) -> float:
         """Return the normalized score.
 
         Equals 1.0 for a z-score of 0, falling to 0.0 for extremely positive
@@ -100,7 +112,7 @@ class ZScore(Score):
         cdf = (1.0 + math.erf(self.score / math.sqrt(2.0))) / 2.0
         return 1 - 2*math.fabs(0.5 - cdf)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'Z = %.2f' % self.score
 
 
@@ -118,8 +130,12 @@ class CohenDScore(ZScore):
     _worst = np.inf
 
     @classmethod
-    def compute(cls, observation, prediction):
-        """Compute a Cohen's D from an observation and a prediction."""
+    def compute(cls, observation: dict, prediction: dict) -> 'CohenDScore':
+        """Compute a Cohen's D from an observation and a prediction.
+
+        Returns:
+            CohenDScore: The computed Cohen's D Score.
+        """
         assert isinstance(observation, dict)
         assert isinstance(prediction, dict)
         p_mean = prediction['mean']  # Use the prediction's mean.
@@ -136,7 +152,7 @@ class CohenDScore(ZScore):
         value = utils.assert_dimensionless(value)
         return CohenDScore(value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'D = %.2f' % self.score
 
 
@@ -162,8 +178,12 @@ class RatioScore(Score):
                                             "must be non-negative.") % score)
 
     @classmethod
-    def compute(cls, observation, prediction, key=None):
-        """Compute a ratio from an observation and a prediction."""
+    def compute(cls, observation: dict, prediction: dict, key=None) -> 'RatioScore':
+        """Compute a ratio from an observation and a prediction.
+
+        Returns:
+            RatioScore: A RatioScore of ratio from an observation and a prediction.
+        """
         assert isinstance(observation, (dict, float, int, pq.Quantity))
         assert isinstance(prediction, (dict, float, int, pq.Quantity))
 
@@ -174,9 +194,12 @@ class RatioScore(Score):
         return RatioScore(value)
 
     @property
-    def norm_score(self):
-        """Return 1.0 for a ratio of 1, falling to 0.0 for extremely small
-        or large values."""
+    def norm_score(self) -> str:
+        """Return 1.0 for a ratio of 1, falling to 0.0 for extremely small or large values.
+
+        Returns:
+            str: [description]
+        """
         score = math.log10(self.score)
         cdf = (1.0 + math.erf(score / math.sqrt(2.0))) / 2.0
         return 1 - 2*math.fabs(0.5 - cdf)
@@ -205,11 +228,15 @@ class PercentScore(Score):
                                             "range 0.0-100.0" % score))
 
     @property
-    def norm_score(self):
-        """Return 1.0 for a percent score of 100, and 0.0 for 0."""
+    def norm_score(self) -> float:
+        """Return 1.0 for a percent score of 100, and 0.0 for 0.
+
+        Returns:
+            float: 1.0 if the percent score is 100, else 0.0.
+        """
         return float(self.score)/100
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '%.1f%%' % self.score
 
 
@@ -237,14 +264,22 @@ class FloatScore(Score):
                     'prediction')
 
     @classmethod
-    def compute_ssd(cls, observation, prediction):
-        """Compute sum-squared diff between observation and prediction."""
+    def compute_ssd(cls, observation: dict, prediction: dict) -> Score:
+        """Compute sum-squared diff between observation and prediction.
+
+        Args:
+            observation (dict): The observation to be used for computing the sum-squared diff.
+            prediction (dict): The prediction to be used for computing the sum-squared diff.
+
+        Returns:
+            Score: The sum-squared diff between observation and prediction.
+        """
         # The sum of the squared differences.
         value = ((observation - prediction)**2).sum()
         score = FloatScore(value)
         return score
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '%.3g' % self.score
 
 
@@ -263,5 +298,5 @@ class RandomScore(FloatScore):
     _description = ('There is a random number in [0,1] and has no relation to '
                     'the prediction or the observation')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '%.3g' % self.score

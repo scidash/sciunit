@@ -15,19 +15,13 @@ import contextlib
 import traceback
 from io import TextIOWrapper, StringIO
 from datetime import datetime
-try:
-    from tempfile import TemporaryDirectory
-except ImportError:
-    from backports.tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory
 
 import bs4
 import nbformat
 import nbconvert
 from nbconvert.preprocessors import ExecutePreprocessor
-try:
-    from nbconvert.preprocessors.execute import CellExecutionError
-except:
-    from nbconvert.preprocessors import CellExecutionError
+from nbconvert.preprocessors.execute import CellExecutionError
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 import cypy
@@ -35,13 +29,12 @@ from IPython.display import HTML, display
 
 import sciunit
 from sciunit.errors import Error
-from .base import SciUnit, FileNotFoundError, tkinter
+from .base import SciUnit, tkinter
 from .base import PLATFORM, PYTHON_MAJOR_VERSION
-try:
-    import unittest.mock
-    mock = True
-except ImportError:
-    mock = False
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO
+from types import ModuleType
+import unittest.mock
+from pathlib import Path
 mock = False  # mock is probably obviated by the unittest -b flag.
 
 settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
@@ -51,18 +44,31 @@ settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
             'CWD': os.path.realpath(sciunit.__path__[0])}
 
 
-def warn_with_traceback(message, category, filename, lineno,
-                        file=None, line=None):
-    """A function to use with `warnings.showwarning` to show a traceback."""
+def warn_with_traceback(message: str, category, filename: str, lineno: int,
+                        file: TextIO=None, line: str=None) -> None:
+    """A function to use with `warnings.showwarning` to show a traceback.
+
+    Args:
+        message (str): A message that will be included in the warning.
+        category ([type]): A category of the warning.
+        filename (str): Name of the file that raises the warning
+        lineno (int): Number of line in the file that causes this warning.
+        file (TextIO, optional): A file object for recording the log. Defaults to None.
+        line (str, optional): A line of source code to be included in the warning message. Defaults to None.
+    """
     log = file if hasattr(file, 'write') else sys.stderr
     traceback.print_stack(file=log)
     log.write(warnings.formatwarning(
                 message, category, filename, lineno, line))
 
 
-def set_warnings_traceback(tb=True):
+def set_warnings_traceback(tb: bool=True) -> None:
     """Set to `True` to give tracebacks for all warnings, or `False` to restore
-    default behavior."""
+    default behavior.
+
+    Args:
+        tb (bool, optional): Defaults to True.
+    """
     if tb:
         warnings._showwarning = warnings.showwarning
         warnings.showwarning = warn_with_traceback
@@ -72,20 +78,29 @@ def set_warnings_traceback(tb=True):
         warnings.simplefilter("default")
 
 
-def dict_combine(*dict_list):
+def dict_combine(*dict_list) -> dict:
     """Return the union of several dictionaries.
     Uses the values from later dictionaries in the argument list when
     duplicate keys are encountered.
     In Python 3 this can simply be {**d1, **d2, ...}
     but Python 2 does not support this dict unpacking syntax.
+
+    Returns:
+        dict: the dict from combining the dicts
     """
     return {k: v for d in dict_list for k, v in d.items()}
 
 
-def rec_apply(func, n):
-    """
-    Used to determine parent directory n levels up
-    by repeatedly applying os.path.dirname
+def rec_apply(func: Callable, n: int) -> Callable:
+    """Used to determine parent directory n levels up
+    by repeatedly applying os.path.dirname.
+
+    Args:
+        func (Callable): [description]
+        n (int): [description]
+
+    Returns:
+        Callable: [description]
     """
     if n > 1:
         rec_func = rec_apply(func, n - 1)
@@ -93,18 +108,25 @@ def rec_apply(func, n):
     return func
 
 
-def printd_set(state):
+def printd_set(state: bool) -> None:
     """Enable the printd function.
     Call with True for all subsequent printd commands to be passed to print.
     Call with False to ignore all subsequent printd commands.
+
+    Args:
+        state (bool): [description]
     """
 
     global settings
     settings['PRINT_DEBUG_STATE'] = (state is True)
 
 
-def printd(*args, **kwargs):
-    """Print if PRINT_DEBUG_STATE is True"""
+def printd(*args, **kwargs) -> bool:
+    """Print if PRINT_DEBUG_STATE is True.
+
+    Returns:
+        bool: [description]
+    """
 
     global settings
     if settings['PRINT_DEBUG_STATE']:
@@ -116,19 +138,23 @@ def printd(*args, **kwargs):
 if PYTHON_MAJOR_VERSION == 3:
     redirect_stdout = contextlib.redirect_stdout
 else:  # Python 2
-    @contextlib.contextmanager
-    def redirect_stdout(target):
-        original = sys.stdout
-        sys.stdout = target
-        yield
-        sys.stdout = original
+    raise Exception('Only Python 3 is supported')
 
 
-def assert_dimensionless(value):
-    """
-    Tests for dimensionlessness of input.
+def assert_dimensionless(value: Union[float, Quantity]) -> float:
+    """Tests for dimensionlessness of input.
     If input is dimensionless but expressed as a Quantity, it returns the
-    bare value.  If it not, it raised an error.
+    bare value. If it not, it raised an error.
+    
+
+    Args:
+        value (Union[float, Quantity]): [description]
+
+    Raises:
+        TypeError: Score value must be dimensionless.
+
+    Returns:
+        float: [description]
     """
 
     if isinstance(value, Quantity):
@@ -141,11 +167,20 @@ def assert_dimensionless(value):
 
 
 class NotebookTools(object):
-    """A class for manipulating and executing Jupyter notebooks."""
+    """A class for manipulating and executing Jupyter notebooks.
+
+    Attributes:
+        path (str): Relative path to the parent directory of the notebook.
+        gen_dir_name (str): Name of directory where files generated by do_notebook are stored.
+        gen_file_level (int): Number of levels up from notebook directory where generated files are stored.
+    """
+
     # Relative path to the parent directory of the notebook.
     path = ''
+
     # Name of directory where files generated by do_notebook are stored
     gen_dir_name = 'GeneratedFiles'
+
     # Number of levels up from notebook directory
     # where generated files are stored
     gen_file_level = 2
@@ -155,9 +190,14 @@ class NotebookTools(object):
         self.fix_display()
 
     @classmethod
-    def convert_path(cls, file):
-        """
-        Check to see if an extended path is given and convert appropriately
+    def convert_path(cls, file: Union[str, list]) -> Union[str, int]:
+        """Check to see if an extended path is given and convert appropriately.
+
+        Args:
+            file (Union[str, list]): [description]
+
+        Returns:
+            Union[str, int]: [description]
         """
 
         if isinstance(file, str):
@@ -169,9 +209,16 @@ class NotebookTools(object):
             print("Incorrect path specified")
             return -1
 
-    def get_path(self, file):
+    def get_path(self, file: str) -> str:
         """Get the full path of the notebook found in the directory
         specified by self.path.
+        
+
+        Args:
+            file (str): [description]
+
+        Returns:
+            str: [description]
         """
 
         class_path = inspect.getfile(self.__class__)
@@ -179,7 +226,7 @@ class NotebookTools(object):
         path = os.path.join(parent_path, self.path, file)
         return os.path.realpath(path)
 
-    def fix_display(self):
+    def fix_display(self) -> None:
         """If this is being run on a headless system the Matplotlib
         backend must be changed to one that doesn't need a display.
         """
@@ -195,43 +242,67 @@ class NotebookTools(object):
                 printd("Setting matplotlib backend to Agg")
                 mpl.use('Agg')
 
-    def load_notebook(self, name):
-        """Loads a notebook file into memory."""
+    def load_notebook(self, name: str) -> Tuple[nbformat.NotebookNode, Union[str, Path]]:
+        """Loads a notebook file into memory.
 
-        with open(self.get_path('%s.ipynb' % name)) as f:
+        Args:
+            name (str): name of the notebook file.
+
+        Returns:
+            Tuple[nbformat.NotebookNode, Union[str, Path]]: The notebook that was read and the path to the notebook file.
+        """
+        
+        #with open(self.get_path('%s.ipynb' % name)) as f:
+        #    nb = nbformat.read(f, as_version=4)
+        file_path = self.get_path('%s.ipynb' % name)
+
+        with open(file_path) as f:
             nb = nbformat.read(f, as_version=4)
-        return nb, f
+        return nb, file_path
 
-    def run_notebook(self, nb, f):
-        """Runs a loaded notebook file."""
+    def run_notebook(self, nb: nbformat.NotebookNode, file_path: Union[str, Path]) -> None:
+        """Runs a loaded notebook file.
+
+        Args:
+            nb (nbformat.NotebookNode): The notebook that was loaded.
+            f (Union[str, Path]): The path to the notebook file.
+
+        Raises:
+            Exception: The exception that is thrown when running the notebook.
+        """
 
         if PYTHON_MAJOR_VERSION == 3:
             kernel_name = 'python3'
-        elif PYTHON_MAJOR_VERSION == 2:
-            kernel_name = 'python2'
         else:
-            raise Exception('Only Python 2 and 3 are supported')
+            raise Exception('Only Python 3 is supported')
         ep = ExecutePreprocessor(timeout=600, kernel_name=kernel_name)
         try:
             ep.preprocess(nb, {'metadata': {'path': '.'}})
         except CellExecutionError:
-            msg = 'Error executing the notebook "%s".\n\n' % f.name
-            msg += 'See notebook "%s" for the traceback.' % f.name
+            msg = 'Error executing the notebook "%s".\n\n' % file_path
+            msg += 'See notebook "%s" for the traceback.' % file_path
             print(msg)
             raise
         finally:
-            nbformat.write(nb, f)
+            nbformat.write(nb, file_path)
 
-    def execute_notebook(self, name):
-        """Loads and then runs a notebook file."""
+    def execute_notebook(self, name: str) -> None:
+        """Loads and then runs a notebook file.
+
+        Args:
+            name (str): name of the notebook file.
+        """
 
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        nb, f = self.load_notebook(name)
-        self.run_notebook(nb, f)
-        self.assertTrue(True)
+        nb, file_path = self.load_notebook(name)
+        self.run_notebook(nb, file_path)
 
-    def convert_notebook(self, name):
-        """Converts a notebook into a python file."""
+    def convert_notebook(self, name: str) -> None:
+        """Converts a notebook into a python file.
+
+        Args:
+            name (str): name of the notebook file.
+        """
         exporter = nbconvert.exporters.python.PythonExporter()
         relative_path = self.convert_path(name)
         file_path = self.get_path("%s.ipynb" % relative_path)
@@ -239,16 +310,27 @@ class NotebookTools(object):
         self.write_code(name, code)
         self.clean_code(name, [])
 
-    def convert_and_execute_notebook(self, name):
-        """Converts a notebook into a python file and then runs it."""
+    def convert_and_execute_notebook(self, name: str) -> None:
+        """Converts a notebook into a python file and then runs it.
+
+        Args:
+            name (str): name of the notebook file.
+        """
         self.convert_notebook(name)
         code = self.read_code(name)
         exec(code, globals())
 
-    def gen_file_path(self, name):
-        """
-        Returns full path to generated files.  Checks to see if directory
-        exists where generated files are stored and creates one otherwise.
+    def gen_file_path(self, name: str) -> str:
+        """Returns full path to generated files.  
+        
+        Checks to see if directory exists where generated files 
+        are stored and creates one otherwise.
+        
+        Args:
+            name (str): [description]
+
+        Returns:
+            str: [description]
         """
         relative_path = self.convert_path(name)
         file_path = self.get_path("%s.ipynb" % relative_path)
@@ -265,31 +347,49 @@ class NotebookTools(object):
                                                              gen_file_name))
         return new_file_path
 
-    def read_code(self, name):
-        """Reads code from a python file called 'name'"""
+    def read_code(self, name: str) -> str:
+        """Reads code from a python file called 'name'.
+
+        Args:
+            name (str): name of the python file.
+
+        Returns:
+            str: the code in the python file.
+        """
 
         file_path = self.gen_file_path(name)
         with open(file_path) as f:
             code = f.read()
         return code
 
-    def write_code(self, name, code):
-        """
-        Writes code to a python file called 'name',
-        erasing the previous contents.
+    def write_code(self, name: str, code: str) -> None:
+        """Writes code to a python file called 'name', erasing the previous contents.
+
         Files are created in a directory specified by gen_dir_name
-        (see function gen_file_path)
-        File name is second argument of path
+        (see function gen_file_path).
+        File name is second argument of path.
+
+        Args:
+            name (str): name of the file.
+            code (str): code to be added into the file.
         """
+
+        
         file_path = self.gen_file_path(name)
         with open(file_path, 'w') as f:
             f.write(code)
 
-    def clean_code(self, name, forbidden):
-        """
-        Remove lines containing items in 'forbidden' from the code.
+    def clean_code(self, name: str, forbidden: List[Any]) -> str:
+        """Remove lines containing items in 'forbidden' from the code.
         Helpful for executing converted notebooks that still retain IPython
         magic commands.
+
+        Args:
+            name (str): name of the notebook file
+            forbidden (List[Any]): [description]
+
+        Returns:
+            str: [description]
         """
 
         code = self.read_code(name)
@@ -310,12 +410,20 @@ class NotebookTools(object):
         return new_code
 
     @classmethod
-    def strip_line_magic(cls, line, magics_allowed):
-        """Handles lines that contain get_ipython.run_line_magic() commands"""
-        if PYTHON_MAJOR_VERSION == 2:  # Python 2
-            stripped, magic_kind = cls.strip_line_magic_v2(line)
-        else:  # Python 3+
+    def strip_line_magic(cls, line: str, magics_allowed: List[str]) -> str:
+        """Handles lines that contain get_ipython.run_line_magic() commands.
+
+        Args:
+            line (str): the line that contain get_ipython.run_line_magic() commands.
+            magics_allowed (List[str]): [description]
+
+        Returns:
+            str: line after being stripped.
+        """
+        if PYTHON_MAJOR_VERSION == 3:
             stripped, magic_kind = cls.strip_line_magic_v3(line)
+        else:
+            raise Exception('Only Python 3 is supported')
         if line == stripped:
             printd("No line magic pattern match in '%s'" % line)
         if magic_kind and magic_kind not in magics_allowed:
@@ -324,8 +432,15 @@ class NotebookTools(object):
         return stripped
 
     @classmethod
-    def strip_line_magic_v3(cls, line):
-        """strip_line_magic() implementation for Python 3"""
+    def strip_line_magic_v3(cls, line: str) -> Tuple[str, str]:
+        """strip_line_magic() implementation for Python 3.
+
+        Args:
+            line (str): [description]
+
+        Returns:
+            Tuple[str, str]: [description]
+        """
 
         matches = re.findall("run_line_magic\(([^]]+)", line)
         if matches and matches[0]:  # This line contains the pattern
@@ -338,29 +453,13 @@ class NotebookTools(object):
             magic_kind = ""
         return stripped, magic_kind
 
-    @classmethod
-    def strip_line_magic_v2(cls, line):
-        """strip_line_magic() implementation for Python 2"""
+    def do_notebook(self, name: str) -> None:
+        """Run a notebook file after optionally.
+        converting it to a python file.
 
-        matches = re.findall("magic\(([^]]+)", line)
-        if matches and matches[0]:  # This line contains the pattern
-            match = matches[0]
-            if match[-1] == ')':
-                match = match[:-1]  # Just because the re way is hard
-            stripped = eval(match)
-            magic_kind = stripped.split(' ')[0]
-            if len(stripped.split(' ')) > 1:
-                stripped = stripped.split(' ')[1:]
-            else:
-                stripped = ""
-        else:
-            stripped = line
-            magic_kind = ""
-        return stripped, magic_kind
-
-    def do_notebook(self, name):
-        """Run a notebook file after optionally
-        converting it to a python file."""
+        Args:
+            name (str): name of the notebook file.
+        """
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS', True))
         s = StringIO()
         if mock:
@@ -371,10 +470,14 @@ class NotebookTools(object):
             err.close()
         else:
             self._do_notebook(name, CONVERT_NOTEBOOKS)
-        self.assertTrue(True)
 
-    def _do_notebook(self, name, convert_notebooks=False):
-        """Called by do_notebook to actually run the notebook."""
+    def _do_notebook(self, name: str, convert_notebooks: bool=False) -> None:
+        """ Called by do_notebook to actually run the notebook.
+
+        Args:
+            name (str): name of the notebook file.
+            convert_notebooks (bool): True if the notebook need conversion before executing. Defaults to False.
+        """
         if convert_notebooks:
             self.convert_and_execute_notebook(name)
         else:
@@ -386,17 +489,30 @@ class MockDevice(TextIOWrapper):
     Similar to UNIX /dev/null.
     """
 
-    def write(self, s):
+    def write(self, s) -> None:
+        """[summary]
+
+        Args:
+            s ([type]): [description]
+        """
         if s.startswith('[') and s.endswith(']'):
             super(MockDevice, self).write(s)
 
 
-def import_all_modules(package, skip=None, verbose=False, prefix="", depth=0):
+def import_all_modules(package, skip: list=None, verbose: bool=False, 
+                        prefix: str="", depth: int=0) -> None:
     """Recursively imports all subpackages, modules, and submodules of a
     given package.
     'package' should be an imported package, not a string.
     'skip' is a list of modules or subpackages not to import.
+    Args:
+        package ([type]): [description]
+        skip (list, optional): [description]. Defaults to None.
+        verbose (bool, optional): [description]. Defaults to False.
+        prefix (str, optional): [description]. Defaults to "".
+        depth (int, optional): [description]. Defaults to 0.
     """
+
 
     skip = [] if skip is None else skip
 
@@ -418,7 +534,16 @@ def import_all_modules(package, skip=None, verbose=False, prefix="", depth=0):
                                verbose=verbose, depth=depth+1)
 
 
-def import_module_from_path(module_path, name=None):
+def import_module_from_path(module_path: str, name=None) -> ModuleType:
+    """Import the python modual by the path to the file (module).
+
+    Args:
+        module_path (str): [description]
+        name (str): [description]. Defaults to None.
+
+    Returns:
+        ModuleType: [description]
+    """
     directory, file_name = os.path.split(module_path)
     if name is None:
         name = file_name.rstrip('.py')
@@ -441,11 +566,19 @@ def dict_hash(d):
     return SciUnit.dict_hash(d)
 
 
-def method_cache(by='value', method='run'):
+def method_cache(by: str='value', method: str='run') -> Callable:
     """A decorator used on any model method which calls the model's 'method'
     method if that latter method has not been called using the current
     arguments or simply sets model attributes to match the run results if
-    it has."""
+    it has.
+
+    Args:
+        by (str, optional): [description]. Defaults to 'value'.
+        method (str, optional): the method that being called. Defaults to 'run'.
+
+    Returns:
+        Callable: [description]
+    """
 
     def decorate_(func):
         def decorate(*args, **kwargs):
@@ -493,7 +626,9 @@ class_intern = cypy.intern
 method_memoize = cypy.memoize
 
 
-def log(*args, **kwargs):
+def log(*args, **kwargs) -> None:
+    """[summary]
+    """
     if settings['LOGGING']:
         if settings['KERNEL']:
             kernel_log(*args, **kwargs)
@@ -501,29 +636,41 @@ def log(*args, **kwargs):
             non_kernel_log(*args, **kwargs)
 
 
-def non_kernel_log(*args, **kwargs):
+def non_kernel_log(*args, **kwargs) -> None:
+    """[summary]
+    """
     args = [bs4.BeautifulSoup(x, "lxml").text
             if not isinstance(x, Exception) else x
             for x in args]
-    try:
-        print(*args, **kwargs)
-    except SyntaxError:  # Python 2
-        print(args)
+    print(*args, **kwargs)
 
 
-def kernel_log(*args, **kwargs):
+def kernel_log(*args, **kwargs) -> None:
+    """[summary]
+    """
     with StringIO() as f:
         kwargs['file'] = f
         args = [u'%s' % arg for arg in args]
-        try:
-            print(*args, **kwargs)
-        except SyntaxError:  # Python 2
-            print(args)
+        print(*args, **kwargs)
         output = f.getvalue()
     display(HTML(output))
 
 
-def config_get_from_path(config_path, key):
+def config_get_from_path(config_path: str, key: str) -> int:
+    """[summary]
+
+    Args:
+        config_path (str): [description]
+        key (str): [description]
+
+    Raises:
+        Error: [description]
+        Error: [description]
+        Error: [description]
+
+    Returns:
+        int: [description]
+    """
     try:
         with open(config_path) as f:
             config = json.load(f)
@@ -538,7 +685,19 @@ def config_get_from_path(config_path, key):
     return value
 
 
-def config_get(key, default=None):
+def config_get(key: str, default: int=None) -> int:
+    """[summary]
+
+    Args:
+        key (str): [description]
+        default (int, optional): [description]. Defaults to None.
+
+    Raises:
+        e: An exception raised during get config process.
+
+    Returns:
+        int: [description]
+    """
     try:
         assert isinstance(key, str), "Config key must be a string"
         config_path = os.path.join(settings['CWD'], 'config.json')
@@ -553,8 +712,15 @@ def config_get(key, default=None):
     return value
 
 
-def path_escape(path):
-    """Escape a path by placing backslashes in front of disallowed characters"""
+def path_escape(path: str) -> str:
+    """Escape a path by placing backslashes in front of disallowed characters.
+
+    Args:
+        path (str): original path.
+
+    Returns:
+        str: the new path with the backslashes.
+    """
     for char in [' ', '(', ')']:
         path = path.replace(char, '\%s' % char)
     return path

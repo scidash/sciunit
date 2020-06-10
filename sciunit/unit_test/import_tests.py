@@ -8,6 +8,7 @@ class ImportTestCase(unittest.TestCase):
 
     def test_quantities(self):
         import quantities as pq
+
         pq.Quantity([10, 20, 30], pq.pA)
 
     def test_import_everything(self):
@@ -18,5 +19,5 @@ class ImportTestCase(unittest.TestCase):
         import_all_modules(sciunit)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
