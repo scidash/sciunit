@@ -4,39 +4,58 @@ import inspect
 
 import quantities as pq
 from cerberus import TypeDefinition, Validator
+from typing import Any
 
+def register_type(cls, name: str) -> None:
+    """Register `name` as a type to validate as an instance of class `cls`.
 
-def register_type(cls, name):
-    """Register `name` as a type to validate as an instance of class `cls`."""
+    Args:
+        cls: a class
+        name (str): the name to be registered.
+    """
     x = TypeDefinition(name, (cls,), ())
     Validator.types_mapping[name] = x
+    
 
+def register_quantity(quantity: pq.Quantity, name: str) -> None:
+    """Register `name` as a type to validate as an instance of the class of `quantity`.
 
-def register_quantity(quantity, name):
-    """Register `name` as a type to validate as an instance of class `cls`."""
+    Args:
+        quantity (pq.Quantity): a quantity.
+        name (str): the name to be registered.
+    """
+
     x = TypeDefinition(name, (quantity.__class__,), ())
     Validator.types_mapping[name] = x
 
 
 class ObservationValidator(Validator):
-    """Cerberus validator class for observations."""
+    """Cerberus validator class for observations.
+
+    Attributes:
+        test (Test): [Description of `test`].
+        _error (str, str): [Description of `_error`].
+    """
 
     def __init__(self, *args, **kwargs):
-        """Must pass `test` as a keyword argument.
+        """ Constructor of ObservationValidator.
 
-        Cannot be a positional argument without modifications to cerberus
+        Must pass `test` as a keyword argument. Cannot be a positional argument without modifications to cerberus.
+
+        Raises:
+            Exception: "Observation validator constructor must have a `test` keyword argument."
         """
+
         try:
             self.test = kwargs['test']
-        except AttributeError:
+        except KeyError:
             raise Exception(("Observation validator constructor must have "
                              "a `test` keyword argument"))
         super(ObservationValidator, self).__init__(*args, **kwargs)
         register_type(pq.quantity.Quantity, 'quantity')
-        
-    def _validate_iterable(self, is_iterable, key, value):
-        """Validate fields with `iterable` key in schema set to True
 
+    def _validate_iterable(self, is_iterable: bool, key: str, value: Any) -> None:
+        """Validate fields with `iterable` key in schema set to True
         The rule's arguments are validated against this schema:
         {'type': 'boolean'}
         """
@@ -46,9 +65,9 @@ class ObservationValidator(Validator):
             except TypeError:
                 self._error(key, "Must be iterable (e.g. a list or array)")
 
-    def _validate_units(self, has_units, key, value):
-        """Validate fields with `units` key in schema set to True.
 
+    def _validate_units(self, has_units: bool, key: str, value: Any) -> None:
+        """Validate fields with `units` key in schema set to True.
         The rule's arguments are validated against this schema:
         {'type': 'boolean'}
         """
@@ -57,8 +76,6 @@ class ObservationValidator(Validator):
                 required_units = self.test.units[key]
             else:
                 required_units = self.test.units
-            if not isinstance(value, pq.quantity.Quantity):
-                self._error(key, "Must be a python quantity")
             if not isinstance(value, pq.quantity.Quantity):
                 self._error(key, "Must be a python quantity")
             provided_units = value.simplified.units
@@ -70,17 +87,34 @@ class ObservationValidator(Validator):
 
 
 class ParametersValidator(Validator):
-    """Cerberus validator class for observations."""
+    """Cerberus validator class for observations.
 
+    Attributes:
+        units_type ([type]): [description]
+        _error (str, str): [description]
+    """
+
+    # doc is needed here
     units_map = {'time': 's', 'voltage': 'V', 'current': 'A'}
 
-    def validate_quantity(self, value):
-        """Validate that the value is of the `Quantity` type."""
+    def validate_quantity(self, value: pq.quantity.Quantity) -> None:
+        """Validate that the value is of the `Quantity` type.
+
+        Args:
+            value (pq.quantity.Quantity): The Quantity instance to be validated.
+        """
         if not isinstance(value, pq.quantity.Quantity):
             self._error('%s' % value, "Must be a Python quantity.")
 
-    def validate_units(self, value):
-        """Validate units, assuming that it was called by _validate_type_*."""
+    def validate_units(self, value: pq.quantity.Quantity) -> bool:
+        """Validate units, assuming that it was called by _validate_type_*.
+
+        Args:
+            value (pq.quantity.Quantity): [description]
+
+        Returns:
+            bool: Whether it is valid.
+        """
         self.validate_quantity(value)
         self.units_type = inspect.stack()[1][3].split('_')[-1]
         assert self.units_type, ("`validate_units` should not be called "
@@ -93,14 +127,35 @@ class ParametersValidator(Validator):
                         "Must have dimensions of %s." % self.units_type)
         return True
 
-    def _validate_type_time(self, value):
-        """Validate fields requiring `units` of seconds."""
+    def _validate_type_time(self, value: pq.quantity.Quantity) -> bool:
+        """Validate fields requiring `units` of seconds.
+
+        Args:
+            value (pq.quantity.Quantity): [description]
+
+        Returns:
+            bool: Whether it is valid.
+        """
         return self.validate_units(value)
 
-    def _validate_type_voltage(self, value):
-        """Validate fields requiring `units` of volts."""
+    def _validate_type_voltage(self, value: pq.quantity.Quantity) -> bool:
+        """Validate fields requiring `units` of volts.
+
+        Args:
+            value (pq.quantity.Quantity): [description]
+
+        Returns:
+            bool: Whether it is valid.
+        """
         return self.validate_units(value)
 
-    def _validate_type_current(self, value):
-        """Validate fields requiring `units` of amps."""
+    def _validate_type_current(self, value: pq.quantity.Quantity) -> bool:
+        """Validate fields requiring `units` of amps.
+
+        Args:
+            value (pq.quantity.Quantity): [description]
+
+        Returns:
+            bool: Whether it is valid.
+        """
         return self.validate_units(value)
