@@ -144,6 +144,16 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
 
     def __init__(self, tests, models,
                  scores=None, weights=None, transpose=False):
+        """Constructor of ScoreMatrix class
+
+        Args:
+            tests (List[Test]): Test instances that will be in the ScoreMatrix
+            models (List[Model]): Model instances that will be in the ScoreMatrix
+            scores (List[Score], optional): Score instances that will be in the ScoreMatrix. Defaults to None.
+            weights ([type], optional): [description]. Defaults to None.
+            transpose (bool, optional): [description]. Defaults to False.
+        """
+
         tests, models, scores = self.check_tests_models_scores(
                                                     tests, models, scores)
         if transpose:
@@ -222,7 +232,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
                           scores=self.loc[model, :],
                           weights=self.weights)
 
-    def get_group(self, x: Tuple[Union[Test, Model]]) -> Union[Model, Test]:
+    def get_group(self, x: Tuple[Union[Test, Model]]) -> Union[Model, Test, Score]:
         """[summary]
 
         Args:
