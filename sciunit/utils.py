@@ -723,7 +723,7 @@ def path_escape(path: str) -> str:
         path = path.replace(char, '\%s' % char)
     return path
 
-###############################
+############# The following code is from project cypy by Dr. Cyrus Omar ##################
 
 def _generic_fn(*args, **kwargs): pass
 
