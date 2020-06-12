@@ -1,10 +1,10 @@
 """Example SciUnit model classes."""
 
 import random
-from cypy import memoize  # Decorator for caching of capability method results.
 from sciunit.models import Model
 from sciunit.capabilities import ProducesNumber
 from sciunit.utils import class_intern, method_cache
+from sciunit.utils import method_memoize  # Decorator for caching of capability method results.
 from typing import Union
 
 class ConstModel(Model, ProducesNumber):
@@ -55,7 +55,7 @@ class UniqueRandomNumberModel(Model, ProducesNumber):
 class RepeatedRandomNumberModel(Model, ProducesNumber):
     """An example model to demonstrate ProducesNumber with cypy.lazy."""
 
-    @memoize
+    @method_memoize
     def produce_number(self):
         """Each call to this method will produce the same random number as was returned in the first call, ensuring reproducibility and eliminating computational overhead.
 
