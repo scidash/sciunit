@@ -24,6 +24,10 @@ class BooleanScore(Score):
     _description = ('True if the observation and prediction were '
                     'sufficiently similar; False otherwise')
 
+    _best = True
+
+    _worst = False
+
     @classmethod
     def compute(cls, observation: dict, prediction: dict) -> 'BooleanScore':
         """Compute whether the observation equals the prediction.
@@ -121,6 +125,10 @@ class CohenDScore(ZScore):
 
     _description = ("The Cohen's D between the prediction and the observation")
 
+    _best = 0.0
+
+    _worst = np.inf
+
     @classmethod
     def compute(cls, observation: dict, prediction: dict) -> 'CohenDScore':
         """Compute a Cohen's D from an observation and a prediction.
@@ -161,7 +169,9 @@ class RatioScore(Score):
 
     _best = 1.0  # A RatioScore of 1.0 is best
 
-    def _check_score(self, score: Score) -> None:
+    _worst = np.inf
+
+    def _check_score(self, score):
         if score < 0.0:
             raise errors.InvalidScoreError(("RatioScore was initialized with "
                                             "a score of %f, but a RatioScore "
@@ -201,14 +211,18 @@ class RatioScore(Score):
 class PercentScore(Score):
     """A percent score.
 
-    A float in the range [0,0,100.0] where higher is better.
+    A float in the range [0, 100.0] where higher is better.
     """
 
     _description = ('100.0 is considered perfect agreement between the '
                     'observation and the prediction. 0.0 is the worst possible'
                     ' agreement')
 
-    def _check_score(self, score: Score) -> None:
+    _best = 100.0
+
+    _worst = 0.0
+
+    def _check_score(self, score):
         if not (0.0 <= score <= 100.0):
             raise errors.InvalidScoreError(("Score of %f must be in "
                                             "range 0.0-100.0" % score))
@@ -234,7 +248,14 @@ class FloatScore(Score):
 
     _allowed_types = (float, pq.Quantity,)
 
-    def _check_score(self, score: Score) -> None:
+    # The best value is indeterminate without more context.
+    # But some float value must be supplied to use methods like Test.ace().
+    _best = 0.0
+
+    # The best value is indeterminate without more context.
+    _worst = 0.0
+
+    def _check_score(self, score):
         if isinstance(score, pq.Quantity) and score.size != 1:
             raise errors.InvalidScoreError("Score must have size 1.")
 
@@ -262,7 +283,7 @@ class FloatScore(Score):
         return '%.3g' % self.score
 
 
-class RandomScore(Score):
+class RandomScore(FloatScore):
     """A random score in [0,1].
 
     This has no scientific value and should only be used for debugging

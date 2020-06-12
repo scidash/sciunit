@@ -18,30 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 
 class Test(SciUnit):
-    """Abstract base class for tests.
-
-    Attributes:
-        name (str):                 The name of the test. Defaults to the test class name.
-        description (str):          A description of the test. Defaults to the docstring for the class.
-        verbose (str):              [description]
-        
-        score_type (str):           A score type for this test's `judge` method to return.
-
-        params (str):               [description]
-        default_params (str):       A dictionary containing the parameters to the test.
-        params_schema (str):        A schema that the params must adhere to (validated by cerberus).
-                                    Can also be a list of schemas, one of which the params must match.
-
-        converter (str):            A conversion to be done on the score after it is computed.
-
-        observation (str):          The empirical observation that the test is using.
-        observation_schema (str):   A schema that the observation must adhere to (validated by cerberus).
-                                    Can also be a list of schemas, one of which the observation must match.
-                                    If it is a list, each schema in the list can optionally be named by putting
-                                    (name, schema) tuples in that list.
-
-
-    """
+    """Abstract base class for tests."""
 
     def __init__(self, observation: Union[List[int], Tuple[int, int]], name: Optional[str]=None, **params):
         """
@@ -312,14 +289,15 @@ class Test(SciUnit):
         score = self.score_type(self.score_type._best)
         return score
 
-    def _bind_score(self, score: Score, model: Model, observation: List[int], prediction: float) -> None:
+    def _bind_score(self, score: Score, model: Model, observation: Union[list, dict], 
+                    prediction: Union[list, dict]) -> None:
         """Bind some useful attributes to the score.
 
         Args:
             score (Score): The sciunit score.
             model (Model): A sciunit model instance.
-            observation (List[int]): [description]
-            prediction (float): [description]
+            observation (Union[list, dict]): The observation data.
+            prediction (Union[list, dict]): The prediction data.
         """
         score.model = model
         score.test = self
@@ -329,14 +307,15 @@ class Test(SciUnit):
         score.related_data = score.related_data.copy()
         self.bind_score(score, model, observation, prediction)
 
-    def bind_score(self, score: Score, model: Model, observation: List[int], prediction: float) -> None:
+    def bind_score(self, score: Score, model: Model, observation: Union[list, dict], 
+                    prediction: Union[list, dict]) -> None:
         """For the user to bind additional features to the score.
 
         Args:
             score (Score): The sciunit score.
             model (Model): A sciunit model instance.
-            observation (List[int]): [description]
-            prediction (float): [description]
+            observation (Union[list, dict]): The observation data.
+            prediction (Union[list, dict]): The prediction data.
         """
         pass
 

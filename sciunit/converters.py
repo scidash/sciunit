@@ -49,8 +49,8 @@ class Converter(object):
         new_score = self._convert(score)
         new_score.set_raw(score.get_raw())
         for key,value in score.__dict__.items():
-            if key not in ['score','_raw']:
-                setattr(new_score,key,value)
+            if key not in ['score', '_raw']:
+                setattr(new_score, key, value)
         return new_score
 
 

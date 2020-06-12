@@ -1,7 +1,5 @@
 """The base class for many SciUnit objects."""
 
-
-
 import os
 import sys
 
@@ -91,7 +89,7 @@ class Versioned(object):
         """Get a git remote object for this instance.
 
         Args:
-            remote (str, optional): [description]. Defaults to 'origin'.
+            remote (str, optional): The remote Git repo. Defaults to 'origin'.
 
         Returns:
             Remote: The git remote object for this instance.
@@ -108,7 +106,7 @@ class Versioned(object):
         """Get a git remote URL for this instance.
 
         Args:
-            remote (str, optional): [description]. Defaults to 'origin'.
+            remote (str, optional): The remote Git repo. Defaults to 'origin'.
             cached (bool, optional): Whether to use cached data. Defaults to True.
 
         Raises:
@@ -178,9 +176,12 @@ class SciUnit(Versioned):
         """Get the state of the instance.
 
         Args:
-            state (dict, optional): [description]. Defaults to None.
-            keys (list, optional): [description]. Defaults to None.
-            exclude (List[str], optional): [description]. Defaults to None.
+            state (dict, optional): The dict instance that contains a part of state info of this instance. 
+                                    Defaults to None.
+            keys (list, optional): Some keys of `state`. Values in `state` associated with these keys will be kept 
+                                   and others will be discarded. Defaults to None.
+            exclude (List[str], optional): The list of keys. Values in `state` that associated with these keys 
+                                           will be removed from `state`. Defaults to None.
 
         Returns:
             dict: The state of the current instance.
@@ -200,7 +201,8 @@ class SciUnit(Versioned):
         """Get the properties of the instance.
 
         Args:
-            keys (list, optional): [description]. Defaults to None.
+            keys (list, optional): If not None, only the properties that are in `keys` will be included in 
+                                   the return data. Defaults to None.
             exclude (list, optional): The list of properties that will not be included in return data. Defaults to None.
 
         Returns:
@@ -247,13 +249,13 @@ class SciUnit(Versioned):
 
     @classmethod
     def dict_hash(cls, d: dict) -> str:
-        """[summary]
+        """SHA224 encoded value of `d`.
 
         Args:
-            d (dict): [description]
+            d (dict): The dict instance to be SHA224 encoded.
 
         Returns:
-            str: [description]
+            str: SHA224 encoded value of `d`.
         """
         od = [(key, d[key]) for key in sorted(d)]
         try:

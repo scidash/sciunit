@@ -255,7 +255,7 @@ class Score(SciUnit):
         return string
 
     def get_raw(self) -> float:
-        """Get the raw score.
+        """Get the raw score.  If there is not raw score, then get score.
 
         Returns:
             float: The raw score.
