@@ -68,7 +68,6 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         backend.set_disk_cache("value2")
         backend.set_memory_cache("value2")
         backend.backend_run()
-        # backend.save_results(pathlib.Path().absolute())
 
         backend = MyBackend()
         backend.init_backend(use_disk_cache=False, use_memory_cache=True)
@@ -79,11 +78,9 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         backend.set_disk_cache("value2")
         backend.set_memory_cache("value2")
         backend.backend_run()
-        # backend.save_results(pathlib.Path().absolute())
 
         backend = MyBackend()
         backend.init_backend(use_disk_cache=True, use_memory_cache=False)
-        # backend.init_memory_cache()
         backend.backend_run()
         backend.set_disk_cache("value1", "key1")
         backend.set_memory_cache("value1", "key1")
@@ -91,11 +88,9 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         backend.set_disk_cache("value2")
         backend.set_memory_cache("value2")
         backend.backend_run()
-        # backend.save_results(pathlib.Path().absolute())
 
         backend = MyBackend()
         backend.init_backend(use_disk_cache=False, use_memory_cache=False)
-        # backend.init_memory_cache()
         backend.backend_run()
         backend.set_disk_cache("value1", "key1")
         backend.set_memory_cache("value1", "key1")
@@ -103,7 +98,7 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         backend.set_disk_cache("value2")
         backend.set_memory_cache("value2")
         backend.backend_run()
-        # backend.save_results(pathlib.Path().absolute())
+
 
 
 if __name__ == "__main__":
