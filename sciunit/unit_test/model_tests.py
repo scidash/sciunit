@@ -243,9 +243,7 @@ class RunnableModelTestCase(unittest.TestCase):
         model.set_backend(backend_names)
         model.print_run_params = True
         model.run()
-        model.temp_dir = {}
-        model.__del__() 
-
+        
         model = RunnableModel(name="test name")
         model.default_run_params = {"para1" : 1}
         model.use_default_run_params()
