@@ -25,7 +25,6 @@ except ImportError:
     tkinter = None
 
 KERNEL = ('ipykernel' in sys.modules)
-LOGGING = True
 HERE = os.path.dirname(os.path.realpath(__file__))
 
 
