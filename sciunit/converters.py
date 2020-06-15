@@ -71,7 +71,7 @@ class LambdaConversion(Converter):
         """f should be a lambda function
 
         Args:
-            f (Callable): [description]
+            f (Callable): The Lambda function that will be used for the score conversion.
         """
         self.f = f
 

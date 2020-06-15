@@ -27,7 +27,7 @@ class CapabilityError(Error):
         Args:
             model (Model): A sciunit model instance.
             capability (Capability): a capability class.
-            details (str, optional): [description]. Defaults to ''.
+            details (str, optional): Details of the error information. Defaults to ''.
         """
         self.model = model
         self.capability = capability

@@ -135,11 +135,6 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
     (score_1, ..., score_m)
     >>> sm[model]
     (score_1, ..., score_n)
-
-    Args:
-        pd ([type]): [description]
-        SciUnit ([type]): [description]
-        TestWeighted ([type]): [description]
     """
 
     def __init__(self, tests, models,

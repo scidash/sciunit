@@ -28,7 +28,7 @@ class TestSuite(SciUnit, TestWeighted):
             name (str, optional): The name of this test suite. Defaults to None.
             weights (optional): [description]. Defaults to None.
             include_models (List[Model], optional): The list of models. Defaults to None.
-            skip_models (List[Model], optional): [description]. Defaults to None.
+            skip_models (List[Model], optional): A list of models that will be skipped. Defaults to None.
             hooks (dict, optional): [description]. Defaults to None.
             optimizer (optional): [description]. Defaults to None.
         """
@@ -138,7 +138,7 @@ class TestSuite(SciUnit, TestWeighted):
                                              is encountered or just produce an ErrorScore. Defaults to True.
 
         Returns:
-            ScoreMatrix: [description]
+            ScoreMatrix: The ScoreMatrix indicating whether each model can take each test or not.
         """
         models = self.assert_models(models)
         sm = ScoreMatrix(self.tests, models)
@@ -153,8 +153,7 @@ class TestSuite(SciUnit, TestWeighted):
         """Check model capabilities against those required by the suite.
 
         Returns a list of booleans (one for each test in the suite)
-        corresponding to whether the test's required capabilities are satisfied
-        by the model.
+        corresponding to 
 
         Args:
             model (Model): A sciunit model instance.
@@ -163,7 +162,8 @@ class TestSuite(SciUnit, TestWeighted):
             require_extra (bool, optional): [description]. Defaults to False.
 
         Returns:
-            list: [description]
+            list: A list of booleans that shows whether the required 
+                    capabilities of each test are satisfied by the model.
         """
         return [test.check_capabilities(model,
                 skip_incapable=skip_incapable, require_extra=require_extra)
@@ -279,10 +279,10 @@ class TestSuite(SciUnit, TestWeighted):
 
         Args:
             tests_info (List[Tuple["Test", dict]]): [description]
-            name (Optional[str], optional): [description]. Defaults to None.
+            name (Optional[str], optional): The name of this test suite. Defaults to None.
 
         Returns:
-            [type]: [description]
+            TestSuite: An instance of TestSuite that contains the tests based on the observations.
         """
         tests = []
         for test_info in tests_info:
