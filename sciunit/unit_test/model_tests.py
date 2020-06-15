@@ -206,9 +206,8 @@ class CapabilitiesTestCase(unittest.TestCase):
 
 class RunnableModelTestCase(unittest.TestCase):
     def test_backend(self):
-
         from sciunit.models import RunnableModel
-        from sciunit.models.backends import Backend
+        from sciunit.models.backends import Backend, register_backends, available_backends
 
         self.assertRaises(TypeError, RunnableModel, name="", attrs=1)
         model = RunnableModel(name="test name")
@@ -225,6 +224,29 @@ class RunnableModelTestCase(unittest.TestCase):
         model.set_default_run_params(test_run_params="test runtime parameter")
         model.reset_default_run_params()
         self.assertIsInstance(model.state, dict)
+
+        class MyBackend1(Backend):
+
+            def _backend_run(self) -> str:
+                return "test result 1"
+
+        class MyBackend2(Backend):
+
+            def _backend_run(self) -> str:
+                return "test result 2"
+
+        name_backend_dict = {"backend1" : MyBackend2, "backend2" : MyBackend2}
+        backend_names = ["backend1", "backend2"]
+
+        model = RunnableModel(name="test name")
+        register_backends(name_backend_dict)
+        model.set_backend(backend_names)
+        model.print_run_params = True
+        model.run()
+        
+        model = RunnableModel(name="test name")
+        model.default_run_params = {"para1" : 1}
+        model.use_default_run_params()
 
 
 if __name__ == "__main__":
