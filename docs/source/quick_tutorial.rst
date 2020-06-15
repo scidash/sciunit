@@ -153,8 +153,8 @@ We can create more models and subject those to the test suite to get a more exte
 
 .. code-block:: python
 
-    const_model_36 = ConstModel(36, name='Constant Model 35')
-    const_model_35 = ConstModel(35, name='Constant Model 34')
+    const_model_36 = ConstModel(36, name='Constant Model 36')
+    const_model_35 = ConstModel(35, name='Constant Model 35')
     score_matrix = equals_suite.judge([const_model_36, const_model_35, const_model_37])
     
 >>> print(score_matrix)
