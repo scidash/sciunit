@@ -22,10 +22,10 @@ class NoneScore(Score):
            
     @property
     def norm_score(self) -> None:
-        """[summary]
+        """Return None as the norm score of this NoneScore instance.
 
         Returns:
-            None: [description]
+            None: The norm score, which is None.
         """
         return None
 

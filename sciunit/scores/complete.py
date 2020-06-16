@@ -194,11 +194,11 @@ class RatioScore(Score):
         return RatioScore(value)
 
     @property
-    def norm_score(self) -> str:
+    def norm_score(self) -> float:
         """Return 1.0 for a ratio of 1, falling to 0.0 for extremely small or large values.
 
         Returns:
-            str: [description]
+            float: The value of the norm score.
         """
         score = math.log10(self.score)
         cdf = (1.0 + math.erf(score / math.sqrt(2.0))) / 2.0

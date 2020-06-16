@@ -153,24 +153,24 @@ We can create more models and subject those to the test suite to get a more exte
 
 .. code-block:: python
 
-    const_model_36 = ConstModel(36, name='Constant Model 35')
-    const_model_35 = ConstModel(35, name='Constant Model 34')
+    const_model_36 = ConstModel(36, name='Constant Model 36')
+    const_model_35 = ConstModel(35, name='Constant Model 35')
     score_matrix = equals_suite.judge([const_model_36, const_model_35, const_model_37])
     
 >>> print(score_matrix)
                   Equal 35 Test Equal 36 Test Equal 37 Test
-Constant Model 35          Fail          Pass          Fail
-Constant Model 34          Pass          Fail          Fail
 Constant Model 37          Fail          Fail          Pass
+Constant Model 36          Fail          Pass          Fail
+Constant Model 35          Pass          Fail          Fail
 
 Now, we can see the result is a 3*3 matrix, and each model pass the corresponding test. 
 
 We can also examine the results only for one of the tests in the suite.
 
 >>> print(score_matrix[equals_35_test])
-Constant Model 35    Fail
-Constant Model 34    Pass
 Constant Model 37    Fail
+Constant Model 36    Fail
+Constant Model 35    Pass
 Name: Equal 35 Test, dtype: object
 
 Or examine the results only for one of the models.  
@@ -179,7 +179,7 @@ Or examine the results only for one of the models.
 Equal 35 Test    Pass
 Equal 36 Test    Fail
 Equal 37 Test    Fail
-Name: Constant Model 34, dtype: object
+Name: Constant Model 35, dtype: object
 
 In the next section we'll see how to build slightly more 
 sophisticated tests using objects built-in to SciUnit.

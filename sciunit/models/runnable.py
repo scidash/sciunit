@@ -36,11 +36,12 @@ class RunnableModel(Model,
         """Set the simulation backend.
 
         Args:
-            backend (Union[str, tuple, list, None]): [description]
+            backend (Union[str, tuple, list, None]): One or more name(s) of backend(s).
+                                                     The name of backend should be registered before using. 
 
         Raises:
-            TypeError: [description]
-            Exception: [description]
+            TypeError: Backend must be string, tuple, list, or None
+            Exception: The backend was not found.
         """
         if isinstance(backend, str):
             name = backend if len(backend) else None
