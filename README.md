@@ -16,9 +16,12 @@
 [The conference paper](https://github.com/cyrus-/papers/raw/master/sciunit-icse14/sciunit-icse14.pdf)
 
 ## Documentation
+[![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ChihweiLHBird/sciunit/blob/dev/docs/QuickTutorialsNotebook.ipynb) <br>
 [Chapter 1](https://github.com/scidash/sciunit/blob/master/docs/chapter1.ipynb) /
 [Chapter 2](https://github.com/scidash/sciunit/blob/master/docs/chapter2.ipynb) /
 [Chapter 3](https://github.com/scidash/sciunit/blob/master/docs/chapter3.ipynb) /
+[Chapter 4](https://github.com/scidash/sciunit/blob/master/docs/chapter4.ipynb) /
+
 
 ## Basic Usage
 ```python
