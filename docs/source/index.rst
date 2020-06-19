@@ -24,6 +24,9 @@ paper <https://github.com/cyrus-/papers/raw/master/sciunit-icse14/sciunit-icse14
 Tutorials With Jupyter NoteBook 
 -------------------------------
 
+.. image:: https://colab.research.google.com/assets/colab-badge.svg
+   :target: https://colab.research.google.com/github/ChihweiLHBird/sciunit/blob/dev/docs/chapter1.ipynb
+
 * `Tutorial Chapter 1`_
 * `Tutorial Chapter 2`_
 * `Tutorial Chapter 3`_
