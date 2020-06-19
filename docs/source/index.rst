@@ -28,11 +28,15 @@ Tutorials With Jupyter NoteBook
 * `Tutorial Chapter 2`_
 * `Tutorial Chapter 3`_
 * `Tutorial Chapter 4`_
+* `Tutorial Chapter 5`_
+* `Tutorial Chapter 6`_
 
 .. _Tutorial Chapter 1: https://github.com/scidash/sciunit/blob/master/docs/chapter1.ipynb
 .. _Tutorial Chapter 2: https://github.com/scidash/sciunit/blob/master/docs/chapter2.ipynb
 .. _Tutorial Chapter 3: https://github.com/scidash/sciunit/blob/master/docs/chapter3.ipynb
-.. _Tutorial Chapter 4: https://github.com/scidash/sciunit/blob/master/docs/chapter4.ipynb
+.. _Tutorial Chapter 4: https://github.com/ChihweiLHBird/sciunit/blob/dev/docs/chapter4.ipynb
+.. _Tutorial Chapter 5: https://github.com/ChihweiLHBird/sciunit/blob/dev/docs/chapter5.ipynb
+.. _Tutorial Chapter 6: https://github.com/ChihweiLHBird/sciunit/blob/dev/docs/chapter6.ipynb
 
 Basic Usage
 -----------
