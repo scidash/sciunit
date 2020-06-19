@@ -69,7 +69,7 @@ class Capability(SciUnit):
         """
 
         class_capable = isinstance(model, cls)
-        source_capable = True
+        source_capable = None
 
         if class_capable:
             source_capable = cls.source_check(model)
