@@ -17,3 +17,12 @@ class DocumentationTestCase(NotebookTools, unittest.TestCase):
 
     def test_chapter3(self):
         self.do_notebook("chapter3")
+
+    def test_chapter4(self):
+        self.do_notebook("chapter4")
+
+    def test_chapter5(self):
+        self.do_notebook("chapter5")
+    
+    #def test_chapter6(self):
+    #    self.do_notebook("chapter6")

@@ -14,10 +14,10 @@ Importing sciunit at the beginning.
 
     import sciunit
 
-Creating a subclass of SciUnit Capability class. Each Capability subclass ontains 
-one or more unimplemented methods. The Capability subclass can be included in a subclass of 
-Test as ``required_capabilities``, and only the models which implements the methods in the 
-Capability subclass can be tested by the Test instance.
+Creating a subclass of SciUnit Capability class. The Capability subclass contains 
+one or more unimplemented methods. It can be included in a 
+Test class as ``required_capabilities``, and only the models which 
+implements the methods in the Capability subclass can be tested by the Test instance.
 
 
 Here we define a simple capability through which a model can return a single number.
@@ -270,6 +270,7 @@ Firstly, import necessary components from SciUnit package.
 .. code-block:: python
 
     import sciunit, random
+    from sciunit import Test
     from sciunit.capabilities import Runnable
     from sciunit.scores import BooleanScore
     from sciunit.models import RunnableModel
