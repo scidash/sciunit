@@ -101,3 +101,4 @@ Table of Contents
    setup
    quick_tutorial
    basics
+   commandline
