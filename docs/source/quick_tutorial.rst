@@ -361,3 +361,15 @@ print the score, and we can see the result.
 
 >>> print(score)
 Pass
+
+Real Example
+-------------
+
+For real example of using SciUnit, you can read Chapter 5 and 6 of the Jupyter notebook tutorial.
+
+`Tutorial Chapter 5`_
+
+`Tutorial Chapter 6`_
+
+.. _Tutorial Chapter 5: https://github.com/scidash/sciunit/blob/master/docs/chapter5.ipynb
+.. _Tutorial Chapter 6: https://github.com/scidash/sciunit/blob/master/docs/chapter6.ipynb
