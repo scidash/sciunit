@@ -25,7 +25,7 @@ Tutorials With Jupyter NoteBook
 -------------------------------
 
 .. image:: https://colab.research.google.com/assets/colab-badge.svg
-   :target: https://colab.research.google.com/github/ChihweiLHBird/sciunit/blob/dev/docs/chapter1.ipynb
+   :target: https://colab.research.google.com/github/scidash/sciunit/blob/master/docs/chapter1.ipynb
 
 * `Tutorial Chapter 1`_
 * `Tutorial Chapter 2`_
@@ -37,9 +37,9 @@ Tutorials With Jupyter NoteBook
 .. _Tutorial Chapter 1: https://github.com/scidash/sciunit/blob/master/docs/chapter1.ipynb
 .. _Tutorial Chapter 2: https://github.com/scidash/sciunit/blob/master/docs/chapter2.ipynb
 .. _Tutorial Chapter 3: https://github.com/scidash/sciunit/blob/master/docs/chapter3.ipynb
-.. _Tutorial Chapter 4: https://github.com/ChihweiLHBird/sciunit/blob/dev/docs/chapter4.ipynb
-.. _Tutorial Chapter 5: https://github.com/ChihweiLHBird/sciunit/blob/dev/docs/chapter5.ipynb
-.. _Tutorial Chapter 6: https://github.com/ChihweiLHBird/sciunit/blob/dev/docs/chapter6.ipynb
+.. _Tutorial Chapter 4: https://github.com/scidash/sciunit/blob/dev/docs/chapter4.ipynb
+.. _Tutorial Chapter 5: https://github.com/scidash/sciunit/blob/dev/docs/chapter5.ipynb
+.. _Tutorial Chapter 6: https://github.com/scidash/sciunit/blob/dev/docs/chapter6.ipynb
 
 Basic Usage
 -----------
