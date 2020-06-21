@@ -266,7 +266,8 @@ class RandomScore(FloatScore):
     def __str__(self):
         return '%.3g' % self.score
 
-class CorrelationScore(sciunit.scores.Score):
+    
+class CorrelationScore(Score):
     """A correlation score.
     A float in the range [-1.0, 1.0] representing the correlation coefficient.
     """
