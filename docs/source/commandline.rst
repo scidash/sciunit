@@ -206,7 +206,7 @@ Let's execute ``sciunit run-nb`` command.
     $ sciunit run-nb
     Entering run function
     /the_path_to_the_project_config_file..././test_sciunit.ipynb
-    /the_path_to_the_project_config_file/.
+    /the_path_to_the_project_config_file.../.
 
 The result of running the notebook will be in the notebook file. 
 You can open it by many tools like VS Code and Jupyter Lab
