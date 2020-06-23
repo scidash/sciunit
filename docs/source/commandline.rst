@@ -116,7 +116,8 @@ In the root directory of the project, let's create three files.
 
 We have ``tests`` at the end of ``tests.py``, ``models`` at the end of ``models.py``,
 and ``suites`` at the end of ``suites.py``. Since we are using test suites instead of tests,
-``tests`` is an empty list in this example.
+``tests`` is an empty list in this example. They will be taken by sciunit when command 
+``sciunit run`` is being executing
 
 Execute ``sciunit run`` in the root directory, and then sciunit will run each test in the suites
 against each model and give us the result.
