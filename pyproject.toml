@@ -1,0 +1,16 @@
+[build-system]
+requires = [
+  "setuptools >= 40.9.0",
+  "wheel",
+  "quantities>=0.12.1",
+  "ipython",
+  "bs4",
+  "nbconvert",
+  "ipykernel",
+  "nbformat",
+  "numpy",
+  "GitPython",
+  "pandas>=0.18",
+  "cerberus>=1.2"
+]
+build-backend = "setuptools.build_meta"
