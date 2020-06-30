@@ -6,7 +6,7 @@ The capability must then be implemented by the modeler (i.e. all of the
 capabilty's methods must implemented in the model class).
 """
 
-import inspect, warnings
+import inspect, warnings, dis, io, sys, re
 
 from .utils import warn_with_traceback
 from .base import SciUnit
@@ -39,16 +39,31 @@ class Capability(SciUnit):
         
         for method in required_methods:
             try:
-                cap_source = inspect.getsource(getattr(cls, method))
-                model_source = inspect.getsource(getattr(model, method))
+                source_lines = inspect.getsourcelines(getattr(cls, method))[0]
+                notImplementedInCap = False
+                for line in source_lines:
+                    line = line.strip()
+                    if (
+                        line[:35] == "raise CapabilityNotImplementedError"
+                        or line[:13] == "unimplemented"
+                        or line[:25] == "raise NotImplementedError"
+                    ):
+                        notImplementedInCap = True
+                        break
+                
+                if notImplementedInCap:
+                    cap_source = inspect.getsource(getattr(cls, method))
+                    model_source = inspect.getsource(getattr(model, method))
+
+                    if cap_source == model_source:
+                        source_capable = False
+                        break
+
             except OSError:
                 warnings.warn(
                     """Inspect cannot get the source, and it is not guaranteed that 
                        all required methods have been implemented by the model"""
                     )
-                return True
-            if cap_source == model_source:
-                source_capable = False
                 break
         
         return source_capable
@@ -90,7 +105,7 @@ class Capability(SciUnit):
             warnings.warn("""The model class suppose to but doesn't inherit the Capability 
                             class required by the Test class, and the score may be unavailable 
                             due to this.""")
-        if not source_capable:
+        elif not source_capable:
             warnings.warn("""The model class suppose to but doesn't implements methods required by
                             the Test class, and the score may be unavailable due to this.""")
                             
@@ -109,7 +124,6 @@ class Capability(SciUnit):
         capabilities = [obj for obj in self.__class__.mro() if issubclass(obj, Capability) and not issubclass(obj, Model)]
         model = self if isinstance(self, Model) else None
         capability = None if not capabilities else capabilities[0]
-        print(model, capability)
         raise CapabilityNotImplementedError(model, capability, message)
 
     class __metaclass__(type):
