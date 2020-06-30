@@ -35,7 +35,6 @@ setup(
                  'models against data.'),
     long_description=long_description,
     long_description_content_type='text/markdown',
-    test_suite="sciunit.unit_test.core_tests",
     install_requires=read_requirements(),
     entry_points={
         'console_scripts': [
