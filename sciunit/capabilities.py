@@ -6,7 +6,7 @@ The capability must then be implemented by the modeler (i.e. all of the
 capabilty's methods must implemented in the model class).
 """
 
-import inspect, warnings, dis, io, sys, re
+import inspect, warnings
 
 from .utils import warn_with_traceback
 from .base import SciUnit
