@@ -202,6 +202,55 @@ class CapabilitiesTestCase(unittest.TestCase):
         m = Capability()
         m.name = "test name"
         self.assertEqual(str(m), "test name")
+    
+    def test_source_check(self):
+        
+        from sciunit.errors import CapabilityNotImplementedError
+        from sciunit import Model
+        from sciunit.capabilities import Capability
+        from sciunit.models import Model
+
+        class MyCap1(Capability):
+            def fn1(self):
+                raise NotImplementedError("fn1 not implemented.")
+        
+        class MyCap2(Capability):
+            def fn1(self):
+                self.unimplemented("fn1 not implemented.")
+        
+        class MyCap3(Capability):
+            def fn1(self):
+                raise CapabilityNotImplementedError("fn1 not implemented.")
+
+
+        class MyModel1(Model, MyCap1):
+            def fn1(self):
+                return "fn1 have been implemented"
+
+        class MyModel2(Model, MyCap1):
+            pass
+
+        class MyModel3(Model, MyCap2):
+            def fn1(self):
+                return "fn1 have been implemented"
+
+        class MyModel4(Model, MyCap2):
+            pass
+
+        class MyModel5(Model, MyCap3):
+            def fn1(self):
+                return "fn1 have been implemented"
+
+        class MyModel6(Model, MyCap3):
+            pass
+        
+        self.assertTrue(MyCap1.source_check(MyModel1()))
+        self.assertFalse(MyCap1.source_check(MyModel2()))
+        self.assertTrue(MyCap2.source_check(MyModel3()))
+        self.assertFalse(MyCap2.source_check(MyModel4()))
+        self.assertTrue(MyCap3.source_check(MyModel5()))
+        self.assertFalse(MyCap3.source_check(MyModel6()))
+
 
 
 class RunnableModelTestCase(unittest.TestCase):
