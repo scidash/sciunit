@@ -220,7 +220,7 @@ class CapabilitiesTestCase(unittest.TestCase):
         
         class MyCap3(Capability):
             def fn1(self):
-                raise CapabilityNotImplementedError("fn1 not implemented.")
+                raise CapabilityNotImplementedError(model = self, capability = self.__class__, details = "fn1 not implemented.")
 
 
         class MyModel1(Model, MyCap1):
