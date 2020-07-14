@@ -674,7 +674,18 @@ def config_get_from_path(config_path: str, key: str) -> int:
             config = json.load(f)
             value = config[key]
     except FileNotFoundError:
-        raise Error("Config file not found at '%s'" % config_path)
+        sciunit_config_dir = os.path.join(str(Path.home()), ".sciunit")
+        
+        if not os.path.isdir(sciunit_config_dir):
+            os.mkdir(sciunit_config_dir)
+
+        config_path = os.path.join(sciunit_config_dir, 'config.json')
+        with open(config_path, "w") as outfile:
+            config_content = {"cmap_high": 218, "cmap_low": 38}
+            outfile.write(json.dumps(config_content))
+
+        return config_get_from_path(config_path, key)
+        #raise Error("Config file not found at '%s'" % config_path)
     except json.JSONDecodeError:
         log("Config file JSON at '%s' was invalid" % config_path)
         raise Error("Config file not found at '%s'" % config_path)
@@ -698,7 +709,8 @@ def config_get(key: str, default: int=None) -> int:
     """
     try:
         assert isinstance(key, str), "Config key must be a string"
-        config_path = os.path.join(settings['CWD'], 'config.json')
+        sciunit_config_dir = os.path.join(str(Path.home()), ".sciunit")
+        config_path = os.path.join(sciunit_config_dir, 'config.json')
         value = config_get_from_path(config_path, key)
     except Exception as e:
         if default is not None:
