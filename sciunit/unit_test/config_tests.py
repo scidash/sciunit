@@ -1,9 +1,7 @@
 """Unit tests for user configuration"""
 
-import unittest
-import os
+import unittest, json
 import sciunit
-from pathlib import Path
 
 
 class ConfigTestCase(unittest.TestCase):
@@ -12,10 +10,18 @@ class ConfigTestCase(unittest.TestCase):
     def test_json_config(self):
         from sciunit.utils import config_get
 
-        config_path = os.path.join(str(Path.home()), ".sciunit", "config.json")
+        from pathlib import Path
+        config_dir = Path.home() / ".sciunit"
+        config_dir.mkdir(exist_ok=True, parents=True)
+        config_path = config_dir / "config.json"
+        json_content = {"cmap_high": 218, "cmap_low": 38}
+        with open (config_path, "w") as outfile:
+            json.dump(json_content, outfile)
+            
+        self.assertTrue(config_path.is_file())
         print(config_path)
         cmap_low = config_get("cmap_low")
-        self.assertTrue(os.path.isfile(config_path))
+        
         self.assertTrue(isinstance(cmap_low, int))
         dummy = config_get("dummy", 37)
         self.assertEqual(dummy, 37)
