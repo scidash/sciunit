@@ -666,7 +666,8 @@ def create_config(data: dict) -> bool:
     try:
         cofig_dir = Path.home() / ".sciunit"
         config_path = cofig_dir / 'config.json'
-        cofig_dir.mkdir(exist_ok=True, parents=True)
+        if (not cofig_dir.is_file()):
+            cofig_dir.mkdir(exist_ok=True, parents=True)
 
         data["sciunit_version"] = sciunit.__version__
 
@@ -677,7 +678,7 @@ def create_config(data: dict) -> bool:
                 json.dump(data, outfile)
     except:
         success = False
-        
+
     return success
 
 def config_get_from_path(config_path: str, key: str) -> int:
@@ -700,15 +701,7 @@ def config_get_from_path(config_path: str, key: str) -> int:
             config = json.load(f)
             value = config[key]
     except FileNotFoundError:
-        sciunit_config_dir = Path.home() / ".sciunit"
-        
-        if not sciunit_config_dir.is_file():
-            sciunit_config_dir.mkdir(exist_ok=True, parents=True)
-
-        config_path = sciunit_config_dir / 'config.json'
-        with open(config_path, "w") as outfile:
-            config_content = {"cmap_high": 218, "cmap_low": 38}
-            outfile.write(json.dumps(config_content))
+        create_config({"cmap_high": 218, "cmap_low": 38})
 
         return config_get_from_path(config_path, key)
         #raise Error("Config file not found at '%s'" % config_path)
