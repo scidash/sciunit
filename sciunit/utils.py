@@ -653,6 +653,32 @@ def kernel_log(*args, **kwargs) -> None:
         output = f.getvalue()
     display(HTML(output))
 
+def create_config(data: dict) -> bool:
+    """Create a config file that store any data from the user.
+
+    Args:
+        data (dict): The data that will be written to the new config file.
+
+    Returns:
+        bool: Config file creation is successful
+    """
+    success = True
+    try:
+        cofig_dir = Path.home() / ".sciunit"
+        config_path = cofig_dir / 'config.json'
+        cofig_dir.mkdir(exist_ok=True, parents=True)
+
+        data["sciunit_version"] = sciunit.__version__
+
+        if(config_path.is_file()):
+            warn_with_traceback("Config file already exists.", Warning, "utils.py", 668)
+        else:
+            with open(config_path, 'w') as outfile:
+                json.dump(data, outfile)
+    except:
+        success = False
+        
+    return success
 
 def config_get_from_path(config_path: str, key: str) -> int:
     """[summary]
