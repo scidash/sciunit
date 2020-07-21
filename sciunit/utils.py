@@ -45,6 +45,7 @@ settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
             'KERNEL': ('ipykernel' in sys.modules),
             'CWD': os.path.realpath(sciunit.__path__[0])}
 
+DEFAULT_CONFIG = {"cmap_high": 218, "cmap_low": 38}
 
 def warn_with_traceback(message: str, category, filename: str, lineno: int,
                         file: TextIO=None, line: str=None) -> None:
@@ -653,7 +654,7 @@ def kernel_log(*args, **kwargs) -> None:
         output = f.getvalue()
     display(HTML(output))
 
-def create_config(data: dict) -> bool:
+def create_config(data: dict=None) -> bool:
     """Create a config file that store any data from the user.
 
     Args:
@@ -662,6 +663,8 @@ def create_config(data: dict) -> bool:
     Returns:
         bool: Config file creation is successful
     """
+    if not data:
+        data = DEFAULT_CONFIG
     success = True
     try:
         config_dir = Path.home() / ".sciunit"
@@ -701,7 +704,7 @@ def config_get_from_path(config_path: str, key: str) -> int:
             config = json.load(f)
             value = config[key]
     except FileNotFoundError:
-        create_config({"cmap_high": 218, "cmap_low": 38})
+        create_config()
 
         return config_get_from_path(config_path, key)
         #raise Error("Config file not found at '%s'" % config_path)
