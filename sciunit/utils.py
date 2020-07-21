@@ -664,10 +664,10 @@ def create_config(data: dict) -> bool:
     """
     success = True
     try:
-        cofig_dir = Path.home() / ".sciunit"
-        config_path = cofig_dir / 'config.json'
-        if (not cofig_dir.is_file()):
-            cofig_dir.mkdir(exist_ok=True, parents=True)
+        config_dir = Path.home() / ".sciunit"
+        config_path = config_dir / 'config.json'
+        if (not config_dir.is_file()):
+            config_dir.mkdir(exist_ok=True, parents=True)
 
         data["sciunit_version"] = sciunit.__version__
 
