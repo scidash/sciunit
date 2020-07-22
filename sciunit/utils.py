@@ -773,17 +773,20 @@ def get_fn(callable):
         * For callable objects, returns ``callable.__call__.im_func``.
 
     """
-    if inspect.isfunction(callable):
+    
+    if inspect.isfunction:
         return callable
+
+    function = callable
     if inspect.ismethod(callable):
         try:
-            return callable.__func__
+            function = callable.__func__
         except AttributeError:
-            return callable.__func__
-    if inspect.isclass(callable):
-        return callable.__init__.__func__
-    if hasattr(callable, '__call__'):
-        return callable.__call__.__func__
+            function = callable.__func__
+    elif inspect.isclass(callable):
+        function = callable.__init__.__func__
+    elif hasattr(callable, '__call__'):
+        function = callable.__call__.__func__
     return callable
 
 def get_fn_or_method(callable):
