@@ -45,6 +45,7 @@ settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
             'KERNEL': ('ipykernel' in sys.modules),
             'CWD': os.path.realpath(sciunit.__path__[0])}
 
+DEFAULT_CONFIG = {"cmap_high": 218, "cmap_low": 38}
 
 def warn_with_traceback(message: str, category, filename: str, lineno: int,
                         file: TextIO=None, line: str=None) -> None:
@@ -653,6 +654,35 @@ def kernel_log(*args, **kwargs) -> None:
         output = f.getvalue()
     display(HTML(output))
 
+def create_config(data: dict=None) -> bool:
+    """Create a config file that store any data from the user.
+
+    Args:
+        data (dict): The data that will be written to the new config file.
+
+    Returns:
+        bool: Config file creation is successful
+    """
+    if not data:
+        data = DEFAULT_CONFIG
+    success = True
+    try:
+        config_dir = Path.home() / ".sciunit"
+        config_path = config_dir / 'config.json'
+        if (not config_dir.is_file()):
+            config_dir.mkdir(exist_ok=True, parents=True)
+
+        data["sciunit_version"] = sciunit.__version__
+
+        if(config_path.is_file()):
+            warn_with_traceback("Config file already exists.", Warning, "utils.py", 668)
+        else:
+            with open(config_path, 'w') as outfile:
+                json.dump(data, outfile)
+    except:
+        success = False
+
+    return success
 
 def config_get_from_path(config_path: str, key: str) -> int:
     """[summary]
@@ -674,7 +704,10 @@ def config_get_from_path(config_path: str, key: str) -> int:
             config = json.load(f)
             value = config[key]
     except FileNotFoundError:
-        raise Error("Config file not found at '%s'" % config_path)
+        create_config()
+
+        return config_get_from_path(config_path, key)
+        #raise Error("Config file not found at '%s'" % config_path)
     except json.JSONDecodeError:
         log("Config file JSON at '%s' was invalid" % config_path)
         raise Error("Config file not found at '%s'" % config_path)
@@ -698,7 +731,7 @@ def config_get(key: str, default: int=None) -> int:
     """
     try:
         assert isinstance(key, str), "Config key must be a string"
-        config_path = os.path.join(settings['CWD'], 'config.json')
+        config_path = Path.home() / ".sciunit" / "config.json"
         value = config_get_from_path(config_path, key)
     except Exception as e:
         if default is not None:
