@@ -773,7 +773,6 @@ def get_fn(callable):
         * For callable objects, returns ``callable.__call__.im_func``.
 
     """
-    
     if inspect.isfunction:
         return callable
 
@@ -787,7 +786,7 @@ def get_fn(callable):
         function = callable.__init__.__func__
     elif hasattr(callable, '__call__'):
         function = callable.__call__.__func__
-    return callable
+    return function
 
 def get_fn_or_method(callable):
     """Returns the underlying function or method that will be called by the () operator.
