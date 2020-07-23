@@ -32,7 +32,7 @@ import sciunit
 from sciunit.errors import Error
 from .base import SciUnit, tkinter
 from .base import PLATFORM, PYTHON_MAJOR_VERSION
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO, Type
 from types import ModuleType
 import unittest.mock
 from pathlib import Path
