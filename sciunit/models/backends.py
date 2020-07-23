@@ -145,11 +145,11 @@ class Backend(object):
         """Set model attributes on the backend."""
         pass
 
-    def backend_run(self) -> None:
+    def backend_run(self) -> Any:
         """Check for cached results; then run the model if needed.
 
         Returns:
-            [type]: [description]
+            Any: The result of running backend.
         """
         key = self.model.hash
         if self.use_memory_cache and self.get_memory_cache(key):
@@ -163,7 +163,7 @@ class Backend(object):
             self.set_disk_cache(results, key)
         return results
 
-    def _backend_run(self) -> None:
+    def _backend_run(self) -> Any:
         """Run the model via the backend."""
         raise NotImplementedError("Each backend must implement '_backend_run'")
 
@@ -176,7 +176,7 @@ class Backend(object):
         with open(path, 'wb') as f:
             pickle.dump(self.results, f)
 
-
+ 
 class BackendException(Exception):
     """Generic backend exception class."""
     pass

@@ -20,6 +20,7 @@ import re
 import nbformat
 from nbformat.v4.nbbase import new_notebook, new_markdown_cell
 from nbconvert.preprocessors import ExecutePreprocessor
+from configparser import RawConfigParser
 from typing import Tuple
 import sciunit
 from pathlib import Path
@@ -102,7 +103,7 @@ def create(file_path: str) -> None:
         config.write(f)
 
 
-def parse(file_path: str=None, show: bool=False) -> configparser.RawConfigParser:
+def parse(file_path: str=None, show: bool=False) -> RawConfigParser:
     """Parse a .sciunit config file.
 
     Args:
@@ -159,9 +160,9 @@ def run(config: configparser.RawConfigParser, path: Union[str, Path]=None,
 
     Args:
         config (RawConfigParser): The configuration object.
-        path (Union[str, Path], optional): [description]. Defaults to None.
-        stop_on_error (bool, optional): [description]. Defaults to True.
-        just_tests (bool, optional): [description]. Defaults to False.
+        path (Union[str, Path], optional): The path of sciunit config file. Defaults to None.
+        stop_on_error (bool, optional): Stop if an error occurs. Defaults to True.
+        just_tests (bool, optional): There are only tests, no suites. Defaults to False.
     """
     if path is None:
         path = os.getcwd()
@@ -187,7 +188,7 @@ def run(config: configparser.RawConfigParser, path: Union[str, Path]=None,
 
 
 def _run(test_or_suite: Union[sciunit.Test, sciunit.TestSuite], models: list, stop_on_error: bool) -> None:
-    """[summary]
+    """Run a single test or suite.
 
     Args:
         test_or_suite (Union[Test, TestSuite]): A test or suite instance to be executed.
@@ -200,11 +201,11 @@ def _run(test_or_suite: Union[sciunit.Test, sciunit.TestSuite], models: list, st
     print('\n%s %s:\n%s\n' % (kind, test_or_suite, score_array_or_matrix))
 
 
-def nb_name_from_path(config: dict, path: Union[str, Path]) -> tuple:
+def nb_name_from_path(config: RawConfigParser, path: Union[str, Path]) -> tuple:
     """Get a notebook name from a path to a notebook.
 
     Args:
-        config (dict): [description]
+        config (RawConfigParser): The parsed sciunit config file.
         path (Union[str, Path]): The path of the notebook file.
 
     Returns:
@@ -220,14 +221,14 @@ def nb_name_from_path(config: dict, path: Union[str, Path]) -> tuple:
     return root, nb_name
 
 
-def make_nb(config, path: Union[str, Path]=None, stop_on_error: bool=True, just_tests: bool=False) -> None:
+def make_nb(config: RawConfigParser, path: Union[str, Path]=None, stop_on_error: bool=True, just_tests: bool=False) -> None:
     """Create a Jupyter notebook sciunit tests for the given configuration.
 
     Args:
-        config ([type]): [description]
+        config (RawConfigParser): The parsed sciunit config file.
         path (Union[str, Path], optional): A path to the notebook file. Defaults to None.
         stop_on_error (bool, optional): Whether to stop on an error. Defaults to True.
-        just_tests (bool, optional): [description]. Defaults to False.
+        just_tests (bool, optional): There are only tests, no suites. Defaults to False.
     """
     root, nb_name = nb_name_from_path(config, path)
     clean = lambda varStr: re.sub('\W|^(?=\d)', '_', varStr)
@@ -255,15 +256,15 @@ def make_nb(config, path: Union[str, Path]=None, stop_on_error: bool=True, just_
     write_nb(root, nb_name, cells)
 
 
-def write_nb(root, nb_name, cells) -> None:
+def write_nb(root: str, nb_name: str, cells: list) -> None:
     """Write a jupyter notebook to disk.
 
     Takes a given a root directory, a notebook name, and a list of cells.
 
     Args:
-        root ([type]): The root node (section) of the notebook.
-        nb_name ([type]): [description]
-        cells ([type]): The cells of the notebook.
+        root (str): The root node (section) of the notebook.
+        nb_name (str): The name of the notebook file.
+        cells (list): The list of the cells of the notebook.
     """
     nb = new_notebook(cells=cells,
                       metadata={
@@ -275,14 +276,14 @@ def write_nb(root, nb_name, cells) -> None:
     print("Created Jupyter notebook at:\n%s" % nb_path)
 
 
-def run_nb(config, path: Union[str, Path]=None) -> None:
+def run_nb(config: RawConfigParser, path: Union[str, Path]=None) -> None:
     """Run a notebook file.
 
     Runs the one specified by the config file, or the one at
     the location specificed by 'path'.
 
     Args:
-        config ([type]): [description]
+        config (RawConfigParser): [description]
         path (Union[str, Path], optional): The path to the notebook file. Defaults to None.
     """
     if path is None:
@@ -304,12 +305,12 @@ def run_nb(config, path: Union[str, Path]=None) -> None:
         nbformat.write(nb, nb_file, NB_VERSION)
 
 
-def add_code_cell(cells, source) -> None:
+def add_code_cell(cells: lsit, source: str) -> None:
     """Add a code cell containing `source` to the notebook.
 
     Args:
-        cells ([type]): [description]
-        source ([type]): [description]
+        cells (list): The list of notebook cells.
+        source (str): The source of the notebook cell.
     """
     from nbformat.v4.nbbase import new_code_cell
     n_code_cells = len([c for c in cells if c['cell_type'] == 'code'])
@@ -320,7 +321,7 @@ def cleanup(config=None, path: Union[str, Path]=None) -> None:
     """Cleanup by removing paths added during earlier in configuration.
 
     Args:
-        config ([type], optional): [description]. Defaults to None.
+        config (RawConfigParser, optional): [description]. Defaults to None.
         path (Union[str, Path], optional): [description]. Defaults to None.
     """
     if config is None:

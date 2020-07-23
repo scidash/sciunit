@@ -47,13 +47,13 @@ settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
 
 DEFAULT_CONFIG = {"cmap_high": 218, "cmap_low": 38}
 
-def warn_with_traceback(message: str, category, filename: str, lineno: int,
+def warn_with_traceback(message: str, category: Type[Warning], filename: str, lineno: int,
                         file: TextIO=None, line: str=None) -> None:
     """A function to use with `warnings.showwarning` to show a traceback.
 
     Args:
         message (str): A message that will be included in the warning.
-        category ([type]): A category of the warning.
+        category (Type[Warning]): A category (subclass) of the warning.
         filename (str): Name of the file that raises the warning
         lineno (int): Number of line in the file that causes this warning.
         file (TextIO, optional): A file object for recording the log. Defaults to None.
@@ -492,11 +492,11 @@ class MockDevice(TextIOWrapper):
     Similar to UNIX /dev/null.
     """
 
-    def write(self, s) -> None:
+    def write(self, s: str) -> None:
         """[summary]
 
         Args:
-            s ([type]): [description]
+            s (str): The string to be written.
         """
         if s.startswith('[') and s.endswith(']'):
             super(MockDevice, self).write(s)
