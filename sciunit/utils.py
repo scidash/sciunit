@@ -32,7 +32,7 @@ import sciunit
 from sciunit.errors import Error
 from .base import SciUnit, tkinter
 from .base import PLATFORM, PYTHON_MAJOR_VERSION
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO, Type
 from types import ModuleType
 import unittest.mock
 from pathlib import Path
@@ -47,13 +47,13 @@ settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
 
 DEFAULT_CONFIG = {"cmap_high": 218, "cmap_low": 38}
 
-def warn_with_traceback(message: str, category, filename: str, lineno: int,
+def warn_with_traceback(message: str, category: Type[Warning], filename: str, lineno: int,
                         file: TextIO=None, line: str=None) -> None:
     """A function to use with `warnings.showwarning` to show a traceback.
 
     Args:
         message (str): A message that will be included in the warning.
-        category ([type]): A category of the warning.
+        category (Type[Warning]): A category (subclass) of the warning.
         filename (str): Name of the file that raises the warning
         lineno (int): Number of line in the file that causes this warning.
         file (TextIO, optional): A file object for recording the log. Defaults to None.
@@ -492,11 +492,11 @@ class MockDevice(TextIOWrapper):
     Similar to UNIX /dev/null.
     """
 
-    def write(self, s) -> None:
+    def write(self, s: str) -> None:
         """[summary]
 
         Args:
-            s ([type]): [description]
+            s (str): The string to be written.
         """
         if s.startswith('[') and s.endswith(']'):
             super(MockDevice, self).write(s)
@@ -773,18 +773,20 @@ def get_fn(callable):
         * For callable objects, returns ``callable.__call__.im_func``.
 
     """
-    if inspect.isfunction(callable):
+    if inspect.isfunction:
         return callable
+
+    function = callable
     if inspect.ismethod(callable):
         try:
-            return callable.__func__
+            function = callable.__func__
         except AttributeError:
-            return callable.__func__
-    if inspect.isclass(callable):
-        return callable.__init__.__func__
-    if hasattr(callable, '__call__'):
-        return callable.__call__.__func__
-    return callable
+            function = callable.__func__
+    elif inspect.isclass(callable):
+        function = callable.__init__.__func__
+    elif hasattr(callable, '__call__'):
+        function = callable.__call__.__func__
+    return function
 
 def get_fn_or_method(callable):
     """Returns the underlying function or method that will be called by the () operator.

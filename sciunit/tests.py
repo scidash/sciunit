@@ -586,13 +586,13 @@ class TestM2M(Test):
             raise Exception(msg)
         return score
 
-    def _bind_score(self, score: Score, prediction1, prediction2, model1: Model, model2: Model):
+    def _bind_score(self, score: Score, prediction1: dict, prediction2: dict, model1: Model, model2: Model):
         """Bind some useful attributes to the score.
 
         Args:
             score (Score): A sciunit score instance
-            prediction1 ([type]): [description]
-            prediction2 ([type]): [description]
+            prediction1 (dict): [description]
+            prediction2 (dict): [description]
             model1 (Model): [description]
             model2 (Model): [description]
         """
@@ -605,13 +605,13 @@ class TestM2M(Test):
         score.related_data = score.related_data.copy()
         self.bind_score(score, prediction1, prediction2, model1, model2)
 
-    def bind_score(self, score: Score, prediction1, prediction2, model1: Model, model2: Model):
+    def bind_score(self, score: Score, prediction1: dict, prediction2: dict, model1: Model, model2: Model):
         """For the user to bind additional features to the score.
 
         Args:
             score (Score): A sciunit score instance.
-            prediction1 ([type]): [description]
-            prediction2 ([type]): [description]
+            prediction1 (dict): [description]
+            prediction2 (dict): [description]
             model1 (Model): [description]
             model2 (Model): [description]
         """
@@ -621,8 +621,8 @@ class TestM2M(Test):
         """[summary]
 
         Args:
-            prediction1 ([type]): [description]
-            prediction2 ([type]): [description]
+            prediction1 (dict): [description]
+            prediction2 (dict): [description]
             model1 (Model): [description]
             model2 (Model, optional): [description]. Defaults to None.
 
@@ -652,7 +652,7 @@ class TestM2M(Test):
         return score
 
     def judge(self, models: List[Model], skip_incapable: bool=False, stop_on_error: bool=True,
-              deep_error: bool=False, only_lower_triangle: bool=False):
+              deep_error: bool=False, only_lower_triangle: bool=False) -> "ScoreMatrixM2M":
         """Generate a score matrix for the provided model(s).
         `only_lower_triangle`: Only compute the lower triangle (not include
                                the diagonal) of this square ScoreMatrix and
@@ -698,7 +698,7 @@ class TestM2M(Test):
             CapabilityError: [description]
 
         Returns:
-            [type]: [description]
+            ScoreMatrixM2M: The created ScoreMatrixM2M instance.
         """
 
         # 1.
