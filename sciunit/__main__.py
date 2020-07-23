@@ -305,7 +305,7 @@ def run_nb(config: RawConfigParser, path: Union[str, Path]=None) -> None:
         nbformat.write(nb, nb_file, NB_VERSION)
 
 
-def add_code_cell(cells: lsit, source: str) -> None:
+def add_code_cell(cells: list, source: str) -> None:
     """Add a code cell containing `source` to the notebook.
 
     Args:

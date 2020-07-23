@@ -652,7 +652,7 @@ class TestM2M(Test):
         return score
 
     def judge(self, models: List[Model], skip_incapable: bool=False, stop_on_error: bool=True,
-              deep_error: bool=False, only_lower_triangle: bool=False) -> ScoreMatrixM2M:
+              deep_error: bool=False, only_lower_triangle: bool=False) -> "ScoreMatrixM2M":
         """Generate a score matrix for the provided model(s).
         `only_lower_triangle`: Only compute the lower triangle (not include
                                the diagonal) of this square ScoreMatrix and
