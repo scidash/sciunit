@@ -234,10 +234,10 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         """[summary]
 
         Args:
-            x (tuple): [description]
+            x (tuple): (test, model) or (model, test)
 
         Raises:
-            TypeError: [description]
+            TypeError: Expected (test, model) or (model, test)
 
         Returns:
             Union[Model, Test]: [description]
@@ -250,7 +250,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         elif isinstance(x[0], str):
             result = self.__getitem__(x[t]).__getitem__(x[1-t])
         else:
-            raise TypeError("Expected test,model or model,test")
+            raise TypeError("Expected test, model or model, test")
         return result
 
     def get_by_name(self, name: str) -> Union[Model, Test]:

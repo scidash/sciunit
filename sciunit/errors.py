@@ -68,7 +68,7 @@ class PredictionError(Error):
 
         Args:
             model (Model): A sciunit Model.
-            method (str): [description]
+            method (str): The method that caused this error.
         """
         self.model = model
         self.method = method
@@ -96,8 +96,8 @@ class BadParameterValueError(Error):
         """Constructor of BadParameterValueError object.
 
         Args:
-            name (str): [description]
-            value (int): [description]
+            name (str): Name of the parameter that caused this error.
+            value (int): The value of the parameter.
         """
         self.name = name
         self.value = value

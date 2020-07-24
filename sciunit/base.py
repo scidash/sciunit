@@ -396,8 +396,8 @@ def deep_exclude(state: dict, exclude: list) -> dict:
     """[summary]
 
     Args:
-        state (dict): [description]
-        exclude (list): [description]
+        state (dict): A dict that represents the state of an instance.
+        exclude (list): Things will be kept.
 
     Returns:
         dict: [description]
