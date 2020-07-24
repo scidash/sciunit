@@ -1,6 +1,5 @@
 """The base class for many SciUnit objects."""
 
-import os
 import sys
 
 PLATFORM = sys.platform

@@ -1,6 +1,5 @@
 """Base class for simulator backends for SciUnit models."""
 
-import os
 import inspect
 import tempfile
 import pickle
