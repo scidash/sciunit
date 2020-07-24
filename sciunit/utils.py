@@ -322,7 +322,7 @@ class NotebookTools(object):
         code = self.read_code(name)
         exec(code, globals())
 
-    def gen_file_path(self, name: str) -> str:
+    def gen_file_path(self, name: str) -> Path:
         """Returns full path to generated files.  
         
         Checks to see if directory exists where generated files 
