@@ -2,9 +2,8 @@
 
 import unittest
 import platform
-import os
 import tempfile
-
+from pathlib import Path
 import sciunit
 
 
@@ -15,9 +14,9 @@ class CommandLineTestCase(unittest.TestCase):
         from sciunit.__main__ import main
 
         self.main = main
-        path = os.path.abspath(sciunit.__path__[0])
-        SCIDASH_HOME = os.path.dirname(os.path.dirname(path))
-        self.cosmosuite_path = os.path.join(SCIDASH_HOME, "scidash")
+        path = Path(sciunit.__path__[0]).resolve()
+        SCIDASH_HOME = path.parent.parent
+        self.cosmosuite_path = str(SCIDASH_HOME / "scidash")
 
     def test_sciunit_1create(self):
         try:
@@ -40,7 +39,7 @@ class CommandLineTestCase(unittest.TestCase):
 
     # Skip for python versions that don't have importlib.machinery
     @unittest.skipIf(
-        platform.python_version() < "3.3", "run-nb not supported on Python < 3.3"
+        platform.python_version() < "3.5", "sciunit not supported on Python < 3.5"
     )
     def test_sciunit_5run_nb(self):
         self.main("--directory", self.cosmosuite_path, "run-nb")

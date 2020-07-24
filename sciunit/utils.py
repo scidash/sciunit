@@ -43,7 +43,7 @@ settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
             'LOGGING': True,
             'PREVALIDATE': False,
             'KERNEL': ('ipykernel' in sys.modules),
-            'CWD': os.path.realpath(sciunit.__path__[0])}
+            'CWD': Path(sciunit.__path__[0]).resolve()}
 
 DEFAULT_CONFIG = {"cmap_high": 218, "cmap_low": 38}
 
@@ -212,7 +212,7 @@ class NotebookTools(object):
             print("Incorrect path specified")
             return -1
 
-    def get_path(self, file: str) -> str:
+    def get_path(self, file: Path) -> Path:
         """Get the full path of the notebook found in the directory
         specified by self.path.
         
@@ -223,11 +223,10 @@ class NotebookTools(object):
         Returns:
             str: [description]
         """
-
-        class_path = inspect.getfile(self.__class__)
-        parent_path = os.path.dirname(class_path)
-        path = os.path.join(parent_path, self.path, file)
-        return os.path.realpath(path)
+        class_path = Path(inspect.getfile(self.__class__))
+        parent_path = class_path.parent
+        path = parent_path / self.path / file
+        return path.resolve()
 
     def fix_display(self) -> None:
         """If this is being run on a headless system the Matplotlib
@@ -337,17 +336,21 @@ class NotebookTools(object):
         """
         relative_path = self.convert_path(name)
         file_path = self.get_path("%s.ipynb" % relative_path)
-        parent_path = rec_apply(os.path.dirname,
-                                self.gen_file_level)(file_path)
+
+        parent_path = file_path
+        for _ in range(self.gen_file_level):
+            parent_path = parent_path.parent
+                                
         # Name of generated file
         gen_file_name = name if isinstance(name, str) else name[1]
-        gen_dir_path = self.get_path(os.path.join(parent_path,
-                                                  self.gen_dir_name))
+        gen_dir_path = self.get_path(parent_path / self.gen_dir_name)
+
         # Create folder for generated files if needed
-        if not os.path.exists(gen_dir_path):
+        if not gen_dir_path.exists():
             os.makedirs(gen_dir_path)
-        new_file_path = self.get_path('%s.py' % os.path.join(gen_dir_path,
-                                                             gen_file_name))
+
+        new_file_name = (gen_dir_path / gen_file_name).with_suffix('.py')
+        new_file_path = self.get_path(new_file_name)
         return new_file_path
 
     def read_code(self, name: str) -> str:
@@ -547,14 +550,18 @@ def import_module_from_path(module_path: str, name=None) -> ModuleType:
     Returns:
         ModuleType: [description]
     """
-    directory, file_name = os.path.split(module_path)
+    if (not isinstance(module_path, Path)):
+        module_path = Path(module_path)
+
+    directory = module_path.parent
+    file_name = module_path.name
     if name is None:
         name = file_name.rstrip('.py')
         if name == '__init__':
-            name = os.path.split(directory)[1]
+            name = directory.name
     try:
         from importlib.machinery import SourceFileLoader
-        sfl = SourceFileLoader(name, module_path)
+        sfl = SourceFileLoader(name, str(module_path))
         module = sfl.load_module()
     except ImportError:
         sys.path.append(directory)

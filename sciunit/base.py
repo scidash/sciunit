@@ -12,7 +12,7 @@ import json, git, pickle, hashlib
 
 import numpy as np
 import pandas as pd
-
+from pathlib import Path
 from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.cmd import Git
 from git.remote import Remote
@@ -25,7 +25,7 @@ except ImportError:
     tkinter = None
 
 KERNEL = ('ipykernel' in sys.modules)
-HERE = os.path.dirname(os.path.realpath(__file__))
+HERE = Path(__file__).resolve().parent.name
 
 
 class Versioned(object):
@@ -50,7 +50,7 @@ class Versioned(object):
         if hasattr(self.__class__, '_repo') and cached:
             repo = self.__class__._repo
         elif hasattr(module, '__file__'):
-            path = os.path.realpath(module.__file__)
+            path = Path(module.__file__).resolve()
             try:
                 repo = git.Repo(path, search_parent_directories=True)
             except InvalidGitRepositoryError:

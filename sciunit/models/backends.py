@@ -69,11 +69,13 @@ class Backend(object):
         """Initialize the on-disk version of the cache."""
         try:
             # Cleanup old disk cache files
-            path = self.disk_cache_location
-            os.remove(path)
+            if (self.disk_cache_location.is_dir()):
+                self.disk_cache_location.rmdir()
+            else:
+                self.disk_cache_location.unlink()
         except Exception:
             pass
-        self.disk_cache_location = os.path.join(tempfile.mkdtemp(), 'cache')
+        self.disk_cache_location = Path(tempfile.mkdtemp()) / 'cache'
 
     def get_memory_cache(self, key: str=None) -> dict:
         """Return result in memory cache for key 'key' or None if not found.
@@ -102,7 +104,7 @@ class Backend(object):
         key = self.model.hash if key is None else key
         if not getattr(self, 'disk_cache_location', False):
             self.init_disk_cache()
-        disk_cache = shelve.open(self.disk_cache_location)
+        disk_cache = shelve.open(str(self.disk_cache_location))
         self._results = disk_cache.get(key)
         disk_cache.close()
         return self._results
@@ -128,7 +130,7 @@ class Backend(object):
         """
         if not getattr(self, 'disk_cache_location', False):
             self.init_disk_cache()
-        disk_cache = shelve.open(self.disk_cache_location)
+        disk_cache = shelve.open(str(self.disk_cache_location))
         key = self.model.hash if key is None else key
         disk_cache[key] = results
         disk_cache.close()

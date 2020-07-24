@@ -72,7 +72,8 @@ class Capability(SciUnit):
 
         Args:
             model (Model): A sciunit model instance
-            require_extra (bool, optional): [description]. Defaults to False.
+            require_extra (bool, optional): Requiring that an instance check be present in 
+                                            `model.extra_capability_checks`. Defaults to False.
 
         Returns:
             bool: Whether the provided model has this capability.

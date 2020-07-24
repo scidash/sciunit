@@ -26,7 +26,7 @@ import sciunit
 from pathlib import Path
 from typing import Union
 import configparser
-
+from importlib import import_module
 import codecs
 
 import matplotlib
@@ -40,7 +40,7 @@ def main(*args):
     parser = argparse.ArgumentParser()
     parser.add_argument("action",
                         help="create, check, run, make-nb, or run-nb")
-    parser.add_argument("--directory", "-dir", default=os.getcwd(),
+    parser.add_argument("--directory", "-dir", default=Path.cwd(),
                         help="path to directory with a .sciunit file")
     parser.add_argument("--stop", "-s", default=True,
                         help="stop and raise errors, halting the program")
@@ -50,7 +50,10 @@ def main(*args):
         args = parser.parse_args(args)
     else:
         args = parser.parse_args()
-    file_path = os.path.join(args.directory, '.sciunit')
+
+    directory = Path(args.directory)
+    file_path = directory / '.sciunit'
+    
     config = None
     if args.action == 'create':
         create(file_path)
@@ -59,19 +62,19 @@ def main(*args):
         print("\nNo configuration errors reported.")
     elif args.action == 'run':
         config = parse(file_path)
-        run(config, path=args.directory,
+        run(config, path=directory,
             stop_on_error=args.stop, just_tests=args.tests)
     elif args.action == 'make-nb':
         config = parse(file_path)
-        make_nb(config, path=args.directory,
+        make_nb(config, path=directory,
                 stop_on_error=args.stop, just_tests=args.tests)
     elif args.action == 'run-nb':
         config = parse(file_path)
-        run_nb(config, path=args.directory)
+        run_nb(config, path=directory)
     else:
         raise NameError('No such action %s' % args.action)
     if config:
-        cleanup(config, path=args.directory)
+        cleanup(config, path=directory)
 
 
 def create(file_path: str) -> None:
@@ -83,14 +86,14 @@ def create(file_path: str) -> None:
     Raises:
         IOError: There is already a configuration file at the path.
     """
-    if os.path.exists(file_path):
+    if file_path.exists():
         raise IOError("There is already a configuration file at %s" %
                       file_path)
     with open(file_path, 'w') as f:
         config = configparser.ConfigParser()
         config.add_section('misc')
         config.set('misc', 'config-version', '1.0')
-        default_nb_name = os.path.split(os.path.dirname(file_path))[1]
+        default_nb_name = file_path.parent.name
         config.set('misc', 'nb-name', default_nb_name)
         config.add_section('root')
         config.set('root', 'path', '.')
@@ -117,8 +120,8 @@ def parse(file_path: str=None, show: bool=False) -> RawConfigParser:
         RawConfigParser: The basic configuration object.
     """
     if file_path is None:
-        file_path = os.path.join(os.getcwd(), '.sciunit')
-    if not os.path.exists(file_path):
+        file_path = Path.cwd() / '.sciunit'
+    if not file_path.exists():
         raise IOError('No .sciunit file was found at %s' % file_path)
 
     # Load the configuration file
@@ -145,10 +148,10 @@ def prep(config: configparser.RawConfigParser=None, path: Union[str, Path]=None)
     if config is None:
         config = parse()
     if path is None:
-        path = os.getcwd()
+        path = Path.cwd()
     root = config.get('root', 'path')
-    root = os.path.join(path, root)
-    root = os.path.realpath(root)
+    root = path / root
+    root = str(root.resolve())
     os.environ['SCIDASH_HOME'] = root
     if sys.path[0] != root:
         sys.path.insert(0, root)
@@ -159,22 +162,22 @@ def run(config: configparser.RawConfigParser, path: Union[str, Path]=None,
     """Run sciunit tests for the given configuration.
 
     Args:
-        config (RawConfigParser): The configuration object.
+        config (RawConfigParser): The parsed sciunit config file.
         path (Union[str, Path], optional): The path of sciunit config file. Defaults to None.
         stop_on_error (bool, optional): Stop if an error occurs. Defaults to True.
         just_tests (bool, optional): There are only tests, no suites. Defaults to False.
     """
     if path is None:
-        path = os.getcwd()
+        path = Path.cwd()
     prep(config, path=path)
 
-    models = __import__('models')
-    tests = __import__('tests')
-    suites = __import__('suites')
+    models = import_module('models')
+    tests = import_module('tests')
+    suites = import_module('suites')
 
     print('\n')
     for x in ['models', 'tests', 'suites']:
-        module = __import__(x)
+        module = import_module(x)
         assert hasattr(module, x), "'%s' module requires attribute '%s'" %\
                                    (x, x)
 
@@ -212,11 +215,11 @@ def nb_name_from_path(config: RawConfigParser, path: Union[str, Path]) -> tuple:
         tuple: Notebook root node and name of the notebook.
     """
     if path is None:
-        path = os.getcwd()
+        path = Path.cwd()
     root = config.get('root', 'path')
-    root = os.path.join(path, root)
-    root = os.path.realpath(root)
-    default_nb_name = os.path.split(os.path.realpath(root))[1]
+    root = path / root
+    root = root.resolve()
+    default_nb_name = root.name
     nb_name = config.get('misc', 'nb-name', fallback=default_nb_name)
     return root, nb_name
 
@@ -270,7 +273,7 @@ def write_nb(root: str, nb_name: str, cells: list) -> None:
                       metadata={
                         'language': 'python',
                         })
-    nb_path = os.path.join(root, '%s.ipynb' % nb_name)
+    nb_path = root / ('%s.ipynb' % nb_name)
     with codecs.open(nb_path, encoding='utf-8', mode='w') as nb_file:
         nbformat.write(nb, nb_file, NB_VERSION)
     print("Created Jupyter notebook at:\n%s" % nb_path)
@@ -283,16 +286,16 @@ def run_nb(config: RawConfigParser, path: Union[str, Path]=None) -> None:
     the location specificed by 'path'.
 
     Args:
-        config (RawConfigParser): [description]
+        config (RawConfigParser): The parsed sciunit config file.
         path (Union[str, Path], optional): The path to the notebook file. Defaults to None.
     """
     if path is None:
-        path = os.getcwd()
+        path = Path.cwd()
     root = config.get('root', 'path')
-    root = os.path.join(path, root)
+    root = path / root
     nb_name = config.get('misc', 'nb-name')
-    nb_path = os.path.join(root, '%s.ipynb' % nb_name)
-    if not os.path.exists(nb_path):
+    nb_path = root / ('%s.ipynb' % nb_name)
+    if not nb_path.exists():
         print(("No notebook found at %s. "
                "Create the notebook first with make-nb?") % path)
         sys.exit(0)
@@ -321,15 +324,15 @@ def cleanup(config=None, path: Union[str, Path]=None) -> None:
     """Cleanup by removing paths added during earlier in configuration.
 
     Args:
-        config (RawConfigParser, optional): [description]. Defaults to None.
-        path (Union[str, Path], optional): [description]. Defaults to None.
+        config (RawConfigParser, optional): The parsed sciunit config file. Defaults to None.
+        path (Union[str, Path], optional): The path to the sciunit config file. Defaults to None.
     """
     if config is None:
         config = parse()
     if path is None:
-        path = os.getcwd()
+        path = Path.cwd()
     root = config.get('root', 'path')
-    root = os.path.join(path, root)
+    root = str(path / root)
     if sys.path[0] == root:
         sys.path.remove(root)
 
