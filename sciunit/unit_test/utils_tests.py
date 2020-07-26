@@ -22,13 +22,6 @@ class UtilsTestCase(unittest.TestCase):
         notebookObj = NotebookTools()
         notebookObj.execute_notebook("../docs/chapter1")
 
-    def test_path_escape(self):
-        test_str = "(( ) )"
-        from sciunit.utils import path_escape
-
-        test_str = path_escape(test_str)
-        self.assertEqual(test_str, "\(\(\ \)\ \)")
-
     def test_log(self):
         from sciunit.utils import log, kernel_log, non_kernel_log
 
