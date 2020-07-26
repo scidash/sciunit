@@ -55,7 +55,7 @@ class ScoreArrayM2M(pd.Series):
                         "any model: '%s'") % name)
 
     @property
-    def norm_scores(self) -> Series:
+    def norm_scores(self) -> pd.Series:
         """The norm scores.
 
         Returns:
