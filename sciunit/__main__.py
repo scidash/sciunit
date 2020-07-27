@@ -1,6 +1,6 @@
 """SciUnit command line tools.
 
-With SciUnit installed, a .sciunit configuration file can be created from
+With SciUnit installed, a sciunit.ini configuration file can be created from
 a *nix shell with:
 `sciunit create`
 and if models, tests, etc. are in locations specified by the configuration file
@@ -41,7 +41,7 @@ def main(*args):
     parser.add_argument("action",
                         help="create, check, run, make-nb, or run-nb")
     parser.add_argument("--directory", "-dir", default=Path.cwd(),
-                        help="path to directory with a .sciunit file")
+                        help="path to directory with a sciunit.ini file")
     parser.add_argument("--stop", "-s", default=True,
                         help="stop and raise errors, halting the program")
     parser.add_argument("--tests", "-t", default=False,
@@ -52,7 +52,7 @@ def main(*args):
         args = parser.parse_args()
 
     directory = Path(args.directory)
-    file_path = directory / '.sciunit'
+    file_path = directory / 'sciunit.ini'
     
     config = None
     if args.action == 'create':
@@ -78,7 +78,7 @@ def main(*args):
 
 
 def create(file_path: Path) -> None:
-    """Create a default .sciunit config file if one does not already exist.
+    """Create a default sciunit.ini config file if one does not already exist.
 
     Args:
         file_path (str): The path of sciunit config file that will be created.
@@ -107,22 +107,22 @@ def create(file_path: Path) -> None:
 
 
 def parse(file_path: Path=None, show: bool=False) -> RawConfigParser:
-    """Parse a .sciunit config file.
+    """Parse a sciunit.ini config file.
 
     Args:
         file_path (str, optional): The path of sciunit config file that will be parsed. Defaults to None.
         show (bool, optional): Whether or not print the sections in the config file. Defaults to False.
 
     Raises:
-        IOError: Raise an exception if no .sciunit file was found.
+        IOError: Raise an exception if no sciunit.ini file was found.
 
     Returns:
         RawConfigParser: The basic configuration object.
     """
     if file_path is None:
-        file_path = Path.cwd() / '.sciunit'
+        file_path = Path.cwd() / 'sciunit.ini'
     if not file_path.exists():
-        raise IOError('No .sciunit file was found at %s' % file_path)
+        raise IOError('No sciunit.ini file was found at %s' % file_path)
 
     # Load the configuration file
     config = configparser.RawConfigParser(allow_no_value=True)
