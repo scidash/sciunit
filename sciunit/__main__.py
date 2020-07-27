@@ -77,7 +77,7 @@ def main(*args):
         cleanup(config, path=directory)
 
 
-def create(file_path: str) -> None:
+def create(file_path: Path) -> None:
     """Create a default .sciunit config file if one does not already exist.
 
     Args:
@@ -106,7 +106,7 @@ def create(file_path: str) -> None:
         config.write(f)
 
 
-def parse(file_path: str=None, show: bool=False) -> RawConfigParser:
+def parse(file_path: Path=None, show: bool=False) -> RawConfigParser:
     """Parse a .sciunit config file.
 
     Args:
