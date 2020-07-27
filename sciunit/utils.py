@@ -32,20 +32,23 @@ import sciunit
 from sciunit.errors import Error
 from .base import SciUnit, tkinter
 from .base import PLATFORM, PYTHON_MAJOR_VERSION
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO, Type
+from typing import Any, Callable, List, Tuple, Union, TextIO, Type
 from types import ModuleType
 import unittest.mock
 from pathlib import Path
 
 mock = False  # mock is probably obviated by the unittest -b flag.
 
-settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
-            'LOGGING': True,
-            'PREVALIDATE': False,
-            'KERNEL': ('ipykernel' in sys.modules),
-            'CWD': Path(sciunit.__path__[0]).resolve()}
+RUNTIME_SETTINGS = {'KERNEL': ('ipykernel' in sys.modules)}
 
-DEFAULT_CONFIG = {"cmap_high": 218, "cmap_low": 38}
+DEFAULT_CONFIG = {
+    "cmap_high": 218, 
+    "cmap_low": 38,
+    'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
+    'LOGGING': True,
+    'PREVALIDATE': False,
+    'CWD': str(Path(sciunit.__path__[0]).resolve())
+}
 
 def warn_with_traceback(message: str, category: Type[Warning], filename: str, lineno: int,
                         file: TextIO=None, line: str=None) -> None:
@@ -120,8 +123,7 @@ def printd_set(state: bool) -> None:
         state (bool): [description]
     """
 
-    global settings
-    settings['PRINT_DEBUG_STATE'] = (state is True)
+    config_set('PRINT_DEBUG_STATE', (state is True))
 
 
 def printd(*args, **kwargs) -> bool:
@@ -131,8 +133,7 @@ def printd(*args, **kwargs) -> bool:
         bool: [description]
     """
 
-    global settings
-    if settings['PRINT_DEBUG_STATE']:
+    if config_get('PRINT_DEBUG_STATE', False):
         print(*args, **kwargs)
         return True
     return False
@@ -540,7 +541,7 @@ def import_all_modules(package, skip: list=None, verbose: bool=False,
                                verbose=verbose, depth=depth+1)
 
 
-def import_module_from_path(module_path: str, name=None) -> ModuleType:
+def import_module_from_path(module_path: Path, name=None) -> ModuleType:
     """Import the python modual by the path to the file (module).
 
     Args:
@@ -635,8 +636,8 @@ def method_cache(by: str='value', method: str='run') -> Callable:
 def log(*args, **kwargs) -> None:
     """[summary]
     """
-    if settings['LOGGING']:
-        if settings['KERNEL']:
+    if config_get('LOGGING', True):
+        if RUNTIME_SETTINGS['KERNEL']:
             kernel_log(*args, **kwargs)
         else:
             non_kernel_log(*args, **kwargs)
@@ -683,6 +684,7 @@ def create_config(data: dict=None) -> bool:
 
         if(config_path.is_file()):
             warn_with_traceback("Config file already exists.", Warning, "utils.py", 668)
+            success = False
         else:
             with open(config_path, 'w') as outfile:
                 json.dump(data, outfile)
@@ -691,7 +693,7 @@ def create_config(data: dict=None) -> bool:
 
     return success
 
-def config_get_from_path(config_path: str, key: str) -> int:
+def config_get_from_path(config_path: Path, key: str) -> Any:
     """[summary]
 
     Args:
@@ -723,18 +725,20 @@ def config_get_from_path(config_path: str, key: str) -> int:
     return value
 
 
-def config_get(key: str, default: int=None) -> int:
-    """[summary]
+def config_get(key: str, default: Any=None) -> Any:
+    """Get a value by key from the user configuration file.
 
     Args:
-        key (str): [description]
-        default (int, optional): [description]. Defaults to None.
+        key (str): The key used to find the value in the user configuration file.
+        default (Any, optional): The value to be returned if the key is not 
+                                 in the user configuration file. 
+                                 Defaults to None.
 
     Raises:
         e: An exception raised during get config process.
 
     Returns:
-        int: [description]
+        Any: The value found in the user configuration file by the key.
     """
     try:
         assert isinstance(key, str), "Config key must be a string"
@@ -749,19 +753,30 @@ def config_get(key: str, default: int=None) -> int:
             raise e
     return value
 
-
-def path_escape(path: str) -> str:
-    """Escape a path by placing backslashes in front of disallowed characters.
+def config_set(key: str, value: Any) -> bool:
+    """Write a key and a value to the user configuration file.
 
     Args:
-        path (str): original path.
+        key (str): The key of the value to be written to the the user configuration file.
+        value (Any): The value to be written to the the user configuration file.
 
     Returns:
-        str: the new path with the backslashes.
+        bool: Whether the action is success.
     """
-    for char in [' ', '(', ')']:
-        path = path.replace(char, '\%s' % char)
-    return path
+    success = True
+    try:
+        assert isinstance(key, str), "Config key must be a string"
+        config_path = Path.home() / ".sciunit" / "config.json"
+        with open(config_path, 'r+') as f:
+            config = json.load(f)
+            config[key] = value
+            f.seek(0)
+            f.truncate()
+            json.dump(config, f)
+    except Exception as e:
+        log(e)
+        success = False
+    return success
 
 ############# The following code is from project cypy by Dr. Cyrus Omar ##################
 
