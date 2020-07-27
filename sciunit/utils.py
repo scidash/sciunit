@@ -636,7 +636,7 @@ def method_cache(by: str='value', method: str='run') -> Callable:
 def log(*args, **kwargs) -> None:
     """[summary]
     """
-    if config_get('LOGGING', True):
+    if config_get('LOGGING', default=True, to_log=False):
         if RUNTIME_SETTINGS['KERNEL']:
             kernel_log(*args, **kwargs)
         else:
@@ -725,7 +725,7 @@ def config_get_from_path(config_path: Path, key: str) -> Any:
     return value
 
 
-def config_get(key: str, default: Any=None) -> Any:
+def config_get(key: str, default: Any=None, to_log=True) -> Any:
     """Get a value by key from the user configuration file.
 
     Args:
@@ -733,6 +733,7 @@ def config_get(key: str, default: Any=None) -> Any:
         default (Any, optional): The value to be returned if the key is not 
                                  in the user configuration file. 
                                  Defaults to None.
+        to_log (bool, optional): Whether to log the exception or not.
 
     Raises:
         e: An exception raised during get config process.
@@ -746,8 +747,9 @@ def config_get(key: str, default: Any=None) -> Any:
         value = config_get_from_path(config_path, key)
     except Exception as e:
         if default is not None:
-            log(e)
-            log("Using default value of %s" % default)
+            if to_log:
+                log(e)
+                log("Using default value of %s" % default)
             value = default
         else:
             raise e
