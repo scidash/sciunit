@@ -173,7 +173,7 @@ class Test(SciUnit):
         
         Args:
             model (Model): A sciunit model instance
-            skip_incapable (bool, optional): [description]. Defaults to False.
+            skip_incapable (bool, optional): Skip the incapable tests. Defaults to False.
             require_extra (bool, optional): [description]. Defaults to False.
 
         Raises:
@@ -339,7 +339,7 @@ class Test(SciUnit):
 
         Args:
             model (Model): A sciunit model instance.
-            skip_incapable (bool, optional): [description]. Defaults to True.
+            skip_incapable (bool, optional): Skip the incapable tests. Defaults to True.
 
         Returns:
             Score: The generated score.
@@ -397,7 +397,7 @@ class Test(SciUnit):
 
         Args:
             model (Model): A sciunit model instance
-            skip_incapable (bool, optional): [description]. Defaults to False.
+            skip_incapable (bool, optional): Skip the incapable tests. Defaults to False.
             stop_on_error (bool, optional): [description]. Defaults to True.
             deep_error (bool, optional): [description]. Defaults to False.
 
@@ -443,7 +443,7 @@ class Test(SciUnit):
 
         Args:
             model (Model): A sciunit model instance
-            skip_incapable (bool, optional): [description]. Defaults to True.
+            skip_incapable (bool, optional): Skip the incapable tests. Defaults to True.
             stop_on_error (bool, optional): [description]. Defaults to True.
             require_extra (bool, optional): [description]. Defaults to False.
 
@@ -685,8 +685,8 @@ class TestM2M(Test):
         actual code execution error, instead of the content of an ErrorScore.
 
         Args:
-            models (List[Model]): [description]
-            skip_incapable (bool, optional): [description]. Defaults to False.
+            models (List[Model]): A list of sciunit model instances.
+            skip_incapable (bool, optional): Skip the incapable tests. Defaults to False.
             stop_on_error (bool, optional): [description]. Defaults to True.
             deep_error (bool, optional): [description]. Defaults to False.
             only_lower_triangle (bool, optional): [description]. Defaults to False.

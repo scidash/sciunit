@@ -273,18 +273,23 @@ class SciUnit(Versioned):
         return self.dict_hash(self.state)
 
     def json(self, add_props: bool=False, keys: list=None, exclude: list=None, string: bool=True,
-             indent: None=None) -> Any:
-        """[summary]
+             indent: None=None) -> str:
+        """Generate a Json format encoded sciunit instance.
 
         Args:
             add_props (bool, optional): [description]. Defaults to False.
-            keys (list, optional): [description]. Defaults to None.
-            exclude (list, optional): [description]. Defaults to None.
-            string (bool, optional): [description]. Defaults to True.
-            indent (None, optional): [description]. Defaults to None.
+            keys (list, optional): Only the keys in `keys` will be included in the json content. Defaults to None.
+            exclude (list, optional): The keys in `exclude` will be excluded from the json content. Defaults to None.
+            string (bool, optional): The json content will be `str` type if True, `dict` type otherwise. Defaults to True.
+            indent (None, optional): If indent is a non-negative integer or string, then JSON array elements and object members 
+                                    will be pretty-printed with that indent level. An indent level of 0, negative, or "" will only 
+                                    insert newlines. None (the default) selects the most compact representation. Using a positive integer 
+                                    indent indents that many spaces per level. If indent is a string (such as "\t"), that string is 
+                                    used to indent each level (source: https://docs.python.org/3/library/json.html#json.dump). 
+                                    Defaults to None. 
 
         Returns:
-            str: [description]
+            str: The Json format encoded sciunit instance.
         """
         result = json.dumps(self, cls=SciUnitEncoder,
                             add_props=add_props, keys=keys, exclude=exclude,
