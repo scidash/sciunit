@@ -234,13 +234,13 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         """[summary]
 
         Args:
-            x (tuple): (test, model) or (model, test)
+            x (tuple): (test, model) or (model, test).
 
         Raises:
-            TypeError: Expected (test, model) or (model, test)
+            TypeError: Expected (test, model) or (model, test).
 
         Returns:
-            Union[Model, Test]: [description]
+            Union[Model, Test]: (test, model) or (model, test).
         """
         t = int(bool(self.transposed))
         if isinstance(x[0], Test) and isinstance(x[1], Model):
@@ -317,9 +317,9 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         """Extend Pandas built in `to_html` method for rendering a DataFrame and use it to render a ScoreMatrix.
 
         Args:
-            show_mean (bool, optional): [description]. Defaults to None.
+            show_mean (bool, optional): Whether to show the mean value. Defaults to None.
             sortable (bool, optional): [description]. Defaults to None.
-            colorize (bool, optional): [description]. Defaults to True.
+            colorize (bool, optional): Whether to colorize the table. Defaults to True.
 
         Returns:
             str: [description]

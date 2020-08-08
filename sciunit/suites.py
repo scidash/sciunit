@@ -133,7 +133,8 @@ class TestSuite(SciUnit, TestWeighted):
             models (Union[Model, List[Model]]): A list of sciunit model or a single sciunit model.
             skip_incapable (bool, optional): Whether to skip incapable models
                                              (or raise an exception). Defaults to True.
-            require_extra (bool, optional):  [description]. Defaults to False.
+            require_extra (bool, optional):  Check to see whether the model implements certain other methods.
+                                             Defaults to False.
             stop_on_error (bool, optional):  Whether to raise an Exception if an error
                                              is encountered or just produce an ErrorScore. Defaults to True.
 
@@ -159,7 +160,7 @@ class TestSuite(SciUnit, TestWeighted):
             model (Model): A sciunit model instance.
             skip_incapable (bool, optional): Whether to skip incapable models.
                 (or raise an exception). Defaults to False.
-            require_extra (bool, optional): [description]. Defaults to False.
+            require_extra (bool, optional): Check to see whether the model implements certain other methods. Defaults to False.
 
         Returns:
             list: A list of booleans that shows whether the required 

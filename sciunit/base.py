@@ -277,7 +277,7 @@ class SciUnit(Versioned):
         """Generate a Json format encoded sciunit instance.
 
         Args:
-            add_props (bool, optional): [description]. Defaults to False.
+            add_props (bool, optional): Whether to add additional properties of the object to the serialization. Defaults to False.
             keys (list, optional): Only the keys in `keys` will be included in the json content. Defaults to None.
             exclude (list, optional): The keys in `exclude` will be excluded from the json content. Defaults to None.
             string (bool, optional): The json content will be `str` type if True, `dict` type otherwise. Defaults to True.
