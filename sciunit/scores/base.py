@@ -120,7 +120,7 @@ class Score(SciUnit):
         This is useful for guaranteeing convexity in an error surface.
 
         Returns:
-            np.ndarray: [description]
+            np.ndarray: The natural logarithm of the `norm_score`.
         """
         return np.log(self.norm_score) if self.norm_score is not None else None
     
@@ -130,7 +130,7 @@ class Score(SciUnit):
         This is useful for guaranteeing convexity in an error surface.
 
         Returns:
-            np.ndarray: [description]
+            np.ndarray: The logarithm base 2 of the `norm_score`.
         """
         return np.log2(self.norm_score) if self.norm_score is not None else None
     
@@ -140,7 +140,7 @@ class Score(SciUnit):
         This is useful for guaranteeing convexity in an error surface.
 
         Returns:
-            np.ndarray: [description]
+            np.ndarray: The logarithm base 10 of the `norm_score`.
         """
         return np.log10(self.norm_score) if self.norm_score is not None else None
 
@@ -148,10 +148,10 @@ class Score(SciUnit):
         """Turn the score intp an RGB color tuple of three 8-bit integers.
 
         Args:
-            value (Union[float,, optional): [description]. Defaults to None.
+            value (Union[float,, optional): The score that will be turned to an RGB color. Defaults to None.
 
         Returns:
-            tuple: [description]
+            tuple: A tuple of three 8-bit integers that represents an RGB color.
         """
         if value is None:
             value = self.norm_score

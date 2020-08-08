@@ -694,19 +694,19 @@ def create_config(data: dict=None) -> bool:
     return success
 
 def config_get_from_path(config_path: Path, key: str) -> Any:
-    """[summary]
+    """Get a value from the user configuration file by the key.
 
     Args:
-        config_path (str): [description]
-        key (str): [description]
+        config_path (Path): The path to the sciunit user configuration file.
+        key (str): Key of a value of the config file.
 
     Raises:
-        Error: [description]
-        Error: [description]
-        Error: [description]
+        FileNotFoundError: Config file not found.
+        JSONDecodeError: Config file JSON was invalid
+        KeyError: Config file does not contain the key.
 
     Returns:
-        int: [description]
+        Any: The value from the user configuration file.
     """
     try:
         with open(config_path) as f:
