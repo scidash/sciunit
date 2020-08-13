@@ -135,13 +135,13 @@ def assert_dimensionless(value: Union[float, Quantity]) -> float:
     
 
     Args:
-        value (Union[float, Quantity]): [description]
+        value (Union[float, Quantity]): The value to be checked for dimensionless.
 
     Raises:
         TypeError: Score value must be dimensionless.
 
     Returns:
-        float: [description]
+        float: The bare value of `value`.
     """
 
     if isinstance(value, Quantity):

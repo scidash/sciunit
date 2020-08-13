@@ -33,8 +33,8 @@ class ObservationValidator(Validator):
     """Cerberus validator class for observations.
 
     Attributes:
-        test (Test): [Description of `test`].
-        _error (str, str): [Description of `_error`].
+        test (Test): A sciunit test instance to be validated.
+        _error (str, str): The error happends during the validating process.
     """
 
     def __init__(self, *args, **kwargs):

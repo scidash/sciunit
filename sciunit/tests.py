@@ -502,7 +502,7 @@ class Test(SciUnit):
         """Get the frozen (pickled) model state.
 
         Returns:
-            dict: [description]
+            dict: The frozen (pickled) model state
         """
         return self._state(exclude=['last_model'])
 
