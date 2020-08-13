@@ -273,28 +273,16 @@ class Score(SciUnit):
 
     def __repr__(self) -> str:
         """[summary]
-
-        Returns:
-            str: [description]
         """
         return self.__str__()
 
     def __str__(self) -> str:
         """[summary]
-
-        Returns:
-            str: [description]
         """
         return '%s' % self.score
 
     def __eq__(self, other: Union['Score', float]) -> bool:
         """[summary]
-
-        Args:
-            other (Union[): [description]
-
-        Returns:
-            bool: [description]
         """
         if isinstance(other, Score):
             result = self.norm_score == other.norm_score
@@ -304,12 +292,6 @@ class Score(SciUnit):
 
     def __ne__(self, other: Union['Score', float]) -> bool:
         """[summary]
-
-        Args:
-            other (Union[): [description]
-
-        Returns:
-            bool: [description]
         """
         if isinstance(other, Score):
             result = self.norm_score != other.norm_score
@@ -319,12 +301,6 @@ class Score(SciUnit):
 
     def __gt__(self, other: Union['Score', float]) -> bool:
         """[summary]
-
-        Args:
-            other (Union[): [description]
-
-        Returns:
-            bool: [description]
         """
         if isinstance(other, Score):
             result = self.norm_score > other.norm_score
@@ -334,12 +310,6 @@ class Score(SciUnit):
 
     def __ge__(self, other: Union['Score', float]) -> bool:
         """[summary]
-
-        Args:
-            other (Union[): [description]
-
-        Returns:
-            bool: [description]
         """
         if isinstance(other, Score):
             result = self.norm_score >= other.norm_score
@@ -349,12 +319,6 @@ class Score(SciUnit):
 
     def __lt__(self, other: Union['Score', float]) -> bool:
         """[summary]
-
-        Args:
-            other (Union[): [description]
-
-        Returns:
-            bool: [description]
         """
         if isinstance(other, Score):
             result = self.norm_score < other.norm_score
@@ -364,12 +328,6 @@ class Score(SciUnit):
 
     def __le__(self, other: Union['Score', float]) -> bool:
         """[summary]
-
-        Args:
-            other (Union[): [description]
-
-        Returns:
-            bool: [description]
         """
         if isinstance(other, Score):
             result = self.norm_score <= other.norm_score
