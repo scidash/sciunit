@@ -97,23 +97,6 @@ def dict_combine(*dict_list) -> dict:
     return {k: v for d in dict_list for k, v in d.items()}
 
 
-def rec_apply(func: Callable, n: int) -> Callable:
-    """Used to determine parent directory n levels up
-    by repeatedly applying os.path.dirname.
-
-    Args:
-        func (Callable): [description]
-        n (int): [description]
-
-    Returns:
-        Callable: [description]
-    """
-    if n > 1:
-        rec_func = rec_apply(func, n - 1)
-        return lambda x: func(rec_func(x))
-    return func
-
-
 def printd_set(state: bool) -> None:
     """Enable the printd function.
     Call with True for all subsequent printd commands to be passed to print.
