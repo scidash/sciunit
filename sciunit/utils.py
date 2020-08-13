@@ -103,7 +103,7 @@ def printd_set(state: bool) -> None:
     Call with False to ignore all subsequent printd commands.
 
     Args:
-        state (bool): [description]
+        state (bool): A state of an instance.
     """
 
     config_set('PRINT_DEBUG_STATE', (state is True))
@@ -113,7 +113,7 @@ def printd(*args, **kwargs) -> bool:
     """Print if PRINT_DEBUG_STATE is True.
 
     Returns:
-        bool: [description]
+        bool: Whether the information has been printed.
     """
 
     if config_get('PRINT_DEBUG_STATE', False):
