@@ -181,10 +181,12 @@ class NotebookTools(object):
         """Check to see if an extended path is given and convert appropriately.
 
         Args:
-            file (Union[str, list]): [description]
+            file (Union[str, list]): A path to the file as a string or list.
 
         Returns:
-            Union[str, int]: [description]
+            Union[str, int]: An `int` -1 when `file` is not a `str` or `list`, 
+                            otherwise, a string, which is a path to the file.
+                             
         """
 
         if isinstance(file, str):
@@ -202,10 +204,10 @@ class NotebookTools(object):
         
 
         Args:
-            file (str): [description]
+            file (Path): the path to the notebook file.
 
         Returns:
-            str: [description]
+            Path: The full resolved path to the notebook file.
         """
         class_path = Path(inspect.getfile(self.__class__))
         parent_path = class_path.parent

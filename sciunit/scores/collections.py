@@ -307,7 +307,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         """Get transpose of this ScoreMatrix.
 
         Returns:
-            ScoreMatrix: [description]
+            ScoreMatrix: The transpose of this ScoreMatrix.
         """
         return ScoreMatrix(self.tests, self.models, scores=self.values,
                            weights=self.weights, transpose=True)

@@ -110,7 +110,7 @@ class Score(SciUnit):
         where larger is better (used for sorting and coloring tables).
 
         Returns:
-            Score: [description]
+            Score: The norm score.
         """
         return self.score
     
@@ -184,7 +184,7 @@ class Score(SciUnit):
         """Summarize the performance of a model on a test.
 
         Returns:
-            str: [description]
+            str: The summary of this score.
         """
         return "=== Model %s achieved score %s on test '%s'. ===" % \
                (str(self.model), str(self), self.test)
@@ -227,10 +227,12 @@ class Score(SciUnit):
         """Get the description of this score instance.
 
         Args:
-            quiet (bool, optional): [description]. Defaults to False.
+            quiet (bool, optional): If `True`, then log the description, return the description otherwise. 
+                                    Defaults to False.
 
         Returns:
-            Union[str, None]: [description]
+            Union[str, None]: If not `quiet`, then return the description of this score instance.
+                            Otherwise, `None`.
         """
         d = self._describe()
         if quiet:
@@ -354,7 +356,8 @@ class Score(SciUnit):
             key (str, optional): [description]. Defaults to None.
 
         Returns:
-            Tuple[dict, dict]: [description]
+            Tuple[dict, dict]: A tuple that contains the mean of values of observations and the mean of 
+                                values of predictions.
         """
 
         obs_mv = cls.extract_mean_or_value(observation, key)
@@ -370,10 +373,10 @@ class Score(SciUnit):
             key (str, optional): [description]. Defaults to None.
 
         Raises:
-            KeyError: [description]
+            KeyError: Key not found.
 
         Returns:
-            float: [description]
+            float: The mean of the values of preditions or observations.
         """
 
         result = None
@@ -396,10 +399,10 @@ class ErrorScore(Score):
 
     @property
     def norm_score(self) -> float:
-        """[summary]
+        """Get the norm score, which is 0.0 for `ErrorScore` instance.
 
         Returns:
-            float: [description]
+            float: The norm score.
         """
         return 0.0
 
@@ -408,7 +411,7 @@ class ErrorScore(Score):
         """Summarize the performance of a model on a test.
 
         Returns:
-            str: [description]
+            str: The summary.
         """
         return "== Model %s did not complete test %s due to error '%s'. ==" %\
                (str(self.model), str(self.test), str(self.score))

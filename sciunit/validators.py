@@ -90,8 +90,8 @@ class ParametersValidator(Validator):
     """Cerberus validator class for observations.
 
     Attributes:
-        units_type ([type]): [description]
-        _error (str, str): [description]
+        units_type ([type]): The type of Python quantity's unit. 
+        _error (str, str): value is not a Python quantity instance.
     """
 
     # doc is needed here
@@ -110,7 +110,7 @@ class ParametersValidator(Validator):
         """Validate units, assuming that it was called by _validate_type_*.
 
         Args:
-            value (pq.quantity.Quantity): [description]
+            value (pq.quantity.Quantity): A python quantity instance.
 
         Returns:
             bool: Whether it is valid.
@@ -131,7 +131,7 @@ class ParametersValidator(Validator):
         """Validate fields requiring `units` of seconds.
 
         Args:
-            value (pq.quantity.Quantity): [description]
+            value (pq.quantity.Quantity): A python quantity instance.
 
         Returns:
             bool: Whether it is valid.
@@ -142,7 +142,7 @@ class ParametersValidator(Validator):
         """Validate fields requiring `units` of volts.
 
         Args:
-            value (pq.quantity.Quantity): [description]
+            value (pq.quantity.Quantity): A python quantity instance.
 
         Returns:
             bool: Whether it is valid.
@@ -153,7 +153,7 @@ class ParametersValidator(Validator):
         """Validate fields requiring `units` of amps.
 
         Args:
-            value (pq.quantity.Quantity): [description]
+            value (pq.quantity.Quantity): A python quantity instance.
 
         Returns:
             bool: Whether it is valid.
