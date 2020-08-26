@@ -110,7 +110,7 @@ class Score(SciUnit):
         where larger is better (used for sorting and coloring tables).
 
         Returns:
-            Score: The norm score.
+            Score: The [0-1] normalized score.
         """
         return self.score
     
@@ -411,7 +411,7 @@ class ErrorScore(Score):
         """Summarize the performance of a model on a test.
 
         Returns:
-            str: The summary.
+            str: A textual summary of the score.
         """
         return "== Model %s did not complete test %s due to error '%s'. ==" %\
                (str(self.model), str(self.test), str(self.score))

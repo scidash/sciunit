@@ -13,7 +13,7 @@ def register_backends(vars: dict) -> None:
 
     Args:
         vars (dict): a dictionary of variables obtained from e.g. `locals()`,
-                    at least some of which are Backend classes, e.g. from imports.
+                     at least some of which are Backend classes, e.g. from imports.
     """
     new_backends = {x if x is None else x.replace('Backend', ''): cls
                     for x, cls in vars.items()

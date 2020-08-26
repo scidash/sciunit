@@ -134,7 +134,7 @@ def assert_dimensionless(value: Union[float, Quantity]) -> float:
     
 
     Args:
-        value (Union[float, Quantity]): The value to be checked for dimensionless.
+        value (Union[float, Quantity]): The value to be checked for dimensionlessness.
 
     Raises:
         TypeError: Score value must be dimensionless.
@@ -206,7 +206,7 @@ class NotebookTools(object):
             file (Path): the path to the notebook file.
 
         Returns:
-            Path: The full resolved path to the notebook file.
+            Path: The fully resolved path to the notebook file.
         """
         class_path = Path(inspect.getfile(self.__class__))
         parent_path = class_path.parent
@@ -686,7 +686,7 @@ def config_get_from_path(config_path: Path, key: str) -> Any:
 
     Raises:
         FileNotFoundError: Config file not found.
-        JSONDecodeError: Config file JSON was invalid
+        JSONDecodeError: Config file JSON was invalid.
         KeyError: Config file does not contain the key.
 
     Returns:
@@ -747,7 +747,7 @@ def config_set(key: str, value: Any) -> bool:
         value (Any): The value to be written to the the user configuration file.
 
     Returns:
-        bool: Whether the action is success.
+        bool: Whether the action is successful.
     """
     success = True
     try:

@@ -282,10 +282,10 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
 
     @property
     def norm_scores(self) -> pd.DataFrame:
-        """Get a DaraFrame instance that contains norm scores as a matrix.
+        """Get a DataFrame instance that contains norm scores as a matrix.
 
         Returns:
-            DaraFrame: The DaraFrame instance that contains norm scores as a matrix.
+            DataFrame: The DataFrame instance that contains norm scores as a matrix.
         """
         return self.applymap(lambda x: x.norm_score)
 
@@ -293,8 +293,8 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         """Computes the relative rank of a model on a test compared to other models that were asked to take the test.
 
         Args:
-            test (Test): A sciuniy test instance.
-            model (Model): A sciuniy model instance.
+            test (Test): A sciunit test instance.
+            model (Model): A sciunit model instance.
 
         Returns:
             int: The relative rank of a model on a test

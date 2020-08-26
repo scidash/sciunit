@@ -871,7 +871,7 @@ class ProtocolToFeaturesTest(Test):
         return NotImplementedError()
 
     def get_result(self, model: Model) -> NotImplementedError:
-        """Get the result of this test against the `model`.
+        """Get the result of this test against the model `model`.
 
         Args:
             model (Model): A sciunit model instance.

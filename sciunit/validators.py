@@ -34,7 +34,7 @@ class ObservationValidator(Validator):
 
     Attributes:
         test (Test): A sciunit test instance to be validated.
-        _error (str, str): The error happends during the validating process.
+        _error (str, str): The error that happens during the validating process.
     """
 
     def __init__(self, *args, **kwargs):
