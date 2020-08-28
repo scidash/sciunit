@@ -43,7 +43,6 @@ RUNTIME_SETTINGS = {'KERNEL': ('ipykernel' in sys.modules)}
 DEFAULT_CONFIG = {
     "cmap_high": 218, 
     "cmap_low": 38,
-    'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
     'LOGGING': True,
     'PREVALIDATE': False,
     'CWD': str(Path(sciunit.__path__[0]).resolve())
@@ -94,31 +93,6 @@ def dict_combine(*dict_list) -> dict:
         dict: the dict from combining the dicts
     """
     return {k: v for d in dict_list for k, v in d.items()}
-
-
-def printd_set(state: bool) -> None:
-    """Enable the printd function.
-    Call with True for all subsequent printd commands to be passed to print.
-    Call with False to ignore all subsequent printd commands.
-
-    Args:
-        state (bool): A state of an instance.
-    """
-
-    config_set('PRINT_DEBUG_STATE', (state is True))
-
-
-def printd(*args, **kwargs) -> bool:
-    """Print if PRINT_DEBUG_STATE is True.
-
-    Returns:
-        bool: Whether the information has been printed.
-    """
-
-    if config_get('PRINT_DEBUG_STATE', False):
-        print(*args, **kwargs)
-        return True
-    return False
 
 
 if PYTHON_MAJOR_VERSION == 3:
@@ -226,7 +200,7 @@ class NotebookTools(object):
             except ImportError:
                 pass
             else:
-                printd("Setting matplotlib backend to Agg")
+                sciunit.logger.info("Setting matplotlib backend to Agg")
                 mpl.use('Agg')
 
     def load_notebook(self, name: str) -> Tuple[nbformat.NotebookNode, Union[str, Path]]:
@@ -416,7 +390,7 @@ class NotebookTools(object):
         else:
             raise Exception('Only Python 3 is supported')
         if line == stripped:
-            printd("No line magic pattern match in '%s'" % line)
+            sciunit.logger.info("No line magic pattern match in '%s'" % line)
         if magic_kind and magic_kind not in magics_allowed:
             # If the part after the magic won't work, just get rid of it
             stripped = ""

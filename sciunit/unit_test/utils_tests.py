@@ -41,14 +41,6 @@ class UtilsTestCase(unittest.TestCase):
         else:
             raise Exception("Should have produced a type error")
 
-    def test_printd(self):
-        from sciunit.utils import printd, printd_set
-
-        printd_set(True)
-        self.assertTrue(printd("This line should print"))
-        printd_set(False)
-        self.assertFalse(printd("This line should not print"))
-
     def test_dict_hash(self):
         from sciunit.base import SciUnit
         from sciunit.utils import dict_hash
