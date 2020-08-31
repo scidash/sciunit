@@ -23,10 +23,10 @@ class UtilsTestCase(unittest.TestCase):
         notebookObj.execute_notebook("../docs/chapter1")
 
     def test_log(self):
-        from sciunit.utils import log, kernel_log, non_kernel_log
+        from sciunit.utils import log, html_log, strip_html
 
-        non_kernel_log("test log1", "test log2")
-        kernel_log("test log1", "test log2")
+        strip_html("test log1")
+        html_log("test log1", "test log2")
         log("Lorem Ipsum")
 
     def test_assert_dimensionless(self):

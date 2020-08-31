@@ -14,6 +14,7 @@ import contextlib
 import traceback
 import inspect
 import functools
+import logging
 from io import TextIOWrapper, StringIO
 from datetime import datetime
 from tempfile import TemporaryDirectory
@@ -43,7 +44,7 @@ RUNTIME_SETTINGS = {'KERNEL': ('ipykernel' in sys.modules)}
 DEFAULT_CONFIG = {
     "cmap_high": 218, 
     "cmap_low": 38,
-    'LOGGING': True,
+    'LOGGING': logging.INFO,
     'PREVALIDATE': False,
     'CWD': str(Path(sciunit.__path__[0]).resolve())
 }
@@ -591,26 +592,16 @@ def method_cache(by: str='value', method: str='run') -> Callable:
 
 
 
-def log(*args, **kwargs) -> None:
-    """[summary]
-    """
-    if config_get('LOGGING', default=True, to_log=False):
-        if RUNTIME_SETTINGS['KERNEL']:
-            kernel_log(*args, **kwargs)
-        else:
-            non_kernel_log(*args, **kwargs)
+def log(*args, **kwargs):
+    level = kwargs.get('level', config_get('LOGGING', default=logging.INFO, to_log=False))
+    for arg in args:
+        sciunit.logger.log(level, arg, **kwargs)
 
 
-def non_kernel_log(*args, **kwargs) -> None:
-    """[summary]
-    """
-    args = [bs4.BeautifulSoup(x, "lxml").text
-            if not isinstance(x, Exception) else x
-            for x in args]
-    print(*args, **kwargs)
+def strip_html(html):
+    return html if isinstance(html, Exception) else bs4.BeautifulSoup(html, "lxml").text
 
-
-def kernel_log(*args, **kwargs) -> None:
+def html_log(*args, **kwargs) -> None:
     """[summary]
     """
     with StringIO() as f:
