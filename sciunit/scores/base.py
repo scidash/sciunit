@@ -110,7 +110,7 @@ class Score(SciUnit):
         where larger is better (used for sorting and coloring tables).
 
         Returns:
-            Score: [description]
+            Score: The [0-1] normalized score.
         """
         return self.score
     
@@ -120,7 +120,7 @@ class Score(SciUnit):
         This is useful for guaranteeing convexity in an error surface.
 
         Returns:
-            np.ndarray: [description]
+            np.ndarray: The natural logarithm of the `norm_score`.
         """
         return np.log(self.norm_score) if self.norm_score is not None else None
     
@@ -130,7 +130,7 @@ class Score(SciUnit):
         This is useful for guaranteeing convexity in an error surface.
 
         Returns:
-            np.ndarray: [description]
+            np.ndarray: The logarithm base 2 of the `norm_score`.
         """
         return np.log2(self.norm_score) if self.norm_score is not None else None
     
@@ -140,7 +140,7 @@ class Score(SciUnit):
         This is useful for guaranteeing convexity in an error surface.
 
         Returns:
-            np.ndarray: [description]
+            np.ndarray: The logarithm base 10 of the `norm_score`.
         """
         return np.log10(self.norm_score) if self.norm_score is not None else None
 
@@ -148,10 +148,10 @@ class Score(SciUnit):
         """Turn the score intp an RGB color tuple of three 8-bit integers.
 
         Args:
-            value (Union[float,, optional): [description]. Defaults to None.
+            value (Union[float,, optional): The score that will be turned to an RGB color. Defaults to None.
 
         Returns:
-            tuple: [description]
+            tuple: A tuple of three 8-bit integers that represents an RGB color.
         """
         if value is None:
             value = self.norm_score
@@ -184,7 +184,7 @@ class Score(SciUnit):
         """Summarize the performance of a model on a test.
 
         Returns:
-            str: [description]
+            str: The summary of this score.
         """
         return "=== Model %s achieved score %s on test '%s'. ===" % \
                (str(self.model), str(self), self.test)
@@ -227,10 +227,12 @@ class Score(SciUnit):
         """Get the description of this score instance.
 
         Args:
-            quiet (bool, optional): [description]. Defaults to False.
+            quiet (bool, optional): If `True`, then log the description, return the description otherwise. 
+                                    Defaults to False.
 
         Returns:
-            Union[str, None]: [description]
+            Union[str, None]: If not `quiet`, then return the description of this score instance.
+                            Otherwise, `None`.
         """
         d = self._describe()
         if quiet:
@@ -273,28 +275,16 @@ class Score(SciUnit):
 
     def __repr__(self) -> str:
         """[summary]
-
-        Returns:
-            str: [description]
         """
         return self.__str__()
 
     def __str__(self) -> str:
         """[summary]
-
-        Returns:
-            str: [description]
         """
         return '%s' % self.score
 
     def __eq__(self, other: Union['Score', float]) -> bool:
         """[summary]
-
-        Args:
-            other (Union[): [description]
-
-        Returns:
-            bool: [description]
         """
         if isinstance(other, Score):
             result = self.norm_score == other.norm_score
@@ -304,12 +294,6 @@ class Score(SciUnit):
 
     def __ne__(self, other: Union['Score', float]) -> bool:
         """[summary]
-
-        Args:
-            other (Union[): [description]
-
-        Returns:
-            bool: [description]
         """
         if isinstance(other, Score):
             result = self.norm_score != other.norm_score
@@ -319,12 +303,6 @@ class Score(SciUnit):
 
     def __gt__(self, other: Union['Score', float]) -> bool:
         """[summary]
-
-        Args:
-            other (Union[): [description]
-
-        Returns:
-            bool: [description]
         """
         if isinstance(other, Score):
             result = self.norm_score > other.norm_score
@@ -334,12 +312,6 @@ class Score(SciUnit):
 
     def __ge__(self, other: Union['Score', float]) -> bool:
         """[summary]
-
-        Args:
-            other (Union[): [description]
-
-        Returns:
-            bool: [description]
         """
         if isinstance(other, Score):
             result = self.norm_score >= other.norm_score
@@ -349,12 +321,6 @@ class Score(SciUnit):
 
     def __lt__(self, other: Union['Score', float]) -> bool:
         """[summary]
-
-        Args:
-            other (Union[): [description]
-
-        Returns:
-            bool: [description]
         """
         if isinstance(other, Score):
             result = self.norm_score < other.norm_score
@@ -364,12 +330,6 @@ class Score(SciUnit):
 
     def __le__(self, other: Union['Score', float]) -> bool:
         """[summary]
-
-        Args:
-            other (Union[): [description]
-
-        Returns:
-            bool: [description]
         """
         if isinstance(other, Score):
             result = self.norm_score <= other.norm_score
@@ -396,7 +356,8 @@ class Score(SciUnit):
             key (str, optional): [description]. Defaults to None.
 
         Returns:
-            Tuple[dict, dict]: [description]
+            Tuple[dict, dict]: A tuple that contains the mean of values of observations and the mean of 
+                                values of predictions.
         """
 
         obs_mv = cls.extract_mean_or_value(observation, key)
@@ -412,10 +373,10 @@ class Score(SciUnit):
             key (str, optional): [description]. Defaults to None.
 
         Raises:
-            KeyError: [description]
+            KeyError: Key not found.
 
         Returns:
-            float: [description]
+            float: The mean of the values of preditions or observations.
         """
 
         result = None
@@ -438,10 +399,10 @@ class ErrorScore(Score):
 
     @property
     def norm_score(self) -> float:
-        """[summary]
+        """Get the norm score, which is 0.0 for `ErrorScore` instance.
 
         Returns:
-            float: [description]
+            float: The norm score.
         """
         return 0.0
 
@@ -450,7 +411,7 @@ class ErrorScore(Score):
         """Summarize the performance of a model on a test.
 
         Returns:
-            str: [description]
+            str: A textual summary of the score.
         """
         return "== Model %s did not complete test %s due to error '%s'. ==" %\
                (str(self.model), str(self.test), str(self.score))

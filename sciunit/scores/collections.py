@@ -114,10 +114,9 @@ class ScoreArray(pd.Series, SciUnit,TestWeighted):
         Rank is against other models that were asked to take the test.
 
         Args:
-            test_or_model (Union[Model, Test]): [description]
-
+            test_or_model (Union[Model, Test]): A sciunit model or test instance.
         Returns:
-            int: [description]
+            int: The rank of the model or test instance.
         """
         return self.norm_scores.rank(ascending=False)[test_or_model]
 
@@ -170,17 +169,21 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
     sortable = False
     direct_attrs = ['score', 'norm_scores', 'related_data']
 
-    def check_tests_models_scores(self, tests: List[Test], models: List[Model], scores: List[Score]) \
+    def check_tests_models_scores(self, 
+        tests: Union[Test, List[Test]], 
+        models: Union[Model, List[Model]], 
+        scores: Union[Score, List[Score]]
+        ) \
         -> Tuple[List[Test], List[Model], List[Score]]:
-        """[summary]
+        """ Check if `tests`, `models`, and `scores` are lists and covert them to lists if they are not.
 
         Args:
-            tests (List[Test]): [description]
-            models (List[Model]): [description]
-            scores (List[Score]): [description]
+            tests (List[Test]): A sciunit test instance or a list of the test instances.
+            models (List[Model]): A sciunit model instance or a list of the model instances.
+            scores (List[Score]): A sciunit score instance or a list of the score instances.
 
         Returns:
-            Tuple[List[Test], List[Model], List[Score]]: [description]
+            Tuple[List[Test], List[Model], List[Score]]: Tuple of lists of tests, models, and scores instances.
         """
         if isinstance(tests, Test):
             tests = [tests]
@@ -231,13 +234,13 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         """[summary]
 
         Args:
-            x (tuple): [description]
+            x (tuple): (test, model) or (model, test).
 
         Raises:
-            TypeError: [description]
+            TypeError: Expected (test, model) or (model, test).
 
         Returns:
-            Union[Model, Test]: [description]
+            Union[Model, Test]: (test, model) or (model, test).
         """
         t = int(bool(self.transposed))
         if isinstance(x[0], Test) and isinstance(x[1], Model):
@@ -247,7 +250,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         elif isinstance(x[0], str):
             result = self.__getitem__(x[t]).__getitem__(x[1-t])
         else:
-            raise TypeError("Expected test,model or model,test")
+            raise TypeError("Expected test, model or model, test")
         return result
 
     def get_by_name(self, name: str) -> Union[Model, Test]:
@@ -279,22 +282,22 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
 
     @property
     def norm_scores(self) -> pd.DataFrame:
-        """[summary]
+        """Get a DataFrame instance that contains norm scores as a matrix.
 
         Returns:
-            DaraFrame: [description]
+            DataFrame: The DataFrame instance that contains norm scores as a matrix.
         """
         return self.applymap(lambda x: x.norm_score)
 
-    def stature(self, test: Test, model: Model):
+    def stature(self, test: Test, model: Model) -> int:
         """Computes the relative rank of a model on a test compared to other models that were asked to take the test.
 
         Args:
-            test (Test): [description]
-            model (Model): [description]
+            test (Test): A sciunit test instance.
+            model (Model): A sciunit model instance.
 
         Returns:
-            [type]: [description]
+            int: The relative rank of a model on a test
         """
 
         return self[test].stature(model)
@@ -304,7 +307,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         """Get transpose of this ScoreMatrix.
 
         Returns:
-            ScoreMatrix: [description]
+            ScoreMatrix: The transpose of this ScoreMatrix.
         """
         return ScoreMatrix(self.tests, self.models, scores=self.values,
                            weights=self.weights, transpose=True)
@@ -314,9 +317,9 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         """Extend Pandas built in `to_html` method for rendering a DataFrame and use it to render a ScoreMatrix.
 
         Args:
-            show_mean (bool, optional): [description]. Defaults to None.
+            show_mean (bool, optional): Whether to show the mean value. Defaults to None.
             sortable (bool, optional): [description]. Defaults to None.
-            colorize (bool, optional): [description]. Defaults to True.
+            colorize (bool, optional): Whether to colorize the table. Defaults to True.
 
         Returns:
             str: [description]
@@ -424,9 +427,9 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             else:
                 score = self[self.models[i], self.tests[j_]]
 
-            if isinstance(score, pd.Series) and score.ndim is 1:
+            if isinstance(score, pd.Series) and score.ndim == 1:
                 score = score[0]
-            elif isinstance(score, pd.DataFrame) and score.ndim is 2:
+            elif isinstance(score, pd.DataFrame) and score.ndim == 2:
                 # Select the first item generated by the iterator.
                 score = next(score.items(), None)[1][0]
 

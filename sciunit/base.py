@@ -1,6 +1,5 @@
 """The base class for many SciUnit objects."""
 
-import os
 import sys
 
 PLATFORM = sys.platform
@@ -12,7 +11,7 @@ import json, git, pickle, hashlib
 
 import numpy as np
 import pandas as pd
-
+from pathlib import Path
 from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.cmd import Git
 from git.remote import Remote
@@ -25,7 +24,7 @@ except ImportError:
     tkinter = None
 
 KERNEL = ('ipykernel' in sys.modules)
-HERE = os.path.dirname(os.path.realpath(__file__))
+HERE = Path(__file__).resolve().parent.name
 
 
 class Versioned(object):
@@ -50,7 +49,7 @@ class Versioned(object):
         if hasattr(self.__class__, '_repo') and cached:
             repo = self.__class__._repo
         elif hasattr(module, '__file__'):
-            path = os.path.realpath(module.__file__)
+            path = Path(module.__file__).resolve()
             try:
                 repo = git.Repo(path, search_parent_directories=True)
             except InvalidGitRepositoryError:
@@ -274,18 +273,23 @@ class SciUnit(Versioned):
         return self.dict_hash(self.state)
 
     def json(self, add_props: bool=False, keys: list=None, exclude: list=None, string: bool=True,
-             indent: None=None) -> Any:
-        """[summary]
+             indent: None=None) -> str:
+        """Generate a Json format encoded sciunit instance.
 
         Args:
-            add_props (bool, optional): [description]. Defaults to False.
-            keys (list, optional): [description]. Defaults to None.
-            exclude (list, optional): [description]. Defaults to None.
-            string (bool, optional): [description]. Defaults to True.
-            indent (None, optional): [description]. Defaults to None.
+            add_props (bool, optional): Whether to add additional properties of the object to the serialization. Defaults to False.
+            keys (list, optional): Only the keys in `keys` will be included in the json content. Defaults to None.
+            exclude (list, optional): The keys in `exclude` will be excluded from the json content. Defaults to None.
+            string (bool, optional): The json content will be `str` type if True, `dict` type otherwise. Defaults to True.
+            indent (None, optional): If indent is a non-negative integer or string, then JSON array elements and object members 
+                                    will be pretty-printed with that indent level. An indent level of 0, negative, or "" will only 
+                                    insert newlines. None (the default) selects the most compact representation. Using a positive integer 
+                                    indent indents that many spaces per level. If indent is a string (such as "\t"), that string is 
+                                    used to indent each level (source: https://docs.python.org/3/library/json.html#json.dump). 
+                                    Defaults to None. 
 
         Returns:
-            str: [description]
+            str: The Json format encoded sciunit instance.
         """
         result = json.dumps(self, cls=SciUnitEncoder,
                             add_props=add_props, keys=keys, exclude=exclude,
@@ -397,8 +401,8 @@ def deep_exclude(state: dict, exclude: list) -> dict:
     """[summary]
 
     Args:
-        state (dict): [description]
-        exclude (list): [description]
+        state (dict): A dict that represents the state of an instance.
+        exclude (list): Attributes that will be marked as 'removed'
 
     Returns:
         dict: [description]

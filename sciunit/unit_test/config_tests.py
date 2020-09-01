@@ -8,15 +8,13 @@ class ConfigTestCase(unittest.TestCase):
     """Unit tests for config files"""
 
     def test_json_config(self):
-        from sciunit.utils import config_get, create_config
+        from sciunit.utils import config_get, create_config, DEFAULT_CONFIG
 
         from pathlib import Path
         config_path = Path.home() / ".sciunit" / "config.json"
-        json_content = {"cmap_high": 218, "cmap_low": 38}
-        create_config(json_content)
+        create_config(DEFAULT_CONFIG)
             
         self.assertTrue(config_path.is_file())
-        print(config_path)
         cmap_low = config_get("cmap_low")
         
         self.assertTrue(isinstance(cmap_low, int))

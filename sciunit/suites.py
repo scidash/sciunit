@@ -21,7 +21,7 @@ class TestSuite(SciUnit, TestWeighted):
     def __init__(self, tests: List[Test], name: str=None, weights=None, include_models: List[Model]=None,
                  skip_models: List[Model]=None, hooks: dict=None, 
                  optimizer=None):
-        """optimizer: a function to bind to self.optimize (first argument must be a testsuite).
+        """The constructor of TestSuite class.
 
         Args:
             tests (List[Test]): The list of tests.
@@ -30,7 +30,7 @@ class TestSuite(SciUnit, TestWeighted):
             include_models (List[Model], optional): The list of models. Defaults to None.
             skip_models (List[Model], optional): A list of models that will be skipped. Defaults to None.
             hooks (dict, optional): [description]. Defaults to None.
-            optimizer (optional): [description]. Defaults to None.
+            optimizer (optional): A function to bind to self.optimize (first argument must be a TestSuite). Defaults to None.
         """
 
         self.name = name if name else "Suite_%d" % random.randint(0, 1e12)
@@ -133,7 +133,8 @@ class TestSuite(SciUnit, TestWeighted):
             models (Union[Model, List[Model]]): A list of sciunit model or a single sciunit model.
             skip_incapable (bool, optional): Whether to skip incapable models
                                              (or raise an exception). Defaults to True.
-            require_extra (bool, optional):  [description]. Defaults to False.
+            require_extra (bool, optional):  Check to see whether the model implements certain other methods.
+                                             Defaults to False.
             stop_on_error (bool, optional):  Whether to raise an Exception if an error
                                              is encountered or just produce an ErrorScore. Defaults to True.
 
@@ -159,7 +160,7 @@ class TestSuite(SciUnit, TestWeighted):
             model (Model): A sciunit model instance.
             skip_incapable (bool, optional): Whether to skip incapable models.
                 (or raise an exception). Defaults to False.
-            require_extra (bool, optional): [description]. Defaults to False.
+            require_extra (bool, optional): Check to see whether the model implements certain other methods. Defaults to False.
 
         Returns:
             list: A list of booleans that shows whether the required 

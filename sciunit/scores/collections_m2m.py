@@ -55,11 +55,11 @@ class ScoreArrayM2M(pd.Series):
                         "any model: '%s'") % name)
 
     @property
-    def norm_scores(self) -> float:
-        """[summary]
+    def norm_scores(self) -> pd.Series:
+        """A series of norm scores.
 
         Returns:
-            float: [description]
+            Series: A series of norm scores.
         """
         return self.map(lambda x: x.norm_score)
 
@@ -149,9 +149,9 @@ class ScoreMatrixM2M(pd.DataFrame):
 
     @property
     def norm_scores(self) -> pd.DataFrame:
-        """[summary]
+        """Get a pandas DataFrame instance that contains norm scores.
 
         Returns:
-            DataFrame: [description]
+            DataFrame: A pandas DataFrame instance that contains norm scores.
         """
         return self.applymap(lambda x: x.norm_score)

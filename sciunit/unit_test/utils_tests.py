@@ -22,18 +22,11 @@ class UtilsTestCase(unittest.TestCase):
         notebookObj = NotebookTools()
         notebookObj.execute_notebook("../docs/chapter1")
 
-    def test_path_escape(self):
-        test_str = "(( ) )"
-        from sciunit.utils import path_escape
-
-        test_str = path_escape(test_str)
-        self.assertEqual(test_str, "\(\(\ \)\ \)")
-
     def test_log(self):
-        from sciunit.utils import log, kernel_log, non_kernel_log
+        from sciunit.utils import log, html_log, strip_html
 
-        non_kernel_log("test log1", "test log2")
-        kernel_log("test log1", "test log2")
+        strip_html("test log1")
+        html_log("test log1", "test log2")
         log("Lorem Ipsum")
 
     def test_assert_dimensionless(self):
@@ -47,14 +40,6 @@ class UtilsTestCase(unittest.TestCase):
             pass
         else:
             raise Exception("Should have produced a type error")
-
-    def test_printd(self):
-        from sciunit.utils import printd, printd_set
-
-        printd_set(True)
-        self.assertTrue(printd("This line should print"))
-        printd_set(False)
-        self.assertFalse(printd("This line should not print"))
 
     def test_dict_hash(self):
         from sciunit.base import SciUnit

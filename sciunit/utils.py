@@ -2,7 +2,6 @@
 Utility functions for SciUnit.
 """
 
-from __future__ import print_function
 import os
 import sys
 import warnings
@@ -15,6 +14,7 @@ import contextlib
 import traceback
 import inspect
 import functools
+import logging
 from io import TextIOWrapper, StringIO
 from datetime import datetime
 from tempfile import TemporaryDirectory
@@ -32,20 +32,22 @@ import sciunit
 from sciunit.errors import Error
 from .base import SciUnit, tkinter
 from .base import PLATFORM, PYTHON_MAJOR_VERSION
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TextIO, Type
+from typing import Any, Callable, List, Tuple, Union, TextIO, Type
 from types import ModuleType
 import unittest.mock
 from pathlib import Path
 
 mock = False  # mock is probably obviated by the unittest -b flag.
 
-settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
-            'LOGGING': True,
-            'PREVALIDATE': False,
-            'KERNEL': ('ipykernel' in sys.modules),
-            'CWD': os.path.realpath(sciunit.__path__[0])}
+RUNTIME_SETTINGS = {'KERNEL': ('ipykernel' in sys.modules)}
 
-DEFAULT_CONFIG = {"cmap_high": 218, "cmap_low": 38}
+DEFAULT_CONFIG = {
+    "cmap_high": 218, 
+    "cmap_low": 38,
+    'LOGGING': logging.INFO,
+    'PREVALIDATE': False,
+    'CWD': str(Path(sciunit.__path__[0]).resolve())
+}
 
 def warn_with_traceback(message: str, category: Type[Warning], filename: str, lineno: int,
                         file: TextIO=None, line: str=None) -> None:
@@ -94,50 +96,6 @@ def dict_combine(*dict_list) -> dict:
     return {k: v for d in dict_list for k, v in d.items()}
 
 
-def rec_apply(func: Callable, n: int) -> Callable:
-    """Used to determine parent directory n levels up
-    by repeatedly applying os.path.dirname.
-
-    Args:
-        func (Callable): [description]
-        n (int): [description]
-
-    Returns:
-        Callable: [description]
-    """
-    if n > 1:
-        rec_func = rec_apply(func, n - 1)
-        return lambda x: func(rec_func(x))
-    return func
-
-
-def printd_set(state: bool) -> None:
-    """Enable the printd function.
-    Call with True for all subsequent printd commands to be passed to print.
-    Call with False to ignore all subsequent printd commands.
-
-    Args:
-        state (bool): [description]
-    """
-
-    global settings
-    settings['PRINT_DEBUG_STATE'] = (state is True)
-
-
-def printd(*args, **kwargs) -> bool:
-    """Print if PRINT_DEBUG_STATE is True.
-
-    Returns:
-        bool: [description]
-    """
-
-    global settings
-    if settings['PRINT_DEBUG_STATE']:
-        print(*args, **kwargs)
-        return True
-    return False
-
-
 if PYTHON_MAJOR_VERSION == 3:
     redirect_stdout = contextlib.redirect_stdout
 else:  # Python 2
@@ -151,13 +109,13 @@ def assert_dimensionless(value: Union[float, Quantity]) -> float:
     
 
     Args:
-        value (Union[float, Quantity]): [description]
+        value (Union[float, Quantity]): The value to be checked for dimensionlessness.
 
     Raises:
         TypeError: Score value must be dimensionless.
 
     Returns:
-        float: [description]
+        float: The bare value of `value`.
     """
 
     if isinstance(value, Quantity):
@@ -197,10 +155,12 @@ class NotebookTools(object):
         """Check to see if an extended path is given and convert appropriately.
 
         Args:
-            file (Union[str, list]): [description]
+            file (Union[str, list]): A path to the file as a string or list.
 
         Returns:
-            Union[str, int]: [description]
+            Union[str, int]: An `int` -1 when `file` is not a `str` or `list`, 
+                            otherwise, a string, which is a path to the file.
+                             
         """
 
         if isinstance(file, str):
@@ -212,22 +172,21 @@ class NotebookTools(object):
             print("Incorrect path specified")
             return -1
 
-    def get_path(self, file: str) -> str:
+    def get_path(self, file: Path) -> Path:
         """Get the full path of the notebook found in the directory
         specified by self.path.
         
 
         Args:
-            file (str): [description]
+            file (Path): the path to the notebook file.
 
         Returns:
-            str: [description]
+            Path: The fully resolved path to the notebook file.
         """
-
-        class_path = inspect.getfile(self.__class__)
-        parent_path = os.path.dirname(class_path)
-        path = os.path.join(parent_path, self.path, file)
-        return os.path.realpath(path)
+        class_path = Path(inspect.getfile(self.__class__))
+        parent_path = class_path.parent
+        path = parent_path / self.path / file
+        return path.resolve()
 
     def fix_display(self) -> None:
         """If this is being run on a headless system the Matplotlib
@@ -242,7 +201,7 @@ class NotebookTools(object):
             except ImportError:
                 pass
             else:
-                printd("Setting matplotlib backend to Agg")
+                sciunit.logger.info("Setting matplotlib backend to Agg")
                 mpl.use('Agg')
 
     def load_notebook(self, name: str) -> Tuple[nbformat.NotebookNode, Union[str, Path]]:
@@ -323,7 +282,7 @@ class NotebookTools(object):
         code = self.read_code(name)
         exec(code, globals())
 
-    def gen_file_path(self, name: str) -> str:
+    def gen_file_path(self, name: str) -> Path:
         """Returns full path to generated files.  
         
         Checks to see if directory exists where generated files 
@@ -337,17 +296,21 @@ class NotebookTools(object):
         """
         relative_path = self.convert_path(name)
         file_path = self.get_path("%s.ipynb" % relative_path)
-        parent_path = rec_apply(os.path.dirname,
-                                self.gen_file_level)(file_path)
+
+        parent_path = file_path
+        for _ in range(self.gen_file_level):
+            parent_path = parent_path.parent
+                                
         # Name of generated file
         gen_file_name = name if isinstance(name, str) else name[1]
-        gen_dir_path = self.get_path(os.path.join(parent_path,
-                                                  self.gen_dir_name))
+        gen_dir_path = self.get_path(parent_path / self.gen_dir_name)
+
         # Create folder for generated files if needed
-        if not os.path.exists(gen_dir_path):
+        if not gen_dir_path.exists():
             os.makedirs(gen_dir_path)
-        new_file_path = self.get_path('%s.py' % os.path.join(gen_dir_path,
-                                                             gen_file_name))
+
+        new_file_name = (gen_dir_path / gen_file_name).with_suffix('.py')
+        new_file_path = self.get_path(new_file_name)
         return new_file_path
 
     def read_code(self, name: str) -> str:
@@ -428,7 +391,7 @@ class NotebookTools(object):
         else:
             raise Exception('Only Python 3 is supported')
         if line == stripped:
-            printd("No line magic pattern match in '%s'" % line)
+            sciunit.logger.info("No line magic pattern match in '%s'" % line)
         if magic_kind and magic_kind not in magics_allowed:
             # If the part after the magic won't work, just get rid of it
             stripped = ""
@@ -537,7 +500,7 @@ def import_all_modules(package, skip: list=None, verbose: bool=False,
                                verbose=verbose, depth=depth+1)
 
 
-def import_module_from_path(module_path: str, name=None) -> ModuleType:
+def import_module_from_path(module_path: Path, name=None) -> ModuleType:
     """Import the python modual by the path to the file (module).
 
     Args:
@@ -547,14 +510,18 @@ def import_module_from_path(module_path: str, name=None) -> ModuleType:
     Returns:
         ModuleType: [description]
     """
-    directory, file_name = os.path.split(module_path)
+    if (not isinstance(module_path, Path)):
+        module_path = Path(module_path)
+
+    directory = module_path.parent
+    file_name = module_path.name
     if name is None:
         name = file_name.rstrip('.py')
         if name == '__init__':
-            name = os.path.split(directory)[1]
+            name = directory.name
     try:
         from importlib.machinery import SourceFileLoader
-        sfl = SourceFileLoader(name, module_path)
+        sfl = SourceFileLoader(name, str(module_path))
         module = sfl.load_module()
     except ImportError:
         sys.path.append(directory)
@@ -625,26 +592,16 @@ def method_cache(by: str='value', method: str='run') -> Callable:
 
 
 
-def log(*args, **kwargs) -> None:
-    """[summary]
-    """
-    if settings['LOGGING']:
-        if settings['KERNEL']:
-            kernel_log(*args, **kwargs)
-        else:
-            non_kernel_log(*args, **kwargs)
+def log(*args, **kwargs):
+    level = kwargs.get('level', config_get('LOGGING', default=logging.INFO, to_log=False))
+    for arg in args:
+        sciunit.logger.log(level, arg, **kwargs)
 
 
-def non_kernel_log(*args, **kwargs) -> None:
-    """[summary]
-    """
-    args = [bs4.BeautifulSoup(x, "lxml").text
-            if not isinstance(x, Exception) else x
-            for x in args]
-    print(*args, **kwargs)
+def strip_html(html):
+    return html if isinstance(html, Exception) else bs4.BeautifulSoup(html, "lxml").text
 
-
-def kernel_log(*args, **kwargs) -> None:
+def html_log(*args, **kwargs) -> None:
     """[summary]
     """
     with StringIO() as f:
@@ -676,6 +633,7 @@ def create_config(data: dict=None) -> bool:
 
         if(config_path.is_file()):
             warn_with_traceback("Config file already exists.", Warning, "utils.py", 668)
+            success = False
         else:
             with open(config_path, 'w') as outfile:
                 json.dump(data, outfile)
@@ -684,20 +642,20 @@ def create_config(data: dict=None) -> bool:
 
     return success
 
-def config_get_from_path(config_path: str, key: str) -> int:
-    """[summary]
+def config_get_from_path(config_path: Path, key: str) -> Any:
+    """Get a value from the user configuration file by the key.
 
     Args:
-        config_path (str): [description]
-        key (str): [description]
+        config_path (Path): The path to the sciunit user configuration file.
+        key (str): Key of a value of the config file.
 
     Raises:
-        Error: [description]
-        Error: [description]
-        Error: [description]
+        FileNotFoundError: Config file not found.
+        JSONDecodeError: Config file JSON was invalid.
+        KeyError: Config file does not contain the key.
 
     Returns:
-        int: [description]
+        Any: The value from the user configuration file.
     """
     try:
         with open(config_path) as f:
@@ -716,18 +674,21 @@ def config_get_from_path(config_path: str, key: str) -> int:
     return value
 
 
-def config_get(key: str, default: int=None) -> int:
-    """[summary]
+def config_get(key: str, default: Any=None, to_log=True) -> Any:
+    """Get a value by key from the user configuration file.
 
     Args:
-        key (str): [description]
-        default (int, optional): [description]. Defaults to None.
+        key (str): The key used to find the value in the user configuration file.
+        default (Any, optional): The value to be returned if the key is not 
+                                 in the user configuration file. 
+                                 Defaults to None.
+        to_log (bool, optional): Whether to log the exception or not.
 
     Raises:
         e: An exception raised during get config process.
 
     Returns:
-        int: [description]
+        Any: The value found in the user configuration file by the key.
     """
     try:
         assert isinstance(key, str), "Config key must be a string"
@@ -735,26 +696,38 @@ def config_get(key: str, default: int=None) -> int:
         value = config_get_from_path(config_path, key)
     except Exception as e:
         if default is not None:
-            log(e)
-            log("Using default value of %s" % default)
+            if to_log:
+                log(e)
+                log("Using default value of %s" % default)
             value = default
         else:
             raise e
     return value
 
-
-def path_escape(path: str) -> str:
-    """Escape a path by placing backslashes in front of disallowed characters.
+def config_set(key: str, value: Any) -> bool:
+    """Write a key and a value to the user configuration file.
 
     Args:
-        path (str): original path.
+        key (str): The key of the value to be written to the the user configuration file.
+        value (Any): The value to be written to the the user configuration file.
 
     Returns:
-        str: the new path with the backslashes.
+        bool: Whether the action is successful.
     """
-    for char in [' ', '(', ')']:
-        path = path.replace(char, '\%s' % char)
-    return path
+    success = True
+    try:
+        assert isinstance(key, str), "Config key must be a string"
+        config_path = Path.home() / ".sciunit" / "config.json"
+        with open(config_path, 'r+') as f:
+            config = json.load(f)
+            config[key] = value
+            f.seek(0)
+            f.truncate()
+            json.dump(config, f)
+    except Exception as e:
+        log(e)
+        success = False
+    return success
 
 ############# The following code is from project cypy by Dr. Cyrus Omar ##################
 

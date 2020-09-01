@@ -3,7 +3,6 @@
 import inspect
 import traceback
 
-from sciunit import settings
 from sciunit.base import SciUnit
 from .capabilities import ProducesNumber
 from .models import Model
@@ -12,7 +11,7 @@ from .scores import Score, BooleanScore, NoneScore, ErrorScore, TBDScore,\
 from .validators import ObservationValidator, ParametersValidator
 from .errors import Error, CapabilityError, ObservationError,\
                     InvalidScoreError, ParametersError
-from .utils import dict_combine
+from .utils import dict_combine, config_get
 #from sciunit.models.examples import ConstModel, UniformModel
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
@@ -42,7 +41,7 @@ class Test(SciUnit):
         self.compute_params()
 
         self.observation = observation
-        if settings['PREVALIDATE']:
+        if config_get('PREVALIDATE', False):
             self.validate_observation(self.observation)
 
         if self.score_type is None or not issubclass(self.score_type, Score):
@@ -174,8 +173,8 @@ class Test(SciUnit):
         
         Args:
             model (Model): A sciunit model instance
-            skip_incapable (bool, optional): [description]. Defaults to False.
-            require_extra (bool, optional): [description]. Defaults to False.
+            skip_incapable (bool, optional): Skip the incapable tests. Defaults to False.
+            require_extra (bool, optional): Check to see whether the model implements certain other methods.. Defaults to False.
 
         Raises:
             Error: Raises an Error if model is not a Model.
@@ -202,7 +201,7 @@ class Test(SciUnit):
             model (Model): The sciunit model instance to be checked.
             c (Capability): A sciunit Capability instance.
             skip_incapable (bool, optional): If true, then skip the raising of the error. Defaults to False.
-            require_extra (bool, optional): [description]. Defaults to False.
+            require_extra (bool, optional): Check to see whether the model implements certain other methods.. Defaults to False.
 
         Raises:
             CapabilityError: raise a `CapabilityError` if it does not has the capability.
@@ -340,7 +339,7 @@ class Test(SciUnit):
 
         Args:
             model (Model): A sciunit model instance.
-            skip_incapable (bool, optional): [description]. Defaults to True.
+            skip_incapable (bool, optional): Skip the incapable tests. Defaults to True.
 
         Returns:
             Score: The generated score.
@@ -393,17 +392,18 @@ class Test(SciUnit):
         If stop_on_error is true (default), exceptions propagate upward. If
         false, an ErrorScore is generated containing the exception.
 
-        If deep_error is true (not default), the traceback will contain the
-        actual code execution error, instead of the content of an ErrorScore.
-
         Args:
             model (Model): A sciunit model instance
-            skip_incapable (bool, optional): [description]. Defaults to False.
-            stop_on_error (bool, optional): [description]. Defaults to True.
-            deep_error (bool, optional): [description]. Defaults to False.
+            skip_incapable (bool, optional): Skip the incapable tests. Defaults to False.
+            stop_on_error (bool, optional): Whether to stop on an error (exceptions propagate upward). 
+                                            If false, an ErrorScore is generated containing the exception.
+                                            Defaults to True.
+            deep_error (bool, optional): Whether the traceback will contain the actual code 
+                                        execution error, instead of the content of an ErrorScore. 
+                                        Defaults to False.
 
         Raises:
-            score.score: [description]
+            score.score: Raise ErrorScore if encountered and `stop_on_error` is true.
 
         Returns:
             Score: The generated score for the provided model.
@@ -444,15 +444,15 @@ class Test(SciUnit):
 
         Args:
             model (Model): A sciunit model instance
-            skip_incapable (bool, optional): [description]. Defaults to True.
-            stop_on_error (bool, optional): [description]. Defaults to True.
-            require_extra (bool, optional): [description]. Defaults to False.
+            skip_incapable (bool, optional): Skip the incapable tests. Defaults to True.
+            stop_on_error (bool, optional): Whether to stop on an error.. Defaults to True.
+            require_extra (bool, optional): Check to see whether the model implements certain other methods.. Defaults to False.
 
         Raises:
             e: Raise if there is any exception.
 
         Returns:
-            Score: [description]
+            Score: A TBDScore instance if check is passed, a NAScore instance otherwise.
         """
         try:
             if self.check_capabilities(model, skip_incapable=skip_incapable,
@@ -502,16 +502,16 @@ class Test(SciUnit):
         """Get the frozen (pickled) model state.
 
         Returns:
-            dict: [description]
+            dict: The frozen (pickled) model state
         """
         return self._state(exclude=['last_model'])
 
     @classmethod
-    def is_test_class(cls, other_cls: Type['RangeTest']) -> bool:
+    def is_test_class(cls, other_cls: Any) -> bool:
         """Return whether `other_cls` is a subclass of this test class.
 
         Args:
-            other_cls (RangeTest): [description]
+            other_cls (RangeTest): The class to be checked.
 
         Returns:
             bool: Whether `other_cls` is a subclass of this test class.
@@ -561,12 +561,12 @@ class TestM2M(Test):
         No default implementation.
 
         Args:
-            prediction1 (dict): [description]
-            prediction2 (dict): [description]
+            prediction1 (dict): The prediction generated by the first model.
+            prediction2 (dict): The prediction generated by the second model.
 
         Raises:
             NotImplementedError: Error raised if this method is not implemented.
-            Exception: [description]
+            Exception: Score computing fails.
 
         Returns:
             Score: Computed score.
@@ -591,10 +591,10 @@ class TestM2M(Test):
 
         Args:
             score (Score): A sciunit score instance
-            prediction1 (dict): [description]
-            prediction2 (dict): [description]
-            model1 (Model): [description]
-            model2 (Model): [description]
+            prediction1 (dict): The prediction generated by the first model.
+            prediction2 (dict): The prediction generated by the second model.
+            model1 (Model): The first model.
+            model2 (Model): The second model.
         """
         score.model1 = model1
         score.model2 = model2
@@ -610,24 +610,24 @@ class TestM2M(Test):
 
         Args:
             score (Score): A sciunit score instance.
-            prediction1 (dict): [description]
-            prediction2 (dict): [description]
-            model1 (Model): [description]
-            model2 (Model): [description]
+            prediction1 (dict): The prediction generated by the first model.
+            prediction2 (dict): The prediction generated by the second model.
+            model1 (Model): The first model.
+            model2 (Model): The second model.
         """
         pass
 
     def _judge(self, prediction1, prediction2, model1: Model, model2: Model=None) -> Score:
-        """[summary]
+        """Generate a score to compare the predictions by the models.
 
         Args:
-            prediction1 (dict): [description]
-            prediction2 (dict): [description]
-            model1 (Model): [description]
-            model2 (Model, optional): [description]. Defaults to None.
+            prediction1 (dict): The prediction generated by the first model.
+            prediction2 (dict): The prediction generated by the second model.
+            model1 (Model): The first model.
+            model2 (Model): The second model. Defaults to None.
 
         Raises:
-            InvalidScoreError: [description]
+            InvalidScoreError: Score type oncorrect.
 
         Returns:
             Score: A sciunit score instance.
@@ -686,16 +686,16 @@ class TestM2M(Test):
         actual code execution error, instead of the content of an ErrorScore.
 
         Args:
-            models (List[Model]): [description]
-            skip_incapable (bool, optional): [description]. Defaults to False.
-            stop_on_error (bool, optional): [description]. Defaults to True.
+            models (List[Model]): A list of sciunit model instances.
+            skip_incapable (bool, optional): Skip the incapable tests. Defaults to False.
+            stop_on_error (bool, optional): Whether to stop on an error.. Defaults to True.
             deep_error (bool, optional): [description]. Defaults to False.
             only_lower_triangle (bool, optional): [description]. Defaults to False.
 
         Raises:
             TypeError: The `model` is not a sciunit model.
             Exception: TestM2M's judge method resulted in error.
-            CapabilityError: [description]
+            CapabilityError: Encounter capability error when checking the capabilities.
 
         Returns:
             ScoreMatrixM2M: The created ScoreMatrixM2M instance.
@@ -871,7 +871,7 @@ class ProtocolToFeaturesTest(Test):
         return NotImplementedError()
 
     def get_result(self, model: Model) -> NotImplementedError:
-        """[summary]
+        """Get the result of this test against the model `model`.
 
         Args:
             model (Model): A sciunit model instance.
