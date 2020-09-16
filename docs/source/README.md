@@ -1,16 +1,19 @@
 # Recipe for building the API docs from scratch:
 
 updating .rst files with sphinx-apidoc
+Assuming current working directory is `sciunit/docs/source`.
 
-shell commands:
+Linux Bash shell commands:
 ```
-rm -rf source
+rm modules.rst sciunit.models.rst sciunit.rst sciunit.scores.rst sciunit.unit_test.rst
+cd ..
 sphinx-apidoc -o "./source" "../sciunit"
-sphinx-quickstart
+sphinx-build -b html ./source ./build
 ```
-
-Copy conf.py from the oringinal sciunit repo. Then:
-
+Windows PowerShell commands:
 ```
+rm modules.rst, sciunit.models.rst, sciunit.rst, sciunit.scores.rst, sciunit.unit_test.rst
+cd ..
+sphinx-apidoc -o "./source" "../sciunit"
 sphinx-build -b html ./source ./build
 ```
