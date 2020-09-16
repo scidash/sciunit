@@ -28,6 +28,14 @@ sciunit.unit\_test.base module
    :undoc-members:
    :show-inheritance:
 
+sciunit.unit\_test.base\_tests module
+-------------------------------------
+
+.. automodule:: sciunit.unit_test.base_tests
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 sciunit.unit\_test.command\_line\_tests module
 ----------------------------------------------
 
@@ -116,6 +124,13 @@ sciunit.unit\_test.utils\_tests module
    :undoc-members:
    :show-inheritance:
 
+sciunit.unit\_test.validator\_tests module
+------------------------------------------
+
+.. automodule:: sciunit.unit_test.validator_tests
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
