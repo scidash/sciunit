@@ -248,25 +248,25 @@ class Test(SciUnit):
         self.check_capabilities(model, skip_incapable=skip_incapable)
 
         # 2.
+        validated = self.validate_observation(self.observation)
+        if validated is not None:
+            self.observation = validated
+
+        # 3.
         prediction = self.generate_prediction(model)
         self.check_prediction(prediction)
         self.last_model = model
 
-        # 3. Validate observation and compute score
-        validated = self.validate_observation(self.observation)
-
-        if validated is not None:
-            self.observation = validated
-
+        # 4.
         score = self.compute_score(self.observation, prediction)
 
         if self.converter:
             score = self.converter.convert(score)
 
-        # 4.
+        # 5.
         self.check_score_type(score)
 
-        # 5.
+        # 6.
         self._bind_score(score, model, self.observation, prediction)
 
         return score
@@ -278,16 +278,17 @@ class Test(SciUnit):
         Operates as follows:
         1. Checks if the model has all the required capabilities. If it does
            not, and skip_incapable=False, then a `CapabilityError` is raised.
-        2. Calls generate_prediction to generate a prediction.
-        3. Calls score_prediction to generate a score.
-        4. Checks that the score is of score_type, raising an
+        2. Calls validate_observation to validate the observation.
+        3. Calls generate_prediction to generate model prediction.
+        4. Compute score.
+        5. Checks that the score is of score_type, raising an
            InvalidScoreError.
-        5. Equips the score with metadata:
+        6. Equips the score with metadata:
            a) A reference to the model, in attribute model.
            b) A reference to the test, in attribute test.
            c) A reference to the prediction, in attribute prediction.
            d) A reference to the observation, in attribute observation.
-        6. Returns the score.
+        7. Returns the score.
 
         If stop_on_error is true (default), exceptions propagate upward. If
         false, an ErrorScore is generated containing the exception.
