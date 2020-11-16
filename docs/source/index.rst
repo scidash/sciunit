@@ -85,13 +85,6 @@ SciUnit is released under the permissive `MIT
 license <https://opensource.org/licenses/MIT>`__, requiring only
 attribution in derivative works. See the LICENSE file for terms.
 
-API documentation
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
 
 Table of Contents
 -----------------
@@ -102,3 +95,10 @@ Table of Contents
    quick_tutorial
    basics
    commandline
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
