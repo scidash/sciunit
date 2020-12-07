@@ -61,7 +61,7 @@ class TestsTestCase(unittest.TestCase):
         t = Test(None)
         self.assertRaises(ObservationError, t.validate_observation, None)
         self.assertRaises(
-            ObservationError, t.validate_observation, "I am not a observation"
+            ObservationError, t.validate_observation, "I am not an observation"
         )
         self.assertRaises(ObservationError, t.validate_observation, {"mean": None})
         t = Test([0, 1])
@@ -71,7 +71,7 @@ class TestsTestCase(unittest.TestCase):
         self.assertListEqual(t.observation_schema_names(), ["Schema 1", "Schema 2"])
 
         self.assertRaises(ParametersError, t.validate_params, None)
-        self.assertRaises(ParametersError, t.validate_params, "I am not a observation")
+        self.assertRaises(ParametersError, t.validate_params, "I am not an observation")
         t.params_schema = {}
         t.validate_params({0: 1, 1: 2})
 
@@ -87,10 +87,7 @@ class TestsTestCase(unittest.TestCase):
 
         t.score_type = BooleanScore
         self.assertRaises(InvalidScoreError, t.check_score_type, FloatScore(0.5))
-        self.assertRaises(NotImplementedError, t.judge, [Model(), Model()])
-        self.assertRaises(
-            NotImplementedError, t.judge, [Model(), Model()], deep_error=True
-        )
+        self.assertRaises(ObservationError, t.judge, [Model(), Model()])
 
 
 class TestSuitesTestCase(SuiteBase, unittest.TestCase):
