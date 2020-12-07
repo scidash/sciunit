@@ -1,10 +1,12 @@
 """Runnable model."""
 
+import inspect
 import warnings
 
 from .base import Model
 import sciunit.capabilities as cap
-from .backends import available_backends
+from .backends import Backend, available_backends
+
 
 
 class RunnableModel(Model,
@@ -34,7 +36,13 @@ class RunnableModel(Model,
 
     def set_backend(self, backend):
         """Set the simulation backend."""
-        if isinstance(backend, str):
+        if inspect.isclass(backend) and Backend in backend.__bases__:
+            print(backend.__name__)
+            name = backend.__name__
+            args = []
+            kwargs = {}
+            available_backends[name] = backend
+        elif isinstance(backend, str):
             name = backend if len(backend) else None
             args = []
             kwargs = {}
@@ -55,7 +63,7 @@ class RunnableModel(Model,
             args = []
             kwargs = {}
         else:
-            raise TypeError("Backend must be string, tuple, list, or None")
+            raise TypeError("The backend must be of type Backend, string, tuple, list, or None")
         if name in available_backends:
             self.backend = name
             self._backend = available_backends[name]()
