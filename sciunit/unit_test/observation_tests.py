@@ -7,8 +7,8 @@ import unittest
 class ObservationsTestCase(unittest.TestCase, NotebookTools):
     """Unit tests for the sciunit module"""
 
-    path = '.'
+    path = "."
 
     def test_observation_validation(self):
         """Test validation of observations against the `observation_schema`."""
-        self.do_notebook('validate_observation')
+        self.do_notebook("validate_observation")

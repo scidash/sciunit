@@ -12,6 +12,7 @@ Welcome to sciunit's documentation!
 
 .. figure:: https://raw.githubusercontent.com/scidash/assets/master/logos/SciUnit/sci-unit-square-small.png
     :align: center
+    
 =======================================================================================
 
 Concept
@@ -20,16 +21,25 @@ Concept
 `The conference
 paper <https://github.com/cyrus-/papers/raw/master/sciunit-icse14/sciunit-icse14.pdf>`__
 
-Documentation
--------------
+Tutorials With Jupyter NoteBook 
+-------------------------------
 
-`Chapter
-1 <https://github.com/scidash/sciunit/blob/master/docs/chapter1.ipynb>`__
-/ `Chapter
-2 <https://github.com/scidash/sciunit/blob/master/docs/chapter2.ipynb>`__
-/ `Chapter
-3 <https://github.com/scidash/sciunit/blob/master/docs/chapter3.ipynb>`__
-/
+.. image:: https://colab.research.google.com/assets/colab-badge.svg
+   :target: https://colab.research.google.com/github/scidash/sciunit/blob/master/docs/chapter1.ipynb
+
+* `Tutorial Chapter 1`_
+* `Tutorial Chapter 2`_
+* `Tutorial Chapter 3`_
+* `Tutorial Chapter 4`_
+* `Tutorial Chapter 5`_
+* `Tutorial Chapter 6`_
+
+.. _Tutorial Chapter 1: https://github.com/scidash/sciunit/blob/master/docs/chapter1.ipynb
+.. _Tutorial Chapter 2: https://github.com/scidash/sciunit/blob/master/docs/chapter2.ipynb
+.. _Tutorial Chapter 3: https://github.com/scidash/sciunit/blob/master/docs/chapter3.ipynb
+.. _Tutorial Chapter 4: https://github.com/scidash/sciunit/blob/dev/docs/chapter4.ipynb
+.. _Tutorial Chapter 5: https://github.com/scidash/sciunit/blob/dev/docs/chapter5.ipynb
+.. _Tutorial Chapter 6: https://github.com/scidash/sciunit/blob/dev/docs/chapter6.ipynb
 
 Basic Usage
 -----------
@@ -75,29 +85,16 @@ SciUnit is released under the permissive `MIT
 license <https://opensource.org/licenses/MIT>`__, requiring only
 attribution in derivative works. See the LICENSE file for terms.
 
-.. |Travis| image:: https://travis-ci.org/scidash/sciunit.svg?branch=master
-   :target: https://travis-ci.org/scidash/sciunit
-.. |Travis| image:: https://travis-ci.org/scidash/sciunit.svg?branch=dev
-   :target: https://travis-ci.org/scidash/sciunit
-.. |RTFD| image:: https://readthedocs.org/projects/sciunit/badge/?version=master
-   :target: http://sciunit.readthedocs.io/en/latest/?badge=master
-.. |RTFD| image:: https://readthedocs.org/projects/sciunit/badge/?version=dev
-   :target: http://sciunit.readthedocs.io/en/latest/?badge=dev
-.. |Binder| image:: https://mybinder.org/badge.svg
-   :target: https://mybinder.org/v2/gh/scidash/sciunit/master?filepath=docs%2Fchapter1.ipynb
-.. |Coveralls| image:: https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=master
-   :target: https://coveralls.io/github/scidash/sciunit?branch=master
-.. |Coveralls| image:: https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=dev
-   :target: https://coveralls.io/github/scidash/sciunit?branch=dev
-.. |Requirements| image:: https://requires.io/github/scidash/sciunit/requirements.svg?branch=master
-   :target: https://requires.io/github/scidash/sciunit/requirements/?branch=master
-.. |Requirements| image:: https://requires.io/github/scidash/sciunit/requirements.svg?branch=dev
-   :target: https://requires.io/github/scidash/sciunit/requirements/?branch=dev
-.. |Docker Build Status| image:: https://img.shields.io/docker/build/scidash/sciunit.svg
-   :target: https://hub.docker.com/r/scidash/sciunit/builds/
-.. |Repos using Sciunit| image:: https://img.shields.io/librariesio/dependent-repos/pypi/sciunit.svg
-   :target: https://github.com/scidash/sciunit/network/dependents?dependent_type=REPOSITORY
 
+Table of Contents
+-----------------
+
+.. toctree::
+
+   setup
+   quick_tutorial
+   basics
+   commandline
 
 Indices and tables
 ==================

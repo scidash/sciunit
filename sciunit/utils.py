@@ -2,7 +2,6 @@
 Utility functions for SciUnit.
 """
 
-from __future__ import print_function
 import os
 import sys
 import warnings
@@ -13,56 +12,68 @@ import json
 import re
 import contextlib
 import traceback
+import inspect
+import functools
+import logging
 from io import TextIOWrapper, StringIO
 from datetime import datetime
-try:
-    from tempfile import TemporaryDirectory
-except ImportError:
-    from backports.tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory
 
 import bs4
 import nbformat
 import nbconvert
 from nbconvert.preprocessors import ExecutePreprocessor
-try:
-    from nbconvert.preprocessors.execute import CellExecutionError
-except:
-    from nbconvert.preprocessors import CellExecutionError
+from nbconvert.preprocessors.execute import CellExecutionError
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
-import cypy
 from IPython.display import HTML, display
 
 import sciunit
 from sciunit.errors import Error
-from .base import SciUnit, FileNotFoundError, tkinter
+from .base import SciUnit, tkinter
 from .base import PLATFORM, PYTHON_MAJOR_VERSION
-try:
-    import unittest.mock
-    mock = True
-except ImportError:
-    mock = False
+from typing import Any, Callable, List, Tuple, Union, TextIO, Type
+from types import ModuleType
+import unittest.mock
+from pathlib import Path
+
 mock = False  # mock is probably obviated by the unittest -b flag.
 
-settings = {'PRINT_DEBUG_STATE': False,  # printd does nothing by default.
-            'LOGGING': True,
-            'PREVALIDATE': False,
-            'KERNEL': ('ipykernel' in sys.modules),
-            'CWD': os.path.realpath(sciunit.__path__[0])}
+RUNTIME_SETTINGS = {'KERNEL': ('ipykernel' in sys.modules)}
 
+DEFAULT_CONFIG = {
+    "cmap_high": 218, 
+    "cmap_low": 38,
+    'LOGGING': logging.INFO,
+    'PREVALIDATE': False,
+    'CWD': str(Path(sciunit.__path__[0]).resolve())
+}
 
-def warn_with_traceback(message, category, filename, lineno,
-                        file=None, line=None):
-    """A function to use with `warnings.showwarning` to show a traceback."""
+def warn_with_traceback(message: str, category: Type[Warning], filename: str, lineno: int,
+                        file: TextIO=None, line: str=None) -> None:
+    """A function to use with `warnings.showwarning` to show a traceback.
+
+    Args:
+        message (str): A message that will be included in the warning.
+        category (Type[Warning]): A category (subclass) of the warning.
+        filename (str): Name of the file that raises the warning
+        lineno (int): Number of line in the file that causes this warning.
+        file (TextIO, optional): A file object for recording the log. Defaults to None.
+        line (str, optional): A line of source code to be included in the warning message. Defaults to None.
+    """
     log = file if hasattr(file, 'write') else sys.stderr
     traceback.print_stack(file=log)
     log.write(warnings.formatwarning(
                 message, category, filename, lineno, line))
 
 
-def set_warnings_traceback(tb=True):
+def set_warnings_traceback(tb: bool=True) -> None:
     """Set to `True` to give tracebacks for all warnings, or `False` to restore
-    default behavior."""
+    default behavior.
+
+    Args:
+        tb (bool, optional): Defaults to True.
+    """
     if tb:
         warnings._showwarning = warnings.showwarning
         warnings.showwarning = warn_with_traceback
@@ -72,63 +83,39 @@ def set_warnings_traceback(tb=True):
         warnings.simplefilter("default")
 
 
-def dict_combine(*dict_list):
+def dict_combine(*dict_list) -> dict:
     """Return the union of several dictionaries.
     Uses the values from later dictionaries in the argument list when
     duplicate keys are encountered.
     In Python 3 this can simply be {**d1, **d2, ...}
     but Python 2 does not support this dict unpacking syntax.
+
+    Returns:
+        dict: the dict from combining the dicts
     """
     return {k: v for d in dict_list for k, v in d.items()}
-
-
-def rec_apply(func, n):
-    """
-    Used to determine parent directory n levels up
-    by repeatedly applying os.path.dirname
-    """
-    if n > 1:
-        rec_func = rec_apply(func, n - 1)
-        return lambda x: func(rec_func(x))
-    return func
-
-
-def printd_set(state):
-    """Enable the printd function.
-    Call with True for all subsequent printd commands to be passed to print.
-    Call with False to ignore all subsequent printd commands.
-    """
-
-    global settings
-    settings['PRINT_DEBUG_STATE'] = (state is True)
-
-
-def printd(*args, **kwargs):
-    """Print if PRINT_DEBUG_STATE is True"""
-
-    global settings
-    if settings['PRINT_DEBUG_STATE']:
-        print(*args, **kwargs)
-        return True
-    return False
 
 
 if PYTHON_MAJOR_VERSION == 3:
     redirect_stdout = contextlib.redirect_stdout
 else:  # Python 2
-    @contextlib.contextmanager
-    def redirect_stdout(target):
-        original = sys.stdout
-        sys.stdout = target
-        yield
-        sys.stdout = original
+    raise Exception('Only Python 3 is supported')
 
 
-def assert_dimensionless(value):
-    """
-    Tests for dimensionlessness of input.
+def assert_dimensionless(value: Union[float, Quantity]) -> float:
+    """Tests for dimensionlessness of input.
     If input is dimensionless but expressed as a Quantity, it returns the
-    bare value.  If it not, it raised an error.
+    bare value. If it not, it raised an error.
+    
+
+    Args:
+        value (Union[float, Quantity]): The value to be checked for dimensionlessness.
+
+    Raises:
+        TypeError: Score value must be dimensionless.
+
+    Returns:
+        float: The bare value of `value`.
     """
 
     if isinstance(value, Quantity):
@@ -141,11 +128,20 @@ def assert_dimensionless(value):
 
 
 class NotebookTools(object):
-    """A class for manipulating and executing Jupyter notebooks."""
+    """A class for manipulating and executing Jupyter notebooks.
+
+    Attributes:
+        path (str): Relative path to the parent directory of the notebook.
+        gen_dir_name (str): Name of directory where files generated by do_notebook are stored.
+        gen_file_level (int): Number of levels up from notebook directory where generated files are stored.
+    """
+
     # Relative path to the parent directory of the notebook.
     path = ''
+
     # Name of directory where files generated by do_notebook are stored
     gen_dir_name = 'GeneratedFiles'
+
     # Number of levels up from notebook directory
     # where generated files are stored
     gen_file_level = 2
@@ -155,9 +151,16 @@ class NotebookTools(object):
         self.fix_display()
 
     @classmethod
-    def convert_path(cls, file):
-        """
-        Check to see if an extended path is given and convert appropriately
+    def convert_path(cls, file: Union[str, list]) -> Union[str, int]:
+        """Check to see if an extended path is given and convert appropriately.
+
+        Args:
+            file (Union[str, list]): A path to the file as a string or list.
+
+        Returns:
+            Union[str, int]: An `int` -1 when `file` is not a `str` or `list`, 
+                            otherwise, a string, which is a path to the file.
+                             
         """
 
         if isinstance(file, str):
@@ -169,17 +172,23 @@ class NotebookTools(object):
             print("Incorrect path specified")
             return -1
 
-    def get_path(self, file):
+    def get_path(self, file: Path) -> Path:
         """Get the full path of the notebook found in the directory
         specified by self.path.
+        
+
+        Args:
+            file (Path): the path to the notebook file.
+
+        Returns:
+            Path: The fully resolved path to the notebook file.
         """
+        class_path = Path(inspect.getfile(self.__class__))
+        parent_path = class_path.parent
+        path = parent_path / self.path / file
+        return path.resolve()
 
-        class_path = inspect.getfile(self.__class__)
-        parent_path = os.path.dirname(class_path)
-        path = os.path.join(parent_path, self.path, file)
-        return os.path.realpath(path)
-
-    def fix_display(self):
+    def fix_display(self) -> None:
         """If this is being run on a headless system the Matplotlib
         backend must be changed to one that doesn't need a display.
         """
@@ -192,46 +201,70 @@ class NotebookTools(object):
             except ImportError:
                 pass
             else:
-                printd("Setting matplotlib backend to Agg")
+                sciunit.logger.info("Setting matplotlib backend to Agg")
                 mpl.use('Agg')
 
-    def load_notebook(self, name):
-        """Loads a notebook file into memory."""
+    def load_notebook(self, name: str) -> Tuple[nbformat.NotebookNode, Union[str, Path]]:
+        """Loads a notebook file into memory.
 
-        with open(self.get_path('%s.ipynb' % name)) as f:
+        Args:
+            name (str): name of the notebook file.
+
+        Returns:
+            Tuple[nbformat.NotebookNode, Union[str, Path]]: The notebook that was read and the path to the notebook file.
+        """
+        
+        #with open(self.get_path('%s.ipynb' % name)) as f:
+        #    nb = nbformat.read(f, as_version=4)
+        file_path = self.get_path('%s.ipynb' % name)
+
+        with open(file_path) as f:
             nb = nbformat.read(f, as_version=4)
-        return nb, f
+        return nb, file_path
 
-    def run_notebook(self, nb, f):
-        """Runs a loaded notebook file."""
+    def run_notebook(self, nb: nbformat.NotebookNode, file_path: Union[str, Path]) -> None:
+        """Runs a loaded notebook file.
+
+        Args:
+            nb (nbformat.NotebookNode): The notebook that was loaded.
+            f (Union[str, Path]): The path to the notebook file.
+
+        Raises:
+            Exception: The exception that is thrown when running the notebook.
+        """
 
         if PYTHON_MAJOR_VERSION == 3:
             kernel_name = 'python3'
-        elif PYTHON_MAJOR_VERSION == 2:
-            kernel_name = 'python2'
         else:
-            raise Exception('Only Python 2 and 3 are supported')
+            raise Exception('Only Python 3 is supported')
         ep = ExecutePreprocessor(timeout=600, kernel_name=kernel_name)
         try:
             ep.preprocess(nb, {'metadata': {'path': '.'}})
         except CellExecutionError:
-            msg = 'Error executing the notebook "%s".\n\n' % f.name
-            msg += 'See notebook "%s" for the traceback.' % f.name
+            msg = 'Error executing the notebook "%s".\n\n' % file_path
+            msg += 'See notebook "%s" for the traceback.' % file_path
             print(msg)
             raise
         finally:
-            nbformat.write(nb, f)
+            nbformat.write(nb, file_path)
 
-    def execute_notebook(self, name):
-        """Loads and then runs a notebook file."""
+    def execute_notebook(self, name: str) -> None:
+        """Loads and then runs a notebook file.
+
+        Args:
+            name (str): name of the notebook file.
+        """
 
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        nb, f = self.load_notebook(name)
-        self.run_notebook(nb, f)
-        self.assertTrue(True)
+        nb, file_path = self.load_notebook(name)
+        self.run_notebook(nb, file_path)
 
-    def convert_notebook(self, name):
-        """Converts a notebook into a python file."""
+    def convert_notebook(self, name: str) -> None:
+        """Converts a notebook into a python file.
+
+        Args:
+            name (str): name of the notebook file.
+        """
         exporter = nbconvert.exporters.python.PythonExporter()
         relative_path = self.convert_path(name)
         file_path = self.get_path("%s.ipynb" % relative_path)
@@ -239,57 +272,90 @@ class NotebookTools(object):
         self.write_code(name, code)
         self.clean_code(name, [])
 
-    def convert_and_execute_notebook(self, name):
-        """Converts a notebook into a python file and then runs it."""
+    def convert_and_execute_notebook(self, name: str) -> None:
+        """Converts a notebook into a python file and then runs it.
+
+        Args:
+            name (str): name of the notebook file.
+        """
         self.convert_notebook(name)
         code = self.read_code(name)
         exec(code, globals())
 
-    def gen_file_path(self, name):
-        """
-        Returns full path to generated files.  Checks to see if directory
-        exists where generated files are stored and creates one otherwise.
+    def gen_file_path(self, name: str) -> Path:
+        """Returns full path to generated files.  
+        
+        Checks to see if directory exists where generated files 
+        are stored and creates one otherwise.
+        
+        Args:
+            name (str): [description]
+
+        Returns:
+            str: [description]
         """
         relative_path = self.convert_path(name)
         file_path = self.get_path("%s.ipynb" % relative_path)
-        parent_path = rec_apply(os.path.dirname,
-                                self.gen_file_level)(file_path)
+
+        parent_path = file_path
+        for _ in range(self.gen_file_level):
+            parent_path = parent_path.parent
+                                
         # Name of generated file
         gen_file_name = name if isinstance(name, str) else name[1]
-        gen_dir_path = self.get_path(os.path.join(parent_path,
-                                                  self.gen_dir_name))
+        gen_dir_path = self.get_path(parent_path / self.gen_dir_name)
+
         # Create folder for generated files if needed
-        if not os.path.exists(gen_dir_path):
+        if not gen_dir_path.exists():
             os.makedirs(gen_dir_path)
-        new_file_path = self.get_path('%s.py' % os.path.join(gen_dir_path,
-                                                             gen_file_name))
+
+        new_file_name = (gen_dir_path / gen_file_name).with_suffix('.py')
+        new_file_path = self.get_path(new_file_name)
         return new_file_path
 
-    def read_code(self, name):
-        """Reads code from a python file called 'name'"""
+    def read_code(self, name: str) -> str:
+        """Reads code from a python file called 'name'.
+
+        Args:
+            name (str): name of the python file.
+
+        Returns:
+            str: the code in the python file.
+        """
 
         file_path = self.gen_file_path(name)
         with open(file_path) as f:
             code = f.read()
         return code
 
-    def write_code(self, name, code):
-        """
-        Writes code to a python file called 'name',
-        erasing the previous contents.
+    def write_code(self, name: str, code: str) -> None:
+        """Writes code to a python file called 'name', erasing the previous contents.
+
         Files are created in a directory specified by gen_dir_name
-        (see function gen_file_path)
-        File name is second argument of path
+        (see function gen_file_path).
+        File name is second argument of path.
+
+        Args:
+            name (str): name of the file.
+            code (str): code to be added into the file.
         """
+
+        
         file_path = self.gen_file_path(name)
         with open(file_path, 'w') as f:
             f.write(code)
 
-    def clean_code(self, name, forbidden):
-        """
-        Remove lines containing items in 'forbidden' from the code.
+    def clean_code(self, name: str, forbidden: List[Any]) -> str:
+        """Remove lines containing items in 'forbidden' from the code.
         Helpful for executing converted notebooks that still retain IPython
         magic commands.
+
+        Args:
+            name (str): name of the notebook file
+            forbidden (List[Any]): [description]
+
+        Returns:
+            str: [description]
         """
 
         code = self.read_code(name)
@@ -310,22 +376,37 @@ class NotebookTools(object):
         return new_code
 
     @classmethod
-    def strip_line_magic(cls, line, magics_allowed):
-        """Handles lines that contain get_ipython.run_line_magic() commands"""
-        if PYTHON_MAJOR_VERSION == 2:  # Python 2
-            stripped, magic_kind = cls.strip_line_magic_v2(line)
-        else:  # Python 3+
+    def strip_line_magic(cls, line: str, magics_allowed: List[str]) -> str:
+        """Handles lines that contain get_ipython.run_line_magic() commands.
+
+        Args:
+            line (str): the line that contain get_ipython.run_line_magic() commands.
+            magics_allowed (List[str]): [description]
+
+        Returns:
+            str: line after being stripped.
+        """
+        if PYTHON_MAJOR_VERSION == 3:
             stripped, magic_kind = cls.strip_line_magic_v3(line)
+        else:
+            raise Exception('Only Python 3 is supported')
         if line == stripped:
-            printd("No line magic pattern match in '%s'" % line)
+            sciunit.logger.info("No line magic pattern match in '%s'" % line)
         if magic_kind and magic_kind not in magics_allowed:
             # If the part after the magic won't work, just get rid of it
             stripped = ""
         return stripped
 
     @classmethod
-    def strip_line_magic_v3(cls, line):
-        """strip_line_magic() implementation for Python 3"""
+    def strip_line_magic_v3(cls, line: str) -> Tuple[str, str]:
+        """strip_line_magic() implementation for Python 3.
+
+        Args:
+            line (str): [description]
+
+        Returns:
+            Tuple[str, str]: [description]
+        """
 
         matches = re.findall("run_line_magic\(([^]]+)", line)
         if matches and matches[0]:  # This line contains the pattern
@@ -338,29 +419,13 @@ class NotebookTools(object):
             magic_kind = ""
         return stripped, magic_kind
 
-    @classmethod
-    def strip_line_magic_v2(cls, line):
-        """strip_line_magic() implementation for Python 2"""
+    def do_notebook(self, name: str) -> None:
+        """Run a notebook file after optionally.
+        converting it to a python file.
 
-        matches = re.findall("magic\(([^]]+)", line)
-        if matches and matches[0]:  # This line contains the pattern
-            match = matches[0]
-            if match[-1] == ')':
-                match = match[:-1]  # Just because the re way is hard
-            stripped = eval(match)
-            magic_kind = stripped.split(' ')[0]
-            if len(stripped.split(' ')) > 1:
-                stripped = stripped.split(' ')[1:]
-            else:
-                stripped = ""
-        else:
-            stripped = line
-            magic_kind = ""
-        return stripped, magic_kind
-
-    def do_notebook(self, name):
-        """Run a notebook file after optionally
-        converting it to a python file."""
+        Args:
+            name (str): name of the notebook file.
+        """
         CONVERT_NOTEBOOKS = int(os.getenv('CONVERT_NOTEBOOKS', True))
         s = StringIO()
         if mock:
@@ -371,10 +436,14 @@ class NotebookTools(object):
             err.close()
         else:
             self._do_notebook(name, CONVERT_NOTEBOOKS)
-        self.assertTrue(True)
 
-    def _do_notebook(self, name, convert_notebooks=False):
-        """Called by do_notebook to actually run the notebook."""
+    def _do_notebook(self, name: str, convert_notebooks: bool=False) -> None:
+        """ Called by do_notebook to actually run the notebook.
+
+        Args:
+            name (str): name of the notebook file.
+            convert_notebooks (bool): True if the notebook need conversion before executing. Defaults to False.
+        """
         if convert_notebooks:
             self.convert_and_execute_notebook(name)
         else:
@@ -386,17 +455,30 @@ class MockDevice(TextIOWrapper):
     Similar to UNIX /dev/null.
     """
 
-    def write(self, s):
+    def write(self, s: str) -> None:
+        """[summary]
+
+        Args:
+            s (str): The string to be written.
+        """
         if s.startswith('[') and s.endswith(']'):
             super(MockDevice, self).write(s)
 
 
-def import_all_modules(package, skip=None, verbose=False, prefix="", depth=0):
+def import_all_modules(package, skip: list=None, verbose: bool=False, 
+                        prefix: str="", depth: int=0) -> None:
     """Recursively imports all subpackages, modules, and submodules of a
     given package.
     'package' should be an imported package, not a string.
     'skip' is a list of modules or subpackages not to import.
+    Args:
+        package ([type]): [description]
+        skip (list, optional): [description]. Defaults to None.
+        verbose (bool, optional): [description]. Defaults to False.
+        prefix (str, optional): [description]. Defaults to "".
+        depth (int, optional): [description]. Defaults to 0.
     """
+
 
     skip = [] if skip is None else skip
 
@@ -418,15 +500,28 @@ def import_all_modules(package, skip=None, verbose=False, prefix="", depth=0):
                                verbose=verbose, depth=depth+1)
 
 
-def import_module_from_path(module_path, name=None):
-    directory, file_name = os.path.split(module_path)
+def import_module_from_path(module_path: Path, name=None) -> ModuleType:
+    """Import the python modual by the path to the file (module).
+
+    Args:
+        module_path (str): [description]
+        name (str): [description]. Defaults to None.
+
+    Returns:
+        ModuleType: [description]
+    """
+    if (not isinstance(module_path, Path)):
+        module_path = Path(module_path)
+
+    directory = module_path.parent
+    file_name = module_path.name
     if name is None:
         name = file_name.rstrip('.py')
         if name == '__init__':
-            name = os.path.split(directory)[1]
+            name = directory.name
     try:
         from importlib.machinery import SourceFileLoader
-        sfl = SourceFileLoader(name, module_path)
+        sfl = SourceFileLoader(name, str(module_path))
         module = sfl.load_module()
     except ImportError:
         sys.path.append(directory)
@@ -441,11 +536,19 @@ def dict_hash(d):
     return SciUnit.dict_hash(d)
 
 
-def method_cache(by='value', method='run'):
+def method_cache(by: str='value', method: str='run') -> Callable:
     """A decorator used on any model method which calls the model's 'method'
     method if that latter method has not been called using the current
     arguments or simply sets model attributes to match the run results if
-    it has."""
+    it has.
+
+    Args:
+        by (str, optional): [description]. Defaults to 'value'.
+        method (str, optional): the method that being called. Defaults to 'run'.
+
+    Returns:
+        Callable: [description]
+    """
 
     def decorate_(func):
         def decorate(*args, **kwargs):
@@ -488,48 +591,81 @@ def method_cache(by='value', method='run'):
     return decorate_
 
 
-class_intern = cypy.intern
-
-method_memoize = cypy.memoize
-
 
 def log(*args, **kwargs):
-    if settings['LOGGING']:
-        if settings['KERNEL']:
-            kernel_log(*args, **kwargs)
-        else:
-            non_kernel_log(*args, **kwargs)
+    level = kwargs.get('level', config_get('LOGGING', default=logging.INFO, to_log=False))
+    for arg in args:
+        sciunit.logger.log(level, arg, **kwargs)
 
 
-def non_kernel_log(*args, **kwargs):
-    args = [bs4.BeautifulSoup(x, "lxml").text
-            if not isinstance(x, Exception) else x
-            for x in args]
-    try:
-        print(*args, **kwargs)
-    except SyntaxError:  # Python 2
-        print(args)
+def strip_html(html):
+    return html if isinstance(html, Exception) else bs4.BeautifulSoup(html, "lxml").text
 
-
-def kernel_log(*args, **kwargs):
+def html_log(*args, **kwargs) -> None:
+    """[summary]
+    """
     with StringIO() as f:
         kwargs['file'] = f
         args = [u'%s' % arg for arg in args]
-        try:
-            print(*args, **kwargs)
-        except SyntaxError:  # Python 2
-            print(args)
+        print(*args, **kwargs)
         output = f.getvalue()
     display(HTML(output))
 
+def create_config(data: dict=None) -> bool:
+    """Create a config file that store any data from the user.
 
-def config_get_from_path(config_path, key):
+    Args:
+        data (dict): The data that will be written to the new config file.
+
+    Returns:
+        bool: Config file creation is successful
+    """
+    if not data:
+        data = DEFAULT_CONFIG
+    success = True
+    try:
+        config_dir = Path.home() / ".sciunit"
+        config_path = config_dir / 'config.json'
+        if (not config_dir.is_file()):
+            config_dir.mkdir(exist_ok=True, parents=True)
+
+        data["sciunit_version"] = sciunit.__version__
+
+        if(config_path.is_file()):
+            warn_with_traceback("Config file already exists.", Warning, "utils.py", 668)
+            success = False
+        else:
+            with open(config_path, 'w') as outfile:
+                json.dump(data, outfile)
+    except:
+        success = False
+
+    return success
+
+def config_get_from_path(config_path: Path, key: str) -> Any:
+    """Get a value from the user configuration file by the key.
+
+    Args:
+        config_path (Path): The path to the sciunit user configuration file.
+        key (str): Key of a value of the config file.
+
+    Raises:
+        FileNotFoundError: Config file not found.
+        JSONDecodeError: Config file JSON was invalid.
+        KeyError: Config file does not contain the key.
+
+    Returns:
+        Any: The value from the user configuration file.
+    """
     try:
         with open(config_path) as f:
             config = json.load(f)
             value = config[key]
     except FileNotFoundError:
-        raise Error("Config file not found at '%s'" % config_path)
+        create_config()
+
+        return config_get_from_path(config_path, key)
+        #raise Error("Config file not found at '%s'" % config_path)
     except json.JSONDecodeError:
         log("Config file JSON at '%s' was invalid" % config_path)
         raise Error("Config file not found at '%s'" % config_path)
@@ -538,23 +674,430 @@ def config_get_from_path(config_path, key):
     return value
 
 
-def config_get(key, default=None):
+def config_get(key: str, default: Any=None, to_log=True) -> Any:
+    """Get a value by key from the user configuration file.
+
+    Args:
+        key (str): The key used to find the value in the user configuration file.
+        default (Any, optional): The value to be returned if the key is not 
+                                 in the user configuration file. 
+                                 Defaults to None.
+        to_log (bool, optional): Whether to log the exception or not.
+
+    Raises:
+        e: An exception raised during get config process.
+
+    Returns:
+        Any: The value found in the user configuration file by the key.
+    """
     try:
         assert isinstance(key, str), "Config key must be a string"
-        config_path = os.path.join(settings['CWD'], 'config.json')
+        config_path = Path.home() / ".sciunit" / "config.json"
         value = config_get_from_path(config_path, key)
     except Exception as e:
         if default is not None:
-            log(e)
-            log("Using default value of %s" % default)
+            if to_log:
+                log(e)
+                log("Using default value of %s" % default)
             value = default
         else:
             raise e
     return value
 
+def config_set(key: str, value: Any) -> bool:
+    """Write a key and a value to the user configuration file.
 
-def path_escape(path):
-    """Escape a path by placing backslashes in front of disallowed characters"""
-    for char in [' ', '(', ')']:
-        path = path.replace(char, '\%s' % char)
-    return path
+    Args:
+        key (str): The key of the value to be written to the the user configuration file.
+        value (Any): The value to be written to the the user configuration file.
+
+    Returns:
+        bool: Whether the action is successful.
+    """
+    success = True
+    try:
+        assert isinstance(key, str), "Config key must be a string"
+        config_path = Path.home() / ".sciunit" / "config.json"
+        with open(config_path, 'r+') as f:
+            config = json.load(f)
+            config[key] = value
+            f.seek(0)
+            f.truncate()
+            json.dump(config, f)
+    except Exception as e:
+        log(e)
+        success = False
+    return success
+
+############# The following code is from project cypy by Dr. Cyrus Omar ##################
+
+def _generic_fn(*args, **kwargs): pass
+
+_NotDefined = object()
+_unhashable_object = object()
+
+def get_fn(callable):
+    """Returns the underlying function that will be called by the () operator.
+
+        * For regular functions, returns ``callable``
+        * For bound methods, returns ``callable.im_func``
+        * For unbound methods, returns ``callable.__func__``
+        * For classes, returns ``callable.__init__.__func__``.
+        * For callable objects, returns ``callable.__call__.im_func``.
+
+    """
+    if inspect.isfunction:
+        return callable
+
+    function = callable
+    if inspect.ismethod(callable):
+        try:
+            function = callable.__func__
+        except AttributeError:
+            function = callable.__func__
+    elif inspect.isclass(callable):
+        function = callable.__init__.__func__
+    elif hasattr(callable, '__call__'):
+        function = callable.__call__.__func__
+    return function
+
+def get_fn_or_method(callable):
+    """Returns the underlying function or method that will be called by the () operator.
+
+        * For regular functions and methods, returns ``callable``
+        * For classes, returns ``callable.__init__``
+        * For callable objects, returns ``callable.__call__``
+
+    """
+    if inspect.isfunction(callable) or inspect.ismethod(callable):
+        return callable
+    if inspect.isclass(callable):
+        return callable.__init__
+    return callable.__call__
+
+
+def fn_available_argcount(callable):
+    """Returns the number of explicit non-keyword arguments that the callable
+    can be called with.
+
+    Bound methods are called with an implicit first argument, so this takes
+    that into account.
+
+    Excludes *args and **kwargs declarations.
+    """
+    fn = get_fn_or_method(callable)
+    if inspect.isfunction(fn):
+        return fn.__code__.co_argcount
+    else: # method
+        if fn.__self__ is None:
+            return fn.__func__.__code__.co_argcount
+        else:
+            return fn.__func__.__code__.co_argcount - 1
+
+
+# see http://docs.python.org/reference/datamodel.html
+_fn_args_flag = 0x04
+fn_has_args = lambda callable: bool(get_fn(callable).__code__.co_flags
+                                    & _fn_args_flag)
+"""Returns whether the provided callable's underlying function takes *args."""
+
+_fn_kwargs_flag = 0x08
+fn_has_kwargs = lambda callable: bool(get_fn(callable).__code__.co_flags
+                                      & _fn_kwargs_flag)
+"""Returns whether the provided callable's underlying function takes **kwargs."""
+
+_fn_generator_flag = 0x20
+fn_is_generator = lambda callable: bool(get_fn(callable).__code__.co_flags
+                                        & _fn_generator_flag)
+"""Returns whether the provided callable's underlying function is a generator."""
+
+_fn_future_division_flag = 0x2000
+fn_uses_future_division = lambda callable: bool(get_fn(callable).__code__.co_flags
+                                                & _fn_future_division_flag)
+"""Returns whether the provided callable's underlying function uses future division."""
+
+def fn_kwargs(callable):
+    """Returns a dict with the kwargs from the provided function.
+
+    Example
+
+        >>> def x(a, b=0, *args, **kwargs): pass
+        >>> func_kwargs(x) == { 'b': 0 }
+
+    """
+    fn = get_fn(callable)
+    (args, _, _, defaults) = inspect.getargspec(fn)
+    if defaults is None: return { }
+    return dict(list(zip(reversed(args), reversed(defaults))))
+
+def fn_arg_hash_function(fn):
+    """Creates a hash function which will return the same hashable value if 
+    passed a set of *args and **kwargs which are equivalent from the 
+    perspective of a function call.
+    
+    That is, the order of keyword arguments, or the fact that an argument 
+    without a default was called as a kwarg, will not produce a different hash.
+    
+    If any arguments provided are not hashable, a TypeError is raised.
+    
+    *args and **kwargs are supported.
+    """
+    fn = get_fn(fn)
+    n_explicit = fn_available_argcount(fn)
+    has_args = fn_has_args(fn)
+    has_kwargs = fn_has_kwargs(fn)
+    default_kwargs = fn_kwargs(fn)
+    for name, value in list(default_kwargs.items()):  
+        # store only hashes of values to prevent memory leaks
+        try: default_kwargs[name] = hash(value)
+        except TypeError: default_kwargs[name] = _unhashable_object
+    explicit_kwarg_args = set(default_kwargs.keys())
+    n_explicit_kwargs = len(explicit_kwarg_args)
+    n_explicit_args = n_explicit - n_explicit_kwargs
+    def _hashes(*args, **kwargs):        
+        # explicit args
+        i = 0
+        n_explicit_args_ = min(len(args), n_explicit_args)
+        while i < n_explicit_args_:
+            #print args[i], 'is an explicit arg.'            
+            yield hash(args[i])
+    
+            i += 1
+    
+        # explicit kwargs
+        for name in explicit_kwarg_args:
+            if len(args) > i:
+                #print args[i], 'is a kwarg without a default'
+                yield hash(args[i])
+                i += 1                
+            else:
+                try:
+                    #print kwargs[name], 'is a kwarg taken from kwargs'
+                    yield hash(kwargs[name])
+                except KeyError:
+                    #print default_kwargs[name], 'is a kwarg taken from defaults'
+                    yield default_kwargs[name]
+    
+        # *args
+        if has_args:
+            #print args[i:], 'is *args'
+            yield hash(args[i:])
+    
+        # **kwargs
+        # NOTE: we're treating the kwargs dicts as hashable even though 
+        # technically they aren't... be wary if you define **kwargs and then
+        # depend on its mutable characteristics.
+        if has_kwargs:
+            items = frozenset(item for item in list(kwargs.items())
+                              if item[0] not in explicit_kwarg_args)
+            #print items, 'is **kwargs items'
+            yield hash(items)
+        
+    def hash_(*args, **kwargs):
+        return tuple(_hashes(*args, **kwargs))
+    
+    return hash_
+
+generic_arg_hash_function = fn_arg_hash_function(_generic_fn)
+
+class intern(object):  
+    # a class just so the name mangling mechanisms are invoked, deleted below
+
+    @staticmethod
+    def intern(cls_):
+        """Transforms the provided class into an interned class.
+        
+        That is, initializing the class multiple times with the same arguments 
+        (even if in a different order if using keyword arguments) should 
+        always produce the same object, and __init__ should only be called the 
+        first time for each unique set of arguments.
+        
+        This means that mutations will effectively be shared by all "instances" 
+        of the class which shared initialization arguments. This might be 
+        useful for storing metadata, for example.
+        
+            >>> class N(object):
+            ...     def __init__(self, n):
+            ...         self.n = n
+            >>> N = intern(N)
+            >>> five = N(5)
+            >>> five2 = N(5)
+            >>> five is five2
+            True
+            >>> five.is_odd = True
+            >>> five2.is_odd
+            True
+            
+        To enforce immutability of particular attributes, see the setonce 
+        property modifier.
+            
+        The use of the term "intern" comes from the practice of string 
+        interning used widely in programming languages, including Python. Look 
+        it up.
+        
+        Can be used as a class decorator in Python 2.6+. Otherwise, use like 
+        this:
+        
+            >>> class Test(object): pass
+            >>> Test = intern(Test)
+        
+        .. Note:: Subclassing of intern classes with different __init__
+                  arguments is tricky and probably should not be done if you 
+                  don't understand precisely how this works.
+                  
+                  If you subclass with the same __init__ arguments (preferably
+                  the same __init__) it will use the SAME pool. This can be used
+                  to automate adding metadata as above, though you should 
+                  probably just do that with a function.
+
+        .. Note:: You can override the hash function used by providing a value
+                  for __init__._intern__hash_function. This should take None
+                  as the first argument (substituting for self) and then *args
+                  and **kwargs (or your particular signature for __init__) and
+                  produce a hash or hashable value.
+                  
+                  The default implementation is provided by fn_arg_hash_function
+                  applied to __init__, or generic_arg_hash_function if that 
+                  doesn't work.
+        
+        """
+        cls_.__pool = { }
+        
+        __init__ = cls_.__init__
+        try:
+            __init__.__func__.__hash_function
+        except AttributeError:
+            try:
+                __init__.__func__.__hash_function = \
+                        fn_arg_hash_function(__init__)
+            except (AttributeError, TypeError): pass
+            
+        # define an override for __new__ which looks in the cache first
+        def __new__(cls, *args, **kwargs):
+            """Override used by sciunit.utils.intern to cache instances of this class."""
+            
+            # check cache
+            __init__ = cls.__init__
+            try:
+                hash_function = __init__.__func__.__hash_function
+            except AttributeError:
+                try:
+                    hash_function = __init__.__func__.__hash_function = \
+                                  fn_arg_hash_function(__init__)
+                except (AttributeError, TypeError):
+                    hash_function = generic_arg_hash_function
+            
+            try:
+                # look-up object
+                hash = hash_function(None, *args, **kwargs)  # none because self is not created yet
+                obj = cls_.__pool[hash]
+            except (TypeError, KeyError) as e:
+                # if arguments not hashable or object not found, need to 
+                # make a new object
+                
+                # restore the original new temporarily, if it existed
+                orig_new = __new__.orig
+                if orig_new is _NotDefined: del cls_.__new__
+                else: cls_.__new__ = orig_new
+                
+                # create new object
+                obj = cls(*args, **kwargs)
+                
+                # put it in ze pool
+                if isinstance(e, KeyError):
+                    cls_.__pool[hash] = obj
+                
+                # re-override __new__
+                cls_.__new__ = __static_new__
+                                
+            # Return the instance but don't call __init__ since it was done 
+            # when it was created the first time, see below for how this is 
+            # done
+            try: cls.__old_init = cls.__dict__['__init__']
+            except KeyError: cls.__old_init = _NotDefined            
+            cls.__init__ = _dummy_init
+                
+            return obj
+            
+        # save original __new__
+        try: __new__.orig = staticmethod(cls_.__dict__['__new__'])
+        except KeyError: 
+            if cls_.__new__ is object.__new__:
+                __new__.orig = _null_new
+            else:
+                __new__.orig = _NotDefined
+        
+        __static_new__ = staticmethod(__new__)
+        cls_.__static_new__ = __static_new__
+        cls_.__new__ = __static_new__
+        return cls_
+
+def _dummy_init(self, *args, **kwargs): #@UnusedVariable
+    """Prevents __init__ from being called if returning a obj copy."""
+    cls = type(self)
+    old_init = cls._intern__old_init
+    if old_init is _NotDefined:
+        del cls.__init__
+    else:
+        cls.__init__ = old_init
+    del cls._intern__old_init
+
+@staticmethod
+def _null_new(cls, *args, **kwargs): #@UnusedVariable
+    # deprecation warning if you don't do this
+    return object.__new__(cls)
+
+def decorator(d):
+    """Creates a proper decorator.
+
+    If the default for the first (function) argument is None, creates a
+    version which be invoked as either @decorator or @decorator(kwargs...).
+
+    See examples below.
+    """
+    defaults = d.__defaults__
+    if defaults and defaults[0] is None:
+        # Can be applied as @decorator or @decorator(kwargs) because
+        # first argument is None
+        def decorate(fn=None, **kwargs):
+            if fn is None:
+                return functools.partial(decorate, **kwargs)
+            else:
+                decorated = d(fn, **kwargs)
+                functools.update_wrapper(decorated, fn)
+                return decorated
+    else:
+        # Can only be applied as @decorator
+        def decorate(fn):
+            decorated = d(fn)
+            functools.update_wrapper(decorated, fn)
+            return decorated
+    functools.update_wrapper(decorate, d)
+    return decorate
+
+@decorator
+def memoize(fn=None):
+    """Caches the result of the provided function."""
+    cache = { }
+    arg_hash_fn = fn_arg_hash_function(fn)
+
+    def decorated(*args, **kwargs):
+        try:
+            hash_ = arg_hash_fn(*args, **kwargs)
+        except TypeError:
+            return fn(*args, **kwargs)
+
+        try:
+            return cache[hash_]
+        except KeyError:
+            return_val = fn(*args, **kwargs)
+            cache[hash_] = return_val
+            return return_val
+    functools.update_wrapper(decorated, fn)
+
+    return decorated
+
+
+class_intern = intern.intern
+
+method_memoize = memoize
