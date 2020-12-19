@@ -7,6 +7,7 @@ import math
 
 import numpy as np
 import quantities as pq
+from typing import Union
 
 from sciunit import utils
 from sciunit import errors
@@ -204,7 +205,79 @@ class RatioScore(Score):
 
     def __str__(self):
         return 'Ratio = %.2f' % self.score
+    
+    
+class RelativeDifferenceScore(Score):
+    """A relative difference between prediction and observation.
+    
+    The absolute value of the difference between the prediction and the
+    observation is divided by a reference value with the same units. This
+    reference scale should be chosen for each test such that normalization
+    produces directly comparable scores across tests. For example, if 5 volts
+    represents a medium size difference for TestA, and 10 seconds represents a
+    medium size difference for TestB, then 5 volts and 10 seconds should be
+    used for this reference scale in TestA and TestB, respectively. The
+    attribute `scale` can be passed to the compute method or set for the whole
+    class in advance. Otherwise, a scale of 1 (in the units of the
+    observation and prediction) will be used.
+    """
 
+    _allowed_types = (float,)
+
+    _description = ('The relative difference between the prediction and the observation')
+
+    _best = 0.0  # A RelativeDifferenceScore of 0.0 is best
+
+    _worst = np.inf
+    
+    scale = None
+
+    def _check_score(self, score):
+        if score < 0.0:
+            raise errors.InvalidScoreError(("RelativeDifferenceScore was initialized with "
+                                            "a score of %f, but a RelativeDifferenceScore "
+                                            "must be non-negative.") % score)
+
+    @classmethod
+    def compute(cls, observation: Union[float, int, pq.Quantity],
+                     prediction: Union[float, int, pq.Quantity],
+                     scale: Union[float, int, pq.Quantity, None] = None) -> 'RelativeDifferenceScore':
+        """Compute the relative difference between the observation and a prediction.
+
+        Returns:
+            RelativeDifferenceScore: A relative difference between an observation and a prediction.
+        """
+        assert isinstance(observation, (float, int, pq.Quantity))
+        assert isinstance(prediction, (float, int, pq.Quantity))
+
+        scale = scale or cls.scale or (observation/float(observation))
+        assert type(observation) is type(scale)
+        assert type(observation) is type(prediction)
+        if isinstance(observation, pq.Quantity):
+            assert observation.units == prediction.units, \
+                "Prediction must have the same units as the observation"
+            assert observation.units == scale.units, \
+                "RelativeDifferenceScore.Scale must have the same units as the observation"
+        assert scale > 0, \
+            "RelativeDifferenceScore.scale must be positive (not %g)" % scale
+        value = np.abs(prediction - observation) / scale
+        value = utils.assert_dimensionless(value)
+        return RelativeDifferenceScore(value)
+
+    @property
+    def norm_score(self) -> float:
+        """Return 1.0 for a ratio of 0.0, falling to 0.0 for extremely large values.
+
+        Returns:
+            float: The value of the norm score.
+        """
+        x = self.score
+        return 1 / (1+x)
+
+    def __str__(self):
+        return 'Relative Difference = %.2f' % self.score
+    
+    
 
 class PercentScore(Score):
     """A percent score.
