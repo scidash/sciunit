@@ -239,28 +239,32 @@ class RelativeDifferenceScore(Score):
                                             "must be non-negative.") % score)
 
     @classmethod
-    def compute(cls, observation: Union[float, int, pq.Quantity],
-                     prediction: Union[float, int, pq.Quantity],
+    def compute(cls, observation: Union[dict, float, int, pq.Quantity],
+                     prediction: Union[dict, float, int, pq.Quantity],
+                     key=None,
                      scale: Union[float, int, pq.Quantity, None] = None) -> 'RelativeDifferenceScore':
         """Compute the relative difference between the observation and a prediction.
 
         Returns:
             RelativeDifferenceScore: A relative difference between an observation and a prediction.
         """
-        assert isinstance(observation, (float, int, pq.Quantity))
-        assert isinstance(prediction, (float, int, pq.Quantity))
-
-        scale = scale or cls.scale or (observation/float(observation))
-        assert type(observation) is type(scale)
-        assert type(observation) is type(prediction)
-        if isinstance(observation, pq.Quantity):
-            assert observation.units == prediction.units, \
+        assert isinstance(observation, (dict, float, int, pq.Quantity))
+        assert isinstance(prediction, (dict, float, int, pq.Quantity))
+        
+        obs, pred = cls.extract_means_or_values(observation, prediction,
+                                                key=key)
+        
+        scale = scale or cls.scale or (obs/float(obs))
+        assert type(obs) is type(scale)
+        assert type(obs) is type(pred)
+        if isinstance(obs, pq.Quantity):
+            assert obs.units == pred.units, \
                 "Prediction must have the same units as the observation"
-            assert observation.units == scale.units, \
+            assert obs.units == scale.units, \
                 "RelativeDifferenceScore.Scale must have the same units as the observation"
         assert scale > 0, \
             "RelativeDifferenceScore.scale must be positive (not %g)" % scale
-        value = np.abs(prediction - observation) / scale
+        value = np.abs(pred - obs) / scale
         value = utils.assert_dimensionless(value)
         return RelativeDifferenceScore(value)
 
