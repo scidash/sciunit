@@ -38,14 +38,13 @@ class RunnableModel(Model,
 
         Args:
             backend (Union[str, tuple, list, None]): One or more name(s) of backend(s).
-                                                     The name of backend should be registered before using. 
+                                                     The name of backend should be registered before using.
 
         Raises:
             TypeError: Backend must be string, tuple, list, or None
             Exception: The backend was not found.
         """
         if inspect.isclass(backend) and Backend in backend.__bases__:
-            print(backend.__name__)
             name = backend.__name__
             args = []
             kwargs = {}
