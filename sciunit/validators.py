@@ -15,7 +15,7 @@ def register_type(cls, name: str) -> None:
     """
     x = TypeDefinition(name, (cls,), ())
     Validator.types_mapping[name] = x
-    
+
 
 def register_quantity(quantity: pq.Quantity, name: str) -> None:
     """Register `name` as a type to validate as an instance of the class of `quantity`.
@@ -65,6 +65,13 @@ class ObservationValidator(Validator):
             except TypeError:
                 self._error(key, "Must be iterable (e.g. a list or array)")
 
+    def _validate_not_zero_obs_zscore(self, has_units: bool, key: str, value: Any) -> None:
+        from sciunit.scores import ZScore
+        if self.test.score_type is ZScore:
+            if float(self.test.observation['std']) == 0.0:
+                raise ObservationError(v.errors)
+
+
 
     def _validate_units(self, has_units: bool, key: str, value: Any) -> None:
         """Validate fields with `units` key in schema set to True.
@@ -90,7 +97,7 @@ class ParametersValidator(Validator):
     """Cerberus validator class for observations.
 
     Attributes:
-        units_type ([type]): The type of Python quantity's unit. 
+        units_type ([type]): The type of Python quantity's unit.
         _error (str, str): value is not a Python quantity instance.
     """
 

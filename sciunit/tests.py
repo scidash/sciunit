@@ -41,7 +41,7 @@ class Test(SciUnit):
         self.compute_params()
 
         self.observation = observation
-        if config_get('PREVALIDATE', False):
+        if config_get('PREVALIDATE', True):
             self.validate_observation(self.observation)
 
         if self.score_type is None or not issubclass(self.score_type, Score):
@@ -83,7 +83,7 @@ class Test(SciUnit):
         Inserts those new params into `self.params`. Use this when some params
         depend upon the values of others.
         Example: `self.params['c'] = self.params['a'] + self.params['b']`
-        
+
         """
         pass
 
@@ -116,12 +116,8 @@ class Test(SciUnit):
                           'type': 'dict'}
             schema = {'observation': schema}
             v = ObservationValidator(schema, test=self)
-            if float(observation['std']) == 0.0:
-                print(float(observation['std']) != 0.0)
-                print('std == 0 error')
-                raise ObservationError(v.errors)
-            if not v.validate({'observation': observation}):
-                raise ObservationError(v.errors)
+            #if not v.validate({'observation': observation}):
+            #    raise ObservationError(v.errors)
         return observation
 
     @classmethod
@@ -174,7 +170,7 @@ class Test(SciUnit):
     def check_capabilities(self, model: Model, skip_incapable: bool=False,
                            require_extra: bool=False) -> bool:
         """Check that test's required capabilities are implemented by `model`.
-        
+
         Args:
             model (Model): A sciunit model instance
             skip_incapable (bool, optional): Skip the incapable tests. Defaults to False.
@@ -199,7 +195,7 @@ class Test(SciUnit):
         """Check if `model` has capability `c`.
 
         Optionally (default:True) raise a `CapabilityError` if it does not.
-        
+
 
         Args:
             model (Model): The sciunit model instance to be checked.
@@ -225,7 +221,7 @@ class Test(SciUnit):
         that do not define the model but do define experiments performed on
         the model.
         No default implementation.
-        
+
 
         Args:
             model (Model): A sciunit model instance.
@@ -292,7 +288,7 @@ class Test(SciUnit):
         score = self.score_type(self.score_type._best)
         return score
 
-    def _bind_score(self, score: Score, model: Model, observation: Union[list, dict], 
+    def _bind_score(self, score: Score, model: Model, observation: Union[list, dict],
                     prediction: Union[list, dict]) -> None:
         """Bind some useful attributes to the score.
 
@@ -310,7 +306,7 @@ class Test(SciUnit):
         score.related_data = score.related_data.copy()
         self.bind_score(score, model, observation, prediction)
 
-    def bind_score(self, score: Score, model: Model, observation: Union[list, dict], 
+    def bind_score(self, score: Score, model: Model, observation: Union[list, dict],
                     prediction: Union[list, dict]) -> None:
         """For the user to bind additional features to the score.
 
@@ -338,7 +334,7 @@ class Test(SciUnit):
                       score.__class__.__name__))
             raise InvalidScoreError(msg)
 
-    def _judge(self, model: Model, skip_incapable: bool=True) -> Score:
+    def _judge(self, model: Model, skip_incapable: bool=True, prediction: dict=None) -> Score:
         """Generate a score for the model (internal API use only).
 
         Args:
@@ -357,9 +353,11 @@ class Test(SciUnit):
             self.observation = validated
 
         # 3.
-        prediction = self.generate_prediction(model)
-        self.check_prediction(prediction)
-        self.last_model = model
+        if prediction is None:
+            prediction = self.generate_prediction(model)
+            self.check_prediction(prediction)
+            self.last_model = model
+
 
         # 4.
         score = self.compute_score(self.observation, prediction)
@@ -371,103 +369,12 @@ class Test(SciUnit):
         self.check_score_type(score)
 
         # 6.
-        self._bind_score(score, model, self.observation, prediction)
+        if prediction is None:
 
-
-
-    def _presupplied_feature_judge(self, skip_incapable: bool=True) -> Score:
-        """Generate a score for the model (internal API use only).
-
-        Args:
-            model (Model): A sciunit model instance.
-            skip_incapable (bool, optional): [description]. Defaults to True.
-
-        Returns:
-            Score: The generated score.
-        """
-
-        # 1.
-        
-        prediction = self.prediction
-        self.check_prediction(prediction)
-
-        # 3. Validate observation and compute score
-        validated = self.validate_observation(self.observation)
-
-        if validated is not None:
-            self.observation = validated
-
-        score = self.compute_score(self.observation, prediction)
-
-        if self.converter:
-            score = self.converter.convert(score)
-
-        # 4.
-        self.check_score_type(score)
-
-        # 5.
-        self.score = score
-        return score
-
-
-    def feature_judge(self, skip_incapable: bool=False, stop_on_error: bool=True,
-              deep_error: bool=False) -> Score:
-        """Generate a score for the provided model (public method).
-
-        Operates as follows:
-        1. Checks if the model has all the required capabilities. If it does
-           not, and skip_incapable=False, then a `CapabilityError` is raised.
-        2. Calls generate_prediction to generate a prediction.
-        3. Calls score_prediction to generate a score.
-        4. Checks that the score is of score_type, raising an
-           InvalidScoreError.
-        5. Equips the score with metadata:
-           a) A reference to the model, in attribute model.
-           b) A reference to the test, in attribute test.
-           c) A reference to the prediction, in attribute prediction.
-           d) A reference to the observation, in attribute observation.
-        6. Returns the score.
-
-        If stop_on_error is true (default), exceptions propagate upward. If
-        false, an ErrorScore is generated containing the exception.
-
-        If deep_error is true (not default), the traceback will contain the
-        actual code execution error, instead of the content of an ErrorScore.
-
-        Args:
-            model (Model): A sciunit model instance
-            skip_incapable (bool, optional): [description]. Defaults to False.
-            stop_on_error (bool, optional): [description]. Defaults to True.
-            deep_error (bool, optional): [description]. Defaults to False.
-
-        Raises:
-            score.score: [description]
-
-        Returns:
-            Score: The generated score for the provided model.
-        """
-
-
-        if deep_error:
-            score = self._presupplied_feature_judge(skip_incapable=skip_incapable)
-        else:
-            try:
-                score = self._presupplied_feature_judge(skip_incapable=skip_incapable)
-            except CapabilityError as e:
-                score = NAScore(str(e))
-                score.feature = self.prediction
-                score.test = self
-            except Exception as e:
-                e.stack = traceback.format_exc()
-                score = ErrorScore(e)
-                score.feature = self.prediction
-                score.test = self
-        if isinstance(score, ErrorScore) and stop_on_error:
-            raise score.score  # An exception.
-        return score
+            self._bind_score(score, model, self.observation, prediction)
 
     def judge(self, model: Model, skip_incapable: bool=False, stop_on_error: bool=True,
-              deep_error: bool=False) -> Score:
+              deep_error: bool=False, prediction: dict=None) -> Score:
         """Generate a score for the provided model (public method).
 
         Operates as follows:
@@ -491,11 +398,11 @@ class Test(SciUnit):
         Args:
             model (Model): A sciunit model instance
             skip_incapable (bool, optional): Skip the incapable tests. Defaults to False.
-            stop_on_error (bool, optional): Whether to stop on an error (exceptions propagate upward). 
+            stop_on_error (bool, optional): Whether to stop on an error (exceptions propagate upward).
                                             If false, an ErrorScore is generated containing the exception.
                                             Defaults to True.
-            deep_error (bool, optional): Whether the traceback will contain the actual code 
-                                        execution error, instead of the content of an ErrorScore. 
+            deep_error (bool, optional): Whether the traceback will contain the actual code
+                                        execution error, instead of the content of an ErrorScore.
                                         Defaults to False.
 
         Raises:
@@ -514,10 +421,10 @@ class Test(SciUnit):
                                deep_error=deep_error)
 
         if deep_error:
-            score = self._judge(model, skip_incapable=skip_incapable)
+            score = self._judge(model, skip_incapable=skip_incapable, prediction=prediction)
         else:
             try:
-                score = self._judge(model, skip_incapable=skip_incapable)
+                score = self._judge(model, skip_incapable=skip_incapable, prediction=prediction)
             except CapabilityError as e:
                 score = NAScore(str(e))
                 score.model = model
