@@ -348,9 +348,9 @@ class Test(SciUnit):
         self.check_capabilities(model, skip_incapable=skip_incapable)
 
         # 2.
-        validated = self.validate_observation(self.observation)
-        if validated is not None:
-            self.observation = validated
+        #validated = self.validate_observation(self.observation)
+        #if validated is not None:
+        #    self.observation = validated
 
         # 3.
         if prediction is None:
@@ -391,10 +391,10 @@ class Test(SciUnit):
         self.check_prediction(prediction)
 
         # 3. Validate observation and compute score
-        validated = self.validate_observation(self.observation)
+        #validated = self.validate_observation(self.observation)
 
-        if validated is not None:
-            self.observation = validated
+        #if validated is not None:
+        #    self.observation = validated
 
         score = self.compute_score(self.observation, prediction)
 
