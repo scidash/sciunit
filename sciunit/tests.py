@@ -41,8 +41,8 @@ class Test(SciUnit):
         self.compute_params()
 
         self.observation = observation
-        if config_get('PREVALIDATE', True):
-            self.validate_observation(self.observation)
+        #if config_get('PREVALIDATE', True):
+        #    self.validate_observation(self.observation)
 
         if self.score_type is None or not issubclass(self.score_type, Score):
             raise Error(("The score type '%s' specified for Test '%s' "

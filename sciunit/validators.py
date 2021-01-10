@@ -72,7 +72,7 @@ class ObservationValidator(Validator):
                 raise ObservationError(v.errors)
 
 
-
+    '''
     def _validate_units(self, has_units: bool, key: str, value: Any) -> None:
         """Validate fields with `units` key in schema set to True.
         The rule's arguments are validated against this schema:
@@ -91,7 +91,7 @@ class ObservationValidator(Validator):
             if not required_units == provided_units:
                 self._error(key,
                             "Must have units of '%s'" % self.test.units.name)
-
+    '''
 
 class ParametersValidator(Validator):
     """Cerberus validator class for observations.
