@@ -12,7 +12,6 @@ from .validators import ObservationValidator, ParametersValidator
 from .errors import Error, CapabilityError, ObservationError,\
                     InvalidScoreError, ParametersError
 from .utils import dict_combine, config_get
-#from sciunit.models.examples import ConstModel, UniformModel
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 
@@ -344,16 +343,17 @@ class Test(SciUnit):
         Returns:
             Score: The generated score.
         """
-        # 1.
-        self.check_capabilities(model, skip_incapable=skip_incapable)
-
-        # 2.
-        #validated = self.validate_observation(self.observation)
-        #if validated is not None:
-        #    self.observation = validated
-
-        # 3.
         if prediction is None:
+            # 1.
+            self.check_capabilities(model, skip_incapable=skip_incapable)
+
+            # 2.
+            validated = self.validate_observation(self.observation)
+            if validated is not None:
+                self.observation = validated
+
+            # 3.
+
             prediction = self.generate_prediction(model)
             self.check_prediction(prediction)
             self.last_model = model
@@ -361,7 +361,6 @@ class Test(SciUnit):
 
         # 4.
         score = self.compute_score(self.observation, prediction)
-
         if self.converter:
             score = self.converter.convert(score)
 
@@ -372,7 +371,7 @@ class Test(SciUnit):
         if prediction is None:
 
             self._bind_score(score, model, self.observation, prediction)
-
+        return score
 
     def _presupplied_feature_judge(self, skip_incapable: bool=True) -> Score:
         """Generate a score for the model (internal API use only).
