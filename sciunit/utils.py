@@ -36,6 +36,7 @@ from typing import Any, Callable, List, Tuple, Union, TextIO, Type
 from types import ModuleType
 import unittest.mock
 from pathlib import Path
+from importlib.metadata import version 
 
 mock = False  # mock is probably obviated by the unittest -b flag.
 
@@ -629,7 +630,7 @@ def create_config(data: dict=None) -> bool:
         if (not config_dir.is_file()):
             config_dir.mkdir(exist_ok=True, parents=True)
 
-        data["sciunit_version"] = sciunit.__version__
+        data["sciunit_version"] = version('sciunit') 
 
         if(config_path.is_file()):
             warn_with_traceback("Config file already exists.", Warning, "utils.py", 668)
