@@ -13,7 +13,10 @@ from .scores import Score
 from .errors import Error
 from .scores.collections import ScoreArray, ScoreMatrix#, ScorePanel
 from .scores.collections_m2m import ScoreArrayM2M, ScoreMatrixM2M
-from .version import __version__
+
+from importlib.metadata import version
+__version__ = version('sciunit')
+
 import logging
 logger = logging.getLogger("sciunit")
 logger.setLevel(logging.WARNING)
