@@ -10,9 +10,8 @@ if PYTHON_MAJOR_VERSION < 3:  # Python 2
 import hashlib
 import json
 import pickle
-from io import StringIO
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, List, Union
 
 import git
 import numpy as np

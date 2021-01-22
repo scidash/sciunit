@@ -21,7 +21,7 @@ import sys
 from configparser import RawConfigParser
 from importlib import import_module
 from pathlib import Path
-from typing import Tuple, Union
+from typing import Union
 
 import matplotlib
 import nbformat

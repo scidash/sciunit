@@ -14,7 +14,6 @@ import sys
 import warnings
 
 # from sciunit.models.examples import ConstModel, UniformModel
-from typing import Union
 
 from .base import SciUnit
 from .errors import CapabilityNotImplementedError

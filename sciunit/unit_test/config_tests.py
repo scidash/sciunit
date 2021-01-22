@@ -1,6 +1,5 @@
 """Unit tests for user configuration"""
 
-import json
 import unittest
 
 import sciunit

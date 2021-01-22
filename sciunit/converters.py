@@ -4,7 +4,7 @@ to the value required for particular score type.
 """
 
 from string import Template
-from typing import Callable, Union
+from typing import Callable
 
 from .scores import BooleanScore, Score, ZScore
 

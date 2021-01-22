@@ -4,7 +4,7 @@ import inspect
 import traceback
 
 # from sciunit.models.examples import ConstModel, UniformModel
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, List, Optional, Tuple, Union
 
 from sciunit.base import SciUnit
 

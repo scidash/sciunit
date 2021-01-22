@@ -2,7 +2,6 @@
 Exception classes for SciUnit
 """
 
-import inspect
 
 import sciunit
 

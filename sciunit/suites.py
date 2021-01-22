@@ -4,7 +4,7 @@ Base class for SciUnit test suites.
 
 import random
 from types import MethodType
-from typing import Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import List, Optional, Tuple, Union
 
 from sciunit.scores.collections import ScoreMatrix
 

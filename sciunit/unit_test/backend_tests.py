@@ -1,6 +1,5 @@
 """Unit tests for backends."""
 
-import pathlib
 import unittest
 
 from sciunit import Model

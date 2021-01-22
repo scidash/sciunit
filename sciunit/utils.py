@@ -19,7 +19,6 @@ from datetime import datetime
 from importlib.metadata import version
 from io import StringIO, TextIOWrapper
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from types import ModuleType
 from typing import Any, Callable, List, TextIO, Tuple, Type, Union
 

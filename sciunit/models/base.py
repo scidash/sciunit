@@ -2,7 +2,7 @@
 
 import inspect
 from fnmatch import fnmatchcase
-from typing import Any, Union
+from typing import Union
 
 from sciunit.base import SciUnit
 from sciunit.capabilities import Capability

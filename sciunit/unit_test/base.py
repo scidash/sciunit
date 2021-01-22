@@ -1,7 +1,6 @@
 """Common imports for many unit tests in this directory"""
 
 import sys
-import unittest
 
 import matplotlib as mpl
 
