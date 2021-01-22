@@ -40,8 +40,8 @@ class Test(SciUnit):
         self.compute_params()
 
         self.observation = observation
-        #if config_get('PREVALIDATE', True):
-        #    self.validate_observation(self.observation)
+        if config_get('PREVALIDATE', True):
+            self.validate_observation(self.observation)
 
         if self.score_type is None or not issubclass(self.score_type, Score):
             raise Error(("The score type '%s' specified for Test '%s' "
@@ -114,9 +114,11 @@ class Test(SciUnit):
                 schema = {'schema': self.observation_schema,
                           'type': 'dict'}
             schema = {'observation': schema}
-            v = ObservationValidator(schema, test=self)
-            #if not v.validate({'observation': observation}):
-            #    raise ObservationError(v.errors)
+            if config_get('PREVALIDATE', True):
+                self.validate_observation(self.observation)
+                v = ObservationValidator(schema, test=self)
+                if not v.validate({'observation': observation}):
+                    raise ObservationError(v.errors)
         return observation
 
     @classmethod
@@ -184,6 +186,7 @@ class Test(SciUnit):
         """
         if not isinstance(model, Model):
             raise Error("Model %s is not a sciunit.Model." % str(model))
+        print(self.required_capabilities)
         capable = all([self.check_capability(model, c, skip_incapable,
                                              require_extra)
                        for c in self.required_capabilities])
@@ -345,8 +348,8 @@ class Test(SciUnit):
         """
         if prediction is None:
             # 1.
-            self.check_capabilities(model, skip_incapable=skip_incapable)
 
+            self.check_capabilities(model, skip_incapable=skip_incapable)
             # 2.
             validated = self.validate_observation(self.observation)
             if validated is not None:
@@ -372,9 +375,9 @@ class Test(SciUnit):
 
             self._bind_score(score, model, self.observation, prediction)
         return score
-
+    """
     def _presupplied_feature_judge(self, skip_incapable: bool=True) -> Score:
-        """Generate a score for the model (internal API use only).
+        Generate a score for the model (internal API use only).
 
         Args:
             model (Model): A sciunit model instance.
@@ -382,7 +385,6 @@ class Test(SciUnit):
 
         Returns:
             Score: The generated score.
-        """
 
         # 1.
 
@@ -410,7 +412,7 @@ class Test(SciUnit):
 
     def feature_judge(self, skip_incapable: bool=False, stop_on_error: bool=True,
               deep_error: bool=False) -> Score:
-        """Generate a score for the provided model (public method).
+        Generate a score for the provided model (public method).
 
         Operates as follows:
         1. Checks if the model has all the required capabilities. If it does
@@ -443,7 +445,7 @@ class Test(SciUnit):
 
         Returns:
             Score: The generated score for the provided model.
-        """
+
 
 
         if deep_error:
@@ -463,6 +465,7 @@ class Test(SciUnit):
         if isinstance(score, ErrorScore) and stop_on_error:
             raise score.score  # An exception.
         return score
+    """
 
     def judge(self, model: Model, skip_incapable: bool=False, stop_on_error: bool=True,
               deep_error: bool=False, prediction: dict=None) -> Score:
