@@ -7,9 +7,13 @@ class ConvertersTestCase(unittest.TestCase):
     """Unit tests for Score converters"""
 
     def test_converters(self):
-        from sciunit.converters import (AtLeastToBoolean, AtMostToBoolean,
-                                        LambdaConversion, NoConversion,
-                                        RangeToBoolean)
+        from sciunit.converters import (
+            AtLeastToBoolean,
+            AtMostToBoolean,
+            LambdaConversion,
+            NoConversion,
+            RangeToBoolean,
+        )
         from sciunit.scores import BooleanScore, ZScore
 
         old_score = ZScore(1.3)

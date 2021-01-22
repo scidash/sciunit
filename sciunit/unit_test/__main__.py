@@ -7,10 +7,10 @@ from .active import *  # Import all the tests from the unit_test.active module
 
 
 def main():
-    buffer = 'buffer' in sys.argv
-    sys.argv = sys.argv[:1] # :Args need to be removed for __main__ to work.  
+    buffer = "buffer" in sys.argv
+    sys.argv = sys.argv[:1]  # :Args need to be removed for __main__ to work.
     unittest.main(buffer=buffer)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
-    

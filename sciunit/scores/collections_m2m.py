@@ -18,8 +18,10 @@ class ScoreArrayM2M(pd.Series):
         index ([type]): [description]
     """
 
-    def __init__(self, test: Test, models: List[Model], scores: List['sciunit.scores.Score']):
-        items = models if not test.observation else [test]+models
+    def __init__(
+        self, test: Test, models: List[Model], scores: List["sciunit.scores.Score"]
+    ):
+        items = models if not test.observation else [test] + models
         super(ScoreArrayM2M, self).__init__(data=scores, index=items)
 
     def __getitem__(self, item: Union[str, callable]) -> Any:
@@ -30,10 +32,10 @@ class ScoreArrayM2M(pd.Series):
         return result
 
     def __getattr__(self, name: str) -> Any:
-        if name in ['score', 'norm_scores', 'related_data']:
+        if name in ["score", "norm_scores", "related_data"]:
             attr = self.apply(lambda x: getattr(x, name))
         else:
-            attr = super(ScoreArrayM2M,self).__getattribute__(name)
+            attr = super(ScoreArrayM2M, self).__getattribute__(name)
         return attr
 
     def get_by_name(self, name: str) -> str:
@@ -51,8 +53,9 @@ class ScoreArrayM2M(pd.Series):
         for entry in self.index:
             if entry.name == name or name.lower() == "observation":
                 return self.__getitem__(entry)
-        raise KeyError(("Doesn't match test, 'observation' or "
-                        "any model: '%s'") % name)
+        raise KeyError(
+            ("Doesn't match test, 'observation' or " "any model: '%s'") % name
+        )
 
     @property
     def norm_scores(self) -> pd.Series:
@@ -71,35 +74,42 @@ class ScoreMatrixM2M(pd.DataFrame):
     columns and the index.
     """
 
-    def __init__(self, test: Test, models: List[Model], scores: List['sciunit.scores.Score']):
+    def __init__(
+        self, test: Test, models: List[Model], scores: List["sciunit.scores.Score"]
+    ):
         if not test.observation:
             items = models
         else:
             # better to have header as "observation" than test.name
             # only affects pandas.DataFrame; not test.name in individual scores
             test.name = "observation"
-            items = [test]+models
-        super(ScoreMatrixM2M, self).__init__(data=scores, index=items,
-                                             columns=items)
+            items = [test] + models
+        super(ScoreMatrixM2M, self).__init__(data=scores, index=items, columns=items)
         with warnings.catch_warnings():
-            warnings.filterwarnings("ignore",
-                                    message=(".*Pandas doesn't allow columns "
-                                             "to be created via a new "))
+            warnings.filterwarnings(
+                "ignore",
+                message=(".*Pandas doesn't allow columns " "to be created via a new "),
+            )
             self.test = test
             self.models = models
 
-    def __getitem__(self, item: Union[Tuple[Test, Model], str, Tuple[list, tuple]]) -> Any:
+    def __getitem__(
+        self, item: Union[Tuple[Test, Model], str, Tuple[list, tuple]]
+    ) -> Any:
         if isinstance(item, (Test, Model)):
-            result = ScoreArrayM2M(self.test, self.models,
-                                   scores=self.loc[item, :])
+            result = ScoreArrayM2M(self.test, self.models, scores=self.loc[item, :])
         elif isinstance(item, str):
             result = self.get_by_name(item)
         elif isinstance(item, (list, tuple)) and len(item) == 2:
             result = self.get_group(item)
         else:
-            raise TypeError(("Expected test/'observation'; model; "
-                             "test/'observation',model; "
-                             "model,test/'observation'; or model,model"))
+            raise TypeError(
+                (
+                    "Expected test/'observation'; model; "
+                    "test/'observation',model; "
+                    "model,test/'observation'; or model,model"
+                )
+            )
         return result
 
     def get_by_name(self, name: str) -> Union[Model, Test]:
@@ -119,8 +129,9 @@ class ScoreMatrixM2M(pd.DataFrame):
                 return self.__getitem__(model)
             if self.test.name == name or name.lower() == "observation":
                 return self.__getitem__(self.test)
-        raise KeyError(("Doesn't match test, 'observation' or "
-                        "any model: '%s'") % name)
+        raise KeyError(
+            ("Doesn't match test, 'observation' or " "any model: '%s'") % name
+        )
 
     def get_group(self, x: list) -> Any:
         """[summary]
@@ -141,7 +152,7 @@ class ScoreMatrixM2M(pd.DataFrame):
         raise TypeError("Expected test/model pair")
 
     def __getattr__(self, name: str) -> Any:
-        if name in ['score', 'norm_score', 'related_data']:
+        if name in ["score", "norm_score", "related_data"]:
             attr = self.applymap(lambda x: getattr(x, name))
         else:
             attr = super(ScoreMatrixM2M, self).__getattribute__(name)

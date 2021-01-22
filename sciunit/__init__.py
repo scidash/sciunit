@@ -16,7 +16,7 @@ from .suites import TestSuite
 from .tests import Test, TestM2M
 from .utils import RUNTIME_SETTINGS, config_get, config_set, log
 
-__version__ = version('sciunit')
+__version__ = version("sciunit")
 
 import logging
 

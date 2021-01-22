@@ -11,10 +11,20 @@ from quantities import Quantity
 from sciunit import Score, ScoreArray, ScoreMatrix
 from sciunit.errors import InvalidScoreError
 from sciunit.models import Model
-from sciunit.scores import (BooleanScore, CohenDScore, ErrorScore, FloatScore,
-                            InsufficientDataScore, NAScore, NoneScore,
-                            PercentScore, RandomScore, RatioScore, TBDScore,
-                            ZScore)
+from sciunit.scores import (
+    BooleanScore,
+    CohenDScore,
+    ErrorScore,
+    FloatScore,
+    InsufficientDataScore,
+    NAScore,
+    NoneScore,
+    PercentScore,
+    RandomScore,
+    RatioScore,
+    TBDScore,
+    ZScore,
+)
 from sciunit.scores.collections_m2m import ScoreArrayM2M, ScoreMatrixM2M
 from sciunit.tests import RangeTest, Test
 from sciunit.unit_test.base import SuiteBase

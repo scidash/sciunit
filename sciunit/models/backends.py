@@ -9,6 +9,7 @@ from typing import Any, Union
 
 available_backends = {}
 
+
 def register_backends(vars: dict) -> None:
     """Register backends for use with models.
 
@@ -16,9 +17,11 @@ def register_backends(vars: dict) -> None:
         vars (dict): a dictionary of variables obtained from e.g. `locals()`,
                      at least some of which are Backend classes, e.g. from imports.
     """
-    new_backends = {x if x is None else x.replace('Backend', ''): cls
-                    for x, cls in vars.items()
-                    if inspect.isclass(cls) and issubclass(cls, Backend)}
+    new_backends = {
+        x if x is None else x.replace("Backend", ""): cls
+        for x, cls in vars.items()
+        if inspect.isclass(cls) and issubclass(cls, Backend)
+    }
     available_backends.update(new_backends)
 
 
@@ -36,14 +39,14 @@ class Backend(object):
         """Initialize the backend."""
         self.model.attrs = {}
 
-        self.use_memory_cache = kwargs.get('use_memory_cache', True)
+        self.use_memory_cache = kwargs.get("use_memory_cache", True)
         if self.use_memory_cache:
             self.init_memory_cache()
-        self.use_disk_cache = kwargs.get('use_disk_cache', False)
+        self.use_disk_cache = kwargs.get("use_disk_cache", False)
         if self.use_disk_cache:
             self.init_disk_cache()
         self.load_model()
-        self.model.unpicklable += ['_backend']
+        self.model.unpicklable += ["_backend"]
 
     #: Name of the backend
     name = None
@@ -67,15 +70,15 @@ class Backend(object):
         """Initialize the on-disk version of the cache."""
         try:
             # Cleanup old disk cache files
-            if (self.disk_cache_location.is_dir()):
+            if self.disk_cache_location.is_dir():
                 self.disk_cache_location.rmdir()
             else:
                 self.disk_cache_location.unlink()
         except Exception:
             pass
-        self.disk_cache_location = Path(tempfile.mkdtemp()) / 'cache'
+        self.disk_cache_location = Path(tempfile.mkdtemp()) / "cache"
 
-    def get_memory_cache(self, key: str=None) -> dict:
+    def get_memory_cache(self, key: str = None) -> dict:
         """Return result in memory cache for key 'key' or None if not found.
 
         Args:
@@ -85,12 +88,12 @@ class Backend(object):
             dict: The memory cache for key 'key' or None if not found.
         """
         key = self.model.hash if key is None else key
-        if not getattr(self, 'memory_cache', False):
+        if not getattr(self, "memory_cache", False):
             self.init_memory_cache()
         self._results = self.memory_cache.get(key)
         return self._results
 
-    def get_disk_cache(self, key: str=None) -> Any:
+    def get_disk_cache(self, key: str = None) -> Any:
         """Return result in disk cache for key 'key' or None if not found.
 
         Args:
@@ -100,14 +103,14 @@ class Backend(object):
             Any: The disk cache for key 'key' or None if not found.
         """
         key = self.model.hash if key is None else key
-        if not getattr(self, 'disk_cache_location', False):
+        if not getattr(self, "disk_cache_location", False):
             self.init_disk_cache()
         disk_cache = shelve.open(str(self.disk_cache_location))
         self._results = disk_cache.get(key)
         disk_cache.close()
         return self._results
 
-    def set_memory_cache(self, results: Any, key: str=None) -> None:
+    def set_memory_cache(self, results: Any, key: str = None) -> None:
         """Store result in memory cache with key matching model state.
 
         Args:
@@ -115,18 +118,18 @@ class Backend(object):
             key (str, optional): [description]. Defaults to None.
         """
         key = self.model.hash if key is None else key
-        if not getattr(self, 'memory_cache', False):
+        if not getattr(self, "memory_cache", False):
             self.init_memory_cache()
         self.memory_cache[key] = results
 
-    def set_disk_cache(self, results: Any, key: str=None) -> None:
+    def set_disk_cache(self, results: Any, key: str = None) -> None:
         """Store result in disk cache with key matching model state.
 
         Args:
             results (Any): [description]
             key (str, optional): [description]. Defaults to None.
         """
-        if not getattr(self, 'disk_cache_location', False):
+        if not getattr(self, "disk_cache_location", False):
             self.init_disk_cache()
         disk_cache = shelve.open(str(self.disk_cache_location))
         key = self.model.hash if key is None else key
@@ -167,19 +170,21 @@ class Backend(object):
         """Run the model via the backend."""
         raise NotImplementedError("Each backend must implement '_backend_run'")
 
-    def save_results(self, path: Union[str, Path]='.') -> None:
+    def save_results(self, path: Union[str, Path] = ".") -> None:
         """Save results on disk.
 
         Args:
             path (Union[str, Path], optional): [description]. Defaults to '.'.
         """
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             pickle.dump(self.results, f)
 
- 
+
 class BackendException(Exception):
     """Generic backend exception class."""
+
     pass
+
 
 # Register the base class as a Backend just so that there is
 # always something available.  This Backend won't do anything

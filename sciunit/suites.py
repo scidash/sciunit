@@ -19,9 +19,16 @@ from .utils import log
 class TestSuite(SciUnit, TestWeighted):
     """A collection of tests."""
 
-    def __init__(self, tests: List[Test], name: str=None, weights=None, include_models: List[Model]=None,
-                 skip_models: List[Model]=None, hooks: dict=None, 
-                 optimizer=None):
+    def __init__(
+        self,
+        tests: List[Test],
+        name: str = None,
+        weights=None,
+        include_models: List[Model] = None,
+        skip_models: List[Model] = None,
+        hooks: dict = None,
+        optimizer=None,
+    ):
         """The constructor of TestSuite class.
 
         Args:
@@ -87,14 +94,21 @@ class TestSuite(SciUnit, TestWeighted):
             try:
                 for test in tests:
                     if not isinstance(test, Test):
-                        raise TypeError(("Test suite provided an iterable "
-                                         "containing a non-Test."))
+                        raise TypeError(
+                            (
+                                "Test suite provided an iterable "
+                                "containing a non-Test."
+                            )
+                        )
             except TypeError:
-                raise TypeError(("Test suite was not provided with "
-                                 "a test or iterable."))
+                raise TypeError(
+                    ("Test suite was not provided with " "a test or iterable.")
+                )
         return tests
 
-    def assert_models(self, models: Union[Model, List[Model]]) -> Union[Tuple[Model], List[Model]]:
+    def assert_models(
+        self, models: Union[Model, List[Model]]
+    ) -> Union[Tuple[Model], List[Model]]:
         """Check and in some cases fixes the list of models.
 
         Args:
@@ -114,16 +128,30 @@ class TestSuite(SciUnit, TestWeighted):
             try:
                 for model in models:
                     if not isinstance(model, Model):
-                        raise TypeError(("The judge method of Test suite '%s'"
-                                         "provided an iterable containing a "
-                                         "non-Model '%s'.") % (self, model))
+                        raise TypeError(
+                            (
+                                "The judge method of Test suite '%s'"
+                                "provided an iterable containing a "
+                                "non-Model '%s'."
+                            )
+                            % (self, model)
+                        )
             except TypeError:
-                raise TypeError(("Test suite's judge method not provided with "
-                                 "a model or iterable."))
+                raise TypeError(
+                    (
+                        "Test suite's judge method not provided with "
+                        "a model or iterable."
+                    )
+                )
         return models
 
-    def check(self, models: Union[Model, List[Model]], skip_incapable: bool=True, require_extra: bool=False,
-              stop_on_error: bool=True) -> ScoreMatrix:
+    def check(
+        self,
+        models: Union[Model, List[Model]],
+        skip_incapable: bool = True,
+        require_extra: bool = False,
+        stop_on_error: bool = True,
+    ) -> ScoreMatrix:
         """Like judge, but without actually running the test.
 
         Just returns a ScoreMatrix indicating whether each model can take
@@ -146,16 +174,16 @@ class TestSuite(SciUnit, TestWeighted):
         sm = ScoreMatrix(self.tests, models)
         for test in self.tests:
             for model in models:
-                sm.loc[model, test] = test.check(model,
-                                                 require_extra=require_extra)
+                sm.loc[model, test] = test.check(model, require_extra=require_extra)
         return sm
 
-    def check_capabilities(self, model: Model, skip_incapable: bool=False,
-                           require_extra: bool=False) -> list:
+    def check_capabilities(
+        self, model: Model, skip_incapable: bool = False, require_extra: bool = False
+    ) -> list:
         """Check model capabilities against those required by the suite.
 
         Returns a list of booleans (one for each test in the suite)
-        corresponding to 
+        corresponding to
 
         Args:
             model (Model): A sciunit model instance.
@@ -164,15 +192,23 @@ class TestSuite(SciUnit, TestWeighted):
             require_extra (bool, optional): Check to see whether the model implements certain other methods. Defaults to False.
 
         Returns:
-            list: A list of booleans that shows whether the required 
+            list: A list of booleans that shows whether the required
                     capabilities of each test are satisfied by the model.
         """
-        return [test.check_capabilities(model,
-                skip_incapable=skip_incapable, require_extra=require_extra)
-                for test in self.tests]
+        return [
+            test.check_capabilities(
+                model, skip_incapable=skip_incapable, require_extra=require_extra
+            )
+            for test in self.tests
+        ]
 
-    def judge(self, models: Union[Model, List[Model]],
-              skip_incapable: bool=False, stop_on_error: bool=True, deep_error: bool=False) -> ScoreMatrix:
+    def judge(
+        self,
+        models: Union[Model, List[Model]],
+        skip_incapable: bool = False,
+        stop_on_error: bool = True,
+        deep_error: bool = False,
+    ) -> ScoreMatrix:
         """Judge the provided models against each test in the test suite.
 
         Args:
@@ -191,8 +227,9 @@ class TestSuite(SciUnit, TestWeighted):
         sm = ScoreMatrix(self.tests, models, weights=self.weights)
         for model in models:
             for test in self.tests:
-                score = self.judge_one(model, test, sm, skip_incapable,
-                                       stop_on_error, deep_error)
+                score = self.judge_one(
+                    model, test, sm, skip_incapable, stop_on_error, deep_error
+                )
                 self.set_hooks(test, score)
         return sm
 
@@ -206,15 +243,23 @@ class TestSuite(SciUnit, TestWeighted):
             bool: Whether `model` will be judged or not.
         """
         # Skip if include_models provided and model not found there
-        skip = self.include_models and \
-            not any([model.is_match(x) for x in self.include_models])
+        skip = self.include_models and not any(
+            [model.is_match(x) for x in self.include_models]
+        )
         # Skip if model found in skip_models
         if not skip:
             skip = any([model.is_match(x) for x in self.skip_models])
         return skip
 
-    def judge_one(self, model: Model, test: Test, sm: ScoreMatrix,
-                  skip_incapable: bool=True, stop_on_error: bool=True, deep_error: bool=False) -> 'Score':
+    def judge_one(
+        self,
+        model: Model,
+        test: Test,
+        sm: ScoreMatrix,
+        skip_incapable: bool = True,
+        stop_on_error: bool = True,
+        deep_error: bool = False,
+    ) -> "Score":
         """Judge model and put score in the ScoreMatrix.
 
         Returns:
@@ -223,13 +268,20 @@ class TestSuite(SciUnit, TestWeighted):
         if self.is_skipped(model):
             score = NoneScore(None)
         else:
-            log('Executing test <i>%s</i> on model <i>%s</i>' % (test, model),
-                end=u"... ")
-            score = test.judge(model, skip_incapable=skip_incapable,
-                               stop_on_error=stop_on_error,
-                               deep_error=deep_error)
-            log('Score is <a style="color: rgb(%d,%d,%d)">' % score.color()
-                + '%s</a>' % score)
+            log(
+                "Executing test <i>%s</i> on model <i>%s</i>" % (test, model),
+                end=u"... ",
+            )
+            score = test.judge(
+                model,
+                skip_incapable=skip_incapable,
+                stop_on_error=stop_on_error,
+                deep_error=deep_error,
+            )
+            log(
+                'Score is <a style="color: rgb(%d,%d,%d)">' % score.color()
+                + "%s</a>" % score
+            )
         sm.loc[model, test] = score
         return score
 
@@ -242,10 +294,11 @@ class TestSuite(SciUnit, TestWeighted):
         Raises:
             NotImplementedError: Exception raised if this method is not implemented (not overrided in the subclass).
         """
-        raise NotImplementedError(("Optimization not implemented "
-                                   "for TestSuite '%s'" % self))
+        raise NotImplementedError(
+            ("Optimization not implemented " "for TestSuite '%s'" % self)
+        )
 
-    def set_hooks(self, test: Test, score: 'Score') -> None:
+    def set_hooks(self, test: Test, score: "Score") -> None:
         """Set hook functions to run after each test is executed.
 
         Args:
@@ -253,9 +306,9 @@ class TestSuite(SciUnit, TestWeighted):
             score (Score): A sciunit Model instance.
         """
         if self.hooks and test in self.hooks:
-            f = self.hooks[test]['f']
-            if 'kwargs' in self.hooks[test]:
-                kwargs = self.hooks[test]['kwargs']
+            f = self.hooks[test]["f"]
+            if "kwargs" in self.hooks[test]:
+                kwargs = self.hooks[test]["kwargs"]
             else:
                 kwargs = {}
             f(test, self.tests, score, **kwargs)
@@ -270,7 +323,9 @@ class TestSuite(SciUnit, TestWeighted):
             test.verbose = verbose
 
     @classmethod
-    def from_observations(cls, tests_info: List[Tuple["Test", dict]], name: Optional[str]=None):
+    def from_observations(
+        cls, tests_info: List[Tuple["Test", dict]], name: Optional[str] = None
+    ):
         """Instantiate a test suite from a set of observations.
 
         `tests_info` should be a list of tuples containing the test class and
@@ -290,27 +345,30 @@ class TestSuite(SciUnit, TestWeighted):
         for test_info in tests_info:
             test_class, observation = test_info[0:2]
             test_name = None if len(test_info) < 3 else test_info[2]
-            assert Test.is_test_class(test_class), \
-                "First item in each tuple must be a Test class"
+            assert Test.is_test_class(
+                test_class
+            ), "First item in each tuple must be a Test class"
             test = test_class(observation, name=test_name)
             tests.append(test)
         return cls(tests, name=name)
-    
+
     def __getitem__(self, item: Union[str, int]) -> Test:
         if isinstance(item, int):
             test = self.tests[item]
         else:
-            options = [test for test in self.tests if test.name==item]
+            options = [test for test in self.tests if test.name == item]
             if len(options) == 0:
                 raise KeyError("No test in this suite with name '%s'" % item)
             elif len(options) >= 2:
-                raise KeyError("Multiple tests found in this suite with name '%s'" % item)
+                raise KeyError(
+                    "Multiple tests found in this suite with name '%s'" % item
+                )
             test = options[0]
         return test
-    
+
     def __len__(self) -> int:
         return len(self.tests)
 
     def __str__(self):
         """Represent the TestSuite instance as a string."""
-        return '%s' % self.name
+        return "%s" % self.name

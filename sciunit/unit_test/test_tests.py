@@ -4,8 +4,7 @@ import unittest
 
 from sciunit import Model, TestSuite, config_set
 from sciunit.capabilities import ProducesNumber
-from sciunit.errors import (Error, InvalidScoreError, ObservationError,
-                            ParametersError)
+from sciunit.errors import Error, InvalidScoreError, ObservationError, ParametersError
 from sciunit.models.examples import ConstModel, UniformModel
 from sciunit.scores import BooleanScore, FloatScore
 from sciunit.scores.collections import ScoreMatrix
@@ -55,10 +54,10 @@ class TestsTestCase(unittest.TestCase):
         self.assertTrue(score.model is one_model)
 
     def test_Test(self):
-        config_set('PREVALIDATE', True)
+        config_set("PREVALIDATE", True)
         with self.assertRaises(ObservationError):
             t = Test(None)
-        config_set('PREVALIDATE', False)
+        config_set("PREVALIDATE", False)
 
         t = Test(None)
         self.assertRaises(ObservationError, t.validate_observation, None)

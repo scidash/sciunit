@@ -120,9 +120,12 @@ class ModelsTestCase(unittest.TestCase):
         m.run()
 
     def test_regular_models(self):
-        from sciunit.models.examples import (ConstModel,
-                                             PersistentUniformModel,
-                                             SharedModel, UniformModel)
+        from sciunit.models.examples import (
+            ConstModel,
+            PersistentUniformModel,
+            SharedModel,
+            UniformModel,
+        )
 
         m = ConstModel(3)
         self.assertEqual(m.produce_number(), 3)
@@ -137,7 +140,8 @@ class ModelsTestCase(unittest.TestCase):
     def test_irregular_models(self):
         from sciunit.models.examples import (
             CacheByInstancePersistentUniformModel,
-            CacheByValuePersistentUniformModel)
+            CacheByValuePersistentUniformModel,
+        )
 
         a = CacheByInstancePersistentUniformModel(2, 3)
         a1 = a.produce_number()
@@ -164,8 +168,10 @@ class CapabilitiesTestCase(unittest.TestCase):
         from sciunit.capabilities import Capability, ProducesNumber, Runnable
         from sciunit.errors import CapabilityNotImplementedError
         from sciunit.models import Model
-        from sciunit.models.examples import (RepeatedRandomNumberModel,
-                                             UniqueRandomNumberModel)
+        from sciunit.models.examples import (
+            RepeatedRandomNumberModel,
+            UniqueRandomNumberModel,
+        )
 
         class MyModel(Model, ProducesNumber):
             def produce_number(self):
@@ -191,9 +197,9 @@ class CapabilitiesTestCase(unittest.TestCase):
         m = Capability()
         m.name = "test name"
         self.assertEqual(str(m), "test name")
-    
+
     def test_source_check(self):
-        
+
         from sciunit import Model
         from sciunit.capabilities import Capability
         from sciunit.errors import CapabilityNotImplementedError
@@ -202,15 +208,18 @@ class CapabilitiesTestCase(unittest.TestCase):
         class MyCap1(Capability):
             def fn1(self):
                 raise NotImplementedError("fn1 not implemented.")
-        
+
         class MyCap2(Capability):
             def fn1(self):
                 self.unimplemented("fn1 not implemented.")
-        
+
         class MyCap3(Capability):
             def fn1(self):
-                raise CapabilityNotImplementedError(model = self, capability = self.__class__, details = "fn1 not implemented.")
-
+                raise CapabilityNotImplementedError(
+                    model=self,
+                    capability=self.__class__,
+                    details="fn1 not implemented.",
+                )
 
         class MyModel1(Model, MyCap1):
             def fn1(self):
@@ -232,7 +241,7 @@ class CapabilitiesTestCase(unittest.TestCase):
 
         class MyModel6(Model, MyCap3):
             pass
-        
+
         self.assertTrue(MyCap1.source_check(MyModel1()))
         self.assertFalse(MyCap1.source_check(MyModel2()))
         self.assertTrue(MyCap2.source_check(MyModel3()))
@@ -241,12 +250,14 @@ class CapabilitiesTestCase(unittest.TestCase):
         self.assertFalse(MyCap3.source_check(MyModel6()))
 
 
-
 class RunnableModelTestCase(unittest.TestCase):
     def test_backend(self):
         from sciunit.models import RunnableModel
-        from sciunit.models.backends import (Backend, available_backends,
-                                             register_backends)
+        from sciunit.models.backends import (
+            Backend,
+            available_backends,
+            register_backends,
+        )
 
         self.assertRaises(TypeError, RunnableModel, name="", attrs=1)
         model = RunnableModel(name="test name")
@@ -265,16 +276,14 @@ class RunnableModelTestCase(unittest.TestCase):
         self.assertIsInstance(model.state, dict)
 
         class MyBackend1(Backend):
-
             def _backend_run(self) -> str:
                 return "test result 1"
 
         class MyBackend2(Backend):
-
             def _backend_run(self) -> str:
                 return "test result 2"
 
-        name_backend_dict = {"backend1" : MyBackend2, "backend2" : MyBackend2}
+        name_backend_dict = {"backend1": MyBackend2, "backend2": MyBackend2}
         backend_names = ["backend1", "backend2"]
 
         model = RunnableModel(name="test name")
@@ -282,9 +291,9 @@ class RunnableModelTestCase(unittest.TestCase):
         model.set_backend(backend_names)
         model.print_run_params = True
         model.run()
-        
+
         model = RunnableModel(name="test name")
-        model.default_run_params = {"para1" : 1}
+        model.default_run_params = {"para1": 1}
         model.use_default_run_params()
 
 

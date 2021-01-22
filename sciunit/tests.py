@@ -2,17 +2,22 @@
 
 import inspect
 import traceback
-#from sciunit.models.examples import ConstModel, UniformModel
+
+# from sciunit.models.examples import ConstModel, UniformModel
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from sciunit.base import SciUnit
 
 from .capabilities import ProducesNumber
-from .errors import (CapabilityError, Error, InvalidScoreError,
-                     ObservationError, ParametersError)
+from .errors import (
+    CapabilityError,
+    Error,
+    InvalidScoreError,
+    ObservationError,
+    ParametersError,
+)
 from .models import Model
-from .scores import (BooleanScore, ErrorScore, NAScore, NoneScore, Score,
-                     TBDScore)
+from .scores import BooleanScore, ErrorScore, NAScore, NoneScore, Score, TBDScore
 from .utils import config_get, dict_combine
 from .validators import ObservationValidator, ParametersValidator
 
@@ -20,7 +25,12 @@ from .validators import ObservationValidator, ParametersValidator
 class Test(SciUnit):
     """Abstract base class for tests."""
 
-    def __init__(self, observation: Union[List[int], Tuple[int, int]], name: Optional[str]=None, **params):
+    def __init__(
+        self,
+        observation: Union[List[int], Tuple[int, int]],
+        name: Optional[str] = None,
+        **params
+    ):
         """
         Args:
             observation (dict): A dictionary of observed values to parameterize
@@ -36,18 +46,20 @@ class Test(SciUnit):
         # Use a combination of default_params and params, choosing the latter
         # if there is a conflict.
         self.params = dict_combine(self.default_params, params)
-        self.verbose = self.params.pop('verbose', 1)
+        self.verbose = self.params.pop("verbose", 1)
         self.validate_params(self.params)
         # Compute possible new params from existing params
         self.compute_params()
 
         self.observation = observation
-        if config_get('PREVALIDATE', False):
+        if config_get("PREVALIDATE", False):
             self.validate_observation(self.observation)
 
         if self.score_type is None or not issubclass(self.score_type, Score):
-            raise Error(("The score type '%s' specified for Test '%s' "
-                         "is not valid.") % (self.score_type, self.name))
+            raise Error(
+                ("The score type '%s' specified for Test '%s' " "is not valid.")
+                % (self.score_type, self.name)
+            )
 
         super(Test, self).__init__()
 
@@ -84,7 +96,7 @@ class Test(SciUnit):
         Inserts those new params into `self.params`. Use this when some params
         depend upon the values of others.
         Example: `self.params['c'] = self.params['a'] + self.params['b']`
-        
+
         """
         pass
 
@@ -108,16 +120,15 @@ class Test(SciUnit):
             raise ObservationError("Observation mean cannot be 'None'.")
         if self.observation_schema:
             if isinstance(self.observation_schema, list):
-                schemas = [x[1] if isinstance(x, tuple) else x
-                           for x in self.observation_schema]
-                schema = {'oneof_schema': schemas,
-                          'type': 'dict'}
+                schemas = [
+                    x[1] if isinstance(x, tuple) else x for x in self.observation_schema
+                ]
+                schema = {"oneof_schema": schemas, "type": "dict"}
             else:
-                schema = {'schema': self.observation_schema,
-                          'type': 'dict'}
-            schema = {'observation': schema}
+                schema = {"schema": self.observation_schema, "type": "dict"}
+            schema = {"observation": schema}
             v = ObservationValidator(schema, test=self)
-            if not v.validate({'observation': observation}):
+            if not v.validate({"observation": observation}):
                 raise ObservationError(v.errors)
         return observation
 
@@ -131,8 +142,10 @@ class Test(SciUnit):
         names = []
         if cls.observation_schema:
             if isinstance(cls.observation_schema, list):
-                names = [x[0] if isinstance(x, tuple) else 'Schema %d' % (i+1)
-                         for i, x in enumerate(cls.observation_schema)]
+                names = [
+                    x[0] if isinstance(x, tuple) else "Schema %d" % (i + 1)
+                    for i, x in enumerate(cls.observation_schema)
+                ]
         return names
 
     def validate_params(self, params: dict) -> dict:
@@ -153,14 +166,12 @@ class Test(SciUnit):
             raise ParametersError("Parameters are not a dictionary.")
         if self.params_schema:
             if isinstance(self.params_schema, list):
-                schema = {'oneof_schema': self.params_schema,
-                          'type': 'dict'}
+                schema = {"oneof_schema": self.params_schema, "type": "dict"}
             else:
-                schema = {'schema': self.params_schema,
-                          'type': 'dict'}
-            schema = {'params': schema}
+                schema = {"schema": self.params_schema, "type": "dict"}
+            schema = {"params": schema}
             v = ParametersValidator(schema, test=self)
-            if not v.validate({'params': params}):
+            if not v.validate({"params": params}):
                 raise ParametersError(v.errors)
         return params
 
@@ -168,10 +179,11 @@ class Test(SciUnit):
     """A sequence of capabilities that a model must have in order for the
     test to be run. Defaults to empty."""
 
-    def check_capabilities(self, model: Model, skip_incapable: bool=False,
-                           require_extra: bool=False) -> bool:
+    def check_capabilities(
+        self, model: Model, skip_incapable: bool = False, require_extra: bool = False
+    ) -> bool:
         """Check that test's required capabilities are implemented by `model`.
-        
+
         Args:
             model (Model): A sciunit model instance
             skip_incapable (bool, optional): Skip the incapable tests. Defaults to False.
@@ -186,17 +198,25 @@ class Test(SciUnit):
         """
         if not isinstance(model, Model):
             raise Error("Model %s is not a sciunit.Model." % str(model))
-        capable = all([self.check_capability(model, c, skip_incapable,
-                                             require_extra)
-                       for c in self.required_capabilities])
+        capable = all(
+            [
+                self.check_capability(model, c, skip_incapable, require_extra)
+                for c in self.required_capabilities
+            ]
+        )
         return capable
 
-    def check_capability(self, model: Model, c: "Capability", skip_incapable: bool=False,
-                         require_extra: bool=False) -> bool:
+    def check_capability(
+        self,
+        model: Model,
+        c: "Capability",
+        skip_incapable: bool = False,
+        require_extra: bool = False,
+    ) -> bool:
         """Check if `model` has capability `c`.
 
         Optionally (default:True) raise a `CapabilityError` if it does not.
-        
+
 
         Args:
             model (Model): The sciunit model instance to be checked.
@@ -222,7 +242,7 @@ class Test(SciUnit):
         that do not define the model but do define experiments performed on
         the model.
         No default implementation.
-        
+
 
         Args:
             model (Model): A sciunit model instance.
@@ -240,8 +260,9 @@ class Test(SciUnit):
         Raises:
             NotImplementedError: Exception raised if this method is not implemented (overrided in the subclass).
         """
-        raise NotImplementedError(("Test %s does not implement "
-                                   "generate_prediction.") % str())
+        raise NotImplementedError(
+            ("Test %s does not implement " "generate_prediction.") % str()
+        )
 
     def check_prediction(self, prediction: float) -> None:
         """Check the prediction for acceptable values.
@@ -270,12 +291,15 @@ class Test(SciUnit):
         Returns:
             Score: The generated score.
         """
-        if not hasattr(self, 'score_type') or \
-           not hasattr(self.score_type, 'compute'):
-            raise NotImplementedError(("Test %s either implements no "
-                                       "compute_score method or provides no "
-                                       "score_type with a compute method.")
-                                      % self.name)
+        if not hasattr(self, "score_type") or not hasattr(self.score_type, "compute"):
+            raise NotImplementedError(
+                (
+                    "Test %s either implements no "
+                    "compute_score method or provides no "
+                    "score_type with a compute method."
+                )
+                % self.name
+            )
         # After some processing of the observation and the prediction.
         score = self.score_type.compute(observation, prediction)
         return score
@@ -289,8 +313,13 @@ class Test(SciUnit):
         score = self.score_type(self.score_type._best)
         return score
 
-    def _bind_score(self, score: Score, model: Model, observation: Union[list, dict], 
-                    prediction: Union[list, dict]) -> None:
+    def _bind_score(
+        self,
+        score: Score,
+        model: Model,
+        observation: Union[list, dict],
+        prediction: Union[list, dict],
+    ) -> None:
         """Bind some useful attributes to the score.
 
         Args:
@@ -307,8 +336,13 @@ class Test(SciUnit):
         score.related_data = score.related_data.copy()
         self.bind_score(score, model, observation, prediction)
 
-    def bind_score(self, score: Score, model: Model, observation: Union[list, dict], 
-                    prediction: Union[list, dict]) -> None:
+    def bind_score(
+        self,
+        score: Score,
+        model: Model,
+        observation: Union[list, dict],
+        prediction: Union[list, dict],
+    ) -> None:
         """For the user to bind additional features to the score.
 
         Args:
@@ -329,13 +363,13 @@ class Test(SciUnit):
             InvalidScoreError: Raise an exception if `score` is not a sciunit Score.
         """
         if not isinstance(score, (self.score_type, NoneScore, ErrorScore)):
-            msg = (("Score for test '%s' is not of correct type. "
-                    "The test requires type %s but %s was provided.")
-                   % (self.name, self.score_type.__name__,
-                      score.__class__.__name__))
+            msg = (
+                "Score for test '%s' is not of correct type. "
+                "The test requires type %s but %s was provided."
+            ) % (self.name, self.score_type.__name__, score.__class__.__name__)
             raise InvalidScoreError(msg)
 
-    def _judge(self, model: Model, skip_incapable: bool=True) -> Score:
+    def _judge(self, model: Model, skip_incapable: bool = True) -> Score:
         """Generate a score for the model (internal API use only).
 
         Args:
@@ -372,8 +406,13 @@ class Test(SciUnit):
 
         return score
 
-    def judge(self, model: Model, skip_incapable: bool=False, stop_on_error: bool=True,
-              deep_error: bool=False) -> Score:
+    def judge(
+        self,
+        model: Model,
+        skip_incapable: bool = False,
+        stop_on_error: bool = True,
+        deep_error: bool = False,
+    ) -> Score:
         """Generate a score for the provided model (public method).
 
         Operates as follows:
@@ -397,11 +436,11 @@ class Test(SciUnit):
         Args:
             model (Model): A sciunit model instance
             skip_incapable (bool, optional): Skip the incapable tests. Defaults to False.
-            stop_on_error (bool, optional): Whether to stop on an error (exceptions propagate upward). 
+            stop_on_error (bool, optional): Whether to stop on an error (exceptions propagate upward).
                                             If false, an ErrorScore is generated containing the exception.
                                             Defaults to True.
-            deep_error (bool, optional): Whether the traceback will contain the actual code 
-                                        execution error, instead of the content of an ErrorScore. 
+            deep_error (bool, optional): Whether the traceback will contain the actual code
+                                        execution error, instead of the content of an ErrorScore.
                                         Defaults to False.
 
         Raises:
@@ -413,11 +452,15 @@ class Test(SciUnit):
         if isinstance(model, (list, tuple, set)):
             # If a collection of models is provided
             from .suites import TestSuite
+
             suite = TestSuite([self], name=self.name)
             # then test them using a one-test suite.
-            return suite.judge(model, skip_incapable=skip_incapable,
-                               stop_on_error=stop_on_error,
-                               deep_error=deep_error)
+            return suite.judge(
+                model,
+                skip_incapable=skip_incapable,
+                stop_on_error=stop_on_error,
+                deep_error=deep_error,
+            )
 
         if deep_error:
             score = self._judge(model, skip_incapable=skip_incapable)
@@ -437,8 +480,13 @@ class Test(SciUnit):
             raise score.score  # An exception.
         return score
 
-    def check(self, model: Model, skip_incapable: bool=True, stop_on_error: bool=True,
-              require_extra: bool=False) -> Score:
+    def check(
+        self,
+        model: Model,
+        skip_incapable: bool = True,
+        stop_on_error: bool = True,
+        require_extra: bool = False,
+    ) -> Score:
         """Check to see if the test can run this model.
 
         Like judge, but without actually running the test. Just returns a Score
@@ -457,8 +505,9 @@ class Test(SciUnit):
             Score: A TBDScore instance if check is passed, a NAScore instance otherwise.
         """
         try:
-            if self.check_capabilities(model, skip_incapable=skip_incapable,
-                                       require_extra=require_extra):
+            if self.check_capabilities(
+                model, skip_incapable=skip_incapable, require_extra=require_extra
+            ):
                 score = TBDScore(None)
             else:
                 score = NAScore(None)
@@ -477,8 +526,9 @@ class Test(SciUnit):
         Raises:
             NotImplementedError: Raise the exception if this method is not implemented (not overrided in the subclass).
         """
-        raise NotImplementedError(("Optimization not implemented "
-                                   "for Test '%s'" % self))
+        raise NotImplementedError(
+            ("Optimization not implemented " "for Test '%s'" % self)
+        )
 
     def describe(self) -> str:
         """Describe the test in words.
@@ -492,11 +542,10 @@ class Test(SciUnit):
         else:
             if self.__doc__:
                 s = []
-                s += [self.__doc__.strip().replace('\n', '').
-                      replace('    ', '')]
+                s += [self.__doc__.strip().replace("\n", "").replace("    ", "")]
                 if self.converter:
                     s += [self.converter.description]
-                result = '\n'.join(s)
+                result = "\n".join(s)
         return result
 
     @property
@@ -506,7 +555,7 @@ class Test(SciUnit):
         Returns:
             dict: The frozen (pickled) model state
         """
-        return self._state(exclude=['last_model'])
+        return self._state(exclude=["last_model"])
 
     @classmethod
     def is_test_class(cls, other_cls: Any) -> bool:
@@ -526,7 +575,7 @@ class Test(SciUnit):
         Returns:
             str: The string representation of the test's name.
         """
-        return '%s' % self.name
+        return "%s" % self.name
 
 
 class TestM2M(Test):
@@ -577,9 +626,11 @@ class TestM2M(Test):
             # After some processing of the observation and/or the prediction(s)
             f = self.score_type.compute
         except Exception:
-            msg = ("Test implemented no `compute_score` method. "
-                   "But score_type of %s also has no "
-                   "compute method.") % self.score_type
+            msg = (
+                "Test implemented no `compute_score` method. "
+                "But score_type of %s also has no "
+                "compute method."
+            ) % self.score_type
             raise NotImplementedError(msg)
         try:
             score = f(prediction1, prediction2)
@@ -588,7 +639,14 @@ class TestM2M(Test):
             raise Exception(msg)
         return score
 
-    def _bind_score(self, score: Score, prediction1: dict, prediction2: dict, model1: Model, model2: Model):
+    def _bind_score(
+        self,
+        score: Score,
+        prediction1: dict,
+        prediction2: dict,
+        model1: Model,
+        model2: Model,
+    ):
         """Bind some useful attributes to the score.
 
         Args:
@@ -607,7 +665,14 @@ class TestM2M(Test):
         score.related_data = score.related_data.copy()
         self.bind_score(score, prediction1, prediction2, model1, model2)
 
-    def bind_score(self, score: Score, prediction1: dict, prediction2: dict, model1: Model, model2: Model):
+    def bind_score(
+        self,
+        score: Score,
+        prediction1: dict,
+        prediction2: dict,
+        model1: Model,
+        model2: Model,
+    ):
         """For the user to bind additional features to the score.
 
         Args:
@@ -619,7 +684,9 @@ class TestM2M(Test):
         """
         pass
 
-    def _judge(self, prediction1, prediction2, model1: Model, model2: Model=None) -> Score:
+    def _judge(
+        self, prediction1, prediction2, model1: Model, model2: Model = None
+    ) -> Score:
         """Generate a score to compare the predictions by the models.
 
         Args:
@@ -643,18 +710,27 @@ class TestM2M(Test):
             score = self.converter.convert(score)
         # 7.
         if not isinstance(score, (self.score_type, NoneScore, ErrorScore)):
-            raise InvalidScoreError(("Score for test '%s' is not of correct "
-                                     "type. The test requires type %s but %s "
-                                     "was provided.")
-                                    % (self.name, self.score_type.__name__,
-                                       score.__class__.__name__))
+            raise InvalidScoreError(
+                (
+                    "Score for test '%s' is not of correct "
+                    "type. The test requires type %s but %s "
+                    "was provided."
+                )
+                % (self.name, self.score_type.__name__, score.__class__.__name__)
+            )
         # 8.
         self._bind_score(score, prediction1, prediction2, model1, model2)
 
         return score
 
-    def judge(self, models: List[Model], skip_incapable: bool=False, stop_on_error: bool=True,
-              deep_error: bool=False, only_lower_triangle: bool=False) -> "ScoreMatrixM2M":
+    def judge(
+        self,
+        models: List[Model],
+        skip_incapable: bool = False,
+        stop_on_error: bool = True,
+        deep_error: bool = False,
+        only_lower_triangle: bool = False,
+    ) -> "ScoreMatrixM2M":
         """Generate a score matrix for the provided model(s).
         `only_lower_triangle`: Only compute the lower triangle (not include
                                the diagonal) of this square ScoreMatrix and
@@ -705,8 +781,12 @@ class TestM2M(Test):
 
         # 1.
         if not isinstance(models, (list, tuple, set)):
-            raise TypeError(("Models must be specified as a list, tuple or "
-                             "set. For single model tests, use 'Test' class."))
+            raise TypeError(
+                (
+                    "Models must be specified as a list, tuple or "
+                    "set. For single model tests, use 'Test' class."
+                )
+            )
         else:
             models = list(models)
 
@@ -718,30 +798,42 @@ class TestM2M(Test):
 
         for model in models:
             if not isinstance(model, Model):
-                raise TypeError(("TestM2M's judge method received a non-Model."
-                                 "Invalid model name: '%s'" % model))
+                raise TypeError(
+                    (
+                        "TestM2M's judge method received a non-Model."
+                        "Invalid model name: '%s'" % model
+                    )
+                )
             else:
                 try:
                     # 3.
-                    self.check_capabilities(model,
-                                            skip_incapable=skip_incapable)
+                    self.check_capabilities(model, skip_incapable=skip_incapable)
                     # 4.
                     prediction = self.generate_prediction(model)
                     self.check_prediction(prediction)
                     predictions.append(prediction)
                 except CapabilityError as e:
-                    raise CapabilityError(model, e.capability,
-                                          ("TestM2M's judge method resulted in"
-                                           " error for '%s'. Error: '%s'" %
-                                           (model, str(e))))
+                    raise CapabilityError(
+                        model,
+                        e.capability,
+                        (
+                            "TestM2M's judge method resulted in"
+                            " error for '%s'. Error: '%s'" % (model, str(e))
+                        ),
+                    )
                 except Exception as e:
-                    raise Exception(("TestM2M's judge method resulted in error"
-                                     "for '%s'. Error: '%s'" %
-                                     (model, str(e))))
+                    raise Exception(
+                        (
+                            "TestM2M's judge method resulted in error"
+                            "for '%s'. Error: '%s'" % (model, str(e))
+                        )
+                    )
 
         # 5. 2D list for scores; num(rows) = num(cols) = num(predictions)
-        scores = [[NoneScore for x in range(len(predictions))]
-                  for y in range(len(predictions))]
+        scores = [
+            [NoneScore for x in range(len(predictions))]
+            for y in range(len(predictions))
+        ]
 
         for i in range(len(predictions)):
             for j in range(len(predictions)):
@@ -752,14 +844,14 @@ class TestM2M(Test):
                     model1 = None
                     model2 = None
                 elif i == 0:
-                    model1 = models[j-1]
+                    model1 = models[j - 1]
                     model2 = None
                 elif j == 0:
-                    model1 = models[i-1]
+                    model1 = models[i - 1]
                     model2 = None
                 else:
-                    model1 = models[i-1]
-                    model2 = models[j-1]
+                    model1 = models[i - 1]
+                    model2 = models[j - 1]
 
                 if i == j and only_lower_triangle:
                     # Perfect score for self-comparison
@@ -768,13 +860,15 @@ class TestM2M(Test):
                     # Should already be computed earlier in this loop
                     scores[i][j] = scores[j][i]
                 else:
-                    scores[i][j] = self._judge(predictions[i], predictions[j],
-                                               model1, model2)
+                    scores[i][j] = self._judge(
+                        predictions[i], predictions[j], model1, model2
+                    )
                 if isinstance(scores[i][j], ErrorScore) and stop_on_error:
                     raise scores[i][j].score  # An exception.
 
         # 9.
         from sciunit.scores.collections_m2m import ScoreMatrixM2M
+
         sm = ScoreMatrixM2M(self, models, scores=scores)
         return sm
 
@@ -789,7 +883,9 @@ class TestM2M(Test):
 class RangeTest(Test):
     """Test if the model generates a number within a certain range."""
 
-    def __init__(self, observation: Union[Tuple[int, int], List[int]], name: Optional[str]=None) -> None:
+    def __init__(
+        self, observation: Union[Tuple[int, int], List[int]], name: Optional[str] = None
+    ) -> None:
         super(RangeTest, self).__init__(observation, name=name)
 
     required_capabilities = (ProducesNumber,)
@@ -854,8 +950,9 @@ class ProtocolToFeaturesTest(Test):
             dict: The prediction generated by the sciunit model.
         """
         run_method = getattr(model, "run", None)
-        assert callable(run_method), \
-            "Model must have a `run` method to use a ProtocolToFeaturesTest"
+        assert callable(
+            run_method
+        ), "Model must have a `run` method to use a ProtocolToFeaturesTest"
         self.setup_protocol(model)
         result = self.get_result(model)
         prediction = self.extract_features(model, result)

@@ -5,15 +5,16 @@ from typing import Union
 
 from sciunit.capabilities import ProducesNumber
 from sciunit.models import Model
-from sciunit.utils import \
-    method_memoize  # Decorator for caching of capability method results.
+from sciunit.utils import (
+    method_memoize,
+)  # Decorator for caching of capability method results.
 from sciunit.utils import class_intern, method_cache
 
 
 class ConstModel(Model, ProducesNumber):
     """A model that always produces a constant number as output."""
 
-    def __init__(self, constant: Union[int, float], name: str=None):
+    def __init__(self, constant: Union[int, float], name: str = None):
         self.constant = constant
         super(ConstModel, self).__init__(name=name, constant=constant)
 
@@ -42,6 +43,7 @@ class UniformModel(Model, ProducesNumber):
 # Here are several examples of caching and sharing can be used
 # to reduce the computational load of testing.
 ################################################################
+
 
 class UniqueRandomNumberModel(Model, ProducesNumber):
     """An example model to ProducesNumber."""
@@ -74,6 +76,7 @@ class SharedModel(Model):
     will return the same instance at the same locaiton in memory.
     Attributes should not be set post-instantiation
     unless the goal is to set those attributes on all models of this class."""
+
     pass
 
 
@@ -90,7 +93,7 @@ class PersistentUniformModel(UniformModel):
 class CacheByInstancePersistentUniformModel(PersistentUniformModel):
     """TODO"""
 
-    @method_cache(by='instance', method='run')
+    @method_cache(by="instance", method="run")
     def produce_number(self) -> float:
         return self._x
 
@@ -98,6 +101,6 @@ class CacheByInstancePersistentUniformModel(PersistentUniformModel):
 class CacheByValuePersistentUniformModel(PersistentUniformModel):
     """TODO"""
 
-    @method_cache(by='value', method='run')
+    @method_cache(by="value", method="run")
     def produce_number(self) -> float:
         return self._x
