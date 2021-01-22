@@ -40,8 +40,8 @@ class Test(SciUnit):
         self.compute_params()
 
         self.observation = observation
-        #if config_get('PREVALIDATE', True):
-        #    self.validate_observation(self.observation)
+        if config_get('PREVALIDATE', True):
+            self.validate_observation(self.observation)
 
         if self.score_type is None or not issubclass(self.score_type, Score):
             raise Error(("The score type '%s' specified for Test '%s' "
@@ -114,9 +114,11 @@ class Test(SciUnit):
                 schema = {'schema': self.observation_schema,
                           'type': 'dict'}
             schema = {'observation': schema}
-            v = ObservationValidator(schema, test=self)
-            #if not v.validate({'observation': observation}):
-            #    raise ObservationError(v.errors)
+            if config_get('PREVALIDATE', True):
+                self.validate_observation(self.observation)
+                v = ObservationValidator(schema, test=self)
+                if not v.validate({'observation': observation}):
+                    raise ObservationError(v.errors)
         return observation
 
     @classmethod
@@ -346,7 +348,6 @@ class Test(SciUnit):
         if prediction is None:
             # 1.
             self.check_capabilities(model, skip_incapable=skip_incapable)
-
             # 2.
             validated = self.validate_observation(self.observation)
             if validated is not None:

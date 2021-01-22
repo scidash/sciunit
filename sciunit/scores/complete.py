@@ -205,11 +205,11 @@ class RatioScore(Score):
 
     def __str__(self):
         return 'Ratio = %.2f' % self.score
-    
-    
+
+
 class RelativeDifferenceScore(Score):
     """A relative difference between prediction and observation.
-    
+
     The absolute value of the difference between the prediction and the
     observation is divided by a reference value with the same units. This
     reference scale should be chosen for each test such that normalization
@@ -229,7 +229,7 @@ class RelativeDifferenceScore(Score):
     _best = 0.0  # A RelativeDifferenceScore of 0.0 is best
 
     _worst = np.inf
-    
+
     scale = None
 
     def _check_score(self, score):
@@ -250,13 +250,14 @@ class RelativeDifferenceScore(Score):
         """
         assert isinstance(observation, (dict, float, int, pq.Quantity))
         assert isinstance(prediction, (dict, float, int, pq.Quantity))
-        
+
         obs, pred = cls.extract_means_or_values(observation, prediction,
                                                 key=key)
-        
+
         scale = scale or cls.scale or (obs/float(obs))
         assert type(obs) is type(scale)
         assert type(obs) is type(pred)
+        pred = pred.rescale(obs.units)
         if isinstance(obs, pq.Quantity):
             assert obs.units == pred.units, \
                 "Prediction must have the same units as the observation"
@@ -280,8 +281,8 @@ class RelativeDifferenceScore(Score):
 
     def __str__(self):
         return 'Relative Difference = %.2f' % self.score
-    
-    
+
+
 
 class PercentScore(Score):
     """A percent score.
@@ -376,7 +377,7 @@ class RandomScore(FloatScore):
     def __str__(self) -> str:
         return '%.3g' % self.score
 
-    
+
 class CorrelationScore(Score):
     """A correlation score.
     A float in the range [-1.0, 1.0] representing the correlation coefficient.
@@ -387,7 +388,7 @@ class CorrelationScore(Score):
                     'A correlation of 0.0 shows no linear relationship between the movement of the two variables')
 
     _best = 1.0
-    
+
     _worst = -1.0
 
     def _check_score(self, score):
@@ -401,4 +402,3 @@ class CorrelationScore(Score):
 
     def __str__(self):
         return '%.3g' % self.score
-    
