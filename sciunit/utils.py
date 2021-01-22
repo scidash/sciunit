@@ -16,7 +16,12 @@ import traceback
 import unittest.mock
 import warnings
 from datetime import datetime
-from importlib.metadata import version
+
+if sys.version_info[1] <= 7:
+    from importlib_metadata import version
+else:
+    from importlib.metadata import version
+
 from io import StringIO, TextIOWrapper
 from pathlib import Path
 from types import ModuleType
