@@ -29,4 +29,5 @@ jobs:
         pip install .
     - name: Test unit test
       run: |
+        git clone -b cosmosuite http://github.com/scidash/scidash ../scidash
         python -m sciunit.unit_test buffer
