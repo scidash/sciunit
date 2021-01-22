@@ -7,13 +7,9 @@ class ConvertersTestCase(unittest.TestCase):
     """Unit tests for Score converters"""
 
     def test_converters(self):
-        from sciunit.converters import (
-            NoConversion,
-            LambdaConversion,
-            AtMostToBoolean,
-            AtLeastToBoolean,
-            RangeToBoolean,
-        )
+        from sciunit.converters import (AtLeastToBoolean, AtMostToBoolean,
+                                        LambdaConversion, NoConversion,
+                                        RangeToBoolean)
         from sciunit.scores import BooleanScore, ZScore
 
         old_score = ZScore(1.3)
@@ -36,8 +32,8 @@ class ConvertersTestCase(unittest.TestCase):
         self.assertEqual(new_score.raw, str(old_score.score))
 
     def test_converters2(self):
-        from sciunit.converters import Converter
         from sciunit import Score
+        from sciunit.converters import Converter
 
         converterObj = Converter()
 

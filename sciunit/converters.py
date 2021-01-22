@@ -4,8 +4,9 @@ to the value required for particular score type.
 """
 
 from string import Template
-from .scores import BooleanScore, ZScore, Score
 from typing import Callable, Union
+
+from .scores import BooleanScore, Score, ZScore
 
 
 class Converter(object):

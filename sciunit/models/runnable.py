@@ -2,11 +2,13 @@
 
 import inspect
 import warnings
-
-from .base import Model
-import sciunit.capabilities as cap
-from .backends import Backend, available_backends
 from typing import Union
+
+import sciunit.capabilities as cap
+
+from .backends import Backend, available_backends
+from .base import Model
+
 
 class RunnableModel(Model,
                     cap.Runnable):

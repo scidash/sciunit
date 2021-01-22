@@ -1,11 +1,12 @@
 """Base class for simulator backends for SciUnit models."""
 
 import inspect
-import tempfile
 import pickle
 import shelve
+import tempfile
 from pathlib import Path
 from typing import Any, Union
+
 available_backends = {}
 
 def register_backends(vars: dict) -> None:

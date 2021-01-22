@@ -4,19 +4,19 @@ These collections allow scores to be organized and visualized
 by model, test, or both.
 """
 
-from datetime import datetime
 import warnings
+from datetime import datetime
+from typing import List, Tuple, Union
 
+import bs4
 import numpy as np
 import pandas as pd
-import bs4
-from IPython.display import display, Javascript
-
+from IPython.display import Javascript, display
 from sciunit.base import SciUnit, TestWeighted
 from sciunit.models import Model
+from sciunit.scores import NoneScore, Score
 from sciunit.tests import Test
-from sciunit.scores import Score, NoneScore
-from typing import Union, Tuple, List
+
 
 class ScoreArray(pd.Series, SciUnit,TestWeighted):
     """Represents an array of scores derived from a test suite.

@@ -6,13 +6,18 @@ The capability must then be implemented by the modeler (i.e. all of the
 capabilty's methods must implemented in the model class).
 """
 
-import inspect, warnings, sys, io, re, dis
-
-from .utils import warn_with_traceback
-from .base import SciUnit
-from .errors import CapabilityNotImplementedError
+import dis
+import inspect
+import io
+import re
+import sys
+import warnings
 #from sciunit.models.examples import ConstModel, UniformModel
 from typing import Union
+
+from .base import SciUnit
+from .errors import CapabilityNotImplementedError
+from .utils import warn_with_traceback
 
 
 class Capability(SciUnit):

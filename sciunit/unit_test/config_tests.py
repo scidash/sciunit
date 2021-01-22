@@ -1,6 +1,8 @@
 """Unit tests for user configuration"""
 
-import unittest, json
+import json
+import unittest
+
 import sciunit
 
 
@@ -8,9 +10,9 @@ class ConfigTestCase(unittest.TestCase):
     """Unit tests for config files"""
 
     def test_json_config(self):
-        from sciunit.utils import config_get, create_config, DEFAULT_CONFIG
-
         from pathlib import Path
+
+        from sciunit.utils import DEFAULT_CONFIG, config_get, create_config
         config_path = Path.home() / ".sciunit" / "config.json"
         create_config(DEFAULT_CONFIG)
             

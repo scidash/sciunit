@@ -1,7 +1,8 @@
 import unittest
-import sciunit
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+import sciunit
 
 
 class BaseCase(unittest.TestCase):
@@ -35,8 +36,8 @@ class BaseCase(unittest.TestCase):
         self.assertFalse("testState" in sciunitObj.__getstate__())
 
     def test_Versioned(self):
-        from sciunit.base import Versioned
         from git import Remote, Repo
+        from sciunit.base import Versioned
 
         ver = Versioned()
         self.assertEqual("origin", str(ver.get_remote("I am not a remote")))
@@ -45,7 +46,7 @@ class BaseCase(unittest.TestCase):
         self.assertIsInstance(ver.get_remote_url("I am not a remote"), str)
 
     def test_SciUnitEncoder(self):
-        from sciunit.base import SciUnitEncoder, SciUnit
+        from sciunit.base import SciUnit, SciUnitEncoder
 
         encoderObj = SciUnitEncoder()
 

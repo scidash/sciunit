@@ -2,18 +2,19 @@
 
 import inspect
 import traceback
-
-from sciunit.base import SciUnit
-from .capabilities import ProducesNumber
-from .models import Model
-from .scores import Score, BooleanScore, NoneScore, ErrorScore, TBDScore,\
-                    NAScore
-from .validators import ObservationValidator, ParametersValidator
-from .errors import Error, CapabilityError, ObservationError,\
-                    InvalidScoreError, ParametersError
-from .utils import dict_combine, config_get
 #from sciunit.models.examples import ConstModel, UniformModel
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
+
+from sciunit.base import SciUnit
+
+from .capabilities import ProducesNumber
+from .errors import (CapabilityError, Error, InvalidScoreError,
+                     ObservationError, ParametersError)
+from .models import Model
+from .scores import (BooleanScore, ErrorScore, NAScore, NoneScore, Score,
+                     TBDScore)
+from .utils import config_get, dict_combine
+from .validators import ObservationValidator, ParametersValidator
 
 
 class Test(SciUnit):

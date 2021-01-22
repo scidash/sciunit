@@ -12,24 +12,24 @@ and
 `sciunit run-nb` (to execute and save those notebooks)
 """
 
-import sys
-import os
 import argparse
-import re
-
-import nbformat
-from nbformat.v4.nbbase import new_notebook, new_markdown_cell
-from nbconvert.preprocessors import ExecutePreprocessor
-from configparser import RawConfigParser
-from typing import Tuple
-import sciunit
-from pathlib import Path
-from typing import Union
-import configparser
-from importlib import import_module
 import codecs
+import configparser
+import os
+import re
+import sys
+from configparser import RawConfigParser
+from importlib import import_module
+from pathlib import Path
+from typing import Tuple, Union
 
 import matplotlib
+import nbformat
+from nbconvert.preprocessors import ExecutePreprocessor
+from nbformat.v4.nbbase import new_markdown_cell, new_notebook
+
+import sciunit
+
 matplotlib.use('Agg')  #: Anticipate possible headless environments
 
 NB_VERSION = 4

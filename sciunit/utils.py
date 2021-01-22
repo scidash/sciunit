@@ -2,41 +2,40 @@
 Utility functions for SciUnit.
 """
 
-import os
-import sys
-import warnings
-import inspect
-import pkgutil
-import importlib
-import json
-import re
 import contextlib
-import traceback
-import inspect
 import functools
+import importlib
+import inspect
+import json
 import logging
-from io import TextIOWrapper, StringIO
+import os
+import pkgutil
+import re
+import sys
+import traceback
+import unittest.mock
+import warnings
 from datetime import datetime
+from importlib.metadata import version
+from io import StringIO, TextIOWrapper
+from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import ModuleType
+from typing import Any, Callable, List, TextIO, Tuple, Type, Union
 
 import bs4
-import nbformat
 import nbconvert
+import nbformat
+from IPython.display import HTML, display
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
-from IPython.display import HTML, display
 
 import sciunit
 from sciunit.errors import Error
-from .base import SciUnit, tkinter
-from .base import PLATFORM, PYTHON_MAJOR_VERSION
-from typing import Any, Callable, List, Tuple, Union, TextIO, Type
-from types import ModuleType
-import unittest.mock
-from pathlib import Path
-from importlib.metadata import version 
+
+from .base import PLATFORM, PYTHON_MAJOR_VERSION, SciUnit, tkinter
 
 mock = False  # mock is probably obviated by the unittest -b flag.
 

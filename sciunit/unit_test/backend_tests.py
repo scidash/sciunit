@@ -1,9 +1,11 @@
 """Unit tests for backends."""
 
+import pathlib
+import unittest
+
+from sciunit import Model
 from sciunit.models.backends import Backend
 from sciunit.utils import NotebookTools
-from sciunit import Model
-import unittest, pathlib
 
 
 class BackendsTestCase(unittest.TestCase, NotebookTools):

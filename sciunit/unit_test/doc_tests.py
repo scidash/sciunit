@@ -1,6 +1,7 @@
 """Unit tests for documentation"""
 
 import unittest
+
 from sciunit.utils import NotebookTools
 
 

@@ -1,4 +1,5 @@
 import unittest
+
 import quantities as pq
 
 
@@ -10,8 +11,8 @@ class ValidatorTestCase(unittest.TestCase):
             def getIntValue(self):
                 return self.intValue
 
-        from sciunit.validators import register_quantity, register_type
         from cerberus import TypeDefinition, Validator
+        from sciunit.validators import register_quantity, register_type
 
         register_type(TestClass, "TestType1")
         q = pq.Quantity([1, 2, 3], "J")
@@ -20,9 +21,10 @@ class ValidatorTestCase(unittest.TestCase):
         self.assertIsInstance(Validator.types_mapping["TestType2"], TypeDefinition)
 
     def test_ObservationValidator(self):
-        from sciunit.validators import ObservationValidator
-        from sciunit import Test
         import random
+
+        from sciunit import Test
+        from sciunit.validators import ObservationValidator
 
         long_test_list = [None] * 100
         for index in range(100):

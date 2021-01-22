@@ -7,9 +7,8 @@ import math
 
 import numpy as np
 import quantities as pq
+from sciunit import errors, utils
 
-from sciunit import utils
-from sciunit import errors
 from .base import Score
 from .incomplete import InsufficientDataScore
 

@@ -1,14 +1,15 @@
 """Base class for SciUnit scores."""
 
 from copy import copy
+from typing import Tuple, Union
 
 import numpy as np
-
-from sciunit.base import SciUnit
-from sciunit.utils import log, config_get
-from sciunit.errors import InvalidScoreError
-from typing import Union, Tuple
 from quantities import Quantity
+from sciunit.base import SciUnit
+from sciunit.errors import InvalidScoreError
+from sciunit.utils import config_get, log
+
+
 class Score(SciUnit):
     """Abstract base class for scores."""
 

@@ -4,8 +4,9 @@ These include details about the various possible reasons
 that a particular combination of model and test could not be completed.
 """
 
-from .base import Score
 from sciunit.errors import InvalidScoreError
+
+from .base import Score
 
 
 class NoneScore(Score):

@@ -4,15 +4,16 @@ Base class for SciUnit test suites.
 
 import random
 from types import MethodType
+from typing import Callable, Dict, List, Optional, Tuple, Type, Union
+
+from sciunit.scores.collections import ScoreMatrix
 
 from .base import SciUnit, TestWeighted
-from .utils import log
-from .tests import Test
 from .models import Model
 from .scores import NoneScore
 from .scores.collections import ScoreMatrix
-from sciunit.scores.collections import ScoreMatrix
-from typing import Callable, Dict, List, Optional, Tuple, Type, Union
+from .tests import Test
+from .utils import log
 
 
 class TestSuite(SciUnit, TestWeighted):

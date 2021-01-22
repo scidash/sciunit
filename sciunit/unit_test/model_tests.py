@@ -120,12 +120,9 @@ class ModelsTestCase(unittest.TestCase):
         m.run()
 
     def test_regular_models(self):
-        from sciunit.models.examples import (
-            ConstModel,
-            UniformModel,
-            SharedModel,
-            PersistentUniformModel,
-        )
+        from sciunit.models.examples import (ConstModel,
+                                             PersistentUniformModel,
+                                             SharedModel, UniformModel)
 
         m = ConstModel(3)
         self.assertEqual(m.produce_number(), 3)
@@ -140,8 +137,7 @@ class ModelsTestCase(unittest.TestCase):
     def test_irregular_models(self):
         from sciunit.models.examples import (
             CacheByInstancePersistentUniformModel,
-            CacheByValuePersistentUniformModel,
-        )
+            CacheByValuePersistentUniformModel)
 
         a = CacheByInstancePersistentUniformModel(2, 3)
         a1 = a.produce_number()
@@ -164,19 +160,12 @@ class CapabilitiesTestCase(unittest.TestCase):
     """Unit tests for sciunit Capability classes"""
 
     def test_capabilities(self):
-        from sciunit.errors import CapabilityNotImplementedError
         from sciunit import Model
-        from sciunit.capabilities import (
-            ProducesNumber,
-            Capability,
-            ProducesNumber,
-            Runnable,
-        )
+        from sciunit.capabilities import Capability, ProducesNumber, Runnable
+        from sciunit.errors import CapabilityNotImplementedError
         from sciunit.models import Model
-        from sciunit.models.examples import (
-            UniqueRandomNumberModel,
-            RepeatedRandomNumberModel,
-        )
+        from sciunit.models.examples import (RepeatedRandomNumberModel,
+                                             UniqueRandomNumberModel)
 
         class MyModel(Model, ProducesNumber):
             def produce_number(self):
@@ -205,9 +194,9 @@ class CapabilitiesTestCase(unittest.TestCase):
     
     def test_source_check(self):
         
-        from sciunit.errors import CapabilityNotImplementedError
         from sciunit import Model
         from sciunit.capabilities import Capability
+        from sciunit.errors import CapabilityNotImplementedError
         from sciunit.models import Model
 
         class MyCap1(Capability):
@@ -256,7 +245,8 @@ class CapabilitiesTestCase(unittest.TestCase):
 class RunnableModelTestCase(unittest.TestCase):
     def test_backend(self):
         from sciunit.models import RunnableModel
-        from sciunit.models.backends import Backend, register_backends, available_backends
+        from sciunit.models.backends import (Backend, available_backends,
+                                             register_backends)
 
         self.assertRaises(TypeError, RunnableModel, name="", attrs=1)
         model = RunnableModel(name="test name")

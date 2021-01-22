@@ -3,7 +3,9 @@ Exception classes for SciUnit
 """
 
 import inspect
+
 import sciunit
+
 
 class Error(Exception):
     """Base class for errors in sciunit's core."""

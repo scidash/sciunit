@@ -1,10 +1,11 @@
 """Cerberus validator classes for SciUnit."""
 
 import inspect
+from typing import Any
 
 import quantities as pq
 from cerberus import TypeDefinition, Validator
-from typing import Any
+
 
 def register_type(cls, name: str) -> None:
     """Register `name` as a type to validate as an instance of class `cls`.

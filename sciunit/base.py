@@ -7,17 +7,21 @@ PYTHON_MAJOR_VERSION = sys.version_info.major
 if PYTHON_MAJOR_VERSION < 3:  # Python 2
     raise Exception('Only Python 3 is supported')
 
-import json, git, pickle, hashlib
+import hashlib
+import json
+import pickle
+from io import StringIO
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
 
+import git
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.cmd import Git
+from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.remote import Remote
 from git.repo.base import Repo
-from typing import Dict, List, Optional, Tuple, Union, Any
-from io import StringIO
+
 try:
     import tkinter
 except ImportError:

@@ -1,11 +1,14 @@
 """Example SciUnit model classes."""
 
 import random
-from sciunit.models import Model
-from sciunit.capabilities import ProducesNumber
-from sciunit.utils import class_intern, method_cache
-from sciunit.utils import method_memoize  # Decorator for caching of capability method results.
 from typing import Union
+
+from sciunit.capabilities import ProducesNumber
+from sciunit.models import Model
+from sciunit.utils import \
+    method_memoize  # Decorator for caching of capability method results.
+from sciunit.utils import class_intern, method_cache
+
 
 class ConstModel(Model, ProducesNumber):
     """A model that always produces a constant number as output."""
