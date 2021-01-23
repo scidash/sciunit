@@ -2,21 +2,23 @@
 
 import inspect
 import warnings
-
-from .base import Model
-import sciunit.capabilities as cap
-from .backends import Backend, available_backends
 from typing import Union
 
-class RunnableModel(Model,
-                    cap.Runnable):
+import sciunit.capabilities as cap
+
+from .backends import Backend, available_backends
+from .base import Model
+
+
+class RunnableModel(Model, cap.Runnable):
     """A model which can be run to produce simulation results."""
 
-    def __init__(self,
-                 name,  # Name of the model
-                 backend=None,  # Backend to run the models
-                 attrs=None,  # Optional dictionary of model attributes
-                 ):
+    def __init__(
+        self,
+        name,  # Name of the model
+        backend=None,  # Backend to run the models
+        attrs=None,  # Optional dictionary of model attributes
+    ):
         super(RunnableModel, self).__init__(name=name)
         self.skip_run = False  # Backend can use this to skip simulation
         self.run_params = {}  # Should be reset between tests
@@ -38,7 +40,7 @@ class RunnableModel(Model,
 
         Args:
             backend (Union[str, tuple, list, None]): One or more name(s) of backend(s).
-                                                     The name of backend should be registered before using. 
+                                                     The name of backend should be registered before using.
 
         Raises:
             TypeError: Backend must be string, tuple, list, or None
@@ -55,7 +57,7 @@ class RunnableModel(Model,
             args = []
             kwargs = {}
         elif isinstance(backend, (tuple, list)):
-            name = ''
+            name = ""
             args = []
             kwargs = {}
             for i in range(len(backend)):
@@ -71,16 +73,19 @@ class RunnableModel(Model,
             args = []
             kwargs = {}
         else:
-            raise TypeError("The backend must be of type Backend, string, tuple, list, or None")
+            raise TypeError(
+                "The backend must be of type Backend, string, tuple, list, or None"
+            )
         if name in available_backends:
             self.backend = name
             self._backend = available_backends[name]()
         elif name is None:
             # The base class should not be called.
-            warnings.warn("The `None` backend was selected and will have limited functionality")
+            warnings.warn(
+                "The `None` backend was selected and will have limited functionality"
+            )
         else:
-            raise Exception("Backend %s not found in backends.py"
-                            % name)
+            raise Exception("Backend %s not found in backends.py" % name)
         self._backend.model = self
         self._backend.init_backend(*args, **kwargs)
 
@@ -126,12 +131,11 @@ class RunnableModel(Model,
 
     @property
     def state(self):
-        return self._state(keys=['name', 'url', 'attrs', 'run_params',
-                                 'backend'])
+        return self._state(keys=["name", "url", "attrs", "run_params", "backend"])
 
     def __del__(self) -> None:
-        if hasattr(self, 'temp_dir'):
-            self.temp_dir.cleanup()   # Delete the temporary directory
+        if hasattr(self, "temp_dir"):
+            self.temp_dir.cleanup()  # Delete the temporary directory
             s = super(RunnableModel, self)
-            if hasattr(s, '__del__'):
+            if hasattr(s, "__del__"):
                 s.__del__()

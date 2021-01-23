@@ -6,20 +6,25 @@ The capability must then be implemented by the modeler (i.e. all of the
 capabilty's methods must implemented in the model class).
 """
 
-import inspect, warnings, sys, io, re, dis
+import dis
+import inspect
+import io
+import re
+import sys
+import warnings
 
-from .utils import warn_with_traceback
+# from sciunit.models.examples import ConstModel, UniformModel
+
 from .base import SciUnit
 from .errors import CapabilityNotImplementedError
-#from sciunit.models.examples import ConstModel, UniformModel
-from typing import Union
+from .utils import warn_with_traceback
 
 
 class Capability(SciUnit):
     """Abstract base class for sciunit capabilities."""
 
     @classmethod
-    def source_check(cls, model: 'sciunit.Model') -> bool:
+    def source_check(cls, model: "sciunit.Model") -> bool:
         required_methods = []
         default_cap_methods = ["unimplemented", "__str__"]
         source_capable = True
@@ -27,7 +32,7 @@ class Capability(SciUnit):
         for key, value in vars(cls).items():
             if inspect.isfunction(value) and key not in default_cap_methods:
                 required_methods.append(key)
-        
+
         for method in required_methods:
             try:
                 stdout = sys.stdout
@@ -38,14 +43,14 @@ class Capability(SciUnit):
                 dis_output = sys.stdout.getvalue()
                 sys.stdout = stdout
 
-                dis_output = re.split('\n|\s+', dis_output)
-                dis_output = [word for word in dis_output if word] 
+                dis_output = re.split("\n|\s+", dis_output)
+                dis_output = [word for word in dis_output if word]
 
                 if (
-                   "(NotImplementedError)" in dis_output
-                   or "(unimplemented)" in dis_output
-                   or "(CapabilityNotImplementedError)" in dis_output
-                   or "(NotImplemented)" in dis_output
+                    "(NotImplementedError)" in dis_output
+                    or "(unimplemented)" in dis_output
+                    or "(CapabilityNotImplementedError)" in dis_output
+                    or "(NotImplemented)" in dis_output
                 ):
                     cap_source = inspect.getsource(getattr(cls, method))
                     model_source = inspect.getsource(getattr(model, method))
@@ -58,13 +63,13 @@ class Capability(SciUnit):
                 warnings.warn(
                     """Inspect cannot get the source, and it is not guaranteed that 
                     all required methods have been implemented by the model"""
-                    )
+                )
                 break
-        
+
         return source_capable
 
     @classmethod
-    def check(cls, model: 'sciunit.Model', require_extra: bool=False) -> bool:
+    def check(cls, model: "sciunit.Model", require_extra: bool = False) -> bool:
         """Check whether the provided model has this capability.
 
         By default, uses isinstance.  If `require_extra`, also requires that an
@@ -72,7 +77,7 @@ class Capability(SciUnit):
 
         Args:
             model (Model): A sciunit model instance
-            require_extra (bool, optional): Requiring that an instance check be present in 
+            require_extra (bool, optional): Requiring that an instance check be present in
                                             `model.extra_capability_checks`. Defaults to False.
 
         Returns:
@@ -85,9 +90,11 @@ class Capability(SciUnit):
         if class_capable:
             source_capable = cls.source_check(model)
 
-        f_name = model.extra_capability_checks.get(cls, None) \
-            if model.extra_capability_checks is not None \
+        f_name = (
+            model.extra_capability_checks.get(cls, None)
+            if model.extra_capability_checks is not None
             else False
+        )
 
         if f_name:
             f = getattr(model, f_name)
@@ -98,16 +105,20 @@ class Capability(SciUnit):
             instance_capable = False
 
         if not class_capable:
-            warnings.warn("""The model class suppose to but doesn't inherit the Capability 
+            warnings.warn(
+                """The model class suppose to but doesn't inherit the Capability 
                             class required by the Test class, and the score may be unavailable 
-                            due to this.""")
+                            due to this."""
+            )
         elif not source_capable:
-            warnings.warn("""The model class suppose to but doesn't implements methods required by
-                            the Test class, and the score may be unavailable due to this.""")
-                            
+            warnings.warn(
+                """The model class suppose to but doesn't implements methods required by
+                            the Test class, and the score may be unavailable due to this."""
+            )
+
         return class_capable and instance_capable and source_capable
 
-    def unimplemented(self, message: str='') -> None:
+    def unimplemented(self, message: str = "") -> None:
         """Raise a `CapabilityNotImplementedError` with details.
 
         Args:
@@ -117,7 +128,12 @@ class Capability(SciUnit):
             CapabilityNotImplementedError: Raise a `CapabilityNotImplementedError` with details.
         """
         from sciunit import Model
-        capabilities = [obj for obj in self.__class__.mro() if issubclass(obj, Capability) and not issubclass(obj, Model)]
+
+        capabilities = [
+            obj
+            for obj in self.__class__.mro()
+            if issubclass(obj, Capability) and not issubclass(obj, Model)
+        ]
         model = self if isinstance(self, Model) else None
         capability = None if not capabilities else capabilities[0]
         raise CapabilityNotImplementedError(model, capability, message)

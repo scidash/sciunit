@@ -1,7 +1,7 @@
 """Unit tests for sciunit utility functions and classes"""
 
-import unittest
 import tempfile
+import unittest
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -23,7 +23,7 @@ class UtilsTestCase(unittest.TestCase):
         notebookObj.execute_notebook("../docs/chapter1")
 
     def test_log(self):
-        from sciunit.utils import log, html_log, strip_html
+        from sciunit.utils import html_log, log, strip_html
 
         strip_html("test log1")
         html_log("test log1", "test log2")
@@ -71,8 +71,9 @@ class UtilsTestCase(unittest.TestCase):
         self.assertTrue("sciunit" in m.remote_url)
 
     def test_MockDevice(self):
-        from sciunit.utils import MockDevice
         from io import StringIO
+
+        from sciunit.utils import MockDevice
 
         s = StringIO()
         myMD = MockDevice(s)

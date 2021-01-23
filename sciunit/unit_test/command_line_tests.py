@@ -1,9 +1,10 @@
 """Unit tests for command line tools."""
 
-import unittest
 import platform
 import tempfile
+import unittest
 from pathlib import Path
+
 import sciunit
 
 

@@ -1,6 +1,7 @@
 """Unit tests for documentation"""
 
 import unittest
+
 from sciunit.utils import NotebookTools
 
 
@@ -23,6 +24,6 @@ class DocumentationTestCase(NotebookTools, unittest.TestCase):
 
     def test_chapter5(self):
         self.do_notebook("chapter5")
-    
-    #def test_chapter6(self):
+
+    # def test_chapter6(self):
     #    self.do_notebook("chapter6")

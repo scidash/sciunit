@@ -7,13 +7,13 @@ class ErrorsTestCase(unittest.TestCase):
     """Unit tests for various error classes"""
 
     def test_error_types(self):
+        from sciunit import Capability, Model
         from sciunit.errors import (
-            CapabilityError,
             BadParameterValueError,
-            PredictionError,
+            CapabilityError,
             InvalidScoreError,
+            PredictionError,
         )
-        from sciunit import Model, Capability
 
         CapabilityError(Model(), Capability)
         CapabilityError(Model(), Capability, "this is a test detail")

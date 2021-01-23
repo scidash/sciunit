@@ -1,7 +1,8 @@
 """Unit tests for observations."""
 
-from sciunit.utils import NotebookTools
 import unittest
+
+from sciunit.utils import NotebookTools
 
 
 class ObservationsTestCase(unittest.TestCase, NotebookTools):
