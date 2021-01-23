@@ -257,12 +257,13 @@ class RelativeDifferenceScore(Score):
         scale = scale or cls.scale or (obs/float(obs))
         assert type(obs) is type(scale)
         assert type(obs) is type(pred)
-        pred = pred.rescale(obs.units)
+
         if isinstance(obs, pq.Quantity):
             assert obs.units == pred.units, \
                 "Prediction must have the same units as the observation"
             assert obs.units == scale.units, \
                 "RelativeDifferenceScore.Scale must have the same units as the observation"
+        pred = pred.rescale(obs.units)
         assert scale > 0, \
             "RelativeDifferenceScore.scale must be positive (not %g)" % scale
         value = np.abs(pred - obs) / scale
