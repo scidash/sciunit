@@ -64,7 +64,7 @@ class ObservationValidator(Validator):
                 iter(value)
             except TypeError:
                 self._error(key, "Must be iterable (e.g. a list or array)")
-
+    '''
     def _validate_not_zero_obs_zscore(self, has_units: bool, key: str, value: Any) -> None:
         from sciunit.scores import ZScore
         if self.test.score_type is ZScore:
