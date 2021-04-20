@@ -25,7 +25,11 @@ def read_requirements():
     '''parses requirements from requirements.txt'''
     reqs_path = os.path.join('.', 'requirements.txt')
     install_reqs = parse_requirements(reqs_path, session=PipSession())
-    reqs = [str(ir.req) for ir in install_reqs]
+    install_reqs = list(install_reqs)
+    try:
+        reqs = [str(ir.req) for ir in install_reqs]
+    except:
+        reqs = [str(ir.requirement) for ir in install_reqs]
     return reqs
 
 def get_version():
