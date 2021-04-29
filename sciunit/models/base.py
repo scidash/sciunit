@@ -2,10 +2,11 @@
 
 import inspect
 from fnmatch import fnmatchcase
+from typing import Union
 
 from sciunit.base import SciUnit
 from sciunit.capabilities import Capability
-from typing import Any, Union
+
 
 class Model(SciUnit):
     """Abstract base class for sciunit models."""
@@ -44,8 +45,11 @@ class Model(SciUnit):
         """List the model's capabilities."""
         capabilities = []
         for _cls in cls.mro():
-            if issubclass(_cls, Capability) and _cls is not Capability \
-              and not issubclass(_cls, Model):
+            if (
+                issubclass(_cls, Capability)
+                and _cls is not Capability
+                and not issubclass(_cls, Model)
+            ):
                 capabilities.append(_cls)
         return capabilities
 
@@ -76,12 +80,11 @@ class Model(SciUnit):
         else:
             if self.__doc__:
                 s = []
-                s += [self.__doc__.strip().replace('\n', '').
-                      replace('    ', ' ')]
-                result = '\n'.join(s)
+                s += [self.__doc__.strip().replace("\n", "").replace("    ", " ")]
+                result = "\n".join(s)
         return result
 
-    def curr_method(self, back: int=0) -> str:
+    def curr_method(self, back: int = 0) -> str:
         """Return the name of the current method (calling this one).
 
         Args:
@@ -90,7 +93,7 @@ class Model(SciUnit):
         Returns:
             str: The name of the current method that calls this one.
         """
-        return inspect.stack()[1+back][3]
+        return inspect.stack()[1 + back][3]
 
     def check_params(self) -> None:
         """Check model parameters to see if they are reasonable.
@@ -101,7 +104,7 @@ class Model(SciUnit):
         """
         pass
 
-    def is_match(self, match: Union[str, 'Model']) -> bool:
+    def is_match(self, match: Union[str, "Model"]) -> bool:
         """Return whether this model is the same as `match`.
 
         Matches if the model is the same as or has the same name as `match`.
@@ -126,10 +129,9 @@ class Model(SciUnit):
             try:
                 result = self._backend.__getattribute__(attr)
             except:
-                raise AttributeError("Model %s has no attribute %s"
-                                     % (self, attr))
+                raise AttributeError("Model %s has no attribute %s" % (self, attr))
         return result
 
     def __str__(self):
         """Return the model name."""
-        return '%s' % self.name
+        return "%s" % self.name

@@ -1,8 +1,8 @@
 """Common imports for many unit tests in this directory"""
 
-import matplotlib as mpl
 import sys
-import unittest
+
+import matplotlib as mpl
 
 OSX = sys.platform == "darwin"
 if OSX or "Qt" in mpl.rcParams["backend"]:

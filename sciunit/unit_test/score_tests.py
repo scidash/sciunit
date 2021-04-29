@@ -2,36 +2,33 @@
 
 import unittest
 
-from IPython.display import display
 import numpy as np
-
-from sciunit import ScoreMatrix, ScoreArray, Score
+from IPython.display import display
+from pandas import DataFrame
+from pandas.core.frame import DataFrame
+from pandas.core.series import Series
+from quantities import Quantity
+from sciunit import Score, ScoreArray, ScoreMatrix
+from sciunit.errors import InvalidScoreError
+from sciunit.models import Model
 from sciunit.scores import (
-    ZScore,
-    CohenDScore,
-    PercentScore,
     BooleanScore,
-    FloatScore,
-    RatioScore,
-)
-from sciunit.scores import (
+    CohenDScore,
     ErrorScore,
-    NAScore,
-    TBDScore,
-    NoneScore,
+    FloatScore,
     InsufficientDataScore,
+    NAScore,
+    NoneScore,
+    PercentScore,
     RandomScore,
+    RatioScore,
+    TBDScore,
+    ZScore,
 )
 from sciunit.scores.collections_m2m import ScoreArrayM2M, ScoreMatrixM2M
 from sciunit.tests import RangeTest, Test
-from sciunit.models import Model
 from sciunit.unit_test.base import SuiteBase
 from sciunit.utils import NotebookTools
-from pandas.core.frame import DataFrame
-from pandas.core.series import Series
-from sciunit.errors import InvalidScoreError
-from quantities import Quantity
-from pandas import DataFrame
 
 
 class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):

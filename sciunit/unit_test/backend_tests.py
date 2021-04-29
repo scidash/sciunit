@@ -1,9 +1,10 @@
 """Unit tests for backends."""
 
+import unittest
+
+from sciunit import Model
 from sciunit.models.backends import Backend
 from sciunit.utils import NotebookTools
-from sciunit import Model
-import unittest, pathlib
 
 
 class BackendsTestCase(unittest.TestCase, NotebookTools):
@@ -98,7 +99,6 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         backend.set_disk_cache("value2")
         backend.set_memory_cache("value2")
         backend.backend_run()
-
 
 
 if __name__ == "__main__":
