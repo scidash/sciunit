@@ -412,6 +412,18 @@ class Test(SciUnit):
         self._bind_score(score, model, self.observation, prediction)
         
         return score
+    
+    
+    def feature_judge(
+        self,
+        model: Model,
+        skip_incapable: bool = False,
+        stop_on_error: bool = True,
+        deep_error: bool = False,
+    ) -> Score:
+        """For backwards compatibility"""
+        return self.judge(model, skip_incapable=skip_incapable, stop_on_error=stop_on_error,
+                          deep_error=deep_error, cached_prediction=True)
 
 
     def judge(
