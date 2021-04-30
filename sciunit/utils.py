@@ -615,6 +615,8 @@ def log(*args, **kwargs):
     level = kwargs.get(
         "level", config_get("LOGGING", default=logging.INFO, to_log=False)
     )
+    kwargs = {k: v for k, v in kwargs.items()
+              if k in ['exc_info', 'stack_info', 'stacklevel', 'extra']}
     for arg in args:
         sciunit.logger.log(level, arg, **kwargs)
 
