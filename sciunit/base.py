@@ -121,7 +121,7 @@ class Config(dict):
         try:
             config_dir = self.path.parent
             config_dir.mkdir(exist_ok=True, parents=True)
-            data["sciunit_version"] = version("sciunit")
+            data["sciunit_version"] = __version__
             with open(self.path, "w") as f:
                 f.seek(0)
                 f.truncate()

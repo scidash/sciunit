@@ -18,11 +18,6 @@ import unittest.mock
 import warnings
 from datetime import datetime
 
-if sys.version_info[1] <= 7:
-    from importlib_metadata import version
-else:
-    from importlib.metadata import version
-
 from io import StringIO, TextIOWrapper
 from pathlib import Path
 from types import ModuleType
@@ -40,7 +35,7 @@ from quantities.quantity import Quantity
 import sciunit
 from sciunit.errors import Error
 
-from .base import PLATFORM, PYTHON_MAJOR_VERSION, SciUnit, tkinter, config, ipy
+from .base import PLATFORM, PYTHON_MAJOR_VERSION, __version__, SciUnit, tkinter, config, ipy
 
 mock = False  # mock is probably obviated by the unittest -b flag.
 
