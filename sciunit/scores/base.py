@@ -1,13 +1,24 @@
 """Base class for SciUnit scores."""
 
 from copy import copy
+import logging
+import math
+import sys
 from typing import Tuple, Union
 
 import numpy as np
 from quantities import Quantity
-from sciunit.base import SciUnit
+from sciunit.base import SciUnit, config, ipy, log
 from sciunit.errors import InvalidScoreError
-from sciunit.utils import config_get, log
+from sty import fg, bg, ef, rs
+
+# Set up score logger
+score_logger = logging.getLogger('sciunit_scores')
+if ipy:
+    sl_handler = logging.StreamHandler(sys.stdout)
+    score_logger.addHandler(sl_handler)
+score_log_level = config.get('score_log_level', 1)
+score_logger.setLevel(score_log_level)
 
 
 class Score(SciUnit):
@@ -151,7 +162,7 @@ class Score(SciUnit):
         return np.log10(self.norm_score) if self.norm_score is not None else None
 
     def color(self, value: Union[float, "Score"] = None) -> tuple:
-        """Turn the score intp an RGB color tuple of three 8-bit integers.
+        """Turn the score into an RGB color tuple of three 8-bit integers.
 
         Args:
             value (Union[float,, optional): The score that will be turned to an RGB color. Defaults to None.
@@ -179,11 +190,11 @@ class Score(SciUnit):
         if value is None or np.isnan(value):
             rgb = (128, 128, 128)
         else:
-            cmap_low = config_get("cmap_low", 38)
-            cmap_high = config_get("cmap_high", 218)
+            cmap_low = config.get("cmap_low", 38)
+            cmap_high = config.get("cmap_high", 218)
             cmap_range = cmap_high - cmap_low
             cmap = cm.RdYlGn(int(cmap_range * value + cmap_low))[:3]
-            rgb = tuple([x * 256 for x in cmap])
+            rgb = tuple([int(x * 256) for x in cmap])
         return rgb
 
     @property
@@ -336,6 +347,18 @@ class Score(SciUnit):
         else:
             result = self.score <= other
         return result
+    
+    def log(self, **kwargs):
+        if self.norm_score is not None:
+            level = 100 - math.floor(self.norm_score * 99)
+        else:
+            level = 50
+        kwargs = {k: v for k, v in kwargs.items()
+                  if k in ['exc_info', 'stack_info', 'stacklevel', 'extra']}
+        msg = 'Score = %s for %s on %s' % (self, self.model, self.test)
+        color = self.color()
+        msg = fg(*color) + msg + fg.rs
+        score_logger.log(level, msg, **kwargs)
 
     @property
     def score_type(self):
@@ -427,3 +450,4 @@ class ErrorScore(Score):
 
     def __str__(self) -> str:
         return "Error"
+

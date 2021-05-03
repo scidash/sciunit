@@ -2,12 +2,9 @@
 
 import inspect
 import traceback
-
-# from sciunit.models.examples import ConstModel, UniformModel
 from typing import Any, List, Optional, Tuple, Union
 
-from sciunit.base import SciUnit
-
+from .base import SciUnit, config
 from .capabilities import ProducesNumber
 from .errors import (
     CapabilityError,
@@ -18,7 +15,7 @@ from .errors import (
 )
 from .models import Model
 from .scores import BooleanScore, ErrorScore, NAScore, NoneScore, Score, TBDScore
-from .utils import config_get, dict_combine
+from .utils import dict_combine
 from .validators import ObservationValidator, ParametersValidator
 
 
@@ -52,7 +49,7 @@ class Test(SciUnit):
         self.compute_params()
 
         self.observation = observation
-        if config_get("PREVALIDATE", False):
+        if config.get("PREVALIDATE", False):
             self.validate_observation(self.observation)
 
         if self.score_type is None or not issubclass(self.score_type, Score):

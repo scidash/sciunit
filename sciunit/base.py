@@ -8,11 +8,22 @@ if PYTHON_MAJOR_VERSION < 3:  # Python 2
     raise Exception("Only Python 3 is supported")
 
 import hashlib
+import logging
 import json
 import pickle
 from pathlib import Path
 from typing import Any, List, Union
+try:
+    import tkinter
+except ImportError:
+    tkinter = None
+try:
+    from importlib.metadata import version
+    __version__ = version("sciunit")
+except:
+    __version__ = None
 
+import bs4
 import git
 import numpy as np
 import pandas as pd
@@ -21,13 +32,116 @@ from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.remote import Remote
 from git.repo.base import Repo
 
-try:
-    import tkinter
-except ImportError:
-    tkinter = None
+ipy = "ipykernel" in sys.modules
+here = Path(__file__).resolve().parent.name
 
-KERNEL = "ipykernel" in sys.modules
-HERE = Path(__file__).resolve().parent.name
+# Set up generic logger
+logger = logging.getLogger("sciunit")
+logger.setLevel(logging.WARNING)
+
+
+class Config(dict):
+    """Configuration class for sciunit"""
+    
+    def __init__(self, *args, **kwargs):
+        self.load()
+        super().__init__(*args, **kwargs)
+    
+    default = {
+        "cmap_high": 218,
+        "cmap_low": 38,
+        "score_log_level": 1,
+        "log_level": logging.INFO,
+        "prevalidate": False,
+        "cwd": here,
+        }
+
+    _path = Path.home() / ".sciunit" / "config.json"
+
+    @property
+    def path(self):
+        """Guarantees that the requested path will be Path object"""
+        return Path(self._path)
+       
+    @path.setter
+    def path(self, val):
+        """Guarantees that any new paths will be Path object"""
+        self._path = Path(val)
+
+    def __getitem__(self, key):
+        return self.get(key)
+    
+    def get(self, key, default=None, update_from_disk=True):
+        key = key.lower()
+        try:
+            val = super().__getitem__(key)
+        except KeyError:
+            c = self.get_from_disk()
+            if default is None:
+                val = c[key]
+            else:
+                val = c.get(key, default)
+            if update_from_disk:
+                self[key.lower()] = val
+        return val
+    
+    def set(self, key, val):
+        self.__setitem__(key, val)
+    
+    def __setitem__(self, key, val):
+        key = key.lower()
+        super().__setitem__(key, val)
+        
+    def get_from_disk(self):
+        try:
+            with open(self.path, 'r') as f:
+                c = json.load(f)
+        except FileNotFoundError:
+            logger.warning("Config file not found at '%s'; creating new one" % self.path)
+            self.create()
+            return self.get_from_disk()
+        except json.JSONDecodeError:
+            logger.warning("Config file JSON at '%s' was invalid; creating new one" % self.path)
+            self.create()
+            return self.get_from_disk()
+        return c
+    
+    def create(self, data: dict = None) -> bool:
+        """Create a config file that store any data from the user.
+
+        Args:
+            data (dict): The data that will be written to the new config file.
+
+        Returns:
+            bool: Config file creation is successful
+        """
+        if not data:
+            data = self.default
+        success = False
+        try:
+            config_dir = self.path.parent
+            config_dir.mkdir(exist_ok=True, parents=True)
+            data["sciunit_version"] = version("sciunit")
+            with open(self.path, "w") as f:
+                f.seek(0)
+                f.truncate()
+                json.dump(data, f)
+            success = True
+        except Exception as e:
+            logger.warning("Could not create config file: %s" % e)
+        return success
+
+    def load(self):
+        c = self.get_from_disk()
+        for key, val in c.items():
+            key = key.lower()
+            self[key] = val
+    
+    def save(self):
+        self.create(data=self)
+           
+
+config = Config()
 
 
 class Versioned(object):
@@ -436,3 +550,20 @@ def deep_exclude(state: dict, exclude: list) -> dict:
                 else:
                     s = s[key]
     return state
+
+
+def log(*args, **kwargs):
+    level = kwargs.get(
+        "level", config.get("LOGGING", default=logging.INFO)
+    )
+    kwargs = {k: v for k, v in kwargs.items()
+              if k in ['exc_info', 'stack_info', 'stacklevel', 'extra']}
+    for arg in args:
+        arg = strip_html(arg)
+        logger.log(level, arg, **kwargs)
+
+
+def strip_html(html):
+    return html if isinstance(html, Exception) else bs4.BeautifulSoup(html, "lxml").text
+
+

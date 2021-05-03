@@ -23,11 +23,15 @@ class UtilsTestCase(unittest.TestCase):
         notebookObj.execute_notebook("../docs/chapter1")
 
     def test_log(self):
-        from sciunit.utils import html_log, log, strip_html
+        from sciunit.base import log, strip_html
+        from sciunit.utils import html_log
 
-        strip_html("test log1")
-        html_log("test log1", "test log2")
-        log("Lorem Ipsum")
+        str1 = "<b>test log 1</b>"
+        str1_stripped = 'test log 1'
+        str2 = "<i>test log 2</i>"
+        self.assertEqual(strip_html(str1), str1_stripped)
+        log(str1_stripped)
+        html_log(str1, str2)
 
     def test_assert_dimensionless(self):
         import quantities as pq
@@ -78,6 +82,36 @@ class UtilsTestCase(unittest.TestCase):
         s = StringIO()
         myMD = MockDevice(s)
         myMD.write("test mock device writing")
+        
+    def test_memoize(self):
+        from sciunit.utils import memoize
+        from random import randint
+        
+        @memoize
+        def f(a):
+            return a + randint(0, 1000000)
+        
+        # Should be equal despite the random integer
+        # because of memoization
+        self.assertEqual(f(3), f(3))
+    
+    def test_intern(self):
+        from sciunit.utils import class_intern
+        
+        class N:
+            def __init__(self, n):
+                self.n = n
+
+        five = N(5)
+        five2 = N(5)
+        self.assertNotEqual(five, five2)
+        
+        # Add the decorator to the class N.
+        N = class_intern(N)
+
+        five = N(5)
+        five2 = N(5)
+        self.assertEqual(five, five2)
 
 
 if __name__ == "__main__":

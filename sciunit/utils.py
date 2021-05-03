@@ -8,6 +8,7 @@ import importlib
 import inspect
 import json
 import logging
+import math
 import os
 import pkgutil
 import re
@@ -30,7 +31,7 @@ from typing import Any, Callable, List, TextIO, Tuple, Type, Union
 import bs4
 import nbconvert
 import nbformat
-from IPython.display import HTML, display
+from IPython.display import HTML, display        
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from quantities.dimensionality import Dimensionality
@@ -39,20 +40,9 @@ from quantities.quantity import Quantity
 import sciunit
 from sciunit.errors import Error
 
-from .base import PLATFORM, PYTHON_MAJOR_VERSION, SciUnit, tkinter
+from .base import PLATFORM, PYTHON_MAJOR_VERSION, SciUnit, tkinter, config, ipy
 
 mock = False  # mock is probably obviated by the unittest -b flag.
-
-RUNTIME_SETTINGS = {"KERNEL": ("ipykernel" in sys.modules)}
-
-DEFAULT_CONFIG = {
-    "cmap_high": 218,
-    "cmap_low": 38,
-    "LOGGING": logging.INFO,
-    "PREVALIDATE": False,
-    "CWD": str(Path(sciunit.__path__[0]).resolve()),
-}
-
 
 def warn_with_traceback(
     message: str,
@@ -611,20 +601,6 @@ def method_cache(by: str = "value", method: str = "run") -> Callable:
     return decorate_
 
 
-def log(*args, **kwargs):
-    level = kwargs.get(
-        "level", config_get("LOGGING", default=logging.INFO, to_log=False)
-    )
-    kwargs = {k: v for k, v in kwargs.items()
-              if k in ['exc_info', 'stack_info', 'stacklevel', 'extra']}
-    for arg in args:
-        sciunit.logger.log(level, arg, **kwargs)
-
-
-def strip_html(html):
-    return html if isinstance(html, Exception) else bs4.BeautifulSoup(html, "lxml").text
-
-
 def html_log(*args, **kwargs) -> None:
     """[summary]"""
     with StringIO() as f:
@@ -633,127 +609,6 @@ def html_log(*args, **kwargs) -> None:
         print(*args, **kwargs)
         output = f.getvalue()
     display(HTML(output))
-
-
-def create_config(data: dict = None) -> bool:
-    """Create a config file that store any data from the user.
-
-    Args:
-        data (dict): The data that will be written to the new config file.
-
-    Returns:
-        bool: Config file creation is successful
-    """
-    if not data:
-        data = DEFAULT_CONFIG
-    success = True
-    try:
-        config_dir = Path.home() / ".sciunit"
-        config_path = config_dir / "config.json"
-        if not config_dir.is_file():
-            config_dir.mkdir(exist_ok=True, parents=True)
-
-        data["sciunit_version"] = version("sciunit")
-
-        if config_path.is_file():
-            warn_with_traceback("Config file already exists.", Warning, "utils.py", 668)
-            success = False
-        else:
-            with open(config_path, "w") as outfile:
-                json.dump(data, outfile)
-    except:
-        success = False
-
-    return success
-
-
-def config_get_from_path(config_path: Path, key: str) -> Any:
-    """Get a value from the user configuration file by the key.
-
-    Args:
-        config_path (Path): The path to the sciunit user configuration file.
-        key (str): Key of a value of the config file.
-
-    Raises:
-        FileNotFoundError: Config file not found.
-        JSONDecodeError: Config file JSON was invalid.
-        KeyError: Config file does not contain the key.
-
-    Returns:
-        Any: The value from the user configuration file.
-    """
-    try:
-        with open(config_path) as f:
-            config = json.load(f)
-            value = config[key]
-    except FileNotFoundError:
-        create_config()
-
-        return config_get_from_path(config_path, key)
-        # raise Error("Config file not found at '%s'" % config_path)
-    except json.JSONDecodeError:
-        log("Config file JSON at '%s' was invalid" % config_path)
-        raise Error("Config file not found at '%s'" % config_path)
-    except KeyError:
-        raise Error("Config file does not contain key '%s'" % key)
-    return value
-
-
-def config_get(key: str, default: Any = None, to_log=True) -> Any:
-    """Get a value by key from the user configuration file.
-
-    Args:
-        key (str): The key used to find the value in the user configuration file.
-        default (Any, optional): The value to be returned if the key is not
-                                 in the user configuration file.
-                                 Defaults to None.
-        to_log (bool, optional): Whether to log the exception or not.
-
-    Raises:
-        e: An exception raised during get config process.
-
-    Returns:
-        Any: The value found in the user configuration file by the key.
-    """
-    try:
-        assert isinstance(key, str), "Config key must be a string"
-        config_path = Path.home() / ".sciunit" / "config.json"
-        value = config_get_from_path(config_path, key)
-    except Exception as e:
-        if default is not None:
-            if to_log:
-                log(e)
-                log("Using default value of %s" % default)
-            value = default
-        else:
-            raise e
-    return value
-
-
-def config_set(key: str, value: Any) -> bool:
-    """Write a key and a value to the user configuration file.
-
-    Args:
-        key (str): The key of the value to be written to the the user configuration file.
-        value (Any): The value to be written to the the user configuration file.
-
-    Returns:
-        bool: Whether the action is successful.
-    """
-    success = True
-    try:
-        assert isinstance(key, str), "Config key must be a string"
-        config_path = Path.home() / ".sciunit" / "config.json"
-        with open(config_path, "r+") as f:
-            config = json.load(f)
-            config[key] = value
-            f.seek(0)
-            f.truncate()
-            json.dump(config, f)
-    except Exception as e:
-        log(e)
-        success = False
-    return success
 
 
 ############# The following code is from project cypy by Dr. Cyrus Omar ##################
@@ -1020,7 +875,7 @@ class intern(object):
         # define an override for __new__ which looks in the cache first
         def __new__(cls, *args, **kwargs):
             """Override used by sciunit.utils.intern to cache instances of this class."""
-
+            print(877987987)
             # check cache
             __init__ = cls.__init__
             try:
@@ -1161,3 +1016,15 @@ def memoize(fn=None):
 class_intern = intern.intern
 
 method_memoize = memoize
+
+
+def style():
+    """Style a notebook with the current sciunit CSS file"""
+    path = Path(__file__).parent / 'style.css'
+    with open(path, 'rb') as f:
+        css_style = f.read().decode('utf-8')
+        display(HTML("""
+            <style>  
+            %s
+            </style>
+            """ % css_style))
