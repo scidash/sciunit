@@ -125,6 +125,8 @@ class Test(SciUnit):
                 schema = {"schema": self.observation_schema, "type": "dict"}
             schema = {"observation": schema}
             v = ObservationValidator(schema, test=self)
+            if float(observation['std']) == 0.0:
+                print('Observation standard deviation is 0')
             if not v.validate({"observation": observation}):
                 raise ObservationError(v.errors)
         return observation
@@ -366,28 +368,33 @@ class Test(SciUnit):
             ) % (self.name, self.score_type.__name__, score.__class__.__name__)
             raise InvalidScoreError(msg)
 
-    def _judge(self, model: Model, skip_incapable: bool = True) -> Score:
+    def _judge(self, model: Model, skip_incapable: bool = True, cached_prediction=False) -> Score:
         """Generate a score for the model (internal API use only).
 
         Args:
             model (Model): A sciunit model instance.
             skip_incapable (bool, optional): Skip the incapable tests. Defaults to True.
+            predict: Whether to make a prediction or use a pre-computed one
 
         Returns:
             Score: The generated score.
         """
-        # 1.
-        self.check_capabilities(model, skip_incapable=skip_incapable)
+        if not cached_prediction:
+            # 1.
+            self.check_capabilities(model, skip_incapable=skip_incapable)
 
         # 2.
         validated = self.validate_observation(self.observation)
         if validated is not None:
             self.observation = validated
 
-        # 3.
-        prediction = self.generate_prediction(model)
-        self.check_prediction(prediction)
-        self.last_model = model
+        if not cached_prediction:
+            # 3.
+            prediction = self.generate_prediction(model)
+            self.check_prediction(prediction)
+            self.last_model = model
+        else:
+            prediction = self.prediction
 
         # 4.
         score = self.compute_score(self.observation, prediction)
@@ -400,8 +407,21 @@ class Test(SciUnit):
 
         # 6.
         self._bind_score(score, model, self.observation, prediction)
-
+        
         return score
+    
+    
+    def feature_judge(
+        self,
+        model: Model,
+        skip_incapable: bool = False,
+        stop_on_error: bool = True,
+        deep_error: bool = False,
+    ) -> Score:
+        """For backwards compatibility"""
+        return self.judge(model, skip_incapable=skip_incapable, stop_on_error=stop_on_error,
+                          deep_error=deep_error, cached_prediction=True)
+
 
     def judge(
         self,
@@ -409,6 +429,7 @@ class Test(SciUnit):
         skip_incapable: bool = False,
         stop_on_error: bool = True,
         deep_error: bool = False,
+        cached_prediction: bool = False
     ) -> Score:
         """Generate a score for the provided model (public method).
 
@@ -460,10 +481,12 @@ class Test(SciUnit):
             )
 
         if deep_error:
-            score = self._judge(model, skip_incapable=skip_incapable)
+            score = self._judge(model, skip_incapable=skip_incapable,
+                                cached_prediction=cached_prediction)
         else:
             try:
-                score = self._judge(model, skip_incapable=skip_incapable)
+                score = self._judge(model, skip_incapable=skip_incapable,
+                                    cached_prediction=cached_prediction)
             except CapabilityError as e:
                 score = NAScore(str(e))
                 score.model = model

@@ -47,7 +47,6 @@ class RunnableModel(Model, cap.Runnable):
             Exception: The backend was not found.
         """
         if inspect.isclass(backend) and Backend in backend.__bases__:
-            print(backend.__name__)
             name = backend.__name__
             args = []
             kwargs = {}
