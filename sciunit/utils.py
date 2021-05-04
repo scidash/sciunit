@@ -17,6 +17,7 @@ import re
 import sys
 import traceback
 import unittest.mock
+from urllib.request import urlopen
 import warnings
 from datetime import datetime
 
@@ -280,6 +281,7 @@ class NotebookTools(object):
         """
         self.convert_notebook(name)
         code = self.read_code(name)
+        code = 'from IPython import InteractiveShell as get_ipython\n'+code
         exec(code, globals())
 
     def gen_file_path(self, name: str) -> Path:
@@ -1013,14 +1015,28 @@ method_memoize = memoize
 
 def style():
     """Style a notebook with the current sciunit CSS file"""
-    path = Path(__file__).parent / 'style.css'
-    with open(path, 'rb') as f:
-        css_style = f.read().decode('utf-8')
-        display(HTML("""
-            <style>  
-            %s
-            </style>
-            """ % css_style))
+    
+    # Try a custom one in the user's home directory
+    path = Path.home() / '.sciunit' / 'style.css'
+    
+    # Try the one in the currently cloned sciunit repo
+    if not path.is_file():
+        path = Path(__file__).parent / 'style.css'
+    
+    if path.is_file():  # Load from disk
+        with open(path, 'rb') as f:
+            css_style = f.read().decode('utf-8')
+    else:  # Load from the sciunit github repo
+        url = 'https://raw.githubusercontent.com/scidash/sciunit/master/sciunit/style.css'
+        response = urlopen(url)
+        css_style = response.read().decode('utf-8')
+    
+    # Apply the style in the notebook
+    display(HTML("""
+                 <style>  
+                 %s
+                 </style>
+                 """ % css_style))
 
 
 def dict_hash(d):
