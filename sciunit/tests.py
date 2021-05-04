@@ -87,6 +87,8 @@ class Test(SciUnit):
     params_schema = None
     """A schema that the params must adhere to (validated by cerberus).
     Can also be a list of schemas, one of which the params must match."""
+    
+    state_hide = ['last_model']
 
     def compute_params(self) -> None:
         """Compute new params from existing `self.params`.

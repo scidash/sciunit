@@ -15,7 +15,7 @@ import warnings
 
 # from sciunit.models.examples import ConstModel, UniformModel
 
-from .base import SciUnit
+from .base import SciUnit, log, logger
 from .errors import CapabilityNotImplementedError
 from .utils import warn_with_traceback
 
@@ -105,16 +105,11 @@ class Capability(SciUnit):
             instance_capable = False
 
         if not class_capable:
-            warnings.warn(
-                """The model class suppose to but doesn't inherit the Capability 
-                            class required by the Test class, and the score may be unavailable 
-                            due to this."""
-            )
+            log(("The Model class does not claim at least one Capability required by "
+                 "the Test class, so the Score is likely to be unavailable."))
         elif not source_capable:
-            warnings.warn(
-                """The model class suppose to but doesn't implements methods required by
-                            the Test class, and the score may be unavailable due to this."""
-            )
+            logger.warning(("The model class claimed to implements methods required by "
+                            "the Test class, but did not do so.  The score may thus be unreliable."))
 
         return class_capable and instance_capable and source_capable
 

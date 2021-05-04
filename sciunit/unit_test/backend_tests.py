@@ -42,8 +42,8 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         self.assertEqual(backend.get_disk_cache("key1"), "value1")
         backend.set_disk_cache("value2")
         backend.set_memory_cache("value2")
-        self.assertEqual(backend.get_memory_cache(myModel.hash), "value2")
-        self.assertEqual(backend.get_disk_cache(myModel.hash), "value2")
+        self.assertEqual(backend.get_memory_cache(myModel.hash()), "value2")
+        self.assertEqual(backend.get_disk_cache(myModel.hash()), "value2")
 
         backend.load_model()
         backend.set_attrs(test_attribute="test attribute")

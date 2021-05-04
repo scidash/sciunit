@@ -1,6 +1,7 @@
 """Unit tests for models and capabilities"""
 
 import unittest
+import jsonpickle
 
 
 class ModelsTestCase(unittest.TestCase):
@@ -56,7 +57,8 @@ class ModelsTestCase(unittest.TestCase):
 
         m = Model()
         state = m.__getstate__()
-        self.assertEqual(m.__dict__, state)
+        self.assertTrue(['capabilities' in state])
+        self.assertTrue(m.capabilities == state['capabilities'])
 
     def test_get_model_capabilities(self):
         from sciunit.capabilities import ProducesNumber
@@ -273,7 +275,7 @@ class RunnableModelTestCase(unittest.TestCase):
         model.reset_run_params()
         model.set_default_run_params(test_run_params="test runtime parameter")
         model.reset_default_run_params()
-        self.assertIsInstance(model.state, dict)
+        self.assertIsInstance(model.__getstate__(), dict)
 
         class MyBackend1(Backend):
             def _backend_run(self) -> str:

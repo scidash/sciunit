@@ -23,15 +23,14 @@ class BaseCase(unittest.TestCase):
 
         sciunitObj = SciUnit()
         self.assertIsInstance(sciunitObj.properties, dict)
-        self.assertIsInstance(sciunitObj.dict_hash({"1": 1, "2": 2}), str)
+        self.assertIsInstance(sciunitObj.__getstate__(), dict)
+        self.assertIsInstance(sciunitObj.json(), str)
         self.assertIsInstance(sciunitObj._id, int)
         self.assertIsInstance(sciunitObj.id, str)
         sciunitObj.json(string=False)
         self.assertIsInstance(sciunitObj._class, dict)
         sciunitObj.testState = "testState"
-        print(sciunitObj._state(keys=["testState"]))
-        sciunitObj.unpicklable.append("testState")
-
+        SciUnit.state_hide.append('testState')
         self.assertFalse("testState" in sciunitObj.__getstate__())
 
     def test_Versioned(self):
@@ -43,30 +42,7 @@ class BaseCase(unittest.TestCase):
         self.assertEqual("origin", str(ver.get_remote()))
         self.assertIsInstance(ver.get_repo(), Repo)
         self.assertIsInstance(ver.get_remote_url("I am not a remote"), str)
-
-    def test_SciUnitEncoder(self):
-        from sciunit.base import SciUnit, SciUnitEncoder
-
-        encoderObj = SciUnitEncoder()
-
-        d = {"col1": [1, 2], "col2": [3, 4]}
-        df = pd.DataFrame(data=d)
-        self.assertIsInstance(encoderObj.default(df), dict)
-
-        npArr = np.ndarray(shape=(2, 2), dtype=int)
-        self.assertIsInstance(encoderObj.default(npArr), list)
-
-        sciunitObj = SciUnit()
-        sciunitObj.testState = "testState"
-        self.assertIsInstance(encoderObj.default(sciunitObj), dict)
-
-        self.assertRaises(TypeError, encoderObj.default, "This is a string")
-
-        class MyClass:
-            pass
-
-        self.assertIsInstance(encoderObj.default(MyClass()), str)
-
+    
 
 if __name__ == "__main__":
     unittest.main()

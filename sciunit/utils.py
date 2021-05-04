@@ -4,9 +4,11 @@ Utility functions for SciUnit.
 
 import contextlib
 import functools
+import hashlib
 import importlib
 import inspect
 import json
+import jsonpickle
 import logging
 import math
 import os
@@ -530,10 +532,6 @@ def import_module_from_path(module_path: Path, name=None) -> ModuleType:
     return module
 
 
-def dict_hash(d):
-    return SciUnit.dict_hash(d)
-
-
 def method_cache(by: str = "value", method: str = "run") -> Callable:
     """A decorator used on any model method which calls the model's 'method'
     method if that latter method has not been called using the current
@@ -567,11 +565,11 @@ def method_cache(by: str = "value", method: str = "run") -> Callable:
                     for key, value in list(model.__dict__.items())
                     if key[0] != "_"
                 }
-                method_signature = SciUnit.dict_hash(
+                method_signature = dict_hash(
                     {"attrs": model_dict, "args": method_args}
                 )  # Hash key.
             elif by == "instance":
-                method_signature = SciUnit.dict_hash(
+                method_signature = dict_hash(
                     {"id": id(model), "args": method_args}
                 )  # Hash key.
             else:
@@ -1023,3 +1021,8 @@ def style():
             %s
             </style>
             """ % css_style))
+
+
+def dict_hash(d):
+    s = jsonpickle.encode(d)
+    return hashlib.sha224(s.encode('latin1')).hexdigest()

@@ -9,7 +9,9 @@ if PYTHON_MAJOR_VERSION < 3:  # Python 2
 
 import hashlib
 import logging
+import inspect
 import json
+import jsonpickle
 import pickle
 from pathlib import Path
 from typing import Any, List, Union
@@ -24,6 +26,7 @@ except:
     __version__ = None
 
 import bs4
+from deepdiff import DeepDiff
 import git
 import numpy as np
 import pandas as pd
@@ -271,6 +274,10 @@ class SciUnit(Versioned):
 
     #: A verbosity level for printing information.
     verbose = 1
+    
+    #: A class attribute containing a list of other attributes to be hidden
+    # from state calculations
+    state_hide = []
 
     def __getstate__(self) -> dict:
         """Copy the object's state from self.__dict__.
@@ -281,37 +288,20 @@ class SciUnit(Versioned):
         Returns:
             dict: The state of this instance.
         """
-        state = self.__dict__.copy()
-        # Remove the unpicklable entries.
-        if hasattr(self, "unpicklable"):
-            for key in set(self.unpicklable).intersection(state):
-                del state[key]
-        return state
-
-    def _state(
-        self, state: dict = None, keys: list = None, exclude: List[str] = None
-    ) -> dict:
-        """Get the state of the instance.
-
-        Args:
-            state (dict, optional): The dict instance that contains a part of state info of this instance.
-                                    Defaults to None.
-            keys (list, optional): Some keys of `state`. Values in `state` associated with these keys will be kept
-                                   and others will be discarded. Defaults to None.
-            exclude (List[str], optional): The list of keys. Values in `state` that associated with these keys
-                                           will be removed from `state`. Defaults to None.
-
-        Returns:
-            dict: The state of the current instance.
-        """
-
-        if state is None:
-            state = self.__getstate__()
-        if keys:
-            state = {key: state[key] for key in keys if key in state.keys()}
-        if exclude:
-            state = {key: state[key] for key in state.keys() if key not in exclude}
-            state = deep_exclude(state, exclude)
+        state = inspect.getmembers(self)
+        hide = list(self.get_list_attr_with_bases('state_hide'))
+        hide += [key for key, val in state
+                 if key.startswith('__')]
+        hide += [key for key, val in state
+                 if inspect.ismethod(val)]
+        hide += ['state_hide']
+        state = {key: val for key, val in state
+                 if key not in hide}
+        if getattr(self, 'add_props', False):
+            state.update(self.properties)
+        if 'properties' in state:
+            state['properties'] = {key: val for key, val in state['properties'].items()
+                                   if key not in hide}
         return state
 
     def _properties(self, keys: list = None, exclude: list = None) -> dict:
@@ -349,14 +339,14 @@ class SciUnit(Versioned):
             if isinstance(getattr(self.__class__, p, None), property)
         ]
 
-    @property
-    def state(self) -> dict:
-        """Get the state of the instance.
-
-        Returns:
-            dict: The state of the instance.
-        """
-        return self._state()
+    #@property
+    #def state(self) -> dict:
+    #    """Get the state of the instance.
+    #
+    #    Returns:
+    #        dict: The state of the instance.
+    #    """
+    #    return self._state()
 
     @property
     def properties(self) -> dict:
@@ -367,40 +357,11 @@ class SciUnit(Versioned):
         """
         return self._properties()
 
-    @classmethod
-    def dict_hash(cls, d: dict) -> str:
-        """SHA224 encoded value of `d`.
-
-        Args:
-            d (dict): The dict instance to be SHA224 encoded.
-
-        Returns:
-            str: SHA224 encoded value of `d`.
-        """
-        od = [(key, d[key]) for key in sorted(d)]
-        try:
-            s = pickle.dumps(od)
-        except AttributeError:
-            s = json.dumps(od, cls=SciUnitEncoder).encode("utf-8")
-
-        return hashlib.sha224(s).hexdigest()
-
-    @property
-    def hash(self) -> str:
-        """A unique numeric identifier of the current model state.
-
-        Returns:
-            str: The unique numeric identifier of the current model state.
-        """
-        return self.dict_hash(self.state)
-
     def json(
         self,
         add_props: bool = False,
-        keys: list = None,
-        exclude: list = None,
         string: bool = True,
-        indent: None = None,
+        simplify: bool = True
     ) -> str:
         """Generate a Json format encoded sciunit instance.
 
@@ -419,17 +380,63 @@ class SciUnit(Versioned):
         Returns:
             str: The Json format encoded sciunit instance.
         """
-        result = json.dumps(
-            self,
-            cls=SciUnitEncoder,
-            add_props=add_props,
-            keys=keys,
-            exclude=exclude,
-            indent=indent,
-        )
-        if not string:
-            result = json.loads(result)
+        
+        self.add_props = add_props
+        str_result = jsonpickle.encode(self)
+        result = json.loads(str_result)
+        
+        def do_simplify(d):
+            """Set all 'py/state' key:value pairs to their value"""
+            if isinstance(d, dict):
+                if 'py/state' in d:
+                    d = d['py/state']
+                elif 'py/type' in d:
+                    d = d['py/type']
+                elif 'py/tuple' in d:
+                    d = d['py/tuple']
+            if isinstance(d, dict):
+                for k, v in d.items():
+                    d[k] = do_simplify(v)
+            elif isinstance(d, list):
+                for i, x in enumerate(d):
+                    d[i] = do_simplify(x)
+            return d
+        
+        def add_hash(d):
+            """Set all dicts with an '_id' key to have a hash as well"""
+            if isinstance(d, dict):
+                if '_id' in d:
+                    d['hash'] = self.hash(serialization=json.dumps(d))
+                for k, v in d.items():
+                    d[k] = add_hash(v)
+            elif isinstance(d, list):
+                for i, x in enumerate(d):
+                    d[i] = add_hash(x)
+            return d
+        
+        if simplify:
+            result = do_simplify(result)
+        result = add_hash(result)
+        
+        if string:
+            result = json.dumps(result)
         return result
+    
+    def diff(self, other, add_props=False):
+        s = self.json(add_props=add_props, string=False)
+        o = other.json(add_props=add_props, string=False)
+        return DeepDiff(s, o)
+    
+    def hash(self, serialization: str=None) -> str:
+        """A unique numeric identifier of the current state
+        of a SciUnit object.
+
+        Returns:
+            str: The unique numeric identifier of the current model state.
+        """
+        if serialization is None:
+            serialization = jsonpickle.encode(self)
+        return hashlib.sha224(serialization.encode('latin1')).hexdigest()
 
     @property
     def _id(self) -> Any:
@@ -450,58 +457,14 @@ class SciUnit(Versioned):
     @property
     def url(self) -> str:
         return self._url if self._url else self.remote_url
-
-
-class SciUnitEncoder(json.JSONEncoder):
-    """Custom JSON encoder for SciUnit objects."""
-
-    def __init__(self, *args, **kwargs):
-        for key in ["add_props", "keys", "exclude"]:
-            if key in kwargs:
-                setattr(self.__class__, key, kwargs[key])
-                kwargs.pop(key)
-        super(SciUnitEncoder, self).__init__(*args, **kwargs)
-
-    def default(self, obj: Any) -> Union[str, dict, list]:
-        """Try to encode the object.
-
-        Args:
-            obj (Any): Any object to be encoded
-
-        Raises:
-            e: Could not JSON serialize the object.
-
-        Returns:
-            Union[str, dict, list]: Encoded object.
-        """
-        try:
-            if isinstance(obj, pd.DataFrame):
-                o = obj.to_dict(orient="split")
-                if isinstance(obj, SciUnit):
-                    for old, new in [
-                        ("data", "scores"),
-                        ("columns", "tests"),
-                        ("index", "models"),
-                    ]:
-                        o[new] = o.pop(old)
-            elif isinstance(obj, np.ndarray) and len(obj.shape):
-                o = obj.tolist()
-            elif isinstance(obj, SciUnit):
-                state = obj.state
-                if self.add_props:
-                    state.update(obj.properties)
-                o = obj._state(state=state, keys=self.keys, exclude=self.exclude)
-            elif isinstance(
-                obj, (dict, list, tuple, str, type(None), bool, float, int)
-            ):
-                o = json.JSONEncoder.default(self, obj)
-            else:  # Something we don't know how to serialize;
-                # just represent it as truncated string
-                o = "%.20s..." % obj
-        except Exception as e:
-            print("Could not JSON encode object %s" % obj)
-            raise e
-        return o
+    
+    def get_list_attr_with_bases(self, attr: str) -> list:
+        """Gets a concatenated list of values for an attribute across all parent classes.
+        The attribute must be a list."""
+        val = set()
+        for cls in self.__class__.__mro__:
+            val |= set(getattr(cls, attr, []))
+        return list(val)
 
 
 class TestWeighted(object):
@@ -565,5 +528,3 @@ def log(*args, **kwargs):
 
 def strip_html(html):
     return html if isinstance(html, Exception) else bs4.BeautifulSoup(html, "lxml").text
-
-
