@@ -7,6 +7,8 @@ import tempfile
 from pathlib import Path
 from typing import Any, Union
 
+from sciunit.base import SciUnit
+
 available_backends = {}
 
 
@@ -25,7 +27,7 @@ def register_backends(vars: dict) -> None:
     available_backends.update(new_backends)
 
 
-class Backend(object):
+class Backend(SciUnit):
     """
     Base class for simulator backends.
 
@@ -56,6 +58,8 @@ class Backend(object):
 
     #: Optional list of state variables for a backend to record.
     recorded_variables = None
+    
+    state_hide = ['memory_cache', '_results', 'stdout', 'exec_in_dir']
 
     def init_cache(self) -> None:
         """Initialize the cache."""
@@ -87,7 +91,7 @@ class Backend(object):
         Returns:
             dict: The memory cache for key 'key' or None if not found.
         """
-        key = self.model.hash if key is None else key
+        key = self.model.hash() if key is None else key
         if not getattr(self, "memory_cache", False):
             self.init_memory_cache()
         self._results = self.memory_cache.get(key)
@@ -102,7 +106,7 @@ class Backend(object):
         Returns:
             Any: The disk cache for key 'key' or None if not found.
         """
-        key = self.model.hash if key is None else key
+        key = self.model.hash() if key is None else key
         if not getattr(self, "disk_cache_location", False):
             self.init_disk_cache()
         disk_cache = shelve.open(str(self.disk_cache_location))
@@ -117,7 +121,7 @@ class Backend(object):
             results (Any): [description]
             key (str, optional): [description]. Defaults to None.
         """
-        key = self.model.hash if key is None else key
+        key = self.model.hash() if key is None else key
         if not getattr(self, "memory_cache", False):
             self.init_memory_cache()
         self.memory_cache[key] = results
@@ -132,7 +136,7 @@ class Backend(object):
         if not getattr(self, "disk_cache_location", False):
             self.init_disk_cache()
         disk_cache = shelve.open(str(self.disk_cache_location))
-        key = self.model.hash if key is None else key
+        key = self.model.hash() if key is None else key
         disk_cache[key] = results
         disk_cache.close()
 
@@ -154,7 +158,8 @@ class Backend(object):
         Returns:
             Any: The result of running backend.
         """
-        key = self.model.hash
+        if self.use_memory_cache or self.use_disk_cache:
+            key = self.model.hash()
         if self.use_memory_cache and self.get_memory_cache(key):
             return self._results
         if self.use_disk_cache and self.get_disk_cache(key):

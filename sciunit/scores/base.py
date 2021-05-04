@@ -1,6 +1,7 @@
 """Base class for SciUnit scores."""
 
 from copy import copy
+import imp
 import logging
 import math
 import sys
@@ -15,6 +16,7 @@ from sty import fg, bg, ef, rs
 # Set up score logger
 score_logger = logging.getLogger('sciunit_scores')
 if ipy:
+    imp.reload(logging)
     sl_handler = logging.StreamHandler(sys.stdout)
     score_logger.addHandler(sl_handler)
 score_log_level = config.get('score_log_level', 1)
@@ -81,6 +83,18 @@ class Score(SciUnit):
 
     model = None
     """The model judged. Set automatically by Test.judge."""
+    
+    observation_schema = None
+    
+    state_hide = ['related_data']
+    
+    @classmethod
+    def observation_preprocess(cls, observation: dict) -> dict:
+        return observation
+    
+    @classmethod
+    def observation_postprocess(cls, observation: dict) -> dict:
+        return observation
 
     def check_score(self, score: "Score") -> None:
         """Check the score with imposed additional constraints in the subclass on the score, e.g. the range of the allowed score.
@@ -254,11 +268,8 @@ class Score(SciUnit):
                             Otherwise, `None`.
         """
         d = self._describe()
-        if quiet:
-            return d
-        else:
-            log(d)
-
+        return d
+        
     @property
     def raw(self) -> str:
         """The raw score in string type.
@@ -355,9 +366,11 @@ class Score(SciUnit):
             level = 50
         kwargs = {k: v for k, v in kwargs.items()
                   if k in ['exc_info', 'stack_info', 'stacklevel', 'extra']}
-        msg = 'Score = %s for %s on %s' % (self, self.model, self.test)
+        msg = 'Score: %s for %s on %s' % (self, self.model, self.test)
         color = self.color()
-        msg = fg(*color) + msg + fg.rs
+        bg_brightness = config.get('score_bg_brightness', 50)
+        msg = (fg(*color) + bg(bg_brightness, bg_brightness, bg_brightness) + 
+               msg + bg.rs + fg.rs)
         score_logger.log(level, msg, **kwargs)
 
     @property

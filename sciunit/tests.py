@@ -1,5 +1,6 @@
 """SciUnit tests live in this module."""
 
+from copy import deepcopy
 import inspect
 import traceback
 from typing import Any, List, Optional, Tuple, Union
@@ -49,6 +50,10 @@ class Test(SciUnit):
         self.compute_params()
 
         self.observation = observation
+        
+        # Fall back to the score class's observation_schema if the test class doesn't have one
+        if self.observation_schema is None:
+            self.observation_schema = deepcopy(self.score_type.observation_schema)
         if config.get("PREVALIDATE", False):
             self.validate_observation(self.observation)
 
@@ -83,10 +88,14 @@ class Test(SciUnit):
     Can also be a list of schemas, one of which the observation must match.
     If it is a list, each schema in the list can optionally be named by putting
     (name, schema) tuples in that list."""
+    
+    observation_validator = ObservationValidator
 
     params_schema = None
     """A schema that the params must adhere to (validated by cerberus).
     Can also be a list of schemas, one of which the params must match."""
+    
+    params_validator = ParametersValidator
     
     state_hide = ['last_model']
 
@@ -111,12 +120,9 @@ class Test(SciUnit):
         Returns:
             dict: The observation that was validated.
         """
-        if not observation:
-            raise ObservationError("Observation is missing.")
+        observation = self.score_type.observation_preprocess(observation)
         if not isinstance(observation, dict):
             raise ObservationError("Observation is not a dictionary.")
-        if "mean" in observation and observation["mean"] is None:
-            raise ObservationError("Observation mean cannot be 'None'.")
         if self.observation_schema:
             if isinstance(self.observation_schema, list):
                 schemas = [
@@ -126,11 +132,10 @@ class Test(SciUnit):
             else:
                 schema = {"schema": self.observation_schema, "type": "dict"}
             schema = {"observation": schema}
-            v = ObservationValidator(schema, test=self)
-            if float(observation['std']) == 0.0:
-                print('Observation standard deviation is 0')
+            v = self.observation_validator(schema, test=self)
             if not v.validate({"observation": observation}):
                 raise ObservationError(v.errors)
+        observation = self.score_type.observation_postprocess(observation)
         return observation
 
     @classmethod
@@ -171,7 +176,7 @@ class Test(SciUnit):
             else:
                 schema = {"schema": self.params_schema, "type": "dict"}
             schema = {"params": schema}
-            v = ParametersValidator(schema, test=self)
+            v = self.params_validator(schema, test=self)
             if not v.validate({"params": params}):
                 raise ParametersError(v.errors)
         return params

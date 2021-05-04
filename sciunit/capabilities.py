@@ -108,8 +108,9 @@ class Capability(SciUnit):
             log(("The Model class does not claim at least one Capability required by "
                  "the Test class, so the Score is likely to be unavailable."))
         elif not source_capable:
-            logger.warning(("The model class claimed to implements methods required by "
-                            "the Test class, but did not do so.  The score may thus be unreliable."))
+            logger.warning(("The model class claimed to implement all methods required by "
+                            "the Test class, but at least one was left unimplemented, "
+                            "so this model will be skipped."))
 
         return class_capable and instance_capable and source_capable
 

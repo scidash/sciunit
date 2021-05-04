@@ -68,6 +68,21 @@ class ZScore(Score):
     _best = 0.0  # A Z-Score of 0.0 is best
 
     _worst = np.inf  # A Z-score of infinity (or negative infinity) is worst
+    
+    observation_schema = [("Mean, Standard Deviation, N",
+                           {'mean': {'units': True, 'required': True},
+                            'std': {'units': True, 'min': 0, 'required': True},
+                            'n': {'type': 'integer', 'min': 1}}),
+                          ("Mean, Standard Error, N",
+                           {'mean': {'units': True, 'required': True},
+                            'sem': {'units': True, 'min': 0, 'required': True},
+                            'n': {'type': 'integer', 'min': 1,
+                                  'required': True}})]
+    
+    @classmethod
+    def observation_postprocess(cls, observation: dict) -> dict:
+        if 'std' not in observation:
+            observation['std'] = observation['sem'] * np.sqrt(observation['n'])
 
     @classmethod
     def compute(cls, observation: dict, prediction: dict) -> "ZScore":
@@ -175,7 +190,9 @@ class RatioScore(Score):
     _best = 1.0  # A RatioScore of 1.0 is best
 
     _worst = np.inf
-
+    
+    observation_schema = {'value': {'units': True, 'required': True}}
+    
     def _check_score(self, score):
         if score < 0.0:
             raise errors.InvalidScoreError(

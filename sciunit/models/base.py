@@ -39,6 +39,8 @@ class Model(SciUnit):
 
     _backend = None
     """Optional model backend for executing some methods, e.g. simulations."""
+    
+    state_hide = ['results', 'temp_dir', '_temp_dir', 'stdout']
 
     @classmethod
     def get_capabilities(cls) -> list:
@@ -135,3 +137,7 @@ class Model(SciUnit):
     def __str__(self):
         """Return the model name."""
         return "%s" % self.name
+    
+    def __repr__(self):
+        """Returns a representation of the model."""
+        return "%s (%s)" % (self.name, self.__class__.__name__)

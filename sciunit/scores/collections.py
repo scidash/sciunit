@@ -12,9 +12,9 @@ import bs4
 import numpy as np
 import pandas as pd
 from IPython.display import Javascript, display
-from sciunit.base import SciUnit, TestWeighted
+from sciunit.base import SciUnit, TestWeighted, config
 from sciunit.models import Model
-from sciunit.scores import NoneScore, Score
+from sciunit.scores import NoneScore, Score, FloatScore
 from sciunit.tests import Test
 
 
@@ -78,7 +78,7 @@ class ScoreArray(pd.Series, SciUnit, TestWeighted):
             if test_or_model.name == name:
                 item = self.__getitem__(test_or_model)
         if item is None:
-            raise KeyError("No model or test with name '%s'" % item)
+            raise KeyError("No model or test with name '%s'" % name)
         return item
 
     def __getattr__(self, name):
@@ -167,6 +167,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
 
     show_mean = False
     sortable = False
+    colorize = True
     direct_attrs = ["score", "norm_scores", "related_data"]
 
     def check_tests_models_scores(
@@ -247,10 +248,10 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             result = self.loc[x[1 - t], x[t]]
         elif isinstance(x[1], Test) and isinstance(x[0], Model):
             result = self.loc[x[t], x[1 - t]]
-        elif isinstance(x[0], str):
+        elif isinstance(x[0], str) or isinstance(x[1], str):
             result = self.__getitem__(x[t]).__getitem__(x[1 - t])
         else:
-            raise TypeError("Expected test, model or model, test")
+            raise TypeError("Expected (test, model) or (model, test)")
         return result
 
     def get_by_name(self, name: str) -> Union[Model, Test]:
@@ -302,9 +303,8 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
 
         return self[test].stature(model)
 
-    @property
-    def T(self) -> "ScoreMatrix":
-        """Get transpose of this ScoreMatrix.
+    def copy(self, transpose=False) -> "ScoreMatrix":
+        """Get a copy of this ScoreMatrix.
 
         Returns:
             ScoreMatrix: The transpose of this ScoreMatrix.
@@ -312,42 +312,53 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         return ScoreMatrix(
             self.tests,
             self.models,
-            scores=self.values,
+            scores=self.values.T if self.transposed else self.values,
             weights=self.weights,
-            transpose=True,
+            transpose=transpose
         )
-
-    def to_html(
-        self,
-        show_mean: bool = None,
-        sortable: bool = None,
-        colorize: bool = True,
-        *args,
-        **kwargs
-    ) -> str:
-        """Extend Pandas built in `to_html` method for rendering a DataFrame and use it to render a ScoreMatrix.
-
-        Args:
-            show_mean (bool, optional): Whether to show the mean value. Defaults to None.
-            sortable (bool, optional): [description]. Defaults to None.
-            colorize (bool, optional): Whether to colorize the table. Defaults to True.
+    
+    @property
+    def T(self) -> "ScoreMatrix":
+        """Get transpose of this ScoreMatrix.
 
         Returns:
-            str: [description]
+            ScoreMatrix: The transpose of this ScoreMatrix.
         """
-        if show_mean is None:
-            show_mean = self.show_mean
-        if sortable is None:
-            sortable = self.sortable
-        df = self.copy()
-        if show_mean:
-            df.insert(0, "Mean", None)
-            df.loc[:, "Mean"] = ["%.3f" % self[m].mean() for m in self.models]
-        html = df.to_html(*args, **kwargs)  # Pandas method
-        html, table_id = self.annotate(df, html, show_mean, colorize)
-        if sortable:
-            self.dynamify(table_id)
-        return html
+        return self.copy(transpose=not self.transposed)
+    
+    def add_mean(self):
+        is_transposed = isinstance(self.index[0], Test)
+        if is_transposed:
+            sm = self.T
+        else:
+            sm = self
+        tests = [Test({}, name='Mean')] + sm.tests
+        mean_scores = [FloatScore(sm[model].mean()) for model in sm.models]
+        mean_scores = np.array(mean_scores).reshape(-1, 1)
+        scores = np.hstack([mean_scores, sm.values])
+        sm_mean = ScoreMatrix(tests=tests, models=sm.models, scores=scores)
+        if is_transposed:
+            sm_mean = sm_mean.T
+        return sm_mean
+    
+    def _repr_html_(self):
+        sm = self
+        if self.show_mean:
+            sm = sm.add_mean()
+        if self.colorize:
+            obj = sm.style.applymap(sm.apply_score_color)
+        else:
+            obj = super(ScoreMatrix, sm)
+        return obj._repr_html_()
+    
+    @classmethod
+    def apply_score_color(cls, val):
+        color = val.color()
+        bg_brightness = config.get('score_bg_brightness', 50)
+        bg_brightness = [bg_brightness] * 3
+        css = 'background-color: rgb(%d, %d, %d); ' % tuple(bg_brightness)
+        css += ('color: rgb(%d, %d, %d); text-align: center;' % color)
+        return css
 
     def annotate(
         self, df: pd.DataFrame, html: str, show_mean: bool, colorize: bool

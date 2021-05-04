@@ -2,6 +2,7 @@ import unittest
 
 import quantities as pq
 
+from sciunit import config
 
 class ValidatorTestCase(unittest.TestCase):
     def test_register(self):
@@ -33,8 +34,10 @@ class ValidatorTestCase(unittest.TestCase):
         q = pq.Quantity([1, 2, 3], "ft")
         units = q.simplified.units
         units.name = "UnitName"
-        testObj = Test(long_test_list)
+        
+        testObj = Test({})
         testObj.units = units
+        testObj.observation = long_test_list
         obsVal = ObservationValidator(test=testObj)
 
         # test constructor
