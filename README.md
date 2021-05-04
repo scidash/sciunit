@@ -23,6 +23,14 @@
 [Chapter 5](https://github.com/scidash/sciunit/blob/dev/docs/chapter5.ipynb) /
 [Chapter 6](https://github.com/scidash/sciunit/blob/dev/docs/chapter6.ipynb) /
 
+## Installation
+```python
+pip install sciunit
+```
+or
+```python
+conda install -c conda-forge sciunit
+```
 
 ## Basic Usage
 ```python
