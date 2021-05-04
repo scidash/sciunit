@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 import inspect
+import quantities as pq
 import traceback
 from typing import Any, List, Optional, Tuple, Union
 
@@ -96,6 +97,8 @@ class Test(SciUnit):
     Can also be a list of schemas, one of which the params must match."""
     
     params_validator = ParametersValidator
+    
+    units = pq.Dimensionless
     
     state_hide = ['last_model']
 
