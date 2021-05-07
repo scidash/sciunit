@@ -27,7 +27,7 @@ class UtilsTestCase(unittest.TestCase):
         from sciunit.utils import html_log
 
         str1 = "<b>test log 1</b>"
-        str1_stripped = 'test log 1'
+        str1_stripped = "test log 1"
         str2 = "<i>test log 2</i>"
         self.assertEqual(strip_html(str1), str1_stripped)
         log(str1_stripped)
@@ -35,6 +35,7 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_assert_dimensionless(self):
         import quantities as pq
+
         from sciunit.utils import assert_dimensionless
 
         assert_dimensionless(3 * pq.s * pq.Hz)
@@ -82,22 +83,23 @@ class UtilsTestCase(unittest.TestCase):
         s = StringIO()
         myMD = MockDevice(s)
         myMD.write("test mock device writing")
-        
+
     def test_memoize(self):
-        from sciunit.utils import memoize
         from random import randint
-        
+
+        from sciunit.utils import memoize
+
         @memoize
         def f(a):
             return a + randint(0, 1000000)
-        
+
         # Should be equal despite the random integer
         # because of memoization
         self.assertEqual(f(3), f(3))
-    
+
     def test_intern(self):
         from sciunit.utils import class_intern
-        
+
         class N:
             def __init__(self, n):
                 self.n = n
@@ -105,7 +107,7 @@ class UtilsTestCase(unittest.TestCase):
         five = N(5)
         five2 = N(5)
         self.assertNotEqual(five, five2)
-        
+
         # Add the decorator to the class N.
         N = class_intern(N)
 

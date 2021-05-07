@@ -9,19 +9,13 @@ import sciunit
 class Error(Exception):
     """Base class for errors in sciunit's core."""
 
-    pass
-
 
 class ObservationError(Error):
     """Raised when an observation passed to a test is invalid."""
 
-    pass
-
 
 class ParametersError(Error):
     """Raised when params passed to a test are invalid."""
-
-    pass
 
 
 class CapabilityError(Error):
@@ -107,8 +101,6 @@ class PredictionError(Error):
 
 class InvalidScoreError(Error):
     """Error raised when a score is invalid."""
-
-    pass
 
 
 class BadParameterValueError(Error):

@@ -8,28 +8,30 @@ if PYTHON_MAJOR_VERSION < 3:  # Python 2
     raise Exception("Only Python 3 is supported")
 
 import hashlib
-import logging
 import inspect
 import json
-import jsonpickle
-import pickle
+import logging
 from pathlib import Path
-from typing import Any, List, Union
+from typing import Any, List
+
+import jsonpickle
+
 try:
     import tkinter
 except ImportError:
     tkinter = None
 try:
     from importlib.metadata import version
+
     __version__ = version("sciunit")
 except:
     __version__ = None
 
 import bs4
-from deepdiff import DeepDiff
 import git
 import numpy as np
 import pandas as pd
+from deepdiff import DeepDiff
 from git.cmd import Git
 from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.remote import Remote
@@ -45,11 +47,11 @@ logger.setLevel(logging.WARNING)
 
 class Config(dict):
     """Configuration class for sciunit"""
-    
+
     def __init__(self, *args, **kwargs):
         self.load()
         super().__init__(*args, **kwargs)
-    
+
     default = {
         "cmap_high": 218,
         "cmap_low": 38,
@@ -57,7 +59,7 @@ class Config(dict):
         "log_level": logging.INFO,
         "prevalidate": False,
         "cwd": here,
-        }
+    }
 
     _path = Path.home() / ".sciunit" / "config.json"
 
@@ -65,7 +67,7 @@ class Config(dict):
     def path(self):
         """Guarantees that the requested path will be Path object"""
         return Path(self._path)
-       
+
     @path.setter
     def path(self, val):
         """Guarantees that any new paths will be Path object"""
@@ -73,7 +75,7 @@ class Config(dict):
 
     def __getitem__(self, key):
         return self.get(key)
-    
+
     def get(self, key, default=None, update_from_disk=True):
         key = key.lower()
         try:
@@ -87,28 +89,32 @@ class Config(dict):
             if update_from_disk:
                 self[key.lower()] = val
         return val
-    
+
     def set(self, key, val):
         self.__setitem__(key, val)
-    
+
     def __setitem__(self, key, val):
         key = key.lower()
         super().__setitem__(key, val)
-        
+
     def get_from_disk(self):
         try:
-            with open(self.path, 'r') as f:
+            with open(self.path, "r") as f:
                 c = json.load(f)
         except FileNotFoundError:
-            logger.warning("Config file not found at '%s'; creating new one" % self.path)
+            logger.warning(
+                "Config file not found at '%s'; creating new one" % self.path
+            )
             self.create()
             return self.get_from_disk()
         except json.JSONDecodeError:
-            logger.warning("Config file JSON at '%s' was invalid; creating new one" % self.path)
+            logger.warning(
+                "Config file JSON at '%s' was invalid; creating new one" % self.path
+            )
             self.create()
             return self.get_from_disk()
         return c
-    
+
     def create(self, data: dict = None) -> bool:
         """Create a config file that store any data from the user.
 
@@ -139,10 +145,10 @@ class Config(dict):
         for key, val in c.items():
             key = key.lower()
             self[key] = val
-    
+
     def save(self):
         self.create(data=self)
-           
+
 
 config = Config()
 
@@ -274,7 +280,7 @@ class SciUnit(Versioned):
 
     #: A verbosity level for printing information.
     verbose = 1
-    
+
     #: A class attribute containing a list of other attributes to be hidden
     # from state calculations
     state_hide = []
@@ -289,19 +295,17 @@ class SciUnit(Versioned):
             dict: The state of this instance.
         """
         state = inspect.getmembers(self)
-        hide = list(self.get_list_attr_with_bases('state_hide'))
-        hide += [key for key, val in state
-                 if key.startswith('__')]
-        hide += [key for key, val in state
-                 if inspect.ismethod(val)]
-        hide += ['state_hide']
-        state = {key: val for key, val in state
-                 if key not in hide}
-        if getattr(self, 'add_props', False):
+        hide = list(self.get_list_attr_with_bases("state_hide"))
+        hide += [key for key, val in state if key.startswith("__")]
+        hide += [key for key, val in state if inspect.ismethod(val)]
+        hide += ["state_hide"]
+        state = {key: val for key, val in state if key not in hide}
+        if getattr(self, "add_props", False):
             state.update(self.properties)
-        if 'properties' in state:
-            state['properties'] = {key: val for key, val in state['properties'].items()
-                                   if key not in hide}
+        if "properties" in state:
+            state["properties"] = {
+                key: val for key, val in state["properties"].items() if key not in hide
+            }
         return state
 
     def _properties(self, keys: list = None, exclude: list = None) -> dict:
@@ -339,8 +343,8 @@ class SciUnit(Versioned):
             if isinstance(getattr(self.__class__, p, None), property)
         ]
 
-    #@property
-    #def state(self) -> dict:
+    # @property
+    # def state(self) -> dict:
     #    """Get the state of the instance.
     #
     #    Returns:
@@ -358,10 +362,7 @@ class SciUnit(Versioned):
         return self._properties()
 
     def json(
-        self,
-        add_props: bool = False,
-        string: bool = True,
-        simplify: bool = True
+        self, add_props: bool = False, string: bool = True, simplify: bool = True
     ) -> str:
         """Generate a Json format encoded sciunit instance.
 
@@ -380,20 +381,20 @@ class SciUnit(Versioned):
         Returns:
             str: The Json format encoded sciunit instance.
         """
-        
+
         self.add_props = add_props
         str_result = jsonpickle.encode(self)
         result = json.loads(str_result)
-        
+
         def do_simplify(d):
             """Set all 'py/state' key:value pairs to their value"""
             if isinstance(d, dict):
-                if 'py/state' in d:
-                    d = d['py/state']
-                elif 'py/type' in d:
-                    d = d['py/type']
-                elif 'py/tuple' in d:
-                    d = d['py/tuple']
+                if "py/state" in d:
+                    d = d["py/state"]
+                elif "py/type" in d:
+                    d = d["py/type"]
+                elif "py/tuple" in d:
+                    d = d["py/tuple"]
             if isinstance(d, dict):
                 for k, v in d.items():
                     d[k] = do_simplify(v)
@@ -401,33 +402,33 @@ class SciUnit(Versioned):
                 for i, x in enumerate(d):
                     d[i] = do_simplify(x)
             return d
-        
+
         def add_hash(d):
             """Set all dicts with an '_id' key to have a hash as well"""
             if isinstance(d, dict):
-                if '_id' in d:
-                    d['hash'] = self.hash(serialization=json.dumps(d))
+                if "_id" in d:
+                    d["hash"] = self.hash(serialization=json.dumps(d))
                 for k, v in d.items():
                     d[k] = add_hash(v)
             elif isinstance(d, list):
                 for i, x in enumerate(d):
                     d[i] = add_hash(x)
             return d
-        
+
         if simplify:
             result = do_simplify(result)
         result = add_hash(result)
-        
+
         if string:
             result = json.dumps(result)
         return result
-    
+
     def diff(self, other, add_props=False):
         s = self.json(add_props=add_props, string=False)
         o = other.json(add_props=add_props, string=False)
         return DeepDiff(s, o)
-    
-    def hash(self, serialization: str=None) -> str:
+
+    def hash(self, serialization: str = None) -> str:
         """A unique numeric identifier of the current state
         of a SciUnit object.
 
@@ -436,7 +437,7 @@ class SciUnit(Versioned):
         """
         if serialization is None:
             serialization = jsonpickle.encode(self)
-        return hashlib.sha224(serialization.encode('latin1')).hexdigest()
+        return hashlib.sha224(serialization.encode("latin1")).hexdigest()
 
     @property
     def _id(self) -> Any:
@@ -457,7 +458,7 @@ class SciUnit(Versioned):
     @property
     def url(self) -> str:
         return self._url if self._url else self.remote_url
-    
+
     def get_list_attr_with_bases(self, attr: str) -> list:
         """Gets a concatenated list of values for an attribute across all parent classes.
         The attribute must be a list."""
@@ -516,11 +517,12 @@ def deep_exclude(state: dict, exclude: list) -> dict:
 
 
 def log(*args, **kwargs):
-    level = kwargs.get(
-        "level", config.get("LOGGING", default=logging.INFO)
-    )
-    kwargs = {k: v for k, v in kwargs.items()
-              if k in ['exc_info', 'stack_info', 'stacklevel', 'extra']}
+    level = kwargs.get("level", config.get("LOGGING", default=logging.INFO))
+    kwargs = {
+        k: v
+        for k, v in kwargs.items()
+        if k in ["exc_info", "stack_info", "stacklevel", "extra"]
+    }
     for arg in args:
         arg = strip_html(arg)
         logger.log(level, arg, **kwargs)

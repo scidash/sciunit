@@ -1,7 +1,7 @@
 """Unit tests for user configuration"""
 
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 import sciunit
 
@@ -10,7 +10,7 @@ class ConfigTestCase(unittest.TestCase):
     """Unit tests for config files"""
 
     def test_new_config(self):
-        from pathlib import Path
+        pass
 
         sciunit.config.create()
 
@@ -24,15 +24,15 @@ class ConfigTestCase(unittest.TestCase):
             sciunit.config.get("dummy")
         except sciunit.Error as e:
             self.assertTrue("does not contain key" in str(e))
-            
+
     def test_missing_config(self):
-        sciunit.config.path = Path('_delete.json')
+        sciunit.config.path = Path("_delete.json")
         sciunit.config.get_from_disk()
-        
+
     def test_bad_config(self):
-        sciunit.config.path = Path('_delete.json')
-        with open(sciunit.config.path, 'w') as f:
-            f.write('.......')
+        sciunit.config.path = Path("_delete.json")
+        with open(sciunit.config.path, "w") as f:
+            f.write(".......")
         sciunit.config.get_from_disk()
 
 

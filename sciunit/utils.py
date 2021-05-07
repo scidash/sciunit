@@ -7,29 +7,25 @@ import functools
 import hashlib
 import importlib
 import inspect
-import json
-import jsonpickle
-import logging
-import math
 import os
 import pkgutil
 import re
 import sys
 import traceback
 import unittest.mock
-from urllib.request import urlopen
 import warnings
 from datetime import datetime
-
 from io import StringIO, TextIOWrapper
 from pathlib import Path
 from types import ModuleType
 from typing import Any, Callable, List, TextIO, Tuple, Type, Union
+from urllib.request import urlopen
 
 import bs4
+import jsonpickle
 import nbconvert
 import nbformat
-from IPython.display import HTML, display        
+from IPython.display import HTML, display
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 from quantities.dimensionality import Dimensionality
@@ -38,9 +34,18 @@ from quantities.quantity import Quantity
 import sciunit
 from sciunit.errors import Error
 
-from .base import PLATFORM, PYTHON_MAJOR_VERSION, __version__, SciUnit, tkinter, config, ipy
+from .base import (
+    PLATFORM,
+    PYTHON_MAJOR_VERSION,
+    SciUnit,
+    __version__,
+    config,
+    ipy,
+    tkinter,
+)
 
 mock = False  # mock is probably obviated by the unittest -b flag.
+
 
 def warn_with_traceback(
     message: str,
@@ -281,7 +286,7 @@ class NotebookTools(object):
         """
         self.convert_notebook(name)
         code = self.read_code(name)
-        code = 'from IPython import InteractiveShell as get_ipython\n'+code
+        code = "from IPython import InteractiveShell as get_ipython\n" + code
         exec(code, globals())
 
     def gen_file_path(self, name: str) -> Path:
@@ -1015,30 +1020,37 @@ method_memoize = memoize
 
 def style():
     """Style a notebook with the current sciunit CSS file"""
-    
+
     # Try a custom one in the user's home directory
-    path = Path.home() / '.sciunit' / 'style.css'
-    
+    path = Path.home() / ".sciunit" / "style.css"
+
     # Try the one in the currently cloned sciunit repo
     if not path.is_file():
-        path = Path(__file__).parent / 'style.css'
-    
+        path = Path(__file__).parent / "style.css"
+
     if path.is_file():  # Load from disk
-        with open(path, 'rb') as f:
-            css_style = f.read().decode('utf-8')
+        with open(path, "rb") as f:
+            css_style = f.read().decode("utf-8")
     else:  # Load from the sciunit github repo
-        url = 'https://raw.githubusercontent.com/scidash/sciunit/master/sciunit/style.css'
+        url = (
+            "https://raw.githubusercontent.com/scidash/sciunit/master/sciunit/style.css"
+        )
         response = urlopen(url)
-        css_style = response.read().decode('utf-8')
-    
+        css_style = response.read().decode("utf-8")
+
     # Apply the style in the notebook
-    display(HTML("""
+    display(
+        HTML(
+            """
                  <style>  
                  %s
                  </style>
-                 """ % css_style))
+                 """
+            % css_style
+        )
+    )
 
 
 def dict_hash(d):
     s = jsonpickle.encode(d)
-    return hashlib.sha224(s.encode('latin1')).hexdigest()
+    return hashlib.sha224(s.encode("latin1")).hexdigest()

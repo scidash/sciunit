@@ -8,7 +8,7 @@ import json
 import logging
 import sys
 
-from .base import config, __version__, logger, log
+from .base import __version__, config, log, logger
 from .capabilities import Capability
 from .errors import Error
 from .models import Model

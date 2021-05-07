@@ -39,8 +39,8 @@ class Model(SciUnit):
 
     _backend = None
     """Optional model backend for executing some methods, e.g. simulations."""
-    
-    state_hide = ['results', 'temp_dir', '_temp_dir', 'stdout']
+
+    state_hide = ["results", "temp_dir", "_temp_dir", "stdout"]
 
     @classmethod
     def get_capabilities(cls) -> list:
@@ -104,7 +104,6 @@ class Model(SciUnit):
         value was within an acceptable range.  This should be implemented
         as needed by specific model classes.
         """
-        pass
 
     def is_match(self, match: Union[str, "Model"]) -> bool:
         """Return whether this model is the same as `match`.
@@ -137,7 +136,7 @@ class Model(SciUnit):
     def __str__(self):
         """Return the model name."""
         return "%s" % self.name
-    
+
     def __repr__(self):
         """Returns a representation of the model."""
         return "%s (%s)" % (self.name, self.__class__.__name__)

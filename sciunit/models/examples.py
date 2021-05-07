@@ -5,10 +5,11 @@ from typing import Union
 
 from sciunit.capabilities import ProducesNumber
 from sciunit.models import Model
-from sciunit.utils import (
+from sciunit.utils import (  # Decorator for caching of capability method results.
+    class_intern,
+    method_cache,
     method_memoize,
-)  # Decorator for caching of capability method results.
-from sciunit.utils import class_intern, method_cache
+)
 
 
 class ConstModel(Model, ProducesNumber):
@@ -76,8 +77,6 @@ class SharedModel(Model):
     will return the same instance at the same locaiton in memory.
     Attributes should not be set post-instantiation
     unless the goal is to set those attributes on all models of this class."""
-
-    pass
 
 
 class PersistentUniformModel(UniformModel):

@@ -31,8 +31,6 @@ class TestsTestCase(unittest.TestCase):
         class MyTest(self.T):
             """Lorem Ipsum"""
 
-            pass
-
         t = MyTest([2, 3])
         t.description = None
         self.assertEqual(t.describe(), "Lorem Ipsum")
@@ -56,12 +54,13 @@ class TestsTestCase(unittest.TestCase):
         self.assertTrue(score.model is one_model)
 
     def test_Test(self):
-        pv = config['PREVALIDATE']
-        config['PREVALIDATE'] = 1
+        pv = config["PREVALIDATE"]
+        config["PREVALIDATE"] = 1
         with self.assertRaises(ObservationError):
             t = Test(None)
 
         with self.assertRaises(ObservationError):
+
             class Test2(Test):
                 observation_schema = None
                 score_type = ZScore
@@ -70,8 +69,8 @@ class TestsTestCase(unittest.TestCase):
                 def generate_prediction(self):
                     return 1
 
-            t = Test2({"mean": 5*pq.pA})
-        
+            t = Test2({"mean": 5 * pq.pA})
+
         t = Test({})
         self.assertRaises(
             ObservationError, t.validate_observation, "I am not an observation"
@@ -80,8 +79,8 @@ class TestsTestCase(unittest.TestCase):
         t.validate_observation({0: 0, 1: 1})
         Test.observation_schema = [{}, {}]
         self.assertListEqual(t.observation_schema_names(), ["Schema 1", "Schema 2"])
-        config['PREVALIDATE'] = pv
-        
+        config["PREVALIDATE"] = pv
+
         self.assertRaises(ParametersError, t.validate_params, None)
         self.assertRaises(ParametersError, t.validate_params, "I am not an observation")
         t.params_schema = {}
@@ -99,7 +98,7 @@ class TestsTestCase(unittest.TestCase):
 
         t.score_type = BooleanScore
         self.assertRaises(InvalidScoreError, t.check_score_type, FloatScore(0.5))
-        
+
 
 class TestSuitesTestCase(SuiteBase, unittest.TestCase):
     """Unit tests for the sciunit module"""

@@ -1,6 +1,7 @@
 """Unit tests for models and capabilities"""
 
 import unittest
+
 import jsonpickle
 
 
@@ -57,8 +58,8 @@ class ModelsTestCase(unittest.TestCase):
 
         m = Model()
         state = m.__getstate__()
-        self.assertTrue(['capabilities' in state])
-        self.assertTrue(m.capabilities == state['capabilities'])
+        self.assertTrue(["capabilities" in state])
+        self.assertTrue(m.capabilities == state["capabilities"])
 
     def test_get_model_capabilities(self):
         from sciunit.capabilities import ProducesNumber

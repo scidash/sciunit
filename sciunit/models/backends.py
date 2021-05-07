@@ -58,8 +58,8 @@ class Backend(SciUnit):
 
     #: Optional list of state variables for a backend to record.
     recorded_variables = None
-    
-    state_hide = ['memory_cache', '_results', 'stdout', 'exec_in_dir']
+
+    state_hide = ["memory_cache", "_results", "stdout", "exec_in_dir"]
 
     def init_cache(self) -> None:
         """Initialize the cache."""
@@ -142,15 +142,12 @@ class Backend(SciUnit):
 
     def load_model(self) -> None:
         """Load the model into memory."""
-        pass
 
     def set_attrs(self, **attrs) -> None:
         """Set model attributes on the backend."""
-        pass
 
     def set_run_params(self, **run_params) -> None:
         """Set model attributes on the backend."""
-        pass
 
     def backend_run(self) -> Any:
         """Check for cached results; then run the model if needed.
@@ -187,8 +184,6 @@ class Backend(SciUnit):
 
 class BackendException(Exception):
     """Generic backend exception class."""
-
-    pass
 
 
 # Register the base class as a Backend just so that there is

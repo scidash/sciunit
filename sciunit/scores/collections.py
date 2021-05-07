@@ -12,9 +12,10 @@ import bs4
 import numpy as np
 import pandas as pd
 from IPython.display import Javascript, display
+
 from sciunit.base import SciUnit, TestWeighted, config
 from sciunit.models import Model
-from sciunit.scores import NoneScore, Score, FloatScore
+from sciunit.scores import FloatScore, NoneScore, Score
 from sciunit.tests import Test
 
 
@@ -314,9 +315,9 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             self.models,
             scores=self.values.T if self.transposed else self.values,
             weights=self.weights,
-            transpose=transpose
+            transpose=transpose,
         )
-    
+
     @property
     def T(self) -> "ScoreMatrix":
         """Get transpose of this ScoreMatrix.
@@ -325,14 +326,14 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             ScoreMatrix: The transpose of this ScoreMatrix.
         """
         return self.copy(transpose=not self.transposed)
-    
+
     def add_mean(self):
         is_transposed = isinstance(self.index[0], Test)
         if is_transposed:
             sm = self.T
         else:
             sm = self
-        tests = [Test({}, name='Mean')] + sm.tests
+        tests = [Test({}, name="Mean")] + sm.tests
         mean_scores = [FloatScore(sm[model].mean()) for model in sm.models]
         mean_scores = np.array(mean_scores).reshape(-1, 1)
         scores = np.hstack([mean_scores, sm.values])
@@ -340,7 +341,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         if is_transposed:
             sm_mean = sm_mean.T
         return sm_mean
-    
+
     def _repr_html_(self):
         sm = self
         if self.show_mean:
@@ -350,14 +351,14 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         else:
             obj = super(ScoreMatrix, sm)
         return obj._repr_html_()
-    
+
     @classmethod
     def apply_score_color(cls, val):
         color = val.color()
-        bg_brightness = config.get('score_bg_brightness', 50)
+        bg_brightness = config.get("score_bg_brightness", 50)
         bg_brightness = [bg_brightness] * 3
-        css = 'background-color: rgb(%d, %d, %d); ' % tuple(bg_brightness)
-        css += ('color: rgb(%d, %d, %d); text-align: center;' % color)
+        css = "background-color: rgb(%d, %d, %d); " % tuple(bg_brightness)
+        css += "color: rgb(%d, %d, %d); text-align: center;" % color
         return css
 
     def annotate(

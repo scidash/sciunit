@@ -1,25 +1,26 @@
 """Base class for SciUnit scores."""
 
-from copy import copy
 import imp
 import logging
 import math
 import sys
+from copy import copy
 from typing import Tuple, Union
 
 import numpy as np
 from quantities import Quantity
+from sty import bg, ef, fg, rs
+
 from sciunit.base import SciUnit, config, ipy, log
 from sciunit.errors import InvalidScoreError
-from sty import fg, bg, ef, rs
 
 # Set up score logger
-score_logger = logging.getLogger('sciunit_scores')
+score_logger = logging.getLogger("sciunit_scores")
 if ipy:
     imp.reload(logging)
     sl_handler = logging.StreamHandler(sys.stdout)
     score_logger.addHandler(sl_handler)
-score_log_level = config.get('score_log_level', 1)
+score_log_level = config.get("score_log_level", 1)
 score_logger.setLevel(score_log_level)
 
 
@@ -83,15 +84,15 @@ class Score(SciUnit):
 
     model = None
     """The model judged. Set automatically by Test.judge."""
-    
+
     observation_schema = None
-    
-    state_hide = ['related_data']
-    
+
+    state_hide = ["related_data"]
+
     @classmethod
     def observation_preprocess(cls, observation: dict) -> dict:
         return observation
-    
+
     @classmethod
     def observation_postprocess(cls, observation: dict) -> dict:
         return observation
@@ -119,7 +120,6 @@ class Score(SciUnit):
         Args:
             score (Score): A sciunit score instance.
         """
-        pass
 
     @classmethod
     def compute(cls, observation: dict, prediction: dict):
@@ -269,7 +269,7 @@ class Score(SciUnit):
         """
         d = self._describe()
         return d
-        
+
     @property
     def raw(self) -> str:
         """The raw score in string type.
@@ -358,19 +358,27 @@ class Score(SciUnit):
         else:
             result = self.score <= other
         return result
-    
+
     def log(self, **kwargs):
         if self.norm_score is not None:
             level = 100 - math.floor(self.norm_score * 99)
         else:
             level = 50
-        kwargs = {k: v for k, v in kwargs.items()
-                  if k in ['exc_info', 'stack_info', 'stacklevel', 'extra']}
-        msg = 'Score: %s for %s on %s' % (self, self.model, self.test)
+        kwargs = {
+            k: v
+            for k, v in kwargs.items()
+            if k in ["exc_info", "stack_info", "stacklevel", "extra"]
+        }
+        msg = "Score: %s for %s on %s" % (self, self.model, self.test)
         color = self.color()
-        bg_brightness = config.get('score_bg_brightness', 50)
-        msg = (fg(*color) + bg(bg_brightness, bg_brightness, bg_brightness) + 
-               msg + bg.rs + fg.rs)
+        bg_brightness = config.get("score_bg_brightness", 50)
+        msg = (
+            fg(*color)
+            + bg(bg_brightness, bg_brightness, bg_brightness)
+            + msg
+            + bg.rs
+            + fg.rs
+        )
         score_logger.log(level, msg, **kwargs)
 
     @property
@@ -463,4 +471,3 @@ class ErrorScore(Score):
 
     def __str__(self) -> str:
         return "Error"
-
