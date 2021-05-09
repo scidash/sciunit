@@ -16,5 +16,12 @@ repos:
       args:
         [
           "--in-place",
-          "--ignore-init-module-imports"
+          "--remove-all-unused-imports",
+          "--ignore-init-module-imports",
+          "--remove-unused-variables"
         ]
+      exclude: |
+            (?x)^(
+                sciunit/unit_test/active.py|
+                sciunit/unit_test/__main__.py
+            )$
