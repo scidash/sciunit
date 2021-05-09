@@ -21,7 +21,6 @@ from types import ModuleType
 from typing import Any, Callable, List, TextIO, Tuple, Type, Union
 from urllib.request import urlopen
 
-import bs4
 import jsonpickle
 import nbconvert
 import nbformat
@@ -32,17 +31,8 @@ from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 
 import sciunit
-from sciunit.errors import Error
 
-from .base import (
-    PLATFORM,
-    PYTHON_MAJOR_VERSION,
-    SciUnit,
-    __version__,
-    config,
-    ipy,
-    tkinter,
-)
+from .base import PYTHON_MAJOR_VERSION, tkinter
 
 mock = False  # mock is probably obviated by the unittest -b flag.
 

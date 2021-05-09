@@ -2,8 +2,6 @@ import unittest
 
 import quantities as pq
 
-from sciunit import config
-
 
 class ValidatorTestCase(unittest.TestCase):
     def test_register(self):

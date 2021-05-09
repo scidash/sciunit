@@ -6,7 +6,7 @@ to the value required for particular score type.
 from string import Template
 from typing import Callable
 
-from .scores import BooleanScore, Score, ZScore
+from .scores import BooleanScore, Score
 
 
 class Converter(object):

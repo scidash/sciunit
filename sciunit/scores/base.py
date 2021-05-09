@@ -9,7 +9,7 @@ from typing import Tuple, Union
 
 import numpy as np
 from quantities import Quantity
-from sty import bg, ef, fg, rs
+from sty import bg, fg
 
 from sciunit.base import SciUnit, config, ipy, log
 from sciunit.errors import InvalidScoreError

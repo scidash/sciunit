@@ -2,8 +2,6 @@
 
 import unittest
 
-import jsonpickle
-
 
 class ModelsTestCase(unittest.TestCase):
     """Unit tests for the sciunit module"""
@@ -81,9 +79,6 @@ class ModelsTestCase(unittest.TestCase):
         t.check(m)
 
     def test_check_missing_capabilities_1(self):
-        from sciunit.capabilities import Runnable
-        from sciunit.errors import CapabilityNotImplementedError
-
         m = self.M(
             2, 3, name="Not actually runnable due to lack of capability provision"
         )
@@ -113,7 +108,6 @@ class ModelsTestCase(unittest.TestCase):
 
     def test_check_missing_capabilities_3(self):
         from sciunit.capabilities import Runnable
-        from sciunit.errors import CapabilityNotImplementedError
 
         class MyModel(self.M, Runnable):
             def run(self):
@@ -126,7 +120,6 @@ class ModelsTestCase(unittest.TestCase):
         from sciunit.models.examples import (
             ConstModel,
             PersistentUniformModel,
-            SharedModel,
             UniformModel,
         )
 
@@ -169,7 +162,6 @@ class CapabilitiesTestCase(unittest.TestCase):
     def test_capabilities(self):
         from sciunit import Model
         from sciunit.capabilities import Capability, ProducesNumber, Runnable
-        from sciunit.errors import CapabilityNotImplementedError
         from sciunit.models import Model
         from sciunit.models.examples import (
             RepeatedRandomNumberModel,
@@ -256,11 +248,7 @@ class CapabilitiesTestCase(unittest.TestCase):
 class RunnableModelTestCase(unittest.TestCase):
     def test_backend(self):
         from sciunit.models import RunnableModel
-        from sciunit.models.backends import (
-            Backend,
-            available_backends,
-            register_backends,
-        )
+        from sciunit.models.backends import Backend, register_backends
 
         self.assertRaises(TypeError, RunnableModel, name="", attrs=1)
         model = RunnableModel(name="test name")

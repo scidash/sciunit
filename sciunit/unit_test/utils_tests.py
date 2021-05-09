@@ -47,7 +47,6 @@ class UtilsTestCase(unittest.TestCase):
             raise Exception("Should have produced a type error")
 
     def test_dict_hash(self):
-        from sciunit.base import SciUnit
         from sciunit.utils import dict_hash
 
         d1 = {"a": 1, "b": 2, "c": 3}

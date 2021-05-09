@@ -10,7 +10,7 @@ from pandas.core.series import Series
 from quantities import Quantity
 
 from sciunit import Score, ScoreArray, ScoreMatrix
-from sciunit.errors import InvalidScoreError, ObservationError
+from sciunit.errors import InvalidScoreError
 from sciunit.models import Model
 from sciunit.scores import (
     BooleanScore,
@@ -40,13 +40,13 @@ class ScoresTestCase(SuiteBase, unittest.TestCase, NotebookTools):
         tests = [Test([1, 2, 3])]
         models = [Model()]
         scores = np.array([ZScore(1.0)])
-        scoreArray = ScoreArray(tests)
+        ScoreArray(tests)
         scoreMatrix = ScoreMatrix(tests, models, scores)
         scoreMatrix = ScoreMatrix(tests, models, scores, transpose=True)
 
         tests = Test([1, 2, 3])
         models = Model()
-        scoreMatrix = ScoreMatrix(tests, models, scores)
+        ScoreMatrix(tests, models, scores)
 
     def test_score_matrix(self):
         t, t1, t2, m1, m2 = self.prep_models_and_tests()

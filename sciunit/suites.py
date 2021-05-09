@@ -8,7 +8,7 @@ from typing import List, Optional, Tuple, Union
 
 from sciunit.scores.collections import ScoreMatrix
 
-from .base import SciUnit, TestWeighted, log
+from .base import SciUnit, TestWeighted
 from .models import Model
 from .scores import NoneScore
 from .scores.collections import ScoreMatrix

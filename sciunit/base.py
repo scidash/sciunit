@@ -29,8 +29,6 @@ except:
 
 import bs4
 import git
-import numpy as np
-import pandas as pd
 from deepdiff import DeepDiff
 from git.cmd import Git
 from git.exc import GitCommandError, InvalidGitRepositoryError

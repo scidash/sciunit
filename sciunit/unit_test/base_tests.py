@@ -1,8 +1,5 @@
 import unittest
 
-import numpy as np
-import pandas as pd
-
 
 class BaseCase(unittest.TestCase):
     """Unit tests for config files"""
@@ -34,7 +31,7 @@ class BaseCase(unittest.TestCase):
         self.assertFalse("testState" in sciunitObj.__getstate__())
 
     def test_Versioned(self):
-        from git import Remote, Repo
+        from git import Repo
 
         from sciunit.base import Versioned
 

@@ -15,7 +15,6 @@ import warnings
 
 from .base import SciUnit, log, logger
 from .errors import CapabilityNotImplementedError
-from .utils import warn_with_traceback
 
 # from sciunit.models.examples import ConstModel, UniformModel
 
