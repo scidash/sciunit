@@ -32,7 +32,15 @@ from quantities.quantity import Quantity
 
 import sciunit
 
-from .base import PYTHON_MAJOR_VERSION, tkinter # noqa
+from .base import (  # noqa
+    PLATFORM,
+    PYTHON_MAJOR_VERSION,
+    SciUnit,
+    __version__,
+    config,
+    ipy,
+    tkinter,
+)
 
 mock = False  # mock is probably obviated by the unittest -b flag.
 
