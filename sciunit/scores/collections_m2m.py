@@ -4,6 +4,7 @@ import warnings
 from typing import Any, List, Tuple, Union
 
 import pandas as pd
+
 from sciunit.models import Model
 from sciunit.tests import Test
 

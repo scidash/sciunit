@@ -13,11 +13,10 @@ import re
 import sys
 import warnings
 
-# from sciunit.models.examples import ConstModel, UniformModel
-
 from .base import SciUnit, log, logger
 from .errors import CapabilityNotImplementedError
-from .utils import warn_with_traceback
+
+# from sciunit.models.examples import ConstModel, UniformModel
 
 
 class Capability(SciUnit):
@@ -105,12 +104,20 @@ class Capability(SciUnit):
             instance_capable = False
 
         if not class_capable:
-            log(("The Model class does not claim at least one Capability required by "
-                 "the Test class, so the Score is likely to be unavailable."))
+            log(
+                (
+                    "The Model class does not claim at least one Capability required by "
+                    "the Test class, so the Score is likely to be unavailable."
+                )
+            )
         elif not source_capable:
-            logger.warning(("The model class claimed to implement all methods required by "
-                            "the Test class, but at least one was left unimplemented, "
-                            "so this model will be skipped."))
+            logger.warning(
+                (
+                    "The model class claimed to implement all methods required by "
+                    "the Test class, but at least one was left unimplemented, "
+                    "so this model will be skipped."
+                )
+            )
 
         return class_capable and instance_capable and source_capable
 

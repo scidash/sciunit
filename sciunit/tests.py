@@ -1,10 +1,11 @@
 """SciUnit tests live in this module."""
 
-from copy import deepcopy
 import inspect
-import quantities as pq
 import traceback
+from copy import deepcopy
 from typing import Any, List, Optional, Tuple, Union
+
+import quantities as pq
 
 from .base import SciUnit, config
 from .capabilities import ProducesNumber
@@ -51,7 +52,7 @@ class Test(SciUnit):
         self.compute_params()
 
         self.observation = observation
-        
+
         # Fall back to the score class's observation_schema if the test class doesn't have one
         if self.observation_schema is None:
             self.observation_schema = deepcopy(self.score_type.observation_schema)
@@ -89,18 +90,18 @@ class Test(SciUnit):
     Can also be a list of schemas, one of which the observation must match.
     If it is a list, each schema in the list can optionally be named by putting
     (name, schema) tuples in that list."""
-    
+
     observation_validator = ObservationValidator
 
     params_schema = None
     """A schema that the params must adhere to (validated by cerberus).
     Can also be a list of schemas, one of which the params must match."""
-    
+
     params_validator = ParametersValidator
-    
+
     units = pq.Dimensionless
-    
-    state_hide = ['last_model']
+
+    state_hide = ["last_model"]
 
     def compute_params(self) -> None:
         """Compute new params from existing `self.params`.
@@ -109,7 +110,6 @@ class Test(SciUnit):
         Example: `self.params['c'] = self.params['a'] + self.params['b']`
 
         """
-        pass
 
     def validate_observation(self, observation: dict) -> dict:
         """Validate the observation provided to the constructor.
@@ -256,7 +256,6 @@ class Test(SciUnit):
         Args:
             model (Model): A sciunit model instance.
         """
-        pass
 
     def generate_prediction(self, model: Model) -> None:
         """Generate a prediction from a model using the required capabilities.
@@ -281,7 +280,6 @@ class Test(SciUnit):
         Args:
             prediction (float): The predicted value.
         """
-        pass
 
     def compute_score(self, observation: dict, prediction: dict) -> Score:
         """Generates a score given the observations provided in the constructor
@@ -360,7 +358,6 @@ class Test(SciUnit):
             observation (Union[list, dict]): The observation data.
             prediction (Union[list, dict]): The prediction data.
         """
-        pass
 
     def check_score_type(self, score: Score) -> None:
         """Check that the score is the correct type for this test.
@@ -378,7 +375,9 @@ class Test(SciUnit):
             ) % (self.name, self.score_type.__name__, score.__class__.__name__)
             raise InvalidScoreError(msg)
 
-    def _judge(self, model: Model, skip_incapable: bool = True, cached_prediction=False) -> Score:
+    def _judge(
+        self, model: Model, skip_incapable: bool = True, cached_prediction=False
+    ) -> Score:
         """Generate a score for the model (internal API use only).
 
         Args:
@@ -417,10 +416,9 @@ class Test(SciUnit):
 
         # 6.
         self._bind_score(score, model, self.observation, prediction)
-        
+
         return score
-    
-    
+
     def feature_judge(
         self,
         model: Model,
@@ -429,9 +427,13 @@ class Test(SciUnit):
         deep_error: bool = False,
     ) -> Score:
         """For backwards compatibility"""
-        return self.judge(model, skip_incapable=skip_incapable, stop_on_error=stop_on_error,
-                          deep_error=deep_error, cached_prediction=True)
-
+        return self.judge(
+            model,
+            skip_incapable=skip_incapable,
+            stop_on_error=stop_on_error,
+            deep_error=deep_error,
+            cached_prediction=True,
+        )
 
     def judge(
         self,
@@ -439,7 +441,7 @@ class Test(SciUnit):
         skip_incapable: bool = False,
         stop_on_error: bool = True,
         deep_error: bool = False,
-        cached_prediction: bool = False
+        cached_prediction: bool = False,
     ) -> Score:
         """Generate a score for the provided model (public method).
 
@@ -491,12 +493,18 @@ class Test(SciUnit):
             )
 
         if deep_error:
-            score = self._judge(model, skip_incapable=skip_incapable,
-                                cached_prediction=cached_prediction)
+            score = self._judge(
+                model,
+                skip_incapable=skip_incapable,
+                cached_prediction=cached_prediction,
+            )
         else:
             try:
-                score = self._judge(model, skip_incapable=skip_incapable,
-                                    cached_prediction=cached_prediction)
+                score = self._judge(
+                    model,
+                    skip_incapable=skip_incapable,
+                    cached_prediction=cached_prediction,
+                )
             except CapabilityError as e:
                 score = NAScore(str(e))
                 score.model = model
@@ -631,7 +639,6 @@ class TestM2M(Test):
         Args:
             observation (dict): The observation to be validated.
         """
-        pass
 
     def compute_score(self, prediction1: dict, prediction2: dict) -> Score:
         """Generate a score given the observations provided in the constructor
@@ -712,7 +719,6 @@ class TestM2M(Test):
             model1 (Model): The first model.
             model2 (Model): The second model.
         """
-        pass
 
     def _judge(
         self, prediction1, prediction2, model1: Model, model2: Model = None

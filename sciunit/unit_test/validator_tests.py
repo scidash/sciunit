@@ -2,7 +2,6 @@ import unittest
 
 import quantities as pq
 
-from sciunit import config
 
 class ValidatorTestCase(unittest.TestCase):
     def test_register(self):
@@ -13,6 +12,7 @@ class ValidatorTestCase(unittest.TestCase):
                 return self.intValue
 
         from cerberus import TypeDefinition, Validator
+
         from sciunit.validators import register_quantity, register_type
 
         register_type(TestClass, "TestType1")
@@ -34,7 +34,7 @@ class ValidatorTestCase(unittest.TestCase):
         q = pq.Quantity([1, 2, 3], "ft")
         units = q.simplified.units
         units.name = "UnitName"
-        
+
         testObj = Test({})
         testObj.units = units
         testObj.observation = long_test_list

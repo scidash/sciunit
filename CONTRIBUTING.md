@@ -20,3 +20,6 @@ and ensure that each commit contains code addressing only one development goal.
 
 Writing unit tests to cover new code is encouraged but not required.
 Your changes can be tested using the current set of units tests by executing `test.sh` in the root directory.
+
+The python packages `isort`, `black`, and `autoflake` are being used with the `pre-commit` framework to auto-format code.
+If you install `pre-commit`, you can run `pre-commit run --all-files` before a pull request or commit in your shell to apply this formatting yourself.

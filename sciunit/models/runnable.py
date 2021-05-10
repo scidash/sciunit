@@ -112,7 +112,6 @@ class RunnableModel(Model, cap.Runnable):
 
         Raise a sciunit.BadParameterValueError if any of them are not.
         """
-        pass
 
     def reset_run_params(self) -> None:
         self.run_params = {}

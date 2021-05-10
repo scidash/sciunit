@@ -8,7 +8,7 @@ from typing import List, Optional, Tuple, Union
 
 from sciunit.scores.collections import ScoreMatrix
 
-from .base import SciUnit, TestWeighted, log
+from .base import SciUnit, TestWeighted
 from .models import Model
 from .scores import NoneScore
 from .scores.collections import ScoreMatrix
@@ -267,10 +267,10 @@ class TestSuite(SciUnit, TestWeighted):
         if self.is_skipped(model):
             score = NoneScore(None)
         else:
-            #log(
+            # log(
             #    "Executing test <i>%s</i> on model <i>%s</i>" % (test, model),
             #    end=u"... ",
-            #)
+            # )
             score = test.judge(
                 model,
                 skip_incapable=skip_incapable,
@@ -278,10 +278,10 @@ class TestSuite(SciUnit, TestWeighted):
                 deep_error=deep_error,
             )
             score.log()
-            #log(
+            # log(
             #    'Score is <a style="color: rgb(%d,%d,%d)">' % score.color()
             #    + "%s</a>" % score
-            #)
+            # )
         sm.loc[model, test] = score
         return score
 
