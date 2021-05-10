@@ -10,8 +10,6 @@ class ConfigTestCase(unittest.TestCase):
     """Unit tests for config files"""
 
     def test_new_config(self):
-        pass
-
         sciunit.config.create()
 
         self.assertTrue(sciunit.config.path.is_file())
