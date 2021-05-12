@@ -9,7 +9,6 @@ from typing import Tuple, Union
 
 import numpy as np
 from quantities import Quantity
-from sty import bg, fg
 
 from sciunit.base import SciUnit, config, ipy, log
 from sciunit.errors import InvalidScoreError
@@ -359,6 +358,14 @@ class Score(SciUnit):
             result = self.score <= other
         return result
 
+    def render_beautiful_msg(self, color: tuple, bg_brightness: int, msg: str):
+        result = ""
+        result += f"\x1b[38;2;{color[0]};{color[1]};{color[2]}m"
+        result += f"\x1b[48;2;{bg_brightness};{bg_brightness};{bg_brightness}m"
+        result += msg
+        result += "\x1b[0m"
+        return result
+
     def log(self, **kwargs):
         if self.norm_score is not None:
             level = 100 - math.floor(self.norm_score * 99)
@@ -372,13 +379,7 @@ class Score(SciUnit):
         msg = "Score: %s for %s on %s" % (self, self.model, self.test)
         color = self.color()
         bg_brightness = config.get("score_bg_brightness", 50)
-        msg = (
-            fg(*color)
-            + bg(bg_brightness, bg_brightness, bg_brightness)
-            + msg
-            + bg.rs
-            + fg.rs
-        )
+        msg = self.render_beautiful_msg(color, bg_brightness, msg)
         score_logger.log(level, msg, **kwargs)
 
     @property
