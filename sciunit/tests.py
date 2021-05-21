@@ -99,7 +99,7 @@ class Test(SciUnit):
 
     params_validator = ParametersValidator
 
-    units = pq.Dimensionless
+    units = pq.dimensionless
 
     state_hide = ["last_model"]
 
