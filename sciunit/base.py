@@ -15,6 +15,8 @@ from pathlib import Path
 from typing import Any, List
 
 import jsonpickle
+import jsonpickle.ext.numpy as jsonpickle_numpy
+from jsonpickle.handlers import BaseHandler
 
 try:
     import tkinter
@@ -381,18 +383,23 @@ class SciUnit(Versioned):
         """
 
         self.add_props = add_props
-        str_result = jsonpickle.encode(self)
+        
+        # Register serialization handlers
+        jsonpickle_numpy.register_handlers()
+        jsonpickle.handlers.register(pq.Quantity, handler=QuantitiesHandler)
+        jsonpickle.handlers.register(pq.UnitQuantity, handler=UnitQuantitiesHandler)
+        
+        str_result = jsonpickle.encode(self, make_refs=False, unpicklable=False)
         result = json.loads(str_result)
 
         def do_simplify(d):
-            """Set all 'py/state' key:value pairs to their value"""
+            """Set all 'py/' key:value pairs to their value"""
+
             if isinstance(d, dict):
-                if "py/state" in d:
-                    d = d["py/state"]
-                elif "py/type" in d:
-                    d = d["py/type"]
-                elif "py/tuple" in d:
-                    d = d["py/tuple"]
+                for key in d:
+                    if 'py/' in key:
+                        d = d[key]
+                        break        
             if isinstance(d, dict):
                 for k, v in d.items():
                     d[k] = do_simplify(v)
@@ -528,3 +535,38 @@ def log(*args, **kwargs):
 
 def strip_html(html):
     return html if isinstance(html, Exception) else bs4.BeautifulSoup(html, "lxml").text
+
+
+class QuantitiesHandler(BaseHandler):
+    def flatten(self, obj, data):
+        """This methods flattens all quantities into a base and units"""
+        result = {'base': str(obj.base.tolist()),
+                  'units': str(obj._dimensionality)}
+        if self.context.unpicklable:
+            data['py/quantity'] = result
+        else:
+            data = result
+        return data
+    
+    def restore(self, data):
+        """If jsonpickle.encode() is called with unpicklable=True then
+        this method is used by jsonpickle.decode() to unserialize."""
+        obj = data['py/quantity']
+        base = np.array(obj['base'], dtype=np.float64)
+        units = obj['units']
+        return pq.Quantity(base, units)
+    
+class UnitQuantitiesHandler(BaseHandler):
+    """Same as above but for unit quantities e.g. Test.units"""
+    def flatten(self, obj, data):
+        result = str(obj._dimensionality)
+        if self.context.unpicklable:
+            data['py/unitquantity'] = result
+        else:
+            data = result
+        return data
+    
+    def restore(self, data):
+        units = data['py/unitquantity']
+        return pq.unit_registry[units]
+        
