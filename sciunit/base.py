@@ -14,10 +14,6 @@ import logging
 from pathlib import Path
 from typing import Any, List
 
-import jsonpickle
-import jsonpickle.ext.numpy as jsonpickle_numpy
-from jsonpickle.handlers import BaseHandler
-
 try:
     import tkinter
 except ImportError:
@@ -36,6 +32,10 @@ from git.cmd import Git
 from git.exc import GitCommandError, InvalidGitRepositoryError
 from git.remote import Remote
 from git.repo.base import Repo
+import jsonpickle
+import jsonpickle.ext.numpy as jsonpickle_numpy
+from jsonpickle.handlers import BaseHandler
+import quantities as pq
 
 ipy = "ipykernel" in sys.modules
 here = Path(__file__).resolve().parent.name
