@@ -145,34 +145,34 @@ class Score(SciUnit):
         return self.score
 
     @property
-    def log_norm_score(self) -> np.ndarray:
+    def log_norm_score(self) -> float:
         """The natural logarithm of the `norm_score`.
         This is useful for guaranteeing convexity in an error surface.
 
         Returns:
-            np.ndarray: The natural logarithm of the `norm_score`.
+            float: The natural logarithm of the `norm_score`.
         """
-        return np.log(self.norm_score) if self.norm_score is not None else None
+        return math.log(self.norm_score) if self.norm_score is not None else None
 
     @property
-    def log2_norm_score(self) -> np.ndarray:
+    def log2_norm_score(self) -> float:
         """The logarithm base 2 of the `norm_score`.
         This is useful for guaranteeing convexity in an error surface.
 
         Returns:
-            np.ndarray: The logarithm base 2 of the `norm_score`.
+            float: The logarithm base 2 of the `norm_score`.
         """
-        return np.log2(self.norm_score) if self.norm_score is not None else None
+        return math.log2(self.norm_score) if self.norm_score is not None else None
 
     @property
-    def log10_norm_score(self) -> np.ndarray:
+    def log10_norm_score(self) -> float:
         """The logarithm base 10 of the `norm_score`.
         This is useful for guaranteeing convexity in an error surface.
 
         Returns:
-            np.ndarray: The logarithm base 10 of the `norm_score`.
+            float: The logarithm base 10 of the `norm_score`.
         """
-        return np.log10(self.norm_score) if self.norm_score is not None else None
+        return math.log10(self.norm_score) if self.norm_score is not None else None
 
     def color(self, value: Union[float, "Score"] = None) -> tuple:
         """Turn the score into an RGB color tuple of three 8-bit integers.
