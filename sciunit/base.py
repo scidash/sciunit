@@ -362,7 +362,7 @@ class SciUnit(Versioned):
         return self._properties()
 
     def json(
-        self, add_props: bool = False, string: bool = True, simplify: bool = True
+        self, add_props: bool = False, string: bool = True, unpicklable=False, simplify: bool = True
     ) -> str:
         """Generate a Json format encoded sciunit instance.
 
@@ -371,6 +371,7 @@ class SciUnit(Versioned):
             keys (list, optional): Only the keys in `keys` will be included in the json content. Defaults to None.
             exclude (list, optional): The keys in `exclude` will be excluded from the json content. Defaults to None.
             string (bool, optional): The json content will be `str` type if True, `dict` type otherwise. Defaults to True.
+            unpicklable (bool, optional): Whether to make certain components unpicklable or not. Default to False.
             indent (None, optional): If indent is a non-negative integer or string, then JSON array elements and object members
                                     will be pretty-printed with that indent level. An indent level of 0, negative, or "" will only
                                     insert newlines. None (the default) selects the most compact representation. Using a positive integer
@@ -389,7 +390,7 @@ class SciUnit(Versioned):
         jsonpickle.handlers.register(pq.Quantity, handler=QuantitiesHandler)
         jsonpickle.handlers.register(pq.UnitQuantity, handler=UnitQuantitiesHandler)
         
-        str_result = jsonpickle.encode(self, make_refs=False, unpicklable=False)
+        str_result = jsonpickle.encode(self, make_refs=False, unpicklable=unpicklable)
         result = json.loads(str_result)
 
         def do_simplify(d):
