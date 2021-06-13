@@ -35,6 +35,7 @@ from git.repo.base import Repo
 import jsonpickle
 import jsonpickle.ext.numpy as jsonpickle_numpy
 from jsonpickle.handlers import BaseHandler
+import numpy as np
 import quantities as pq
 
 ipy = "ipykernel" in sys.modules
@@ -270,11 +271,9 @@ class SciUnit(Versioned):
 
     def __init__(self):
         """Instantiate a SciUnit object."""
-        self.unpicklable = []
-
+        pass
+    
     #: A list of attributes that cannot or should not be pickled.
-    unpicklable = []
-
     #: A URL where the code for this object can be found.
     _url = None
 
@@ -283,7 +282,7 @@ class SciUnit(Versioned):
 
     #: A class attribute containing a list of other attributes to be hidden
     # from state calculations
-    state_hide = []
+    state_hide = ['hash', 'pickling', 'temp_dir']
 
     def __getstate__(self) -> dict:
         """Copy the object's state from self.__dict__.
@@ -294,21 +293,18 @@ class SciUnit(Versioned):
         Returns:
             dict: The state of this instance.
         """
-        state = inspect.getmembers(self)
-        hide = list(self.get_list_attr_with_bases("state_hide"))
-        hide += [key for key, val in state if key.startswith("__")]
-        hide += [key for key, val in state if inspect.ismethod(val)]
-        hide += ["state_hide"]
-        state = {key: val for key, val in state if key not in hide}
-        if getattr(self, "add_props", False):
-            state.update(self.properties)
-        if "properties" in state:
-            state["properties"] = {
-                key: val for key, val in state["properties"].items() if key not in hide
-            }
+        state = self.__dict__
+        state = dict(inspect.getmembers(self))
+        
+        state_hide = list(self.get_list_attr_with_bases("state_hide"))
+        state_hide += ['state_hide']
+        state = {k: v for k, v in state.items()
+                 if k not in state_hide
+                 and not k.startswith("_")
+                 and not inspect.ismethod(v)}
         return state
 
-    def _properties(self, keys: list = None, exclude: list = None) -> dict:
+    def properties(self, keys: list = None, exclude: list = None) -> dict:
         """Get the properties of the instance.
 
         Args:
@@ -319,29 +315,35 @@ class SciUnit(Versioned):
         Returns:
             dict: The dict of properties of the instance.
         """
-        result = {}
-        props = self.raw_props()
         exclude = exclude if exclude else []
         exclude += ["state", "id"]
-        for prop in set(props).difference(exclude):
-            if prop == "properties":
-                pass  # Avoid infinite recursion
-            elif not keys or prop in keys:
-                result[prop] = getattr(self, prop)
+        props = set(self.property_names())
+        props -= set(exclude)
+        if keys:
+            props &= set(keys)
+        result = {prop: getattr(self, prop) for prop in props}
+        
         return result
 
-    def raw_props(self) -> list:
+    def property_names(self) -> list:
         """Get the raw properties of the instance.
 
         Returns:
             list: The list of raw properties.
         """
-        class_attrs = dir(self.__class__)
-        return [
-            p
-            for p in class_attrs
-            if isinstance(getattr(self.__class__, p, None), property)
-        ]
+        sciunit_props = set()
+        other_props = set()
+        bases = list(self.__class__.__bases__)
+        bases.append(self.__class__)
+        for base in bases:
+            class_attrs = dir(base)
+            class_props = set([p for p in class_attrs if isinstance(getattr(base, p, None), property)])
+            if issubclass(base, SciUnit):   
+                sciunit_props |= class_props
+            else:
+                other_props |= class_props
+        state_hide = set(self.get_list_attr_with_bases("state_hide"))
+        return list(sciunit_props - other_props - state_hide)
 
     # @property
     # def state(self) -> dict:
@@ -352,80 +354,32 @@ class SciUnit(Versioned):
     #    """
     #    return self._state()
 
-    @property
-    def properties(self) -> dict:
-        """Get the properties of the instance.
-
-        Returns:
-            dict: The properties of the instance.
-        """
-        return self._properties()
-
     def json(
-        self, add_props: bool = False, string: bool = True, simplify: bool = True
-    ) -> str:
+        self, add_props: bool = None, string: bool = None, unpicklable: bool = None, make_refs: bool = None) -> str:
         """Generate a Json format encoded sciunit instance.
 
         Args:
             add_props (bool, optional): Whether to add additional properties of the object to the serialization. Defaults to False.
-            keys (list, optional): Only the keys in `keys` will be included in the json content. Defaults to None.
-            exclude (list, optional): The keys in `exclude` will be excluded from the json content. Defaults to None.
             string (bool, optional): The json content will be `str` type if True, `dict` type otherwise. Defaults to True.
-            indent (None, optional): If indent is a non-negative integer or string, then JSON array elements and object members
-                                    will be pretty-printed with that indent level. An indent level of 0, negative, or "" will only
-                                    insert newlines. None (the default) selects the most compact representation. Using a positive integer
-                                    indent indents that many spaces per level. If indent is a string (such as "\t"), that string is
-                                    used to indent each level (source: https://docs.python.org/3/library/json.html#json.dump).
-                                    Defaults to None.
 
         Returns:
             str: The Json format encoded sciunit instance.
         """
-
-        self.add_props = add_props
         
-        # Register serialization handlers
-        jsonpickle_numpy.register_handlers()
-        jsonpickle.handlers.register(pq.Quantity, handler=QuantitiesHandler)
-        jsonpickle.handlers.register(pq.UnitQuantity, handler=UnitQuantitiesHandler)
+        # Possible set jsonpickle handler options
+        # This will also apply recursively to all nested objects
+        for k, v in locals().items():
+            if k != 'self':
+                if v is not None:
+                    setattr(SciUnitHandler, k, v)
         
-        str_result = jsonpickle.encode(self, make_refs=False, unpicklable=False)
-        result = json.loads(str_result)
+        # Do the encoding
+        result = jsonpickle.encode(self)
 
-        def do_simplify(d):
-            """Set all 'py/' key:value pairs to their value"""
-
-            if isinstance(d, dict):
-                for key in d:
-                    if 'py/' in key:
-                        d = d[key]
-                        break        
-            if isinstance(d, dict):
-                for k, v in d.items():
-                    d[k] = do_simplify(v)
-            elif isinstance(d, list):
-                for i, x in enumerate(d):
-                    d[i] = do_simplify(x)
-            return d
-
-        def add_hash(d):
-            """Set all dicts with an '_id' key to have a hash as well"""
-            if isinstance(d, dict):
-                if "_id" in d:
-                    d["hash"] = self.hash(serialization=json.dumps(d))
-                for k, v in d.items():
-                    d[k] = add_hash(v)
-            elif isinstance(d, list):
-                for i, x in enumerate(d):
-                    d[i] = add_hash(x)
-            return d
-
-        if simplify:
-            result = do_simplify(result)
-        result = add_hash(result)
-
-        if string:
-            result = json.dumps(result)
+        # Possibly convert back to dict
+        if not string:
+            result = json.loads(result)
+        
         return result
 
     def diff(self, other, add_props=False):
@@ -441,12 +395,12 @@ class SciUnit(Versioned):
             str: The unique numeric identifier of the current model state.
         """
         if serialization is None:
-            serialization = jsonpickle.encode(self)
+            serialization = json.dumps(self.json())
         return hashlib.sha224(serialization.encode("latin1")).hexdigest()
 
-    @property
-    def _id(self) -> Any:
-        return id(self)
+    #@property
+    #def _id(self) -> Any:
+    #    return id(self)
 
     @property
     def _class(self) -> dict:
@@ -456,9 +410,9 @@ class SciUnit(Versioned):
 
         return {"name": self.__class__.__name__, "import_path": import_path, "url": url}
 
-    @property
-    def id(self) -> str:
-        return str(self.json)
+    #@property
+    #def id(self) -> str:
+    #    return str(self.json)
 
     @property
     def url(self) -> str:
@@ -537,13 +491,63 @@ def strip_html(html):
     return html if isinstance(html, Exception) else bs4.BeautifulSoup(html, "lxml").text
 
 
+class SciUnitHandler(BaseHandler):
+    """jsonpickle handler for SciUnit objects"""
+
+    add_props = True
+    make_refs = False
+    unpicklable = False
+    string = True
+    
+    def flatten(self, obj, data):
+        """Flatten SciUnit objects"""
+        state = obj.__getstate__()
+        if self.add_props:
+            state.update(obj.properties())
+        result = self.context.flatten(state)
+        #result = jsonpickle.encode(state, make_refs=self.make_refs,
+                                   #unpicklable=self.unpicklable)
+        if self.unpicklable:
+            data['py/object'] = obj.__class__.__name__
+            data['py/state'] = result
+        else:
+            data = self.simplify(result)    
+        data['hash'] = obj.hash(serialization=json.dumps(data))
+        return data
+
+    def restore(self, data):
+        return NotImplemented
+    
+    def simplify(self, d):
+        """Set all 'py/' key:value pairs to their value"""
+
+        if isinstance(d, dict):
+            try:
+                del d['py/object']
+            except:
+                pass
+            for key in d:
+                if key == 'py/object':
+                    del d[key]
+                elif 'py/' in key:
+                    d = d[key]
+                    break        
+        if isinstance(d, dict):
+            for k, v in d.items():
+                d[k] = self.simplify(v)
+        elif isinstance(d, list):
+            for i, x in enumerate(d):
+                d[i] = self.simplify(x)
+        return d
+
+
 class QuantitiesHandler(BaseHandler):
     def flatten(self, obj, data):
         """This methods flattens all quantities into a base and units"""
         result = {'base': str(obj.base.tolist()),
                   'units': str(obj._dimensionality)}
         if self.context.unpicklable:
-            data['py/quantity'] = result
+            data['py/state'] = result
         else:
             data = result
         return data
@@ -551,22 +555,35 @@ class QuantitiesHandler(BaseHandler):
     def restore(self, data):
         """If jsonpickle.encode() is called with unpicklable=True then
         this method is used by jsonpickle.decode() to unserialize."""
-        obj = data['py/quantity']
+        try:
+            obj = data['py/state']
+        except KeyError:
+            obj = data
         base = np.array(obj['base'], dtype=np.float64)
         units = obj['units']
         return pq.Quantity(base, units)
-    
+
+
 class UnitQuantitiesHandler(BaseHandler):
     """Same as above but for unit quantities e.g. Test.units"""
     def flatten(self, obj, data):
         result = str(obj._dimensionality)
         if self.context.unpicklable:
-            data['py/unitquantity'] = result
+            data['py/state'] = result
         else:
             data = result
         return data
     
     def restore(self, data):
-        units = data['py/unitquantity']
+        try:
+            units = data['py/state']
+        except KeyError:
+            units = data
         return pq.unit_registry[units]
-        
+
+
+# Register serialization handlers
+jsonpickle.handlers.register(SciUnit, handler=SciUnitHandler, base=True)
+jsonpickle.handlers.register(pq.Quantity, handler=QuantitiesHandler)
+jsonpickle.handlers.register(pq.UnitQuantity, handler=UnitQuantitiesHandler)
+jsonpickle_numpy.register_handlers()
