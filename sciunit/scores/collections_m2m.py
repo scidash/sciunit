@@ -5,11 +5,12 @@ from typing import Any, List, Tuple, Union
 
 import pandas as pd
 
+from sciunit.base import SciUnit
 from sciunit.models import Model
 from sciunit.tests import Test
 
 
-class ScoreArrayM2M(pd.Series):
+class ScoreArrayM2M(pd.Series, SciUnit):
     """
     Represents an array of scores derived from TestM2M.
     Extends the pandas Series such that items are either
@@ -24,6 +25,8 @@ class ScoreArrayM2M(pd.Series):
     ):
         items = models if not test.observation else [test] + models
         super(ScoreArrayM2M, self).__init__(data=scores, index=items)
+        
+    state_hide = ['related_data', 'scores', 'norm_scores', 'style', 'plot', 'iat', 'at', 'iloc', 'loc', 'T']
 
     def __getitem__(self, item: Union[str, callable]) -> Any:
         if isinstance(item, str):
@@ -68,7 +71,7 @@ class ScoreArrayM2M(pd.Series):
         return self.map(lambda x: x.norm_score)
 
 
-class ScoreMatrixM2M(pd.DataFrame):
+class ScoreMatrixM2M(pd.DataFrame, SciUnit):
     """
     Represents a matrix of scores derived from TestM2M.
     Extends the pandas DataFrame such that models/observation are both
@@ -93,6 +96,8 @@ class ScoreMatrixM2M(pd.DataFrame):
             )
             self.test = test
             self.models = models
+            
+    state_hide = ['related_data', 'scores', 'norm_scores', 'style', 'plot', 'iat', 'at', 'iloc', 'loc', 'T']
 
     def __getitem__(
         self, item: Union[Tuple[Test, Model], str, Tuple[list, tuple]]

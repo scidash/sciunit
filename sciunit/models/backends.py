@@ -59,7 +59,7 @@ class Backend(SciUnit):
     #: Optional list of state variables for a backend to record.
     recorded_variables = None
 
-    state_hide = ["memory_cache", "_results", "stdout", "exec_in_dir"]
+    state_hide = ["memory_cache", "_results", "stdout", "exec_in_dir", "model"]
 
     def init_cache(self) -> None:
         """Initialize the cache."""
