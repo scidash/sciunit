@@ -293,7 +293,6 @@ class SciUnit(Versioned):
         Returns:
             dict: The state of this instance.
         """
-        state = self.__dict__
         state = dict(inspect.getmembers(self))
         
         state_hide = list(self.get_list_attr_with_bases("state_hide"))
@@ -398,10 +397,6 @@ class SciUnit(Versioned):
             serialization = json.dumps(self.json())
         return hashlib.sha224(serialization.encode("latin1")).hexdigest()
 
-    #@property
-    #def _id(self) -> Any:
-    #    return id(self)
-
     @property
     def _class(self) -> dict:
         url = "" if self.url is None else self.url
@@ -409,10 +404,6 @@ class SciUnit(Versioned):
         import_path = "{}.{}".format(self.__class__.__module__, self.__class__.__name__)
 
         return {"name": self.__class__.__name__, "import_path": import_path, "url": url}
-
-    #@property
-    #def id(self) -> str:
-    #    return str(self.json)
 
     @property
     def url(self) -> str:
@@ -505,8 +496,7 @@ class SciUnitHandler(BaseHandler):
         if self.add_props:
             state.update(obj.properties())
         result = self.context.flatten(state)
-        #result = jsonpickle.encode(state, make_refs=self.make_refs,
-                                   #unpicklable=self.unpicklable)
+        
         if self.unpicklable:
             data['py/object'] = obj.__class__.__name__
             data['py/state'] = result
