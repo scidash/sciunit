@@ -45,8 +45,8 @@ class ScoreArray(pd.Series, SciUnit, TestWeighted):
         self.index_type = "tests" if isinstance(tests_or_models[0], Test) else "models"
         setattr(self, self.index_type, tests_or_models)
 
-    direct_attrs = ["score", "norm_scores", "related_data"]
-
+    state_hide = ['related_data', 'scores', 'norm_scores', 'style', 'plot', 'iat', 'at', 'iloc', 'loc', 'T']
+    
     def check_tests_and_models(
         self, tests_or_models: Union[Test, Model]
     ) -> Union[Test, Model]:
@@ -90,7 +90,19 @@ class ScoreArray(pd.Series, SciUnit, TestWeighted):
         return attr
 
     @property
-    def norm_scores(self) -> float:
+    def related_data(self) -> pd.Series:
+        return self.map(lambda x: x.related_data)
+    
+    @property
+    def scores_flat(self) -> list:
+        return self.values.tolist()
+    
+    @property
+    def scores(self) -> pd.Series:
+        return self.map(lambda x: x.score)
+    
+    @property
+    def norm_scores(self) -> pd.Series:
         """Return the `norm_score` for each test.
 
         Returns:
@@ -121,6 +133,9 @@ class ScoreArray(pd.Series, SciUnit, TestWeighted):
             int: The rank of the model or test instance.
         """
         return self.norm_scores.rank(ascending=False)[test_or_model]
+    
+    def __getstate__(self):
+        return SciUnit.__getstate__(self)
 
 
 class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
@@ -169,8 +184,8 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
     show_mean = False
     sortable = False
     colorize = True
-    direct_attrs = ["score", "norm_scores", "related_data"]
-
+    state_hide = ['related_data', 'scores', 'norm_scores', 'style', 'plot', 'iat', 'at', 'iloc', 'loc', 'T']
+    
     def check_tests_models_scores(
         self,
         tests: Union[Test, List[Test]],
@@ -275,12 +290,24 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
                 return self.__getitem__(test)
         raise KeyError("No model or test with name '%s'" % name)
 
-    def __getattr__(self, name):
-        if name in self.direct_attrs:
-            attr = self.applymap(lambda x: getattr(x, name))
-        else:
-            attr = super(ScoreMatrix, self).__getattribute__(name)
-        return attr
+    #def __getattr__(self, name):
+    #    if name in self.direct_attrs:
+    #        attr = self.applymap(lambda x: getattr(x, name))
+    #    else:
+    #       attr = super(ScoreMatrix, self).__getattribute__(name)
+    #    return attr
+    
+    @property
+    def related_data(self) -> pd.DataFrame:
+        return self.applymap(lambda x: x.related_data)
+    
+    @property
+    def scores_flat(self) -> list:
+        return self.values.tolist()
+    
+    @property
+    def scores(self) -> pd.DataFrame:
+        return self.applymap(lambda x: x.score)
 
     @property
     def norm_scores(self) -> pd.DataFrame:
@@ -499,3 +526,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             css=["%s/css/jquery.dataTables.css" % prefix],
         )
         display(js)
+        
+    def __getstate__(self):
+        return SciUnit.__getstate__(self)
+
