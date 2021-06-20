@@ -1,0 +1,429 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>5. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests. &#8212; SciUnit: A python library for data-driven model validation testing</title>
+    
+  <link href="_static/css/theme.css" rel="stylesheet" />
+  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://unpkg.com/thebelab@latest/lib/index.js"></script>
+    <script >
+        const thebe_selector = ".thebe"
+        const thebe_selector_input = "pre"
+        const thebe_selector_output = ".output"
+    </script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="7. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests." href="chapter4.html" />
+    <link rel="prev" title="3. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests." href="chapter2.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+      
+      <h1 class="site-logo" id="site-title">SciUnit: A python library for data-driven model validation testing</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="README.html">
+   New to SciUnit?
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Tutorial
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="chapter1.html">
+   1. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="chapter2.html">
+   3. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   5. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="chapter4.html">
+   7. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="chapter5.html">
+   9. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="chapter6.html">
+   11. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Full Docs
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference external" href="https://sciunit.rtfd.io">
+   https://sciunit.rtfd.io
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/chapter3.ipynb"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Launch interactive content"><i class="fas fa-rocket"></i></button>
+    <div class="dropdown-buttons">
+        
+        <a class="binder-button" href="https://mybinder.org/v2/gh/executablebooks/jupyter-book/master?urlpath=tree/chapter3.ipynb"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Launch Binder" data-toggle="tooltip"
+                data-placement="left"><img class="binder-button-logo"
+                    src="_static/images/logo_binder.svg"
+                    alt="Interact on binder">Binder</button></a>
+        
+        
+        
+        
+    </div>
+</div>
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   5. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#chapter-3-testing-with-help-from-the-sciunit-standard-library">
+   6. Chapter 3. Testing with help from the SciUnit standard library
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
+     6.1. If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#in-this-chapter-we-will-use-the-same-toy-model-in-chapter-1-but-write-a-more-interesting-test-with-additional-features-included-in-sciunit">
+     6.2. In this chapter we will use the same toy model in Chapter 1 but write a more interesting test with additional features included in SciUnit.
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <p><img alt="SciUnit Logo" src="https://raw.githubusercontent.com/scidash/assets/master/logos/SciUnit/sci-unit-tag.png" /></p>
+<div class="section" id="sciunit-is-a-framework-for-validating-scientific-models-by-creating-experimental-data-driven-unit-tests">
+<h1><span class="section-number">5. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.<a class="headerlink" href="#sciunit-is-a-framework-for-validating-scientific-models-by-creating-experimental-data-driven-unit-tests" title="Permalink to this headline">¶</a></h1>
+<p><a href="https://colab.research.google.com/github/scidash/sciunit/blob/master/docs/chapter3.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a></p>
+</div>
+<div class="section" id="chapter-3-testing-with-help-from-the-sciunit-standard-library">
+<h1><span class="section-number">6. </span>Chapter 3. Testing with help from the SciUnit standard library<a class="headerlink" href="#chapter-3-testing-with-help-from-the-sciunit-standard-library" title="Permalink to this headline">¶</a></h1>
+<p>(or <a class="reference internal" href="chapter2.html"><span class="doc std std-doc">back to Chapter 2</span></a>)</p>
+<div class="section" id="if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
+<h2><span class="section-number">6.1. </span>If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.<a class="headerlink" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment" title="Permalink to this headline">¶</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install -q sciunit
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sciunit</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="in-this-chapter-we-will-use-the-same-toy-model-in-chapter-1-but-write-a-more-interesting-test-with-additional-features-included-in-sciunit">
+<h2><span class="section-number">6.2. </span>In this chapter we will use the same toy model in Chapter 1 but write a more interesting test with additional features included in SciUnit.<a class="headerlink" href="#in-this-chapter-we-will-use-the-same-toy-model-in-chapter-1-but-write-a-more-interesting-test-with-additional-features-included-in-sciunit" title="Permalink to this headline">¶</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sciunit.models.examples</span> <span class="kn">import</span> <span class="n">ConstModel</span> <span class="c1"># One of many dummy models included for illustration.  </span>
+<span class="n">const_model_37</span> <span class="o">=</span> <span class="n">ConstModel</span><span class="p">(</span><span class="mi">37</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Constant Model 37&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now let’s write a test that validates the <code class="docutils literal notranslate"><span class="pre">observation</span></code> and returns more informative <code class="docutils literal notranslate"><span class="pre">score</span></code> type.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sciunit.capabilities</span> <span class="kn">import</span> <span class="n">ProducesNumber</span>
+<span class="kn">from</span> <span class="nn">sciunit.scores</span> <span class="kn">import</span> <span class="n">ZScore</span> <span class="c1"># One of many SciUnit score types.  </span>
+<span class="kn">from</span> <span class="nn">sciunit.errors</span> <span class="kn">import</span> <span class="n">ObservationError</span> <span class="c1"># An exception class raised when a test is instantiated </span>
+                                     <span class="c1"># with an invalid observation.</span>
+    
+<span class="k">class</span> <span class="nc">MeanTest</span><span class="p">(</span><span class="n">sciunit</span><span class="o">.</span><span class="n">Test</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tests if the model predicts </span>
+<span class="sd">    the same number as the observation.&quot;&quot;&quot;</span>   
+    
+    <span class="n">required_capabilities</span> <span class="o">=</span> <span class="p">(</span><span class="n">ProducesNumber</span><span class="p">,)</span> <span class="c1"># The one capability required for a model to take this test.  </span>
+    <span class="n">score_type</span> <span class="o">=</span> <span class="n">ZScore</span> <span class="c1"># This test&#39;s &#39;judge&#39; method will return a BooleanScore.  </span>
+    
+    <span class="k">def</span> <span class="nf">validate_observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ObservationError</span><span class="p">(</span><span class="s2">&quot;Observation must be a python dictionary&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;mean&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">observation</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ObservationError</span><span class="p">(</span><span class="s2">&quot;Observation must contain a &#39;mean&#39; entry&quot;</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">generate_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">produce_number</span><span class="p">()</span> <span class="c1"># The model has this method if it inherits from the &#39;ProducesNumber&#39; capability.</span>
+    
+    <span class="k">def</span> <span class="nf">compute_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">,</span> <span class="n">prediction</span><span class="p">):</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">ZScore</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span><span class="n">prediction</span><span class="p">)</span> <span class="c1"># Compute and return a ZScore object.  </span>
+        <span class="n">score</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;A z-score corresponding to the normalized location of the observation &quot;</span>
+                             <span class="s2">&quot;relative to the predicted distribution.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">score</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We’ve done two new things here:</p>
+<ul class="simple">
+<li><p>The optional <code class="docutils literal notranslate"><span class="pre">validate_observation</span></code> method checks the <code class="docutils literal notranslate"><span class="pre">observation</span></code> to make sure that it is the right type, that it has the right attributes, etc.  This can be used to ensures that the <code class="docutils literal notranslate"><span class="pre">observation</span></code> is exactly as the other core test methods expect.  If we don’t provide the right kind of observation:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">-&gt;</span> <span class="n">mean_37_test</span> <span class="o">=</span> <span class="n">MeanTest</span><span class="p">(</span><span class="mi">37</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;=37&#39;</span><span class="p">)</span>
+<span class="n">ObservationError</span><span class="p">:</span> <span class="n">Observation</span> <span class="n">must</span> <span class="n">be</span> <span class="n">a</span> <span class="n">python</span> <span class="n">dictionary</span>
+</pre></div>
+</div>
+<p>then we get an error.  In contrast, this is what our test was looking for:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">observation</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span><span class="mf">37.8</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">:</span><span class="mf">2.1</span><span class="p">}</span>
+<span class="n">mean_37_test</span> <span class="o">=</span> <span class="n">MeanTest</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;=37&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Instead of returning a <code class="docutils literal notranslate"><span class="pre">BooleanScore</span></code>, encoding a <code class="docutils literal notranslate"><span class="pre">True</span></code>/<code class="docutils literal notranslate"><span class="pre">False</span></code> value, we return a <code class="docutils literal notranslate"><span class="pre">ZScore</span></code> encoding a more quantitative summary of the relationship between the observation and the prediction.  When we execute the test:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">score</span> <span class="o">=</span> <span class="n">mean_37_test</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">const_model_37</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then we get a more quantitative summary of the results:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">score</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">score</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;A z-score corresponding to the normalized location of the observation relative to the predicted distribution.&#39;
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+    <a class='left-prev' id="prev-link" href="chapter2.html" title="previous page"><span class="section-number">3. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.</a>
+    <a class='right-next' id="next-link" href="chapter4.html" title="next page"><span class="section-number">7. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.</a>
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+          By The Jupyter Book community<br/>
+        
+            &copy; Copyright 2021.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

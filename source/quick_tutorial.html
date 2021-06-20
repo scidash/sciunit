@@ -1,0 +1,605 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quick tutorial &#8212; SciUnit: A python library for data-driven model validation testing</title>
+    
+  <link href="../_static/css/theme.css" rel="stylesheet" />
+  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/togglebutton.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://unpkg.com/thebelab@latest/lib/index.js"></script>
+    <script >
+        const thebe_selector = ".thebe"
+        const thebe_selector_input = "pre"
+        const thebe_selector_output = ".output"
+    </script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      <h1 class="site-logo" id="site-title">SciUnit: A python library for data-driven model validation testing</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../README.html">
+   New to SciUnit?
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Tutorial
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../chapter1.html">
+   1. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../chapter2.html">
+   3. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../chapter3.html">
+   5. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../chapter4.html">
+   7. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../chapter5.html">
+   9. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../chapter6.html">
+   11. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Full Docs
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference external" href="https://sciunit.rtfd.io">
+   https://sciunit.rtfd.io
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../_sources/source/quick_tutorial.rst"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.rst</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#creating-a-model-and-a-test-instance-from-scratch">
+   Creating a Model and a Test instance from scratch
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#testing-with-help-from-the-sciunit-standard-library">
+   Testing with help from the SciUnit standard library
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#example-of-runnablemodel-and-backend">
+   Example of RunnableModel and Backend
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#real-example">
+   Real Example
+  </a>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="section" id="quick-tutorial">
+<h1>Quick tutorial<a class="headerlink" href="#quick-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>You can read the SciUnit Basic before starting this tutorial for understanding the components of SciUnit.</p>
+<div class="section" id="creating-a-model-and-a-test-instance-from-scratch">
+<h2>Creating a Model and a Test instance from scratch<a class="headerlink" href="#creating-a-model-and-a-test-instance-from-scratch" title="Permalink to this headline">¶</a></h2>
+<p>Let’s create a model that can output a constant number.</p>
+<p>Importing sciunit at the beginning.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sciunit</span>
+</pre></div>
+</div>
+<p>Creating a subclass of SciUnit Capability class. The Capability subclass contains
+one or more unimplemented methods. It can be included in a
+Test class as <code class="docutils literal notranslate"><span class="pre">required_capabilities</span></code>, and only the models which
+implements the methods in the Capability subclass can be tested by the Test instance.</p>
+<p>Here we define a simple capability through which a model can return a single number.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ProducesNumCapability</span><span class="p">(</span><span class="n">sciunit</span><span class="o">.</span><span class="n">Capability</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An example capability for producing some generic number.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">produce_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The implementation of this method should return a number.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must implement produce_number.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And creating a subclass of SciUnit Model. A model we want to test is
+always an instance (with specific model arguments) of a more generic model class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ConstModel</span><span class="p">(</span><span class="n">sciunit</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> <span class="n">ProducesNumCapability</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A model that always produces a constant number as output.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constant</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constant</span> <span class="o">=</span> <span class="n">constant</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConstModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">constant</span><span class="o">=</span><span class="n">constant</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">produce_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant</span>
+</pre></div>
+</div>
+<p>Now we have a model and a capability. Let’s create a Test class and include the capability in a subclass of Test.
+Note that a SciUnit test class must contain:</p>
+<ol class="arabic simple">
+<li><p>the capabilities a model requires to take the test.</p></li>
+<li><p>the type of score that it will return.</p></li>
+<li><p>an implementation of generate_prediction, which will use the model’s capabilities to get some values out of the model.</p></li>
+<li><p>an implementaiton of compute_score, to use the provided observation and the generated prediction to compute a sciunit Score.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">EqualsTest</span><span class="p">(</span><span class="n">sciunit</span><span class="o">.</span><span class="n">Test</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tests if the model predicts</span>
+<span class="sd">    the same number as the observation.&quot;&quot;&quot;</span>
+
+    <span class="c1"># The one capability required for a model to take this test.</span>
+    <span class="n">required_capabilities</span> <span class="o">=</span> <span class="p">(</span><span class="n">ProducesNumCapability</span><span class="p">,)</span>
+
+    <span class="c1"># Set the type of score returned by judge method in a Test instance</span>
+    <span class="n">score_type</span> <span class="o">=</span> <span class="n">sciunit</span><span class="o">.</span><span class="n">scores</span><span class="o">.</span><span class="n">BooleanScore</span>
+
+    <span class="k">def</span> <span class="nf">generate_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">produce_number</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">compute_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">,</span> <span class="n">prediction</span><span class="p">):</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_type</span><span class="p">(</span><span class="n">observation</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">prediction</span><span class="p">)</span> <span class="c1"># Returns a BooleanScore.</span>
+        <span class="n">score</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Passing score if the prediction equals the observation&#39;</span>
+        <span class="k">return</span> <span class="n">score</span>
+</pre></div>
+</div>
+<p>After defining the subclass of SciUnit Model, we can create an instance of the model that always
+produce number 37.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">const_model_37</span> <span class="o">=</span> <span class="n">ConstModel</span><span class="p">(</span><span class="mi">37</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Constant Model 37&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Suppose we have a observation value, and we want to test if the value match the number predicted (produced) by
+the model instance defined above.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">observation</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;value&#39;</span><span class="p">:</span><span class="mi">37</span><span class="p">}</span>
+<span class="n">equals_37_test</span> <span class="o">=</span> <span class="n">EqualsTest</span><span class="p">(</span><span class="n">observation</span><span class="o">=</span><span class="n">observation</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Equal 37 Test&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Simply call the <code class="docutils literal notranslate"><span class="pre">judge</span></code> method of the Test instance with the model instance as an argument.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">score</span> <span class="o">=</span> <span class="n">equals_37_test</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">const_model_37</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we got the score instance.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+<span class="go">Pass</span>
+</pre></div>
+</div>
+<p>Printing out the score and we can see that the test was passed.
+We can also summarize the score in its entirety,
+printing information about the associated model and test.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">score</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
+<span class="go">=== Model Constant Model 37 achieved score Pass on test &#39;Equal 37 Test&#39;. ===</span>
+</pre></div>
+</div>
+<p>How was that score computed again?</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">score</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+<span class="go">Passing score if the prediction equals the observation</span>
+</pre></div>
+</div>
+<p>Next, let’s create some other test instances that suppose to fail.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">observation</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;value&#39;</span><span class="p">:</span><span class="mi">36</span><span class="p">}</span>
+<span class="n">equals_36_test</span> <span class="o">=</span> <span class="n">EqualsTest</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Equal 36 Test&#39;</span><span class="p">)</span>
+<span class="n">observation</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;value&#39;</span><span class="p">:</span><span class="mi">35</span><span class="p">}</span>
+<span class="n">equals_35_test</span> <span class="o">=</span> <span class="n">EqualsTest</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Equal 35 Test&#39;</span><span class="p">)</span>
+<span class="n">score1</span> <span class="o">=</span> <span class="n">equals_36_test</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">const_model_37</span><span class="p">)</span>
+<span class="n">score2</span> <span class="o">=</span> <span class="n">equals_36_test</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">const_model_37</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">score1</span><span class="p">)</span>
+<span class="go">Fail</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">score2</span><span class="p">)</span>
+<span class="go">Fail</span>
+</pre></div>
+</div>
+<p>We can also put these test instances together in a TestSuite instance.
+The TestSuite also contains a <code class="docutils literal notranslate"><span class="pre">judge</span></code> method that can run every Test instance’s <code class="docutils literal notranslate"><span class="pre">judge</span></code> methods.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tests</span> <span class="o">=</span> <span class="p">[</span><span class="n">equals_35_test</span><span class="p">,</span> <span class="n">equals_36_test</span><span class="p">,</span> <span class="n">equals_37_test</span><span class="p">]</span>
+<span class="n">equals_suite</span> <span class="o">=</span> <span class="n">sciunit</span><span class="o">.</span><span class="n">TestSuite</span><span class="p">(</span><span class="n">tests</span><span class="o">=</span><span class="n">tests</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Equals test suite&quot;</span><span class="p">)</span>
+<span class="n">score_matrix</span> <span class="o">=</span> <span class="n">equals_suite</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">const_model_37</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">score_matrix</span><span class="p">)</span>
+<span class="go">                  Equal 35 Test Equal 36 Test Equal 37 Test</span>
+<span class="go">Constant Model 37          Fail          Fail          Pass</span>
+</pre></div>
+</div>
+<p>In the result, we can see a 1*3 score matrix that shows the results of each test.</p>
+<p>We can create more models and subject those to the test suite to get a more extensive score matrix.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">const_model_36</span> <span class="o">=</span> <span class="n">ConstModel</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Constant Model 36&#39;</span><span class="p">)</span>
+<span class="n">const_model_35</span> <span class="o">=</span> <span class="n">ConstModel</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Constant Model 35&#39;</span><span class="p">)</span>
+<span class="n">score_matrix</span> <span class="o">=</span> <span class="n">equals_suite</span><span class="o">.</span><span class="n">judge</span><span class="p">([</span><span class="n">const_model_36</span><span class="p">,</span> <span class="n">const_model_35</span><span class="p">,</span> <span class="n">const_model_37</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">score_matrix</span><span class="p">)</span>
+<span class="go">                  Equal 35 Test Equal 36 Test Equal 37 Test</span>
+<span class="go">Constant Model 37          Fail          Fail          Pass</span>
+<span class="go">Constant Model 36          Fail          Pass          Fail</span>
+<span class="go">Constant Model 35          Pass          Fail          Fail</span>
+</pre></div>
+</div>
+<p>Now, we can see the result is a 3*3 matrix, and each model pass the corresponding test.</p>
+<p>We can also examine the results only for one of the tests in the suite.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">score_matrix</span><span class="p">[</span><span class="n">equals_35_test</span><span class="p">])</span>
+<span class="go">Constant Model 37    Fail</span>
+<span class="go">Constant Model 36    Fail</span>
+<span class="go">Constant Model 35    Pass</span>
+<span class="go">Name: Equal 35 Test, dtype: object</span>
+</pre></div>
+</div>
+<p>Or examine the results only for one of the models.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">score_matrix</span><span class="p">[</span><span class="n">const_model_35</span><span class="p">])</span>
+<span class="go">Equal 35 Test    Pass</span>
+<span class="go">Equal 36 Test    Fail</span>
+<span class="go">Equal 37 Test    Fail</span>
+<span class="go">Name: Constant Model 35, dtype: object</span>
+</pre></div>
+</div>
+<p>In the next section we’ll see how to build slightly more
+sophisticated tests using objects built-in to SciUnit.</p>
+</div>
+<div class="section" id="testing-with-help-from-the-sciunit-standard-library">
+<h2>Testing with help from the SciUnit standard library<a class="headerlink" href="#testing-with-help-from-the-sciunit-standard-library" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ConstModel</span></code> class we defined in the last section was included in
+SciUnit package as an example, and we can just import it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sciunit</span>
+
+<span class="kn">from</span> <span class="nn">sciunit.models.examples</span> <span class="kn">import</span> <span class="n">ConstModel</span>
+<span class="kn">from</span> <span class="nn">sciunit.capabilities</span> <span class="kn">import</span> <span class="n">ProducesNumber</span>
+
+<span class="kn">from</span> <span class="nn">sciunit.scores</span> <span class="kn">import</span> <span class="n">ZScore</span> <span class="c1"># One of many SciUnit score types.</span>
+<span class="kn">from</span> <span class="nn">sciunit.errors</span> <span class="kn">import</span> <span class="n">ObservationError</span> <span class="c1"># An exception class raised when a test</span>
+</pre></div>
+</div>
+<p>Let’s create the instance of ConstModel.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">const_model_37</span> <span class="o">=</span> <span class="n">ConstModel</span><span class="p">(</span><span class="mi">37</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Constant Model 37&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And a new subclass of SciUnit Test class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MeanTest</span><span class="p">(</span><span class="n">sciunit</span><span class="o">.</span><span class="n">Test</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tests if the model predicts the same number as the observation.&quot;&quot;&quot;</span>
+
+    <span class="c1"># The one capability required for a model to take this test.</span>
+    <span class="n">required_capabilities</span> <span class="o">=</span> <span class="p">(</span><span class="n">ProducesNumber</span><span class="p">,)</span>
+
+    <span class="c1"># This test&#39;s &#39;judge&#39; method will return a BooleanScore.</span>
+    <span class="n">score_type</span> <span class="o">=</span> <span class="n">ZScore</span>
+
+    <span class="k">def</span> <span class="nf">validate_observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ObservationError</span><span class="p">(</span><span class="s2">&quot;Observation must be a python dictionary&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;mean&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">observation</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ObservationError</span><span class="p">(</span><span class="s2">&quot;Observation must contain a &#39;mean&#39; entry&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">generate_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">produce_number</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">compute_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">,</span> <span class="n">prediction</span><span class="p">):</span>
+
+        <span class="c1"># Compute and return a ZScore object.</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">ZScore</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span><span class="n">prediction</span><span class="p">)</span>
+
+        <span class="n">score</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;A z-score corresponding to the normalized location of the&quot;</span>
+                            <span class="s2">&quot;observation relative to the predicted distribution.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">score</span>
+</pre></div>
+</div>
+<p>Compared with the sruff in last section, we’ve done two new things here:</p>
+<ul class="simple">
+<li><p>The optional <code class="docutils literal notranslate"><span class="pre">validate_observation</span></code> method checks the observation to make sure that it is the right type, that it has the right attributes, etc. This can be used to ensures that the observation is exactly as the other core test methods expect. If we don’t provide the right kind of observation:</p></li>
+<li><p>Instead of returning a BooleanScore, encoding a True/False value, we return a ZScore encoding a more quantitative summary of the relationship between the observation and the prediction.</p></li>
+</ul>
+<p>Let’s create a observation and attach it to the MeanTest instance.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">observation</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span><span class="mf">37.8</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">:</span><span class="mf">2.1</span><span class="p">}</span>
+<span class="n">mean_37_test</span> <span class="o">=</span> <span class="n">MeanTest</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Equal 37 Test&#39;</span><span class="p">)</span>
+<span class="n">score</span> <span class="o">=</span> <span class="n">mean_37_test</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">const_model_37</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And let’s see what’s the result:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">score</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
+<span class="go">=== Model Constant Model 37 achieved score Z = -0.38 on test &#39;Equal 37 Test&#39;. ===</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">score</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+<span class="go">A z-score corresponding to the normalized location of theobservation relative to the predicted distribution.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-of-runnablemodel-and-backend">
+<h2>Example of RunnableModel and Backend<a class="headerlink" href="#example-of-runnablemodel-and-backend" title="Permalink to this headline">¶</a></h2>
+<p>Beside the usual model in previous sections, let’s create a model that run a Backend instance to simulate and obtain results.</p>
+<p>Firstly, import necessary components from SciUnit package.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sciunit</span><span class="o">,</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">sciunit</span> <span class="kn">import</span> <span class="n">Test</span>
+<span class="kn">from</span> <span class="nn">sciunit.capabilities</span> <span class="kn">import</span> <span class="n">Runnable</span>
+<span class="kn">from</span> <span class="nn">sciunit.scores</span> <span class="kn">import</span> <span class="n">BooleanScore</span>
+<span class="kn">from</span> <span class="nn">sciunit.models</span> <span class="kn">import</span> <span class="n">RunnableModel</span>
+<span class="kn">from</span> <span class="nn">sciunit.models.backends</span> <span class="kn">import</span> <span class="n">register_backends</span><span class="p">,</span> <span class="n">Backend</span>
+</pre></div>
+</div>
+<p>Let’s define subclasses of SciUnit Backend, Test, and Model.</p>
+<p>Note that:</p>
+<ol class="arabic simple">
+<li><p>A SciUnit Backend subclass should implement <code class="docutils literal notranslate"><span class="pre">_backend_run</span></code> method.</p></li>
+<li><p>A SciUnit Backend subclass should implement <code class="docutils literal notranslate"><span class="pre">run</span></code> method.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RandomNumBackend</span><span class="p">(</span><span class="n">Backend</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;generate a random integer between min and max&#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">set_run_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">run_params</span><span class="p">):</span>
+
+        <span class="c1"># get min from run_params, if not exist, then 0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">=</span> <span class="n">run_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># get max from run_params, if not exist, then self.min + 100.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="o">=</span> <span class="n">run_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">+</span> <span class="mi">100</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_backend_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># generate and return random integer between min and max.</span>
+        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">RandomNumModel</span><span class="p">(</span><span class="n">RunnableModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A model that always produces a constant number as output.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">backend_run</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">RangeTest</span><span class="p">(</span><span class="n">Test</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tests if the model predicts the same number as the observation.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Default Runnable Capability for RunnableModel</span>
+    <span class="n">required_capabilities</span> <span class="o">=</span> <span class="p">(</span><span class="n">Runnable</span><span class="p">,)</span>
+
+    <span class="c1"># This test&#39;s &#39;judge&#39; method will return a BooleanScore.</span>
+    <span class="n">score_type</span> <span class="o">=</span> <span class="n">BooleanScore</span>
+
+    <span class="k">def</span> <span class="nf">generate_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">results</span>
+
+    <span class="k">def</span> <span class="nf">compute_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">,</span> <span class="n">prediction</span><span class="p">):</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">BooleanScore</span><span class="p">(</span>
+            <span class="n">observation</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">prediction</span> <span class="ow">and</span> <span class="n">observation</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">prediction</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">score</span>
+</pre></div>
+</div>
+<p>Let’s define the model instance named <code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">1</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">RandomNumModel</span><span class="p">(</span><span class="s2">&quot;model 1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We must register any backend isntance in order to use it in model instances.</p>
+<p><code class="docutils literal notranslate"><span class="pre">set_backend</span></code> and <code class="docutils literal notranslate"><span class="pre">set_run_params</span></code> methods can help us to set the run-parameters in the model and its backend.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">register_backends</span><span class="p">({</span><span class="s2">&quot;Random Number&quot;</span><span class="p">:</span> <span class="n">RandomNumBackend</span><span class="p">})</span>
+<span class="n">model</span><span class="o">.</span><span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;Random Number&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">set_run_params</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, create an observation that requires the generated random integer between 1 and 10
+and a test instance that use the observation and against the model</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">observation</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+<span class="n">oneToTenTest</span> <span class="o">=</span> <span class="n">RangeTest</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="s2">&quot;test 1&quot;</span><span class="p">)</span>
+<span class="n">score</span> <span class="o">=</span> <span class="n">oneToTenTest</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>print the score, and we can see the result.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+<span class="go">Pass</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="real-example">
+<h2>Real Example<a class="headerlink" href="#real-example" title="Permalink to this headline">¶</a></h2>
+<p>For real example of using SciUnit, you can read Chapter 5 and 6 of the Jupyter notebook tutorial.</p>
+<p><a class="reference external" href="https://github.com/scidash/sciunit/blob/master/docs/chapter5.ipynb">Tutorial Chapter 5</a></p>
+<p><a class="reference external" href="https://github.com/scidash/sciunit/blob/master/docs/chapter6.ipynb">Tutorial Chapter 6</a></p>
+</div>
+</div>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./source"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+          By The Jupyter Book community<br/>
+        
+            &copy; Copyright 2021.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

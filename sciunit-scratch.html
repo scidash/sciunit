@@ -1,0 +1,840 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>&lt;no title&gt; &#8212; SciUnit: A python library for data-driven model validation testing</title>
+    
+  <link href="_static/css/theme.css" rel="stylesheet" />
+  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://unpkg.com/thebelab@latest/lib/index.js"></script>
+    <script >
+        const thebe_selector = ".thebe"
+        const thebe_selector_input = "pre"
+        const thebe_selector_output = ".output"
+    </script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+      
+      <h1 class="site-logo" id="site-title">SciUnit: A python library for data-driven model validation testing</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="README.html">
+   New to SciUnit?
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Tutorial
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="chapter1.html">
+   1. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="chapter2.html">
+   3. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="chapter3.html">
+   5. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="chapter4.html">
+   7. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="chapter5.html">
+   9. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="chapter6.html">
+   11. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Full Docs
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference external" href="https://sciunit.rtfd.io">
+   https://sciunit.rtfd.io
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/sciunit-scratch.ipynb"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Launch interactive content"><i class="fas fa-rocket"></i></button>
+    <div class="dropdown-buttons">
+        
+        <a class="binder-button" href="https://mybinder.org/v2/gh/executablebooks/jupyter-book/master?urlpath=tree/sciunit-scratch.ipynb"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Launch Binder" data-toggle="tooltip"
+                data-placement="left"><img class="binder-button-logo"
+                    src="_static/images/logo_binder.svg"
+                    alt="Interact on binder">Binder</button></a>
+        
+        
+        
+        
+    </div>
+</div>
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav">
+                <ul class="simple visible nav section-nav flex-column">
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;/home/rgerkin/Dropbox/dev/quantities&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">quantities</span> <span class="k">as</span> <span class="nn">pq</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sciunit.unit_test.base</span> <span class="kn">import</span> <span class="n">SuiteBase</span>
+<span class="kn">from</span> <span class="nn">sciunit</span> <span class="kn">import</span> <span class="n">ScoreMatrix</span><span class="p">,</span> <span class="n">ScoreArray</span>
+<span class="n">sb</span> <span class="o">=</span> <span class="n">SuiteBase</span><span class="p">()</span>
+<span class="n">sb</span><span class="o">.</span><span class="n">setUp</span><span class="p">()</span>
+<span class="n">ts</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span> <span class="o">=</span> <span class="n">sb</span><span class="o">.</span><span class="n">prep_models_and_tests</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">pq</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">pq</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span><span class="o">*</span><span class="n">pq</span><span class="o">.</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(array(1.) * V, [array(1.) * V], [array(1.) * V, array(2.) * V, array(3.) * V])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sciunit.tests</span> <span class="kn">import</span> <span class="n">RangeTest</span>
+<span class="kn">from</span> <span class="nn">sciunit</span> <span class="kn">import</span> <span class="n">TestSuite</span>
+<span class="n">tests</span> <span class="o">=</span> <span class="p">[</span><span class="n">RangeTest</span><span class="p">(</span><span class="n">observation</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">3</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]]</span>
+<span class="n">ts</span> <span class="o">=</span> <span class="n">TestSuite</span><span class="p">(</span><span class="n">tests</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RangeSuite&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pq</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+<span class="n">ts</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">#isinstance(ts.json(string=True), str)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/rgerkin/Dropbox/dev/quantities/quantities/__init__.py
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;{&quot;_class&quot;: {&quot;name&quot;: &quot;TestSuite&quot;, &quot;import_path&quot;: &quot;sciunit.suites.TestSuite&quot;, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;}, &quot;_id&quot;: 139902864364496, &quot;_url&quot;: null, &quot;add_props&quot;: false, &quot;description&quot;: null, &quot;hooks&quot;: null, &quot;id&quot;: &quot;&lt;bound method SciUnit.json of &lt;sciunit.suites.TestSuite object at 0x7f3dac8893d0&gt;&gt;&quot;, &quot;include_models&quot;: [], &quot;name&quot;: &quot;RangeSuite&quot;, &quot;properties&quot;: {&quot;remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;_id&quot;: 139902864364496, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;weights&quot;: [0.25, 0.25, 0.25, 0.25], &quot;_class&quot;: {&quot;name&quot;: &quot;TestSuite&quot;, &quot;import_path&quot;: &quot;sciunit.suites.TestSuite&quot;, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;}, &quot;hash&quot;: &quot;cf844b79fdb6753cd1a760784c952715a809348be1d1fbf321150d3c&quot;}, &quot;remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;skip_models&quot;: [], &quot;tests&quot;: [{&quot;_class&quot;: {&quot;name&quot;: &quot;RangeTest&quot;, &quot;import_path&quot;: &quot;sciunit.tests.RangeTest&quot;, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;}, &quot;_id&quot;: 139902864364256, &quot;_url&quot;: null, &quot;converter&quot;: null, &quot;default_params&quot;: {}, &quot;description&quot;: &quot;Test if the model generates a number within a certain range.&quot;, &quot;id&quot;: &quot;&lt;bound method SciUnit.json of &lt;sciunit.tests.RangeTest object at 0x7f3dac8892e0&gt;&gt;&quot;, &quot;name&quot;: &quot;RangeTest&quot;, &quot;observation&quot;: [1, 4], &quot;observation_schema&quot;: null, &quot;observation_validator&quot;: &quot;sciunit.validators.ObservationValidator&quot;, &quot;params&quot;: {}, &quot;params_schema&quot;: null, &quot;params_validator&quot;: &quot;sciunit.validators.ParametersValidator&quot;, &quot;properties&quot;: {&quot;remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;_id&quot;: 139902864364256, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;_class&quot;: {&quot;name&quot;: &quot;RangeTest&quot;, &quot;import_path&quot;: &quot;sciunit.tests.RangeTest&quot;, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;}, &quot;hash&quot;: &quot;539730ab61c2e3e07e0cb532433806ec957b40a1f633fd090c931aec&quot;}, &quot;remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;required_capabilities&quot;: [&quot;sciunit.capabilities.ProducesNumber&quot;], &quot;score_type&quot;: &quot;sciunit.scores.complete.BooleanScore&quot;, &quot;units&quot;: {&quot;base&quot;: {&quot;dtype&quot;: &quot;float64&quot;, &quot;values&quot;: 1.0}, &quot;shape&quot;: [], &quot;dtype&quot;: &quot;float64&quot;, &quot;writeable&quot;: false, &quot;values&quot;: {&quot;base&quot;: &quot;1.0&quot;, &quot;units&quot;: &quot;dimensionless&quot;}}, &quot;unpicklable&quot;: [], &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;verbose&quot;: 1, &quot;version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;hash&quot;: &quot;babdbd25bb4447648e4772a5711f9388c472d268c827c81c2947b01f&quot;}, {&quot;_class&quot;: {&quot;name&quot;: &quot;RangeTest&quot;, &quot;import_path&quot;: &quot;sciunit.tests.RangeTest&quot;, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;}, &quot;_id&quot;: 139902864364304, &quot;_remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;_repo&quot;: {&quot;git_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit/.git&quot;, &quot;_working_tree_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit&quot;, &quot;_bare&quot;: false, &quot;_common_dir&quot;: null, &quot;working_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit&quot;, &quot;git&quot;: {&quot;_working_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit&quot;, &quot;_git_options&quot;: [], &quot;_persistent_git_options&quot;: [], &quot;_environment&quot;: {}}, &quot;odb&quot;: {&quot;_ostream&quot;: null, &quot;_root_path&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit/.git/objects&quot;, &quot;_hexsha_to_file&quot;: {}, &quot;_fd_open_flags&quot;: 262144, &quot;_git&quot;: {&quot;_working_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit&quot;, &quot;_git_options&quot;: [], &quot;_persistent_git_options&quot;: [], &quot;_environment&quot;: {}}}}, &quot;_url&quot;: null, &quot;_version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;converter&quot;: null, &quot;default_params&quot;: {}, &quot;description&quot;: &quot;Test if the model generates a number within a certain range.&quot;, &quot;id&quot;: &quot;&lt;bound method SciUnit.json of &lt;sciunit.tests.RangeTest object at 0x7f3dac889310&gt;&gt;&quot;, &quot;name&quot;: &quot;RangeTest&quot;, &quot;observation&quot;: [2, 5], &quot;observation_schema&quot;: null, &quot;observation_validator&quot;: &quot;sciunit.validators.ObservationValidator&quot;, &quot;params&quot;: {}, &quot;params_schema&quot;: null, &quot;params_validator&quot;: &quot;sciunit.validators.ParametersValidator&quot;, &quot;properties&quot;: {&quot;remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;_id&quot;: 139902864364304, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;_class&quot;: {&quot;name&quot;: &quot;RangeTest&quot;, &quot;import_path&quot;: &quot;sciunit.tests.RangeTest&quot;, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;}, &quot;hash&quot;: &quot;d988e53b41073f65cf9f48cba0667eb32159a7474bc264b60f9c5e1a&quot;}, &quot;remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;required_capabilities&quot;: [&quot;sciunit.capabilities.ProducesNumber&quot;], &quot;score_type&quot;: &quot;sciunit.scores.complete.BooleanScore&quot;, &quot;units&quot;: {&quot;base&quot;: {&quot;dtype&quot;: &quot;float64&quot;, &quot;values&quot;: 1.0}, &quot;shape&quot;: [], &quot;dtype&quot;: &quot;float64&quot;, &quot;writeable&quot;: false, &quot;values&quot;: {&quot;base&quot;: &quot;1.0&quot;, &quot;units&quot;: &quot;dimensionless&quot;}}, &quot;unpicklable&quot;: [], &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;verbose&quot;: 1, &quot;version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;hash&quot;: &quot;b9fb008418d51c35dad066ff2e7d804292d493a2f89cfa63f67e96c2&quot;}, {&quot;_class&quot;: {&quot;name&quot;: &quot;RangeTest&quot;, &quot;import_path&quot;: &quot;sciunit.tests.RangeTest&quot;, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;}, &quot;_id&quot;: 139902864364448, &quot;_remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;_repo&quot;: {&quot;git_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit/.git&quot;, &quot;_working_tree_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit&quot;, &quot;_bare&quot;: false, &quot;_common_dir&quot;: null, &quot;working_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit&quot;, &quot;git&quot;: {&quot;_working_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit&quot;, &quot;_git_options&quot;: [], &quot;_persistent_git_options&quot;: [], &quot;_environment&quot;: {}}, &quot;odb&quot;: {&quot;_ostream&quot;: null, &quot;_root_path&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit/.git/objects&quot;, &quot;_hexsha_to_file&quot;: {}, &quot;_fd_open_flags&quot;: 262144, &quot;_git&quot;: {&quot;_working_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit&quot;, &quot;_git_options&quot;: [], &quot;_persistent_git_options&quot;: [], &quot;_environment&quot;: {}}}}, &quot;_url&quot;: null, &quot;_version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;converter&quot;: null, &quot;default_params&quot;: {}, &quot;description&quot;: &quot;Test if the model generates a number within a certain range.&quot;, &quot;id&quot;: &quot;&lt;bound method SciUnit.json of &lt;sciunit.tests.RangeTest object at 0x7f3dac8893a0&gt;&gt;&quot;, &quot;name&quot;: &quot;RangeTest&quot;, &quot;observation&quot;: [3, 6], &quot;observation_schema&quot;: null, &quot;observation_validator&quot;: &quot;sciunit.validators.ObservationValidator&quot;, &quot;params&quot;: {}, &quot;params_schema&quot;: null, &quot;params_validator&quot;: &quot;sciunit.validators.ParametersValidator&quot;, &quot;properties&quot;: {&quot;remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;_id&quot;: 139902864364448, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;_class&quot;: {&quot;name&quot;: &quot;RangeTest&quot;, &quot;import_path&quot;: &quot;sciunit.tests.RangeTest&quot;, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;}, &quot;hash&quot;: &quot;79f54d9c6392d447c36298bf1e5b48cdae513e29466dc95f9c5f52bd&quot;}, &quot;remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;required_capabilities&quot;: [&quot;sciunit.capabilities.ProducesNumber&quot;], &quot;score_type&quot;: &quot;sciunit.scores.complete.BooleanScore&quot;, &quot;units&quot;: {&quot;base&quot;: {&quot;dtype&quot;: &quot;float64&quot;, &quot;values&quot;: 1.0}, &quot;shape&quot;: [], &quot;dtype&quot;: &quot;float64&quot;, &quot;writeable&quot;: false, &quot;values&quot;: {&quot;base&quot;: &quot;1.0&quot;, &quot;units&quot;: &quot;dimensionless&quot;}}, &quot;unpicklable&quot;: [], &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;verbose&quot;: 1, &quot;version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;hash&quot;: &quot;a7090df0cd778fc5cd8ce1905c0a17b5d9335cffad53588f422a4c29&quot;}, {&quot;_class&quot;: {&quot;name&quot;: &quot;RangeTest&quot;, &quot;import_path&quot;: &quot;sciunit.tests.RangeTest&quot;, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;}, &quot;_id&quot;: 139902864365744, &quot;_remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;_repo&quot;: {&quot;git_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit/.git&quot;, &quot;_working_tree_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit&quot;, &quot;_bare&quot;: false, &quot;_common_dir&quot;: null, &quot;working_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit&quot;, &quot;git&quot;: {&quot;_working_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit&quot;, &quot;_git_options&quot;: [], &quot;_persistent_git_options&quot;: [], &quot;_environment&quot;: {}}, &quot;odb&quot;: {&quot;_ostream&quot;: null, &quot;_root_path&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit/.git/objects&quot;, &quot;_hexsha_to_file&quot;: {}, &quot;_fd_open_flags&quot;: 262144, &quot;_git&quot;: {&quot;_working_dir&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit&quot;, &quot;_git_options&quot;: [], &quot;_persistent_git_options&quot;: [], &quot;_environment&quot;: {}}}}, &quot;_url&quot;: null, &quot;_version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;converter&quot;: null, &quot;default_params&quot;: {}, &quot;description&quot;: &quot;Test if the model generates a number within a certain range.&quot;, &quot;id&quot;: &quot;&lt;bound method SciUnit.json of &lt;sciunit.tests.RangeTest object at 0x7f3dac8898b0&gt;&gt;&quot;, &quot;name&quot;: &quot;RangeTest&quot;, &quot;observation&quot;: [4, 7], &quot;observation_schema&quot;: null, &quot;observation_validator&quot;: &quot;sciunit.validators.ObservationValidator&quot;, &quot;params&quot;: {}, &quot;params_schema&quot;: null, &quot;params_validator&quot;: &quot;sciunit.validators.ParametersValidator&quot;, &quot;properties&quot;: {&quot;remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;_id&quot;: 139902864365744, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;_class&quot;: {&quot;name&quot;: &quot;RangeTest&quot;, &quot;import_path&quot;: &quot;sciunit.tests.RangeTest&quot;, &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;}, &quot;hash&quot;: &quot;06853e303f6641730e9bd1f3aebfbeff2859f180310eb6440cf46340&quot;}, &quot;remote_url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;required_capabilities&quot;: [&quot;sciunit.capabilities.ProducesNumber&quot;], &quot;score_type&quot;: &quot;sciunit.scores.complete.BooleanScore&quot;, &quot;units&quot;: {&quot;base&quot;: {&quot;dtype&quot;: &quot;float64&quot;, &quot;values&quot;: 1.0}, &quot;shape&quot;: [], &quot;dtype&quot;: &quot;float64&quot;, &quot;writeable&quot;: false, &quot;values&quot;: {&quot;base&quot;: &quot;1.0&quot;, &quot;units&quot;: &quot;dimensionless&quot;}}, &quot;unpicklable&quot;: [], &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;verbose&quot;: 1, &quot;version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;hash&quot;: &quot;4f54eb048944a71e1d32386a907be5ae22786ac3f653c7ca21b081d5&quot;}], &quot;unpicklable&quot;: [], &quot;url&quot;: &quot;http://github.com/scidash/sciunit&quot;, &quot;verbose&quot;: 1, &quot;version&quot;: &quot;4454dcaa86a33bd4615f6c0f56921bcd19cdea53*&quot;, &quot;weights&quot;: [0.25, 0.25, 0.25, 0.25], &quot;weights_&quot;: [], &quot;hash&quot;: &quot;8c8b0ff1ac6ad9ab40e211202b8a8040a57ce5515ce03ad0f199086d&quot;}&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">neuronunit.tests.morphology</span> \
+<span class="kn">import</span> <span class="nn">ApicalDendriteAverageBifurcationAngleRemoteTest</span> <span class="k">as</span> <span class="nn">T</span>
+<span class="nb">isinstance</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="n">pq</span><span class="o">.</span><span class="n">Dimensionless</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sciunit.utils</span> <span class="kn">import</span> <span class="n">memoize</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span>
+<span class="nd">@memoize</span>
+<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">g</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
+        
+<span class="k">assert</span> <span class="n">f</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">==</span> <span class="n">f</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">g</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">!=</span> <span class="n">g</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Score = Pass for UniformModel on test1
+Score = Fail for UniformModel on RangeTest
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sciunit.utils</span> <span class="kn">import</span> <span class="n">intern</span><span class="p">,</span> <span class="n">class_intern</span>
+
+<span class="k">class</span> <span class="nc">N</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
+
+<span class="n">five</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">five2</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="k">assert</span> <span class="p">(</span><span class="n">five</span> <span class="ow">is</span> <span class="n">five2</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">AssertionError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
+<span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">8</span><span class="n">bfd19f1925a</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+<span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="n">five</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">8</span> <span class="n">five2</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="ne">----&gt; </span><span class="mi">9</span> <span class="k">assert</span> <span class="p">(</span><span class="n">five</span> <span class="ow">is</span> <span class="n">five2</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+<span class="ne">AssertionError</span>: 
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ts</span><span class="o">.</span><span class="n">judge</span><span class="p">([</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Score = Pass for UniformModel on test1
+Score = Fail for UniformModel on RangeTest
+Score = Fail for UniformModel on test1
+Score = Pass for UniformModel on RangeTest
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>test1</th>
+      <th>RangeTest</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>UniformModel</th>
+      <td>Pass</td>
+      <td>Fail</td>
+    </tr>
+    <tr>
+      <th>UniformModel</th>
+      <td>Fail</td>
+      <td>Pass</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sty</span> <span class="kn">import</span> <span class="n">fg</span><span class="p">,</span> <span class="n">bg</span><span class="p">,</span> <span class="n">ef</span><span class="p">,</span> <span class="n">rs</span>
+<span class="n">qui</span> <span class="o">=</span> <span class="n">fg</span><span class="p">(</span><span class="mi">230</span><span class="p">,</span> <span class="mi">78</span><span class="p">,</span> <span class="mi">52</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;This is red text using 24bit colors.&#39;</span> <span class="o">+</span> <span class="n">fg</span><span class="o">.</span><span class="n">rs</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qui</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>This is red text using 24bit colors.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sciunit.utils</span> <span class="kn">import</span> <span class="n">config_set</span><span class="p">,</span> <span class="n">config_get</span>
+
+<span class="n">config_set</span><span class="p">(</span><span class="s1">&#39;PREVALIDATE&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">config_get</span><span class="p">(</span><span class="s1">&#39;PREVALIDATE&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+<span class="n">config_set</span><span class="p">(</span><span class="s1">&#39;PREVALIDATE&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">config_get</span><span class="p">(</span><span class="s1">&#39;PREVALIDATE&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">more</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">rgerkin</span><span class="o">/.</span><span class="n">sciunit</span><span class="o">/</span><span class="n">config</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&quot;cmap_high&quot;: 218, &quot;cmap_low&quot;: 38, &quot;LOGGING&quot;: 20, &quot;PREVALIDATE&quot;: true, &quot;CWD&quot;: &quot;/home/rgerkin/Dropbox (ASU)/dev/scidash/sciunit/sciunit&quot;, &quot;sciunit_version&quot;: &quot;0.2.2.3&quot;}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sciunit.models</span> <span class="kn">import</span> <span class="n">RunnableModel</span>
+<span class="kn">from</span> <span class="nn">sciunit.models.backends</span> <span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span> <span class="nn">sciunit.scores</span> <span class="kn">import</span> <span class="n">RelativeDifferenceScore</span>
+<span class="kn">from</span> <span class="nn">neuronunit.models</span> <span class="kn">import</span> <span class="n">RandomVmModel</span>
+<span class="kn">from</span> <span class="nn">neuronunit.tests</span> <span class="kn">import</span> <span class="n">RestingPotentialTest</span>
+<span class="kn">from</span> <span class="nn">neuronunit.capabilities</span> <span class="kn">import</span> <span class="n">ProducesMembranePotential</span><span class="p">,</span> <span class="n">ReceivesCurrent</span>
+<span class="kn">from</span> <span class="nn">neo.core</span> <span class="kn">import</span> <span class="n">AnalogSignal</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">quantities</span> <span class="k">as</span> <span class="nn">pq</span>
+
+    
+<span class="c1"># Random production of a Vm, using a static backend</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">RandomVmModel</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Random&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">StaticBackend</span><span class="p">)</span>
+
+<span class="c1"># RestingPotentialTest for some neuron</span>
+<span class="n">test_class</span> <span class="o">=</span> <span class="n">RestingPotentialTest</span>
+<span class="n">observation</span> <span class="o">=</span> <span class="n">test_class</span><span class="o">.</span><span class="n">neuroelectro_summary_observation</span><span class="p">({</span><span class="s1">&#39;nlex_id&#39;</span><span class="p">:</span> <span class="s1">&#39;nifext_50&#39;</span><span class="p">})</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">test_class</span><span class="p">(</span><span class="n">observation</span><span class="o">=</span><span class="n">observation</span><span class="p">)</span>
+
+<span class="c1"># Change to RelativeDifferenceScore</span>
+<span class="n">test</span><span class="o">.</span><span class="n">score_type</span> <span class="o">=</span> <span class="n">RelativeDifferenceScore</span>
+
+<span class="c1"># Judge the model and return the RelativeDifferenceScore</span>
+<span class="n">test</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>StaticBackend
+Getting Resting membrane potential data values from neuroelectro.org
+http://neuroelectro.org/api/1/nes/?nlex=nifext_50&amp;e__name=Resting+membrane+potential
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Relative Difference = 8.25
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">KeyboardInterrupt</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
+<span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">23</span><span class="o">-</span><span class="n">a8b8f2607ce6</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">test</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+<span class="nn">~/Dropbox (ASU)/dev/scidash/sciunit/sciunit/tests.py</span> in <span class="ni">judge</span><span class="nt">(self, model, skip_incapable, stop_on_error, deep_error)</span>
+<span class="g g-Whitespace">    </span><span class="mi">423</span>         <span class="k">else</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">424</span>             <span class="k">try</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">425</span>                 <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_judge</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">skip_incapable</span><span class="o">=</span><span class="n">skip_incapable</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">426</span>             <span class="k">except</span> <span class="n">CapabilityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">427</span>                 <span class="n">score</span> <span class="o">=</span> <span class="n">NAScore</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+<span class="nn">~/Dropbox (ASU)/dev/scidash/sciunit/sciunit/tests.py</span> in <span class="ni">_judge</span><span class="nt">(self, model, skip_incapable)</span>
+<span class="g g-Whitespace">    </span><span class="mi">354</span> 
+<span class="g g-Whitespace">    </span><span class="mi">355</span>         <span class="c1"># 3.</span>
+<span class="ne">--&gt; </span><span class="mi">356</span>         <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_prediction</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">357</span>         <span class="bp">self</span><span class="o">.</span><span class="n">check_prediction</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">358</span>         <span class="bp">self</span><span class="o">.</span><span class="n">last_model</span> <span class="o">=</span> <span class="n">model</span>
+
+<span class="nn">~/Dropbox (ASU)/dev/scidash/neuronunit/neuronunit/tests/fi.py</span> in <span class="ni">generate_prediction</span><span class="nt">(self, model)</span>
+<span class="g g-Whitespace">    </span><span class="mi">212</span>         <span class="n">prediction</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="g g-Whitespace">    </span><span class="mi">213</span> 
+<span class="ne">--&gt; </span><span class="mi">214</span>         <span class="n">rheobase</span> <span class="o">=</span> <span class="n">find_rheobase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtc</span><span class="p">)</span><span class="o">.</span><span class="n">rheobase</span>
+<span class="g g-Whitespace">    </span><span class="mi">215</span>         <span class="k">if</span> <span class="n">rheobase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">216</span>             <span class="c1"># Something like the below commented line must happen to set the</span>
+
+<span class="nn">~/Dropbox (ASU)/dev/scidash/neuronunit/neuronunit/tests/fi.py</span> in <span class="ni">find_rheobase</span><span class="nt">(self, dtc)</span>
+<span class="g g-Whitespace">    </span><span class="mi">387</span> 
+<span class="g g-Whitespace">    </span><span class="mi">388</span>         <span class="n">b0</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">from_sequence</span><span class="p">(</span><span class="n">dtc_clones</span><span class="p">,</span> <span class="n">npartitions</span><span class="o">=</span><span class="n">N_CPUS</span><span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">389</span>         <span class="n">dtc_clone</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">b0</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">check_current</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">())</span>
+<span class="g g-Whitespace">    </span><span class="mi">390</span>         <span class="k">for</span> <span class="n">dtc</span> <span class="ow">in</span> <span class="n">dtc_clone</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">391</span>             <span class="k">if</span> <span class="n">dtc</span><span class="o">.</span><span class="n">boolean</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+
+<span class="nn">~/miniconda3/lib/python3.8/site-packages/dask/base.py</span> in <span class="ni">compute</span><span class="nt">(self, **kwargs)</span>
+<span class="g g-Whitespace">    </span><span class="mi">277</span>         <span class="n">dask</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">compute</span>
+<span class="g g-Whitespace">    </span><span class="mi">278</span>         <span class="s2">&quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">279</span><span class="s2">         (result,) = compute(self, traverse=False, **kwargs)</span>
+<span class="g g-Whitespace">    </span><span class="mi">280</span><span class="s2">         return result</span>
+<span class="g g-Whitespace">    </span><span class="mi">281</span><span class="s2"> </span>
+
+<span class="nn">~/miniconda3/lib/python3.8/site-packages/dask/base.py</span> in <span class="ni">compute</span><span class="nt">(*args, **kwargs)</span>
+<span class="g g-Whitespace">    </span><span class="mi">565</span><span class="s2">         postcomputes.append(x.__dask_postcompute__())</span>
+<span class="g g-Whitespace">    </span><span class="mi">566</span><span class="s2"> </span>
+<span class="ne">--&gt; </span><span class="mi">567</span><span class="s2">     results = schedule(dsk, keys, **kwargs)</span>
+<span class="nn">    568     return repack([f(r, *a) for r, (f, a)</span> in <span class="ni">zip</span><span class="nt">(results, postcomputes)])</span>
+<span class="g g-Whitespace">    </span><span class="mi">569</span><span class="s2"> </span>
+
+<span class="nn">~/miniconda3/lib/python3.8/site-packages/dask/multiprocessing.py</span> in <span class="ni">get</span><span class="nt">(dsk, keys, num_workers, func_loads, func_dumps, optimize_graph, pool, **kwargs)</span>
+<span class="g g-Whitespace">    </span><span class="mi">216</span><span class="s2">     try:</span>
+<span class="g g-Whitespace">    </span><span class="mi">217</span><span class="s2">         # Run</span>
+<span class="ne">--&gt; </span><span class="mi">218</span><span class="s2">         result = get_async(</span>
+<span class="g g-Whitespace">    </span><span class="mi">219</span><span class="s2">             pool.apply_async,</span>
+<span class="g g-Whitespace">    </span><span class="mi">220</span><span class="s2">             len(pool._pool),</span>
+
+<span class="nn">~/miniconda3/lib/python3.8/site-packages/dask/local.py</span> in <span class="ni">get_async</span><span class="nt">(apply_async, num_workers, dsk, result, cache, get_id, rerun_exceptions_locally, pack_exception, raise_exception, callbacks, dumps, loads, **kwargs)</span>
+<span class="g g-Whitespace">    </span><span class="mi">473</span><span class="s2">             # Main loop, wait on tasks to finish, insert new ones</span>
+<span class="g g-Whitespace">    </span><span class="mi">474</span><span class="s2">             while state[&quot;waiting&quot;] or state[&quot;ready&quot;] or state[&quot;running&quot;]:</span>
+<span class="ne">--&gt; </span><span class="mi">475</span><span class="s2">                 key, res_info, failed = queue_get(queue)</span>
+<span class="g g-Whitespace">    </span><span class="mi">476</span><span class="s2">                 if failed:</span>
+<span class="g g-Whitespace">    </span><span class="mi">477</span><span class="s2">                     exc, tb = loads(res_info)</span>
+
+<span class="nn">~/miniconda3/lib/python3.8/site-packages/dask/local.py</span> in <span class="ni">queue_get</span><span class="nt">(q)</span>
+<span class="g g-Whitespace">    </span><span class="mi">131</span><span class="s2"> </span>
+<span class="g g-Whitespace">    </span><span class="mi">132</span><span class="s2">     def queue_get(q):</span>
+<span class="ne">--&gt; </span><span class="mi">133</span><span class="s2">         return q.get()</span>
+<span class="g g-Whitespace">    </span><span class="mi">134</span><span class="s2"> </span>
+<span class="g g-Whitespace">    </span><span class="mi">135</span><span class="s2"> </span>
+
+<span class="nn">~/miniconda3/lib/python3.8/queue.py</span> in <span class="ni">get</span><span class="nt">(self, block, timeout)</span>
+<span class="g g-Whitespace">    </span><span class="mi">168</span><span class="s2">             elif timeout is None:</span>
+<span class="g g-Whitespace">    </span><span class="mi">169</span><span class="s2">                 while not self._qsize():</span>
+<span class="ne">--&gt; </span><span class="mi">170</span><span class="s2">                     self.not_empty.wait()</span>
+<span class="g g-Whitespace">    </span><span class="mi">171</span><span class="s2">             elif timeout &lt; 0:</span>
+<span class="g g-Whitespace">    </span><span class="mi">172</span><span class="s2">                 raise ValueError(&quot;&#39;timeout&#39; must be a non-negative number&quot;)</span>
+
+<span class="nn">~/miniconda3/lib/python3.8/threading.py</span> in <span class="ni">wait</span><span class="nt">(self, timeout)</span>
+<span class="g g-Whitespace">    </span><span class="mi">300</span><span class="s2">         try:    # restore state no matter what (e.g., KeyboardInterrupt)</span>
+<span class="g g-Whitespace">    </span><span class="mi">301</span><span class="s2">             if timeout is None:</span>
+<span class="ne">--&gt; </span><span class="mi">302</span><span class="s2">                 waiter.acquire()</span>
+<span class="g g-Whitespace">    </span><span class="mi">303</span><span class="s2">                 gotit = True</span>
+<span class="g g-Whitespace">    </span><span class="mi">304</span><span class="s2">             else:</span>
+
+<span class="ne">KeyboardInterrupt</span>: 
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quantities</span> <span class="k">as</span> <span class="nn">pq</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">MethodType</span>
+<span class="kn">from</span> <span class="nn">neuronunit.tests.passive</span> <span class="kn">import</span> <span class="n">InputResistanceTest</span> <span class="k">as</span> <span class="n">IRT</span>
+<span class="kn">from</span> <span class="nn">sciunit.scores</span> <span class="kn">import</span> <span class="n">RelativeDifferenceScore</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">IRT</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">IRT</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
+<span class="n">t1</span><span class="o">.</span><span class="n">score_type</span> <span class="o">=</span> <span class="n">RelativeDifferenceScore</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pq</span><span class="o">.</span><span class="n">oh</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2, 3]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sm</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">judge</span><span class="p">([</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">])</span>  <span class="c1"># Create the ScoreMatrix by judging the TestSuite</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">AssertionError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
+<span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">5</span><span class="o">-</span><span class="n">de315e59b255</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">sm</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">judge</span><span class="p">([</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">])</span>  <span class="c1"># Create the ScoreMatrix by judging the TestSuite</span>
+
+<span class="nn">~/Dropbox (ASU)/dev/scidash/sciunit/sciunit/suites.py</span> in <span class="ni">judge</span><span class="nt">(self, models, skip_incapable, stop_on_error, deep_error)</span>
+<span class="g g-Whitespace">    </span><span class="mi">191</span>         <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">192</span>             <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tests</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">193</span>                 <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">judge_one</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">sm</span><span class="p">,</span> <span class="n">skip_incapable</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">194</span>                                        <span class="n">stop_on_error</span><span class="p">,</span> <span class="n">deep_error</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">195</span>                 <span class="bp">self</span><span class="o">.</span><span class="n">set_hooks</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
+
+<span class="nn">~/Dropbox (ASU)/dev/scidash/sciunit/sciunit/suites.py</span> in <span class="ni">judge_one</span><span class="nt">(self, model, test, sm, skip_incapable, stop_on_error, deep_error)</span>
+<span class="g g-Whitespace">    </span><span class="mi">225</span>             <span class="n">log</span><span class="p">(</span><span class="s1">&#39;Executing test &lt;i&gt;</span><span class="si">%s</span><span class="s1">&lt;/i&gt; on model &lt;i&gt;</span><span class="si">%s</span><span class="s1">&lt;/i&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">model</span><span class="p">),</span>
+<span class="g g-Whitespace">    </span><span class="mi">226</span>                 <span class="n">end</span><span class="o">=</span><span class="sa">u</span><span class="s2">&quot;... &quot;</span><span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">227</span>             <span class="n">score</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">skip_incapable</span><span class="o">=</span><span class="n">skip_incapable</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">228</span>                                <span class="n">stop_on_error</span><span class="o">=</span><span class="n">stop_on_error</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">229</span>                                <span class="n">deep_error</span><span class="o">=</span><span class="n">deep_error</span><span class="p">)</span>
+
+<span class="nn">~/Dropbox (ASU)/dev/scidash/sciunit/sciunit/tests.py</span> in <span class="ni">judge</span><span class="nt">(self, model, skip_incapable, stop_on_error, deep_error)</span>
+<span class="g g-Whitespace">    </span><span class="mi">434</span>                 <span class="n">score</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="bp">self</span>
+<span class="g g-Whitespace">    </span><span class="mi">435</span>         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">ErrorScore</span><span class="p">)</span> <span class="ow">and</span> <span class="n">stop_on_error</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">436</span>             <span class="k">raise</span> <span class="n">score</span><span class="o">.</span><span class="n">score</span>  <span class="c1"># An exception.</span>
+<span class="g g-Whitespace">    </span><span class="mi">437</span>         <span class="k">return</span> <span class="n">score</span>
+<span class="g g-Whitespace">    </span><span class="mi">438</span> 
+
+<span class="nn">~/Dropbox (ASU)/dev/scidash/sciunit/sciunit/tests.py</span> in <span class="ni">judge</span><span class="nt">(self, model, skip_incapable, stop_on_error, deep_error)</span>
+<span class="g g-Whitespace">    </span><span class="mi">423</span>         <span class="k">else</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">424</span>             <span class="k">try</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">425</span>                 <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_judge</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">skip_incapable</span><span class="o">=</span><span class="n">skip_incapable</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">426</span>             <span class="k">except</span> <span class="n">CapabilityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">427</span>                 <span class="n">score</span> <span class="o">=</span> <span class="n">NAScore</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+<span class="nn">~/Dropbox (ASU)/dev/scidash/sciunit/sciunit/tests.py</span> in <span class="ni">_judge</span><span class="nt">(self, model, skip_incapable)</span>
+<span class="g g-Whitespace">    </span><span class="mi">359</span> 
+<span class="g g-Whitespace">    </span><span class="mi">360</span>         <span class="c1"># 4.</span>
+<span class="ne">--&gt; </span><span class="mi">361</span>         <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation</span><span class="p">,</span> <span class="n">prediction</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">362</span> 
+<span class="g g-Whitespace">    </span><span class="mi">363</span>         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span><span class="p">:</span>
+
+<span class="nn">~/Dropbox (ASU)/dev/scidash/sciunit/sciunit/scores/complete.py</span> in <span class="ni">compute</span><span class="nt">(cls, observation, prediction, scale)</span>
+<span class="g g-Whitespace">    </span><span class="mi">248</span>             <span class="n">RelativeDifferenceScore</span><span class="p">:</span> <span class="n">A</span> <span class="n">relative</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">an</span> <span class="n">observation</span> <span class="ow">and</span> <span class="n">a</span> <span class="n">prediction</span><span class="o">.</span>
+<span class="g g-Whitespace">    </span><span class="mi">249</span>         <span class="s2">&quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">250</span><span class="s2">         assert isinstance(observation, (float, int, pq.Quantity))</span>
+<span class="g g-Whitespace">    </span><span class="mi">251</span><span class="s2">         assert isinstance(prediction, (float, int, pq.Quantity))</span>
+<span class="g g-Whitespace">    </span><span class="mi">252</span><span class="s2"> </span>
+
+<span class="ne">AssertionError</span>: 
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t1</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;{&quot;name&quot;: &quot;test1&quot;, &quot;description&quot;: &quot;Test if the model generates a number within a certain range&quot;, &quot;params&quot;: {}, &quot;verbose&quot;: 1, &quot;observation&quot;: [2, 3], &quot;unpicklable&quot;: []}&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">NewScoreArray</span><span class="p">(</span><span class="n">ScoreArray</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">models_or_tests</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="k">return</span> <span class="n">NewScoreArray</span><span class="p">(</span><span class="n">models_or_tests</span><span class="p">,</span> <span class="n">scores</span><span class="o">=</span><span class="n">scores</span><span class="p">)</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+    
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">x</span>
+    
+<span class="k">class</span> <span class="nc">NewScoreMatrix</span><span class="p">(</span><span class="n">ScoreMatrix</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="p">[],</span> <span class="n">tests</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="k">return</span> <span class="n">NewScoreMatrix</span><span class="p">(</span><span class="n">tests</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">scores</span><span class="o">=</span><span class="n">scores</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">get_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">NewScoreArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">,</span>
+                          <span class="n">scores</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test</span><span class="p">),</span>
+                          <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">NewScoreArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tests</span><span class="p">,</span>
+                          <span class="n">scores</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">model</span><span class="p">,</span> <span class="p">:],</span>
+                          <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>    
+
+<span class="n">nsm</span> <span class="o">=</span> <span class="n">NewScoreMatrix</span><span class="p">([</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">],</span> <span class="p">[</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nsm</span><span class="p">[</span><span class="n">t1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;test1&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">qgrid</span>
+<span class="n">qgrid_widget</span> <span class="o">=</span> <span class="n">qgrid</span><span class="o">.</span><span class="n">show_grid</span><span class="p">(</span><span class="n">nsm</span><span class="p">,</span> <span class="n">show_toolbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">qgrid_widget</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "3b6c8bbba4934b1f995ef676abbc591d", "version_major": 2, "version_minor": 0}
+</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qgrid_widget</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "3fc30011ec6646d290021bcaf167a10c", "version_major": 2, "version_minor": 0}
+</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nsm</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>test1</th>
+      <th>RangeTest</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>UniformModel</th>
+      <td>&lt;class 'sciunit.scores.incomplete.NoneScore'&gt;</td>
+      <td>&lt;class 'sciunit.scores.incomplete.NoneScore'&gt;</td>
+    </tr>
+    <tr>
+      <th>UniformModel</th>
+      <td>&lt;class 'sciunit.scores.incomplete.NoneScore'&gt;</td>
+      <td>&lt;class 'sciunit.scores.incomplete.NoneScore'&gt;</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+        
+        <div class='prev-next-bottom'>
+            
+
+        </div>
+        
+        </div>
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+          By The Jupyter Book community<br/>
+        
+            &copy; Copyright 2021.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>
