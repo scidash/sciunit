@@ -36,12 +36,16 @@ class ScoreArray(pd.Series, SciUnit, TestWeighted):
     (score_1, ..., score_n)
     """
 
-    def __init__(self, tests_or_models, scores=None, weights=None):
+    def __init__(self, tests_or_models, scores=None, weights=None, name=None):
         if scores is None:
             scores = [NoneScore for tom in tests_or_models]
         tests_or_models = self.check_tests_and_models(tests_or_models)
         self.weights_ = [] if not weights else list(weights)
-        super(ScoreArray, self).__init__(data=scores, index=tests_or_models)
+        name = (name or self.__class__.__name__)
+        self._name = name  # Necessary for some reason even though
+                           # it is also passed to pd.Series constructor
+        super(ScoreArray, self).__init__(data=scores, index=tests_or_models,
+                                         name=name)
         self.index_type = "tests" if isinstance(tests_or_models[0], Test) else "models"
         setattr(self, self.index_type, tests_or_models)
 
@@ -81,13 +85,16 @@ class ScoreArray(pd.Series, SciUnit, TestWeighted):
         if item is None:
             raise KeyError("No model or test with name '%s'" % name)
         return item
+    
+    def __setattr__(self, attr, value):
+        self.__dict__[attr] = value
 
-    def __getattr__(self, name):
-        if name in self.direct_attrs:
-            attr = self.apply(lambda x: getattr(x, name))
-        else:
-            attr = super(ScoreArray, self).__getattribute__(name)
-        return attr
+    #def __getattr__(self, name):
+    #    if name in self.direct_attrs:
+    #        attr = self.apply(lambda x: getattr(x, name))
+    #    else:
+    #        attr = super(ScoreArray, self).__getattribute__(name)
+    #    return attr
 
     @property
     def related_data(self) -> pd.Series:
@@ -100,6 +107,8 @@ class ScoreArray(pd.Series, SciUnit, TestWeighted):
     @property
     def scores(self) -> pd.Series:
         return self.map(lambda x: x.score)
+    
+    score = scores  # Backwards compatibility
     
     @property
     def norm_scores(self) -> pd.Series:
@@ -234,6 +243,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             self.models,
             scores=super(ScoreMatrix, self).__getitem__(test),
             weights=self.weights,
+            name=test.name,
         )
 
     def get_model(self, model: Model) -> ScoreArray:
@@ -245,7 +255,10 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         Returns:
             ScoreArray: The generated ScoreArray instance.
         """
-        return ScoreArray(self.tests, scores=self.loc[model, :], weights=self.weights)
+        return ScoreArray(self.tests,
+                          scores=self.loc[model, :],
+                          weights=self.weights,
+                          name=model.name)
 
     def get_group(self, x: tuple) -> Union[Model, Test, Score]:
         """[summary]
@@ -289,12 +302,15 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             if test.name == name:
                 return self.__getitem__(test)
         raise KeyError("No model or test with name '%s'" % name)
+    
+    def __setattr__(self, attr, value):
+        self.__dict__[attr] = value
 
     #def __getattr__(self, name):
     #    if name in self.direct_attrs:
     #        attr = self.applymap(lambda x: getattr(x, name))
     #    else:
-    #       attr = super(ScoreMatrix, self).__getattribute__(name)
+    #        attr = super(ScoreMatrix, self).__getattribute__(name)
     #    return attr
     
     @property
@@ -308,6 +324,8 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
     @property
     def scores(self) -> pd.DataFrame:
         return self.applymap(lambda x: x.score)
+    
+    score = scores  # Backwards compatibility
 
     @property
     def norm_scores(self) -> pd.DataFrame:

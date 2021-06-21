@@ -24,7 +24,6 @@ class RunnableModel(Model, cap.Runnable):
         self.run_params = {}  # Should be reset between tests
         self.print_run_params = False  # Print the run parameters with each run
         self.default_run_params = {}  # Should be applied to all tests
-        self.unpicklable = []  # Model attributes which cannot be pickled
         if attrs and not isinstance(attrs, dict):
             raise TypeError("Model 'attrs' must be a dictionary.")
         self.attrs = attrs if attrs else {}

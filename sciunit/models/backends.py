@@ -48,7 +48,6 @@ class Backend(SciUnit):
         if self.use_disk_cache:
             self.init_disk_cache()
         self.load_model()
-        self.model.unpicklable += ["_backend"]
 
     #: Name of the backend
     name = None

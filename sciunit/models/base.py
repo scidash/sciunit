@@ -63,11 +63,12 @@ class Model(SciUnit):
     def failed_extra_capabilities(self) -> list:
         """Check to see if instance passes its `extra_capability_checks`."""
         failed = []
-        for capability, f_name in self.extra_capability_checks.items():
-            f = getattr(self, f_name)
-            instance_capable = f()
-            if isinstance(self, capability) and not instance_capable:
-                failed.append(capability)
+        if self.extra_capability_checks is not None:
+            for capability, f_name in self.extra_capability_checks.items():
+                f = getattr(self, f_name)
+                instance_capable = f()
+                if isinstance(self, capability) and not instance_capable:
+                    failed.append(capability)
         return failed
 
     def describe(self) -> str:

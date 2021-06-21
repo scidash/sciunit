@@ -19,11 +19,9 @@ class BaseCase(unittest.TestCase):
         from sciunit.base import SciUnit
 
         sciunitObj = SciUnit()
-        self.assertIsInstance(sciunitObj.properties, dict)
+        self.assertIsInstance(sciunitObj.properties(), dict)
         self.assertIsInstance(sciunitObj.__getstate__(), dict)
         self.assertIsInstance(sciunitObj.json(), str)
-        self.assertIsInstance(sciunitObj._id, int)
-        self.assertIsInstance(sciunitObj.id, str)
         sciunitObj.json(string=False)
         self.assertIsInstance(sciunitObj._class, dict)
         sciunitObj.testState = "testState"

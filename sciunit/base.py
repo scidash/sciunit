@@ -283,6 +283,7 @@ class SciUnit(Versioned):
     #: A class attribute containing a list of other attributes to be hidden
     # from state calculations
     state_hide = ['hash', 'pickling', 'temp_dir']
+    
 
     def __getstate__(self) -> dict:
         """Copy the object's state from self.__dict__.
@@ -354,7 +355,7 @@ class SciUnit(Versioned):
     #    return self._state()
 
     def json(
-        self, add_props: bool = None, string: bool = None, unpicklable: bool = None, make_refs: bool = None) -> str:
+        self, add_props: bool = True, string: bool = True, unpicklable: bool = False, make_refs: bool = False) -> str:
         """Generate a Json format encoded sciunit instance.
 
         Args:
