@@ -1,4 +1,4 @@
-[![Travis](https://travis-ci.org/scidash/sciunit.svg?branch=master)](https://travis-ci.org/scidash/sciunit)
+[![Travis](https://travis-ci.com/scidash/sciunit.svg?branch=master)](https://travis-ci.com/scidash/sciunit)
 [![RTFD](https://readthedocs.org/projects/sciunit/badge/?version=master&x=1)](http://sciunit.readthedocs.io/en/latest/?badge=master)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/scidash/sciunit/master?filepath=docs%2Fchapter1.ipynb)
 [![Coveralls](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=master&x=1)](https://coveralls.io/github/scidash/sciunit?branch=master)
@@ -16,12 +16,8 @@
 
 ## Documentation
 [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/scidash/sciunit/blob/master/docs/chapter1.ipynb) <br>
-[Chapter 1](https://github.com/scidash/sciunit/blob/master/docs/chapter1.ipynb) /
-[Chapter 2](https://github.com/scidash/sciunit/blob/master/docs/chapter2.ipynb) /
-[Chapter 3](https://github.com/scidash/sciunit/blob/master/docs/chapter3.ipynb) /
-[Chapter 4](https://github.com/scidash/sciunit/blob/dev/docs/chapter4.ipynb) /
-[Chapter 5](https://github.com/scidash/sciunit/blob/dev/docs/chapter5.ipynb) /
-[Chapter 6](https://github.com/scidash/sciunit/blob/dev/docs/chapter6.ipynb) /
+[Jupyter Tutorials](https://scidash.org/sciunit/README.html)<br>
+[API Documentation](http://sciunit.rtfd.io)
 
 ## Installation
 ```python
