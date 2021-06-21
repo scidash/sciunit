@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>3. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests. &#8212; SciUnit: A python library for data-driven model validation testing</title>
+    <title>2. Chapter 2. Writing a model and test in SciUnit from scratch &#8212; SciUnit: A python library for data-driven model validation testing</title>
     
   <link href="_static/css/theme.css" rel="stylesheet" />
   <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -51,8 +51,8 @@
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="5. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests." href="chapter3.html" />
-    <link rel="prev" title="1. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests." href="chapter1.html" />
+    <link rel="next" title="3. Chapter 3. Testing with help from the SciUnit standard library" href="chapter3.html" />
+    <link rel="prev" title="1. Chapter 1. What is SciUnit?" href="chapter1.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
     
@@ -97,32 +97,44 @@
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="chapter1.html">
-   1. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   1. Chapter 1. What is SciUnit?
   </a>
  </li>
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   3. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   2. Chapter 2. Writing a
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     model
+    </span>
+   </code>
+   and
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     test
+    </span>
+   </code>
+   in SciUnit from scratch
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter3.html">
-   5. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   3. Chapter 3. Testing with help from the SciUnit standard library
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter4.html">
-   7. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   4. Chapter 4. Example of RunnableModel and Backend
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter5.html">
-   9. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   5. Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter6.html">
-   11. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   6. Chapter 6. Workshop Tutorial, Real Example
   </a>
  </li>
 </ul>
@@ -225,142 +237,118 @@
             </div>
             <nav id="bd-toc-nav">
                 <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   3. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
+   2.1. If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.
   </a>
  </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#chapter-2-writing-a-model-and-test-in-sciunit-from-scratch">
-   4. Chapter 2. Writing a
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#sciunit-works-by-making-models-declare-and-implement-capabilities-that-tests-use-to-interact-with-those-models">
+   2.2. SciUnit works by making models declare and implement capabilities that tests use to interact with those models.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#sciunit-models-subclass-sciunit-model-as-well-as-each-sciunit-capability-they-aim-to-implement">
+   2.3. SciUnit models subclass
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     sciunit.Model
+    </span>
+   </code>
+   as well as each
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     sciunit.Capability
+    </span>
+   </code>
+   they aim to implement.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#a-model-we-want-to-test-is-always-an-instance-with-specific-model-arguments-of-a-more-generic-model-class">
+   2.4. A
    <code class="docutils literal notranslate">
     <span class="pre">
      model
     </span>
    </code>
-   and
+   we want to test is always an instance (with specific model arguments) of a more generic
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     model
+    </span>
+   </code>
+   class.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#a-sciunit-test-class-must-contain">
+   2.5. A SciUnit test class must contain:
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#a-sciunit-test-is-a-specific-instance-of-a-test-class-parameterized-by-the-observation-i-e-the-empirical-data-that-the-model-aims-to-recapitulate">
+   2.6. A SciUnit test is a specific instance of a
    <code class="docutils literal notranslate">
     <span class="pre">
      test
     </span>
    </code>
-   in SciUnit from scratch
+   class, parameterized by the observation (i.e. the empirical data that the
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     model
+    </span>
+   </code>
+   aims to recapitulate).
   </a>
-  <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
-     4.1. If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#sciunit-works-by-making-models-declare-and-implement-capabilities-that-tests-use-to-interact-with-those-models">
-     4.2. SciUnit works by making models declare and implement capabilities that tests use to interact with those models.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#sciunit-models-subclass-sciunit-model-as-well-as-each-sciunit-capability-they-aim-to-implement">
-     4.3. SciUnit models subclass
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       sciunit.Model
-      </span>
-     </code>
-     as well as each
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       sciunit.Capability
-      </span>
-     </code>
-     they aim to implement.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#a-model-we-want-to-test-is-always-an-instance-with-specific-model-arguments-of-a-more-generic-model-class">
-     4.4. A
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       model
-      </span>
-     </code>
-     we want to test is always an instance (with specific model arguments) of a more generic
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       model
-      </span>
-     </code>
-     class.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#a-sciunit-test-class-must-contain">
-     4.5. A SciUnit test class must contain:
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#a-sciunit-test-is-a-specific-instance-of-a-test-class-parameterized-by-the-observation-i-e-the-empirical-data-that-the-model-aims-to-recapitulate">
-     4.6. A SciUnit test is a specific instance of a
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       test
-      </span>
-     </code>
-     class, parameterized by the observation (i.e. the empirical data that the
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       model
-      </span>
-     </code>
-     aims to recapitulate).
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#every-test-has-a-judge-method-which-executes-the-test-and-returns-a-score-for-the-provide-model">
-     4.7. Every test has a
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       judge
-      </span>
-     </code>
-     method which executes the test and returns a
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       score
-      </span>
-     </code>
-     for the provide model.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#a-score-is-an-object-containing-information-about-the-result-of-the-test-and-the-provenance-of-that-result">
-     4.8. A score is an object containing information about the result of the test, and the provenance of that result.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#several-logically-related-tests-can-be-grouped-using-a-testsuite">
-     4.9. Several logically related tests can be grouped using a
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       TestSuite
-      </span>
-     </code>
-     .
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#in-the-next-section-we-ll-see-how-to-build-slightly-more-sophisticated-tests-using-objects-built-in-to-sciunit">
-     4.10. In the next section we’ll see how to build slightly more sophisticated tests using objects built-in to SciUnit.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#onto-chapter-3">
-     4.11. Onto
-     <span class="xref myst">
-      Chapter 3
-     </span>
-     !
-    </a>
-   </li>
-  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#every-test-has-a-judge-method-which-executes-the-test-and-returns-a-score-for-the-provide-model">
+   2.7. Every test has a
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     judge
+    </span>
+   </code>
+   method which executes the test and returns a
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     score
+    </span>
+   </code>
+   for the provide model.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#a-score-is-an-object-containing-information-about-the-result-of-the-test-and-the-provenance-of-that-result">
+   2.8. A score is an object containing information about the result of the test, and the provenance of that result.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#several-logically-related-tests-can-be-grouped-using-a-testsuite">
+   2.9. Several logically related tests can be grouped using a
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     TestSuite
+    </span>
+   </code>
+   .
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#in-the-next-section-we-ll-see-how-to-build-slightly-more-sophisticated-tests-using-objects-built-in-to-sciunit">
+   2.10. In the next section we’ll see how to build slightly more sophisticated tests using objects built-in to SciUnit.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#onto-chapter-3">
+   2.11. Onto
+   <span class="xref myst">
+    Chapter 3
+   </span>
+   !
+  </a>
  </li>
 </ul>
 
@@ -374,15 +362,12 @@
               <div>
                 
   <p><img alt="SciUnit Logo" src="https://raw.githubusercontent.com/scidash/assets/master/logos/SciUnit/sci-unit-tag.png" /></p>
-<div class="section" id="sciunit-is-a-framework-for-validating-scientific-models-by-creating-experimental-data-driven-unit-tests">
-<h1><span class="section-number">3. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.<a class="headerlink" href="#sciunit-is-a-framework-for-validating-scientific-models-by-creating-experimental-data-driven-unit-tests" title="Permalink to this headline">¶</a></h1>
 <p><a href="https://colab.research.google.com/github/scidash/sciunit/blob/master/docs/chapter2.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a></p>
-</div>
 <div class="section" id="chapter-2-writing-a-model-and-test-in-sciunit-from-scratch">
-<h1><span class="section-number">4. </span>Chapter 2. Writing a <code class="docutils literal notranslate"><span class="pre">model</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span></code> in SciUnit from scratch<a class="headerlink" href="#chapter-2-writing-a-model-and-test-in-sciunit-from-scratch" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">2. </span>Chapter 2. Writing a <code class="docutils literal notranslate"><span class="pre">model</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span></code> in SciUnit from scratch<a class="headerlink" href="#chapter-2-writing-a-model-and-test-in-sciunit-from-scratch" title="Permalink to this headline">¶</a></h1>
 <p>(or <a class="reference internal" href="chapter1.html"><span class="doc std std-doc">back to Chapter 1</span></a>)</p>
 <div class="section" id="if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
-<h2><span class="section-number">4.1. </span>If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.<a class="headerlink" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.1. </span>If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.<a class="headerlink" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install -q sciunit
@@ -399,7 +384,7 @@
 </div>
 </div>
 <div class="section" id="sciunit-works-by-making-models-declare-and-implement-capabilities-that-tests-use-to-interact-with-those-models">
-<h2><span class="section-number">4.2. </span>SciUnit works by making models declare and implement capabilities that tests use to interact with those models.<a class="headerlink" href="#sciunit-works-by-making-models-declare-and-implement-capabilities-that-tests-use-to-interact-with-those-models" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.2. </span>SciUnit works by making models declare and implement capabilities that tests use to interact with those models.<a class="headerlink" href="#sciunit-works-by-making-models-declare-and-implement-capabilities-that-tests-use-to-interact-with-those-models" title="Permalink to this headline">¶</a></h2>
 <p>Each <code class="docutils literal notranslate"><span class="pre">capability</span></code> is a subclass of <code class="docutils literal notranslate"><span class="pre">sciunit.Capability</span></code>, and contains one or more unimplemented methods.  Here we define a simple capability through which a model can return a single number.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -415,7 +400,7 @@
 </div>
 </div>
 <div class="section" id="sciunit-models-subclass-sciunit-model-as-well-as-each-sciunit-capability-they-aim-to-implement">
-<h2><span class="section-number">4.3. </span>SciUnit models subclass <code class="docutils literal notranslate"><span class="pre">sciunit.Model</span></code> as well as each <code class="docutils literal notranslate"><span class="pre">sciunit.Capability</span></code> they aim to implement.<a class="headerlink" href="#sciunit-models-subclass-sciunit-model-as-well-as-each-sciunit-capability-they-aim-to-implement" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.3. </span>SciUnit models subclass <code class="docutils literal notranslate"><span class="pre">sciunit.Model</span></code> as well as each <code class="docutils literal notranslate"><span class="pre">sciunit.Capability</span></code> they aim to implement.<a class="headerlink" href="#sciunit-models-subclass-sciunit-model-as-well-as-each-sciunit-capability-they-aim-to-implement" title="Permalink to this headline">¶</a></h2>
 <p>Here we create a trivial model class that is instantiated with a single constant.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -442,7 +427,7 @@
 </div>
 </div>
 <div class="section" id="a-model-we-want-to-test-is-always-an-instance-with-specific-model-arguments-of-a-more-generic-model-class">
-<h2><span class="section-number">4.4. </span>A <code class="docutils literal notranslate"><span class="pre">model</span></code> we want to test is always an instance (with specific model arguments) of a more generic <code class="docutils literal notranslate"><span class="pre">model</span></code> class.<a class="headerlink" href="#a-model-we-want-to-test-is-always-an-instance-with-specific-model-arguments-of-a-more-generic-model-class" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.4. </span>A <code class="docutils literal notranslate"><span class="pre">model</span></code> we want to test is always an instance (with specific model arguments) of a more generic <code class="docutils literal notranslate"><span class="pre">model</span></code> class.<a class="headerlink" href="#a-model-we-want-to-test-is-always-an-instance-with-specific-model-arguments-of-a-more-generic-model-class" title="Permalink to this headline">¶</a></h2>
 <p>Here we create an instance of <code class="docutils literal notranslate"><span class="pre">ConstModel</span></code> that will always produce the number 37 and give it a name.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -453,7 +438,7 @@
 </div>
 </div>
 <div class="section" id="a-sciunit-test-class-must-contain">
-<h2><span class="section-number">4.5. </span>A SciUnit test class must contain:<a class="headerlink" href="#a-sciunit-test-class-must-contain" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.5. </span>A SciUnit test class must contain:<a class="headerlink" href="#a-sciunit-test-class-must-contain" title="Permalink to this headline">¶</a></h2>
 <ol class="simple">
 <li><p>the capabilities a model requires to take the test.</p></li>
 <li><p>the type of score that it will return</p></li>
@@ -489,7 +474,7 @@
 </div>
 </div>
 <div class="section" id="a-sciunit-test-is-a-specific-instance-of-a-test-class-parameterized-by-the-observation-i-e-the-empirical-data-that-the-model-aims-to-recapitulate">
-<h2><span class="section-number">4.6. </span>A SciUnit test is a specific instance of a <code class="docutils literal notranslate"><span class="pre">test</span></code> class, parameterized by the observation (i.e. the empirical data that the <code class="docutils literal notranslate"><span class="pre">model</span></code> aims to recapitulate).<a class="headerlink" href="#a-sciunit-test-is-a-specific-instance-of-a-test-class-parameterized-by-the-observation-i-e-the-empirical-data-that-the-model-aims-to-recapitulate" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.6. </span>A SciUnit test is a specific instance of a <code class="docutils literal notranslate"><span class="pre">test</span></code> class, parameterized by the observation (i.e. the empirical data that the <code class="docutils literal notranslate"><span class="pre">model</span></code> aims to recapitulate).<a class="headerlink" href="#a-sciunit-test-is-a-specific-instance-of-a-test-class-parameterized-by-the-observation-i-e-the-empirical-data-that-the-model-aims-to-recapitulate" title="Permalink to this headline">¶</a></h2>
 <p>Here we create a test instance parameterized by the observation 37.0.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -500,7 +485,7 @@
 </div>
 </div>
 <div class="section" id="every-test-has-a-judge-method-which-executes-the-test-and-returns-a-score-for-the-provide-model">
-<h2><span class="section-number">4.7. </span>Every test has a <code class="docutils literal notranslate"><span class="pre">judge</span></code> method which executes the test and returns a <code class="docutils literal notranslate"><span class="pre">score</span></code> for the provide model.<a class="headerlink" href="#every-test-has-a-judge-method-which-executes-the-test-and-returns-a-score-for-the-provide-model" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.7. </span>Every test has a <code class="docutils literal notranslate"><span class="pre">judge</span></code> method which executes the test and returns a <code class="docutils literal notranslate"><span class="pre">score</span></code> for the provide model.<a class="headerlink" href="#every-test-has-a-judge-method-which-executes-the-test-and-returns-a-score-for-the-provide-model" title="Permalink to this headline">¶</a></h2>
 <p>Here we judge the model we just created using the test we just created.  The <code class="docutils literal notranslate"><span class="pre">judge</span></code> method does a lot of things behind the scenes:</p>
 <ol class="simple">
 <li><p>It checks to makes sure that your <code class="docutils literal notranslate"><span class="pre">model</span></code> expresses each <code class="docutils literal notranslate"><span class="pre">capability</span></code> required to take the test. It doesn’t check to see if they are implemented correctly (how could it know?) but it does check to make sure the <code class="docutils literal notranslate"><span class="pre">model</span></code> at least claims (through inheritance) to express each <code class="docutils literal notranslate"><span class="pre">capability</span></code>. The required capabilities are none other than those in the test’s <code class="docutils literal notranslate"><span class="pre">required_capabilities</span></code> attribute. Since <code class="docutils literal notranslate"><span class="pre">ProducesNumber</span></code> is the only required capability, and the <code class="docutils literal notranslate"><span class="pre">ConstModel</span></code> class inherits from the corresponding capability class, that check passes.</p></li>
@@ -530,7 +515,7 @@
 </div>
 </div>
 <div class="section" id="a-score-is-an-object-containing-information-about-the-result-of-the-test-and-the-provenance-of-that-result">
-<h2><span class="section-number">4.8. </span>A score is an object containing information about the result of the test, and the provenance of that result.<a class="headerlink" href="#a-score-is-an-object-containing-information-about-the-result-of-the-test-and-the-provenance-of-that-result" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.8. </span>A score is an object containing information about the result of the test, and the provenance of that result.<a class="headerlink" href="#a-score-is-an-object-containing-information-about-the-result-of-the-test-and-the-provenance-of-that-result" title="Permalink to this headline">¶</a></h2>
 <p>Printing the <code class="docutils literal notranslate"><span class="pre">score</span></code> just prints a representation of its value (for a <code class="docutils literal notranslate"><span class="pre">BooleanScore</span></code>, <code class="docutils literal notranslate"><span class="pre">True</span></code> has the representation ‘Pass’)</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -567,7 +552,7 @@
 </div>
 </div>
 <div class="section" id="several-logically-related-tests-can-be-grouped-using-a-testsuite">
-<h2><span class="section-number">4.9. </span>Several logically related tests can be grouped using a <code class="docutils literal notranslate"><span class="pre">TestSuite</span></code>.<a class="headerlink" href="#several-logically-related-tests-can-be-grouped-using-a-testsuite" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.9. </span>Several logically related tests can be grouped using a <code class="docutils literal notranslate"><span class="pre">TestSuite</span></code>.<a class="headerlink" href="#several-logically-related-tests-can-be-grouped-using-a-testsuite" title="Permalink to this headline">¶</a></h2>
 <p>These can be instances of the same test class (instantiated with different observations) or instances of different test classes.  Anything tests that you think belongs together can be part of a TestSuite.  A test can be a part of many different suites at once.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -594,20 +579,20 @@ Score: Pass for Constant Model 37 on =37
 </pre></div>
 </div>
 <div class="output text_html"><style  type="text/css" >
-#T_d2bab0a0_ace6_11eb_a71a_ac1f6b647d9arow0_col0,#T_d2bab0a0_ace6_11eb_a71a_ac1f6b647d9arow0_col1{
+#T_8d293_row0_col0,#T_8d293_row0_col1{
             background-color:  rgb(50, 50, 50);
              color:  rgb(230, 78, 52);
              text-align:  center;
-        }#T_d2bab0a0_ace6_11eb_a71a_ac1f6b647d9arow0_col2{
+        }#T_8d293_row0_col2{
             background-color:  rgb(50, 50, 50);
              color:  rgb(60, 169, 88);
              text-align:  center;
-        }</style><table id="T_d2bab0a0_ace6_11eb_a71a_ac1f6b647d9a" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >=1</th>        <th class="col_heading level0 col1" >=2</th>        <th class="col_heading level0 col2" >=37</th>    </tr></thead><tbody>
+        }</style><table id="T_8d293_" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >=1</th>        <th class="col_heading level0 col1" >=2</th>        <th class="col_heading level0 col2" >=37</th>    </tr></thead><tbody>
                 <tr>
-                        <th id="T_d2bab0a0_ace6_11eb_a71a_ac1f6b647d9alevel0_row0" class="row_heading level0 row0" >Constant Model 37</th>
-                        <td id="T_d2bab0a0_ace6_11eb_a71a_ac1f6b647d9arow0_col0" class="data row0 col0" >Fail</td>
-                        <td id="T_d2bab0a0_ace6_11eb_a71a_ac1f6b647d9arow0_col1" class="data row0 col1" >Fail</td>
-                        <td id="T_d2bab0a0_ace6_11eb_a71a_ac1f6b647d9arow0_col2" class="data row0 col2" >Pass</td>
+                        <th id="T_8d293_level0_row0" class="row_heading level0 row0" >Constant Model 37</th>
+                        <td id="T_8d293_row0_col0" class="data row0 col0" >Fail</td>
+                        <td id="T_8d293_row0_col1" class="data row0 col1" >Fail</td>
+                        <td id="T_8d293_row0_col2" class="data row0 col2" >Pass</td>
             </tr>
     </tbody></table></div></div>
 </div>
@@ -634,32 +619,32 @@ Score: Pass for Constant Model 37 on =37
 </pre></div>
 </div>
 <div class="output text_html"><style  type="text/css" >
-#T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow0_col0,#T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow1_col1,#T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow2_col2{
+#T_86788_row0_col0,#T_86788_row1_col1,#T_86788_row2_col2{
             background-color:  rgb(50, 50, 50);
              color:  rgb(60, 169, 88);
              text-align:  center;
-        }#T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow0_col1,#T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow0_col2,#T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow1_col0,#T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow1_col2,#T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow2_col0,#T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow2_col1{
+        }#T_86788_row0_col1,#T_86788_row0_col2,#T_86788_row1_col0,#T_86788_row1_col2,#T_86788_row2_col0,#T_86788_row2_col1{
             background-color:  rgb(50, 50, 50);
              color:  rgb(230, 78, 52);
              text-align:  center;
-        }</style><table id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9a" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >=1</th>        <th class="col_heading level0 col1" >=2</th>        <th class="col_heading level0 col2" >=37</th>    </tr></thead><tbody>
+        }</style><table id="T_86788_" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >=1</th>        <th class="col_heading level0 col1" >=2</th>        <th class="col_heading level0 col2" >=37</th>    </tr></thead><tbody>
                 <tr>
-                        <th id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9alevel0_row0" class="row_heading level0 row0" >Constant Model 1</th>
-                        <td id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow0_col0" class="data row0 col0" >Pass</td>
-                        <td id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow0_col1" class="data row0 col1" >Fail</td>
-                        <td id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow0_col2" class="data row0 col2" >Fail</td>
+                        <th id="T_86788_level0_row0" class="row_heading level0 row0" >Constant Model 1</th>
+                        <td id="T_86788_row0_col0" class="data row0 col0" >Pass</td>
+                        <td id="T_86788_row0_col1" class="data row0 col1" >Fail</td>
+                        <td id="T_86788_row0_col2" class="data row0 col2" >Fail</td>
             </tr>
             <tr>
-                        <th id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9alevel0_row1" class="row_heading level0 row1" >Constant Model 2</th>
-                        <td id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow1_col0" class="data row1 col0" >Fail</td>
-                        <td id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow1_col1" class="data row1 col1" >Pass</td>
-                        <td id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow1_col2" class="data row1 col2" >Fail</td>
+                        <th id="T_86788_level0_row1" class="row_heading level0 row1" >Constant Model 2</th>
+                        <td id="T_86788_row1_col0" class="data row1 col0" >Fail</td>
+                        <td id="T_86788_row1_col1" class="data row1 col1" >Pass</td>
+                        <td id="T_86788_row1_col2" class="data row1 col2" >Fail</td>
             </tr>
             <tr>
-                        <th id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9alevel0_row2" class="row_heading level0 row2" >Constant Model 37</th>
-                        <td id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow2_col0" class="data row2 col0" >Fail</td>
-                        <td id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow2_col1" class="data row2 col1" >Fail</td>
-                        <td id="T_ebc7ad5a_ace6_11eb_a71a_ac1f6b647d9arow2_col2" class="data row2 col2" >Pass</td>
+                        <th id="T_86788_level0_row2" class="row_heading level0 row2" >Constant Model 37</th>
+                        <td id="T_86788_row2_col0" class="data row2 col0" >Fail</td>
+                        <td id="T_86788_row2_col1" class="data row2 col1" >Fail</td>
+                        <td id="T_86788_row2_col2" class="data row2 col2" >Pass</td>
             </tr>
     </tbody></table></div></div>
 </div>
@@ -697,10 +682,10 @@ Name: Constant Model 2, dtype: object
 </div>
 </div>
 <div class="section" id="in-the-next-section-we-ll-see-how-to-build-slightly-more-sophisticated-tests-using-objects-built-in-to-sciunit">
-<h2><span class="section-number">4.10. </span>In the next section we’ll see how to build slightly more sophisticated tests using objects built-in to SciUnit.<a class="headerlink" href="#in-the-next-section-we-ll-see-how-to-build-slightly-more-sophisticated-tests-using-objects-built-in-to-sciunit" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.10. </span>In the next section we’ll see how to build slightly more sophisticated tests using objects built-in to SciUnit.<a class="headerlink" href="#in-the-next-section-we-ll-see-how-to-build-slightly-more-sophisticated-tests-using-objects-built-in-to-sciunit" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="onto-chapter-3">
-<h2><span class="section-number">4.11. </span>Onto <a class="reference internal" href="chapter3.html"><span class="doc std std-doc">Chapter 3</span></a>!<a class="headerlink" href="#onto-chapter-3" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.11. </span>Onto <a class="reference internal" href="chapter3.html"><span class="doc std std-doc">Chapter 3</span></a>!<a class="headerlink" href="#onto-chapter-3" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -729,8 +714,8 @@ Name: Constant Model 2, dtype: object
         
         <div class='prev-next-bottom'>
             
-    <a class='left-prev' id="prev-link" href="chapter1.html" title="previous page"><span class="section-number">1. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.</a>
-    <a class='right-next' id="next-link" href="chapter3.html" title="next page"><span class="section-number">5. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.</a>
+    <a class='left-prev' id="prev-link" href="chapter1.html" title="previous page"><span class="section-number">1. </span>Chapter 1. What is SciUnit?</a>
+    <a class='right-next' id="next-link" href="chapter3.html" title="next page"><span class="section-number">3. </span>Chapter 3. Testing with help from the SciUnit standard library</a>
 
         </div>
         

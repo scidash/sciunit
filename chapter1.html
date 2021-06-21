@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>1. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests. &#8212; SciUnit: A python library for data-driven model validation testing</title>
+    <title>1. Chapter 1. What is SciUnit? &#8212; SciUnit: A python library for data-driven model validation testing</title>
     
   <link href="_static/css/theme.css" rel="stylesheet" />
   <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -51,7 +51,7 @@
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="3. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests." href="chapter2.html" />
+    <link rel="next" title="2. Chapter 2. Writing a model and test in SciUnit from scratch" href="chapter2.html" />
     <link rel="prev" title="New to SciUnit?" href="README.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
@@ -97,32 +97,44 @@
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   1. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   1. Chapter 1. What is SciUnit?
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter2.html">
-   3. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   2. Chapter 2. Writing a
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     model
+    </span>
+   </code>
+   and
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     test
+    </span>
+   </code>
+   in SciUnit from scratch
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter3.html">
-   5. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   3. Chapter 3. Testing with help from the SciUnit standard library
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter4.html">
-   7. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   4. Chapter 4. Example of RunnableModel and Backend
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter5.html">
-   9. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   5. Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter6.html">
-   11. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   6. Chapter 6. Workshop Tutorial, Real Example
   </a>
  </li>
 </ul>
@@ -225,63 +237,51 @@
             </div>
             <nav id="bd-toc-nav">
                 <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   1. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#sciunit-makes-this-formal-and-transparent">
+   1.1. SciUnit makes this formal and transparent.
   </a>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#chapter-1-what-is-sciunit">
-   2. Chapter 1. What is SciUnit?
-  </a>
-  <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#sciunit-makes-this-formal-and-transparent">
-     2.1. SciUnit makes this formal and transparent.
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
-       2.1.1. If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#what-does-testing-look-like">
-     2.2. What does testing look like?
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#sciunit-test-classes-used-with-in-one-scientific-domain-like-cosmology-are-located-in-a-discipline-specific-library">
-     2.3. SciUnit test classes used with in one scientific domain (like cosmology) are located in a discipline-specific library.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#all-of-our-tests-can-be-organized-into-a-suite-to-compare-results-across-related-tests">
-     2.4. All of our tests can be organized into a suite to compare results across related tests.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#now-we-can-execute-this-entire-test-suite-against-our-models">
-     2.5. Now we can execute this entire test suite against our models.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#in-the-next-section-we-ll-see-how-to-create-models-and-tests-from-scratch-in-sciunit">
-     2.6. In the next section we’ll see how to create models and tests from scratch in SciUnit.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#onto-chapter-2">
-     2.7. Onto
-     <span class="xref myst">
-      Chapter 2
-     </span>
-     !
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
+     1.1.1. If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.
     </a>
    </li>
   </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#what-does-testing-look-like">
+   1.2. What does testing look like?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#sciunit-test-classes-used-with-in-one-scientific-domain-like-cosmology-are-located-in-a-discipline-specific-library">
+   1.3. SciUnit test classes used with in one scientific domain (like cosmology) are located in a discipline-specific library.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#all-of-our-tests-can-be-organized-into-a-suite-to-compare-results-across-related-tests">
+   1.4. All of our tests can be organized into a suite to compare results across related tests.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#now-we-can-execute-this-entire-test-suite-against-our-models">
+   1.5. Now we can execute this entire test suite against our models.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#in-the-next-section-we-ll-see-how-to-create-models-and-tests-from-scratch-in-sciunit">
+   1.6. In the next section we’ll see how to create models and tests from scratch in SciUnit.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#onto-chapter-2">
+   1.7. Onto
+   <span class="xref myst">
+    Chapter 2
+   </span>
+   !
+  </a>
  </li>
 </ul>
 
@@ -295,17 +295,15 @@
               <div>
                 
   <p><img alt="SciUnit Logo" src="https://raw.githubusercontent.com/scidash/assets/master/logos/SciUnit/sci-unit-tag.png" /></p>
-<div class="section" id="sciunit-is-a-framework-for-validating-scientific-models-by-creating-experimental-data-driven-unit-tests">
-<h1><span class="section-number">1. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.<a class="headerlink" href="#sciunit-is-a-framework-for-validating-scientific-models-by-creating-experimental-data-driven-unit-tests" title="Permalink to this headline">¶</a></h1>
 <p><a href="https://colab.research.google.com/github/scidash/sciunit/blob/master/docs/chapter1.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a></p>
-</div>
 <div class="section" id="chapter-1-what-is-sciunit">
-<h1><span class="section-number">2. </span>Chapter 1. What is SciUnit?<a class="headerlink" href="#chapter-1-what-is-sciunit" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">1. </span>Chapter 1. What is SciUnit?<a class="headerlink" href="#chapter-1-what-is-sciunit" title="Permalink to this headline">¶</a></h1>
 <p>Everyone hopes that their model has some correspondence with reality.  Usually, checking whether this is true is done informally.</p>
 <div class="section" id="sciunit-makes-this-formal-and-transparent">
-<h2><span class="section-number">2.1. </span>SciUnit makes this formal and transparent.<a class="headerlink" href="#sciunit-makes-this-formal-and-transparent" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">1.1. </span>SciUnit makes this formal and transparent.<a class="headerlink" href="#sciunit-makes-this-formal-and-transparent" title="Permalink to this headline">¶</a></h2>
+<p>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.</p>
 <div class="section" id="if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
-<h3><span class="section-number">2.1.1. </span>If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.<a class="headerlink" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">1.1.1. </span>If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.<a class="headerlink" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment" title="Permalink to this headline">¶</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install -q sciunit
@@ -324,7 +322,7 @@
 </div>
 </div>
 <div class="section" id="what-does-testing-look-like">
-<h2><span class="section-number">2.2. </span>What does testing look like?<a class="headerlink" href="#what-does-testing-look-like" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">1.2. </span>What does testing look like?<a class="headerlink" href="#what-does-testing-look-like" title="Permalink to this headline">¶</a></h2>
 <p>We’ll start with a simple example from the history of cosmology, where we know that better models displaced their predecessors.<br>
 Suppose we have a test suite called “Saturn Suite” that aims to test cosmological models for their correspondence to empirical data about the planet Saturn.<br>
 <em>Everything in this example is hypothetical, but once you understand the basic ideas you can visit the <a class="reference external" href="https://github.com/scidash/neuronunit/blob/master/docs/chapter1.ipynb">documentation for NeuronUnit</a> to see some working, interactive examples from a different domain (neuron and ion channel models).</em></p>
@@ -334,7 +332,7 @@ Suppose we have a test suite called “Saturn Suite” that aims to test cosmolo
 <p>There’s nothing specific to Saturn about position, velocity, or eccentricity.  They could apply to any cosmological body.</p>
 </div>
 <div class="section" id="sciunit-test-classes-used-with-in-one-scientific-domain-like-cosmology-are-located-in-a-discipline-specific-library">
-<h2><span class="section-number">2.3. </span>SciUnit test classes used with in one scientific domain (like cosmology) are located in a discipline-specific library.<a class="headerlink" href="#sciunit-test-classes-used-with-in-one-scientific-domain-like-cosmology-are-located-in-a-discipline-specific-library" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">1.3. </span>SciUnit test classes used with in one scientific domain (like cosmology) are located in a discipline-specific library.<a class="headerlink" href="#sciunit-test-classes-used-with-in-one-scientific-domain-like-cosmology-are-located-in-a-discipline-specific-library" title="Permalink to this headline">¶</a></h2>
 <p>In this case, the test classes (hypothetically) come from a SciUnit library called CosmoUnit, and are instantiated with data specific to Saturn, in order to create tests specific to a model’s predictions about Saturn:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">saturnsuite/tests.py # Tests for the Saturn suite.  </span>
@@ -366,7 +364,7 @@ So these model classes are found in CosmoUnit, and the Saturn Suite contains mod
 <p>In the above each model takes a keyword argument ‘planet’ that determines about what planet the model will make predicitons.</p>
 </div>
 <div class="section" id="all-of-our-tests-can-be-organized-into-a-suite-to-compare-results-across-related-tests">
-<h2><span class="section-number">2.4. </span>All of our tests can be organized into a suite to compare results across related tests.<a class="headerlink" href="#all-of-our-tests-can-be-organized-into-a-suite-to-compare-results-across-related-tests" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">1.4. </span>All of our tests can be organized into a suite to compare results across related tests.<a class="headerlink" href="#all-of-our-tests-can-be-organized-into-a-suite-to-compare-results-across-related-tests" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">saturnsuite/suites.py # Tests for the Saturn suite.  </span>
 <span class="sd">&#39;&#39;&#39;</span>
@@ -378,7 +376,7 @@ So these model classes are found in CosmoUnit, and the Saturn Suite contains mod
 </div>
 </div>
 <div class="section" id="now-we-can-execute-this-entire-test-suite-against-our-models">
-<h2><span class="section-number">2.5. </span>Now we can execute this entire test suite against our models.<a class="headerlink" href="#now-we-can-execute-this-entire-test-suite-against-our-models" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">1.5. </span>Now we can execute this entire test suite against our models.<a class="headerlink" href="#now-we-can-execute-this-entire-test-suite-against-our-models" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">saturn_suite.suites</span> <span class="kn">import</span> <span class="n">saturn_motion_suite</span>
 <span class="n">saturn_motion_suite</span><span class="o">.</span><span class="n">judge</span><span class="p">([</span><span class="n">ptolemy_model</span><span class="p">,</span> <span class="n">copernicus_model</span><span class="p">,</span> <span class="n">kepler_model</span><span class="p">,</span> <span class="n">newton_model</span><span class="p">])</span>
 </pre></div>
@@ -388,10 +386,10 @@ So these model classes are found in CosmoUnit, and the Saturn Suite contains mod
 <p>The figure above also refers to SciDash, an in-development portal for accessing public test results, but for the remainder of this tutorial, we will focus on model/test development, execution, and visualization on your own machine.</p>
 </div>
 <div class="section" id="in-the-next-section-we-ll-see-how-to-create-models-and-tests-from-scratch-in-sciunit">
-<h2><span class="section-number">2.6. </span>In the next section we’ll see how to create models and tests from scratch in SciUnit.<a class="headerlink" href="#in-the-next-section-we-ll-see-how-to-create-models-and-tests-from-scratch-in-sciunit" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">1.6. </span>In the next section we’ll see how to create models and tests from scratch in SciUnit.<a class="headerlink" href="#in-the-next-section-we-ll-see-how-to-create-models-and-tests-from-scratch-in-sciunit" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="onto-chapter-2">
-<h2><span class="section-number">2.7. </span>Onto <a class="reference internal" href="chapter2.html"><span class="doc std std-doc">Chapter 2</span></a>!<a class="headerlink" href="#onto-chapter-2" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">1.7. </span>Onto <a class="reference internal" href="chapter2.html"><span class="doc std std-doc">Chapter 2</span></a>!<a class="headerlink" href="#onto-chapter-2" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -421,7 +419,7 @@ So these model classes are found in CosmoUnit, and the Saturn Suite contains mod
         <div class='prev-next-bottom'>
             
     <a class='left-prev' id="prev-link" href="README.html" title="previous page">New to SciUnit?</a>
-    <a class='right-next' id="next-link" href="chapter2.html" title="next page"><span class="section-number">3. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.</a>
+    <a class='right-next' id="next-link" href="chapter2.html" title="next page"><span class="section-number">2. </span>Chapter 2. Writing a <code class="docutils literal notranslate"><span class="pre">model</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span></code> in SciUnit from scratch</a>
 
         </div>
         

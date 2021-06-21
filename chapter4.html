@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>7. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests. &#8212; SciUnit: A python library for data-driven model validation testing</title>
+    <title>4. Chapter 4. Example of RunnableModel and Backend &#8212; SciUnit: A python library for data-driven model validation testing</title>
     
   <link href="_static/css/theme.css" rel="stylesheet" />
   <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -51,8 +51,8 @@
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="9. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests." href="chapter5.html" />
-    <link rel="prev" title="5. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests." href="chapter3.html" />
+    <link rel="next" title="5. Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models" href="chapter5.html" />
+    <link rel="prev" title="3. Chapter 3. Testing with help from the SciUnit standard library" href="chapter3.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
     
@@ -97,32 +97,44 @@
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="chapter1.html">
-   1. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   1. Chapter 1. What is SciUnit?
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter2.html">
-   3. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   2. Chapter 2. Writing a
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     model
+    </span>
+   </code>
+   and
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     test
+    </span>
+   </code>
+   in SciUnit from scratch
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter3.html">
-   5. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   3. Chapter 3. Testing with help from the SciUnit standard library
   </a>
  </li>
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   7. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   4. Chapter 4. Example of RunnableModel and Backend
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter5.html">
-   9. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   5. Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter6.html">
-   11. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   6. Chapter 6. Workshop Tutorial, Real Example
   </a>
  </li>
 </ul>
@@ -225,22 +237,10 @@
             </div>
             <nav id="bd-toc-nav">
                 <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   7. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
+   4.1. If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.
   </a>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#chapter-4-example-of-runnablemodel-and-backend">
-   8. Chapter 4. Example of RunnableModel and Backend
-  </a>
-  <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
-     8.1. If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.
-    </a>
-   </li>
-  </ul>
  </li>
 </ul>
 
@@ -254,15 +254,12 @@
               <div>
                 
   <p><img alt="SciUnit Logo" src="https://raw.githubusercontent.com/scidash/assets/master/logos/SciUnit/sci-unit-tag.png" /></p>
-<div class="section" id="sciunit-is-a-framework-for-validating-scientific-models-by-creating-experimental-data-driven-unit-tests">
-<h1><span class="section-number">7. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.<a class="headerlink" href="#sciunit-is-a-framework-for-validating-scientific-models-by-creating-experimental-data-driven-unit-tests" title="Permalink to this headline">¶</a></h1>
 <p><a href="https://colab.research.google.com/github/scidash/sciunit/blob/master/docs/chapter4.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a></p>
-</div>
 <div class="section" id="chapter-4-example-of-runnablemodel-and-backend">
-<h1><span class="section-number">8. </span>Chapter 4. Example of RunnableModel and Backend<a class="headerlink" href="#chapter-4-example-of-runnablemodel-and-backend" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">4. </span>Chapter 4. Example of RunnableModel and Backend<a class="headerlink" href="#chapter-4-example-of-runnablemodel-and-backend" title="Permalink to this headline">¶</a></h1>
 <p>(or <a class="reference internal" href="chapter3.html"><span class="doc std std-doc">back to Chapter 3</span></a>)</p>
 <div class="section" id="if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
-<h2><span class="section-number">8.1. </span>If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.<a class="headerlink" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.1. </span>If you are using this file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.<a class="headerlink" href="#if-you-are-using-this-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install -q sciunit
@@ -407,8 +404,8 @@
         
         <div class='prev-next-bottom'>
             
-    <a class='left-prev' id="prev-link" href="chapter3.html" title="previous page"><span class="section-number">5. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.</a>
-    <a class='right-next' id="next-link" href="chapter5.html" title="next page"><span class="section-number">9. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.</a>
+    <a class='left-prev' id="prev-link" href="chapter3.html" title="previous page"><span class="section-number">3. </span>Chapter 3. Testing with help from the SciUnit standard library</a>
+    <a class='right-next' id="next-link" href="chapter5.html" title="next page"><span class="section-number">5. </span>Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models</a>
 
         </div>
         

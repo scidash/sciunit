@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>9. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests. &#8212; SciUnit: A python library for data-driven model validation testing</title>
+    <title>5. Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models &#8212; SciUnit: A python library for data-driven model validation testing</title>
     
   <link href="_static/css/theme.css" rel="stylesheet" />
   <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -51,8 +51,8 @@
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="11. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests." href="chapter6.html" />
-    <link rel="prev" title="7. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests." href="chapter4.html" />
+    <link rel="next" title="6. Chapter 6. Workshop Tutorial, Real Example" href="chapter6.html" />
+    <link rel="prev" title="4. Chapter 4. Example of RunnableModel and Backend" href="chapter4.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
     
@@ -97,32 +97,44 @@
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="chapter1.html">
-   1. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   1. Chapter 1. What is SciUnit?
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter2.html">
-   3. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   2. Chapter 2. Writing a
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     model
+    </span>
+   </code>
+   and
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     test
+    </span>
+   </code>
+   in SciUnit from scratch
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter3.html">
-   5. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   3. Chapter 3. Testing with help from the SciUnit standard library
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter4.html">
-   7. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   4. Chapter 4. Example of RunnableModel and Backend
   </a>
  </li>
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   9. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   5. Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter6.html">
-   11. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   6. Chapter 6. Workshop Tutorial, Real Example
   </a>
  </li>
 </ul>
@@ -225,64 +237,52 @@
             </div>
             <nav id="bd-toc-nav">
                 <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   9. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#if-you-are-using-this-notebook-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
+   5.1. If you are using this notebook file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.
   </a>
  </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#chapter-5-the-real-example-of-using-sciunit-to-test-cosmology-models">
-   10. Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#capabilities">
+   5.2. Capabilities
   </a>
-  <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#if-you-are-using-this-notebook-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
-     10.1. If you are using this notebook file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#models">
+   5.3. Models
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#tests">
+   5.4. Tests
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#observations">
+   5.5. Observations
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#the-data-collected-from-observations-and-experiments">
+     5.5.1. The data collected from observations and experiments.
     </a>
    </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#capabilities">
-     10.2. Capabilities
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#testsuites">
+   5.6. TestSuites
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#let-s-put-the-test-instances-into-a-poython-list-and-create-the-testsuite-instances-with-them">
+     5.6.1. Let’s put the test instances into a poython list, and create the TestSuite instances with them.
     </a>
    </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#models">
-     10.3. Models
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#and-then-we-can-let-each-suite-instance-judge-each-model-in-the-model-list">
+     5.6.2. And then, we can let each suite instance judge each model in the model list.
     </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#tests">
-     10.4. Tests
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#observations">
-     10.5. Observations
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#the-data-collected-from-observations-and-experiments">
-       10.5.1. The data collected from observations and experiments.
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#testsuites">
-     10.6. TestSuites
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#let-s-put-the-test-instances-into-a-poython-list-and-create-the-testsuite-instances-with-them">
-       10.6.1. Let’s put the test instances into a poython list, and create the TestSuite instances with them.
-      </a>
-     </li>
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#and-then-we-can-let-each-suite-instance-judge-each-model-in-the-model-list">
-       10.6.2. And then, we can let each suite instance judge each model in the model list.
-      </a>
-     </li>
-    </ul>
    </li>
   </ul>
  </li>
@@ -298,16 +298,13 @@
               <div>
                 
   <p><img alt="SciUnit Logo" src="https://raw.githubusercontent.com/scidash/assets/master/logos/SciUnit/sci-unit-tag.png" /></p>
-<div class="section" id="sciunit-is-a-framework-for-validating-scientific-models-by-creating-experimental-data-driven-unit-tests">
-<h1><span class="section-number">9. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.<a class="headerlink" href="#sciunit-is-a-framework-for-validating-scientific-models-by-creating-experimental-data-driven-unit-tests" title="Permalink to this headline">¶</a></h1>
 <p><a href="https://colab.research.google.com/github/scidash/sciunit/blob/master/docs/chapter5.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a></p>
-</div>
 <div class="section" id="chapter-5-the-real-example-of-using-sciunit-to-test-cosmology-models">
-<h1><span class="section-number">10. </span>Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models<a class="headerlink" href="#chapter-5-the-real-example-of-using-sciunit-to-test-cosmology-models" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">5. </span>Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models<a class="headerlink" href="#chapter-5-the-real-example-of-using-sciunit-to-test-cosmology-models" title="Permalink to this headline">¶</a></h1>
 <p>(or <a class="reference internal" href="chapter4.html"><span class="doc std std-doc">back to Chapter 4</span></a>)</p>
 <p>This is a real and executable example of testing 5 different cosmology models with SciUnit.</p>
 <div class="section" id="if-you-are-using-this-notebook-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment">
-<h2><span class="section-number">10.1. </span>If you are using this notebook file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.<a class="headerlink" href="#if-you-are-using-this-notebook-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">5.1. </span>If you are using this notebook file in Google Colab, this block of code can help you install sciunit from PyPI in Colab environment.<a class="headerlink" href="#if-you-are-using-this-notebook-file-in-google-colab-this-block-of-code-can-help-you-install-sciunit-from-pypi-in-colab-environment" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install -q sciunit
@@ -330,7 +327,7 @@
 </div>
 </div>
 <div class="section" id="capabilities">
-<h2><span class="section-number">10.2. </span>Capabilities<a class="headerlink" href="#capabilities" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">5.2. </span>Capabilities<a class="headerlink" href="#capabilities" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HasSun</span><span class="p">(</span><span class="n">Capability</span><span class="p">):</span>
@@ -358,7 +355,7 @@
 </div>
 </div>
 <div class="section" id="models">
-<h2><span class="section-number">10.3. </span>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">5.3. </span>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">_CosmoModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
@@ -466,7 +463,7 @@
 </div>
 </div>
 <div class="section" id="tests">
-<h2><span class="section-number">10.4. </span>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">5.4. </span>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">_CosmoTest</span><span class="p">(</span><span class="n">sciunit</span><span class="o">.</span><span class="n">Test</span><span class="p">):</span>
@@ -562,9 +559,9 @@
 </div>
 </div>
 <div class="section" id="observations">
-<h2><span class="section-number">10.5. </span>Observations<a class="headerlink" href="#observations" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">5.5. </span>Observations<a class="headerlink" href="#observations" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="the-data-collected-from-observations-and-experiments">
-<h3><span class="section-number">10.5.1. </span>The data collected from observations and experiments.<a class="headerlink" href="#the-data-collected-from-observations-and-experiments" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">5.5.1. </span>The data collected from observations and experiments.<a class="headerlink" href="#the-data-collected-from-observations-and-experiments" title="Permalink to this headline">¶</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Orbital eccentricities</span>
@@ -593,9 +590,9 @@
 </div>
 </div>
 <div class="section" id="testsuites">
-<h2><span class="section-number">10.6. </span>TestSuites<a class="headerlink" href="#testsuites" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">5.6. </span>TestSuites<a class="headerlink" href="#testsuites" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="let-s-put-the-test-instances-into-a-poython-list-and-create-the-testsuite-instances-with-them">
-<h3><span class="section-number">10.6.1. </span>Let’s put the test instances into a poython list, and create the TestSuite instances with them.<a class="headerlink" href="#let-s-put-the-test-instances-into-a-poython-list-and-create-the-testsuite-instances-with-them" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">5.6.1. </span>Let’s put the test instances into a poython list, and create the TestSuite instances with them.<a class="headerlink" href="#let-s-put-the-test-instances-into-a-poython-list-and-create-the-testsuite-instances-with-them" title="Permalink to this headline">¶</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">planets</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Mars&#39;</span><span class="p">,</span> <span class="s1">&#39;Saturn&#39;</span><span class="p">]</span>
@@ -631,7 +628,7 @@
 </div>
 </div>
 <div class="section" id="and-then-we-can-let-each-suite-instance-judge-each-model-in-the-model-list">
-<h3><span class="section-number">10.6.2. </span>And then, we can let each suite instance judge each model in the model list.<a class="headerlink" href="#and-then-we-can-let-each-suite-instance-judge-each-model-in-the-model-list" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">5.6.2. </span>And then, we can let each suite instance judge each model in the model list.<a class="headerlink" href="#and-then-we-can-let-each-suite-instance-judge-each-model-in-the-model-list" title="Permalink to this headline">¶</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ptolemy</span> <span class="o">=</span> <span class="n">Ptolemy</span><span class="p">()</span>
@@ -763,8 +760,8 @@ Score: Pass for Einstein on Prlx. 61 Cygni
         
         <div class='prev-next-bottom'>
             
-    <a class='left-prev' id="prev-link" href="chapter4.html" title="previous page"><span class="section-number">7. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.</a>
-    <a class='right-next' id="next-link" href="chapter6.html" title="next page"><span class="section-number">11. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.</a>
+    <a class='left-prev' id="prev-link" href="chapter4.html" title="previous page"><span class="section-number">4. </span>Chapter 4. Example of RunnableModel and Backend</a>
+    <a class='right-next' id="next-link" href="chapter6.html" title="next page"><span class="section-number">6. </span>Chapter 6. Workshop Tutorial, Real Example</a>
 
         </div>
         

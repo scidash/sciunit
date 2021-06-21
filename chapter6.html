@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>11. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests. &#8212; SciUnit: A python library for data-driven model validation testing</title>
+    <title>6. Chapter 6. Workshop Tutorial, Real Example &#8212; SciUnit: A python library for data-driven model validation testing</title>
     
   <link href="_static/css/theme.css" rel="stylesheet" />
   <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -51,7 +51,7 @@
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="9. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests." href="chapter5.html" />
+    <link rel="prev" title="5. Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models" href="chapter5.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
     
@@ -96,32 +96,44 @@
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="chapter1.html">
-   1. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   1. Chapter 1. What is SciUnit?
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter2.html">
-   3. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   2. Chapter 2. Writing a
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     model
+    </span>
+   </code>
+   and
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     test
+    </span>
+   </code>
+   in SciUnit from scratch
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter3.html">
-   5. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   3. Chapter 3. Testing with help from the SciUnit standard library
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter4.html">
-   7. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   4. Chapter 4. Example of RunnableModel and Backend
   </a>
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="chapter5.html">
-   9. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   5. Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models
   </a>
  </li>
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   11. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+   6. Chapter 6. Workshop Tutorial, Real Example
   </a>
  </li>
 </ul>
@@ -224,293 +236,281 @@
             </div>
             <nav id="bd-toc-nav">
                 <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   11. SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#model-validation-goals">
+   6.1. Model validation goals:
   </a>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#chapter-6-workshop-tutorial-real-example">
-   12. Chapter 6. Workshop Tutorial, Real Example
-  </a>
-  <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#model-validation-goals">
-     12.1. Model validation goals:
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#generate-one-unit-tests-for-each-experimental-datum-or-stylized-fact-about-data">
-       12.1.1. - Generate one unit tests for each experimental datum (or stylized fact about data)
-      </a>
-     </li>
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#execute-these-tests-against-all-models-capable-of-taking-them">
-       12.1.2. - Execute these tests against all models capable of taking them
-      </a>
-     </li>
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#programatically-display-the-results-as-a-dashboard-of-model-validity">
-       12.1.3. - Programatically display the results as a “dashboard” of model validity
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#high-level-workflow-for-validation">
-     12.2. High-level workflow for validation:
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#generate-one-unit-tests-for-each-experimental-datum-or-stylized-fact-about-data">
+     6.1.1. - Generate one unit tests for each experimental datum (or stylized fact about data)
     </a>
    </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#q-how-does-a-test-know-how-to-test-a-model">
-     12.3. Q: How does a test “know” how to test a model?
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#execute-these-tests-against-all-models-capable-of-taking-them">
+     6.1.2. - Execute these tests against all models capable of taking them
     </a>
    </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#a-through-guarantees-that-models-provide-to-tests-called-i-capabilities-i">
-     12.4. A: Through guarantees that models provide to tests, called
-     <i>
-      “Capabilities”
-     </i>
-     .
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#next-we-show-an-example-of-a-i-capability-i-relevant-to-the-cosmology-case-outlined-above">
-     12.5. Next we show an example of a
-     <i>
-      Capability
-     </i>
-     relevant to the cosmology case outlined above.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#i-sciunit-i-and-domain-specific-libraries-that-build-upon-it-also-define-their-own-capabilities">
-     12.6.
-     <i>
-      SciUnit
-     </i>
-     (and domain specific libraries that build upon it) also define their own capabilities
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#now-we-can-define-a-i-model-class-i-that-implements-this-producesorbitalposition-capability-by-inheritance">
-     12.7. Now we can define a
-     <i>
-      model class
-     </i>
-     that implements this
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProducesOrbitalPosition
-      </span>
-     </code>
-     capability by inheritance.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#all-models-are-subclasses-of-sciunit-model-and-typically-one-or-more-subclasses-of-sciunit-capability">
-     12.8. All models are subclasses of
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       sciunit.Model
-      </span>
-     </code>
-     and typically one or more subclasses of
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       sciunit.Capability
-      </span>
-     </code>
-     .
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#now-we-can-instantiate-a-i-specific-model-i-from-this-class-e-g-one-representing-the-orbital-path-of-earth-according-to-kepler">
-     12.9. Now we can instantiate a
-     <i>
-      specific model
-     </i>
-     from this class, e.g. one representing the orbital path of Earth (according to Kepler)
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#we-can-use-this-model-to-make-specific-predictions-for-example-the-current-distance-between-earth-and-the-sun">
-     12.10. We can use this model to make specific predictions, for example the current distance between Earth and the sun.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#now-let-s-build-a-test-class-that-we-might-use-to-validate-i-e-unit-test-to-produce-test-scores-with-this-and-hopefully-other-models">
-     12.11. Now let’s build a test class that we might use to validate (i.e. unit test to produce test scores) with this (and hopefully other) models
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#first-what-kind-of-scores-do-we-want-our-test-to-return">
-     12.12. First, what kind of scores do we want our test to return?
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#here-s-a-first-shot-a-test-class-for-assessing-the-agreement-between-predicted-and-observed-positions-of-orbiting-objects-all-test-classes-are-subclasses-of-sciunit-test">
-     12.13. Here’s a first shot a test class for assessing the agreement between predicted and observed positions of orbiting objects.  All test classes are subclasses of
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       sciunit.Test
-      </span>
-     </code>
-     .
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#we-might-want-to-include-extra-checks-and-constraints-on-observed-data-test-parameters-or-other-contingent-testing-logic">
-     12.14. We might want to include extra checks and constraints on observed data, test parameters, or other contingent testing logic.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#now-we-can-instantiate-a-test-each-test-instance-is-a-combination-of-the-test-class-describing-the-testing-logic-and-required-capabilties-plus-some-i-observation-i-i-e-data">
-     12.15. Now we can instantiate a test.  Each test instance is a combination of the test class, describing the testing logic and required capabilties, plus some
-     <i>
-      ’observation’
-     </i>
-     , i.e. data.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#finally-we-can-execute-this-one-test-against-this-one-model">
-     12.16. Finally, we can execute this one test against this one model
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#and-we-can-get-additional-information-about-the-test-including-intermediate-objects-computed-in-order-to-generate-a-score">
-     12.17. And we can get additional information about the test, including intermediate objects computed in order to generate a score.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#we-may-want-to-bundle-many-such-tests-into-a-testsuite-this-suite-may-contain-test-from-multiple-classes-or-simply-tests-which-differ-only-in-the-observation-data-used-to-instantiate-them">
-     12.18. We may want to bundle many such tests into a
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       TestSuite
-      </span>
-     </code>
-     .  This suite may contain test from multiple classes, or simply tests which differ only in the observation (data) used to instantiate them.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#we-can-then-test-our-model-against-this-whole-suite-of-tests">
-     12.19. We can then test our model against this whole suite of tests
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#rich-html-output-is-automatically-produced-when-this-score-output-is-summarized">
-     12.20. Rich HTML output is automatically produced when this score output is summarized
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#we-can-then-expand-this-to-multiple-models">
-     12.21. We can then expand this to multiple models
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#or-extract-just-a-slice">
-     12.22. Or extract just a slice:
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#what-about-models-that-i-can-t-i-take-a-certain-test-some-models-aren-t-capable-even-in-principle-of-doing-what-the-test-is-asking-of-them">
-     12.23. What about models that
-     <i>
-      can’t
-     </i>
-     take a certain test?  Some models aren’t capable (even in principle) of doing what the test is asking of them.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#incapable-models-don-t-fail-they-get-the-equivalent-of-incomplete-grades">
-     12.24. Incapable models don’t fail, they get the equivalent of ‘incomplete’ grades
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#i-sciunit-i-is-in-use-in-several-multiscale-modeling-projects-including">
-     12.25.
-     <i>
-      SciUnit
-     </i>
-     is in use in several multiscale modeling projects including:
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#the-human-brain-project-neurophysiology-neuroanatomy-neuroimaging">
-       12.25.1. - The Human Brain Project (neurophysiology, neuroanatomy, neuroimaging)
-      </a>
-     </li>
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#openworm-biophysics-network-dynamics-animal-behavior">
-       12.25.2. - OpenWorm (biophysics, network dynamics, animal behavior)
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#i-neuronunit-i-is-a-reference-implementation-in-the-domain-of-neurophysiology-of">
-     12.26.
-     <i>
-      NeuronUnit
-     </i>
-     is a reference implementation in the domain of neurophysiology of:
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#model-classes">
-       12.26.1. - model classes
-      </a>
-     </li>
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#test-classes">
-       12.26.2. - test classes
-      </a>
-     </li>
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#capability-classes">
-       12.26.3. - capability classes
-      </a>
-     </li>
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#tools-for-constructing-tests-from-several-public-neurophysiology-databases">
-       12.26.4. - tools for constructing tests from several public neurophysiology databases
-      </a>
-     </li>
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#tools-for-implementing-capabilities-from-standard-model-exchange-formats">
-       12.26.5. - tools for implementing capabilities from standard model exchange formats
-      </a>
-     </li>
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#tools-for-executing-simulations-underlying-testing-using-popular-simulators">
-       12.26.6. - tools for executing simulations underlying testing using popular simulators
-      </a>
-     </li>
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#test-driven-model-optimization">
-       12.26.7. - test-driven model optimization
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#i-scidash-i-is-a-web-application-for-creating-scheduling-and-viewing-the-results-of-sciunit-tests-without-writing-a-single-line-of-code">
-     12.27.
-     <i>
-      SciDash
-     </i>
-     is a web application for creating, scheduling, and viewing the results of SciUnit tests without writing a single line of code.
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#thanks-also-to-sharon-crook-justas-birgiolas-russell-jarvis-and-cyrus-omar">
-     12.28. Thanks also to Sharon Crook, Justas Birgiolas, Russell Jarvis, and Cyrus Omar
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#programatically-display-the-results-as-a-dashboard-of-model-validity">
+     6.1.3. - Programatically display the results as a “dashboard” of model validity
     </a>
    </li>
   </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#high-level-workflow-for-validation">
+   6.2. High-level workflow for validation:
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#q-how-does-a-test-know-how-to-test-a-model">
+   6.3. Q: How does a test “know” how to test a model?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#a-through-guarantees-that-models-provide-to-tests-called-i-capabilities-i">
+   6.4. A: Through guarantees that models provide to tests, called
+   <i>
+    “Capabilities”
+   </i>
+   .
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#next-we-show-an-example-of-a-i-capability-i-relevant-to-the-cosmology-case-outlined-above">
+   6.5. Next we show an example of a
+   <i>
+    Capability
+   </i>
+   relevant to the cosmology case outlined above.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#i-sciunit-i-and-domain-specific-libraries-that-build-upon-it-also-define-their-own-capabilities">
+   6.6.
+   <i>
+    SciUnit
+   </i>
+   (and domain specific libraries that build upon it) also define their own capabilities
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#now-we-can-define-a-i-model-class-i-that-implements-this-producesorbitalposition-capability-by-inheritance">
+   6.7. Now we can define a
+   <i>
+    model class
+   </i>
+   that implements this
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     ProducesOrbitalPosition
+    </span>
+   </code>
+   capability by inheritance.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#all-models-are-subclasses-of-sciunit-model-and-typically-one-or-more-subclasses-of-sciunit-capability">
+   6.8. All models are subclasses of
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     sciunit.Model
+    </span>
+   </code>
+   and typically one or more subclasses of
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     sciunit.Capability
+    </span>
+   </code>
+   .
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#now-we-can-instantiate-a-i-specific-model-i-from-this-class-e-g-one-representing-the-orbital-path-of-earth-according-to-kepler">
+   6.9. Now we can instantiate a
+   <i>
+    specific model
+   </i>
+   from this class, e.g. one representing the orbital path of Earth (according to Kepler)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#we-can-use-this-model-to-make-specific-predictions-for-example-the-current-distance-between-earth-and-the-sun">
+   6.10. We can use this model to make specific predictions, for example the current distance between Earth and the sun.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#now-let-s-build-a-test-class-that-we-might-use-to-validate-i-e-unit-test-to-produce-test-scores-with-this-and-hopefully-other-models">
+   6.11. Now let’s build a test class that we might use to validate (i.e. unit test to produce test scores) with this (and hopefully other) models
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#first-what-kind-of-scores-do-we-want-our-test-to-return">
+   6.12. First, what kind of scores do we want our test to return?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#here-s-a-first-shot-a-test-class-for-assessing-the-agreement-between-predicted-and-observed-positions-of-orbiting-objects-all-test-classes-are-subclasses-of-sciunit-test">
+   6.13. Here’s a first shot a test class for assessing the agreement between predicted and observed positions of orbiting objects.  All test classes are subclasses of
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     sciunit.Test
+    </span>
+   </code>
+   .
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#we-might-want-to-include-extra-checks-and-constraints-on-observed-data-test-parameters-or-other-contingent-testing-logic">
+   6.14. We might want to include extra checks and constraints on observed data, test parameters, or other contingent testing logic.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#now-we-can-instantiate-a-test-each-test-instance-is-a-combination-of-the-test-class-describing-the-testing-logic-and-required-capabilties-plus-some-i-observation-i-i-e-data">
+   6.15. Now we can instantiate a test.  Each test instance is a combination of the test class, describing the testing logic and required capabilties, plus some
+   <i>
+    ’observation’
+   </i>
+   , i.e. data.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#finally-we-can-execute-this-one-test-against-this-one-model">
+   6.16. Finally, we can execute this one test against this one model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#and-we-can-get-additional-information-about-the-test-including-intermediate-objects-computed-in-order-to-generate-a-score">
+   6.17. And we can get additional information about the test, including intermediate objects computed in order to generate a score.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#we-may-want-to-bundle-many-such-tests-into-a-testsuite-this-suite-may-contain-test-from-multiple-classes-or-simply-tests-which-differ-only-in-the-observation-data-used-to-instantiate-them">
+   6.18. We may want to bundle many such tests into a
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     TestSuite
+    </span>
+   </code>
+   .  This suite may contain test from multiple classes, or simply tests which differ only in the observation (data) used to instantiate them.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#we-can-then-test-our-model-against-this-whole-suite-of-tests">
+   6.19. We can then test our model against this whole suite of tests
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#rich-html-output-is-automatically-produced-when-this-score-output-is-summarized">
+   6.20. Rich HTML output is automatically produced when this score output is summarized
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#we-can-then-expand-this-to-multiple-models">
+   6.21. We can then expand this to multiple models
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#or-extract-just-a-slice">
+   6.22. Or extract just a slice:
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#what-about-models-that-i-can-t-i-take-a-certain-test-some-models-aren-t-capable-even-in-principle-of-doing-what-the-test-is-asking-of-them">
+   6.23. What about models that
+   <i>
+    can’t
+   </i>
+   take a certain test?  Some models aren’t capable (even in principle) of doing what the test is asking of them.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#incapable-models-don-t-fail-they-get-the-equivalent-of-incomplete-grades">
+   6.24. Incapable models don’t fail, they get the equivalent of ‘incomplete’ grades
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#i-sciunit-i-is-in-use-in-several-multiscale-modeling-projects-including">
+   6.25.
+   <i>
+    SciUnit
+   </i>
+   is in use in several multiscale modeling projects including:
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#the-human-brain-project-neurophysiology-neuroanatomy-neuroimaging">
+     6.25.1. - The Human Brain Project (neurophysiology, neuroanatomy, neuroimaging)
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#openworm-biophysics-network-dynamics-animal-behavior">
+     6.25.2. - OpenWorm (biophysics, network dynamics, animal behavior)
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#i-neuronunit-i-is-a-reference-implementation-in-the-domain-of-neurophysiology-of">
+   6.26.
+   <i>
+    NeuronUnit
+   </i>
+   is a reference implementation in the domain of neurophysiology of:
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-classes">
+     6.26.1. - model classes
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#test-classes">
+     6.26.2. - test classes
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#capability-classes">
+     6.26.3. - capability classes
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#tools-for-constructing-tests-from-several-public-neurophysiology-databases">
+     6.26.4. - tools for constructing tests from several public neurophysiology databases
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#tools-for-implementing-capabilities-from-standard-model-exchange-formats">
+     6.26.5. - tools for implementing capabilities from standard model exchange formats
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#tools-for-executing-simulations-underlying-testing-using-popular-simulators">
+     6.26.6. - tools for executing simulations underlying testing using popular simulators
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#test-driven-model-optimization">
+     6.26.7. - test-driven model optimization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#i-scidash-i-is-a-web-application-for-creating-scheduling-and-viewing-the-results-of-sciunit-tests-without-writing-a-single-line-of-code">
+   6.27.
+   <i>
+    SciDash
+   </i>
+   is a web application for creating, scheduling, and viewing the results of SciUnit tests without writing a single line of code.
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#thanks-also-to-sharon-crook-justas-birgiolas-russell-jarvis-and-cyrus-omar">
+   6.28. Thanks also to Sharon Crook, Justas Birgiolas, Russell Jarvis, and Cyrus Omar
+  </a>
  </li>
 </ul>
 
@@ -524,12 +524,9 @@
               <div>
                 
   <p><img alt="SciUnit Logo" src="https://raw.githubusercontent.com/scidash/assets/master/logos/SciUnit/sci-unit-tag.png" /></p>
-<div class="section" id="sciunit-is-a-framework-for-validating-scientific-models-by-creating-experimental-data-driven-unit-tests">
-<h1><span class="section-number">11. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.<a class="headerlink" href="#sciunit-is-a-framework-for-validating-scientific-models-by-creating-experimental-data-driven-unit-tests" title="Permalink to this headline">¶</a></h1>
 <p><a href="https://colab.research.google.com/github/scidash/sciunit/blob/master/docs/chapter6.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a></p>
-</div>
 <div class="section" id="chapter-6-workshop-tutorial-real-example">
-<h1><span class="section-number">12. </span>Chapter 6. Workshop Tutorial, Real Example<a class="headerlink" href="#chapter-6-workshop-tutorial-real-example" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">6. </span>Chapter 6. Workshop Tutorial, Real Example<a class="headerlink" href="#chapter-6-workshop-tutorial-real-example" title="Permalink to this headline">¶</a></h1>
 <p>(or <a class="reference internal" href="chapter5.html"><span class="doc std std-doc">back to Chapter 5</span></a>)</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -556,8 +553,8 @@
 </div>
 <div class="cell_output docutils container">
 <div class="output text_html">
-            <style>  
-            td.red {
+                 <style>  
+                 td.red {
         background-color: #FF0000;
         border: 1px solid black;
     }
@@ -577,7 +574,7 @@ table td, table th {
 border: 10px solid black;
 font-size: 250%;
 }
-            </style>
+                 </style>
 </div></div>
 </div>
 <div style='font-size:200%; text-align: center;'>Toy example: A brief history of cosmology</div><br><div class="cell docutils container">
@@ -639,22 +636,22 @@ font-size: 120%;
         <td class='green'>Pass</td><td class='red'>Fail</td><td class='grey'>Unclear</td>
     </tr>
 </table><div class="section" id="model-validation-goals">
-<h2><span class="section-number">12.1. </span>Model validation goals:<a class="headerlink" href="#model-validation-goals" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.1. </span>Model validation goals:<a class="headerlink" href="#model-validation-goals" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="generate-one-unit-tests-for-each-experimental-datum-or-stylized-fact-about-data">
-<h3><span class="section-number">12.1.1. </span>- Generate one unit tests for each experimental datum (or stylized fact about data)<a class="headerlink" href="#generate-one-unit-tests-for-each-experimental-datum-or-stylized-fact-about-data" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.1.1. </span>- Generate one unit tests for each experimental datum (or stylized fact about data)<a class="headerlink" href="#generate-one-unit-tests-for-each-experimental-datum-or-stylized-fact-about-data" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="execute-these-tests-against-all-models-capable-of-taking-them">
-<h3><span class="section-number">12.1.2. </span>- Execute these tests against all models capable of taking them<a class="headerlink" href="#execute-these-tests-against-all-models-capable-of-taking-them" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.1.2. </span>- Execute these tests against all models capable of taking them<a class="headerlink" href="#execute-these-tests-against-all-models-capable-of-taking-them" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="programatically-display-the-results-as-a-dashboard-of-model-validity">
-<h3><span class="section-number">12.1.3. </span>- Programatically display the results as a “dashboard” of model validity<a class="headerlink" href="#programatically-display-the-results-as-a-dashboard-of-model-validity" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.1.3. </span>- Programatically display the results as a “dashboard” of model validity<a class="headerlink" href="#programatically-display-the-results-as-a-dashboard-of-model-validity" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Optionally record and display non-boolean test results, test artifacts, etc.</p></li>
 </ul>
 </div>
 </div>
 <div class="section" id="high-level-workflow-for-validation">
-<h2><span class="section-number">12.2. </span>High-level workflow for validation:<a class="headerlink" href="#high-level-workflow-for-validation" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.2. </span>High-level workflow for validation:<a class="headerlink" href="#high-level-workflow-for-validation" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Hypothetical examples of data-driven tests</span>
 <span class="kn">from</span> <span class="nn">cosmounit.tests</span> <span class="kn">import</span> <span class="n">brahe_test</span><span class="p">,</span> <span class="n">galileo_test</span><span class="p">,</span> <span class="n">leverrier_test</span>
 
@@ -668,17 +665,23 @@ font-size: 120%;
 <p>This is the only code-like cell of the tutorial that <strong>doesn’t</strong> contain executable code, since it is a high-level abstraction.  Don’t worry, you’ll be running real code just a few cells down!</p>
 </div>
 <div class="section" id="q-how-does-a-test-know-how-to-test-a-model">
-<h2><span class="section-number">12.3. </span>Q: How does a test “know” how to test a model?<a class="headerlink" href="#q-how-does-a-test-know-how-to-test-a-model" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.3. </span>Q: How does a test “know” how to test a model?<a class="headerlink" href="#q-how-does-a-test-know-how-to-test-a-model" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="a-through-guarantees-that-models-provide-to-tests-called-i-capabilities-i">
-<h2><span class="section-number">12.4. </span>A: Through guarantees that models provide to tests, called <i>“Capabilities”</i>.<a class="headerlink" href="#a-through-guarantees-that-models-provide-to-tests-called-i-capabilities-i" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.4. </span>A: Through guarantees that models provide to tests, called <i>“Capabilities”</i>.<a class="headerlink" href="#a-through-guarantees-that-models-provide-to-tests-called-i-capabilities-i" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https://github.com/scidash/sciunit/tree/master/sciunit/capabilities.py">Code for <strong>sciunit.capabilities</strong> on GitHub</a></p>
 </div>
 <div class="section" id="next-we-show-an-example-of-a-i-capability-i-relevant-to-the-cosmology-case-outlined-above">
-<h2><span class="section-number">12.5. </span>Next we show an example of a <i>Capability</i> relevant to the cosmology case outlined above.<a class="headerlink" href="#next-we-show-an-example-of-a-i-capability-i-relevant-to-the-cosmology-case-outlined-above" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.5. </span>Next we show an example of a <i>Capability</i> relevant to the cosmology case outlined above.<a class="headerlink" href="#next-we-show-an-example-of-a-i-capability-i-relevant-to-the-cosmology-case-outlined-above" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install sympy
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Requirement already satisfied: sympy in /opt/mambaforge/lib/python3.9/site-packages (1.8)
+Requirement already satisfied: mpmath&gt;=0.19 in /opt/mambaforge/lib/python3.9/site-packages (from sympy) (1.2.1)
 </pre></div>
 </div>
 </div>
@@ -742,7 +745,7 @@ font-size: 120%;
 </div>
 </div>
 <div class="section" id="i-sciunit-i-and-domain-specific-libraries-that-build-upon-it-also-define-their-own-capabilities">
-<h2><span class="section-number">12.6. </span><i><a class="reference external" href="http://sciunit.scidash.org">SciUnit</a></i> (and domain specific libraries that build upon it) also define their own capabilities<a class="headerlink" href="#i-sciunit-i-and-domain-specific-libraries-that-build-upon-it-also-define-their-own-capabilities" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.6. </span><i><a class="reference external" href="http://sciunit.scidash.org">SciUnit</a></i> (and domain specific libraries that build upon it) also define their own capabilities<a class="headerlink" href="#i-sciunit-i-and-domain-specific-libraries-that-build-upon-it-also-define-their-own-capabilities" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># An extremely generic model capability</span>
@@ -756,10 +759,10 @@ font-size: 120%;
 </div>
 </div>
 <div class="section" id="now-we-can-define-a-i-model-class-i-that-implements-this-producesorbitalposition-capability-by-inheritance">
-<h2><span class="section-number">12.7. </span>Now we can define a <i>model class</i> that implements this <code class="docutils literal notranslate"><span class="pre">ProducesOrbitalPosition</span></code> capability by inheritance.<a class="headerlink" href="#now-we-can-define-a-i-model-class-i-that-implements-this-producesorbitalposition-capability-by-inheritance" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.7. </span>Now we can define a <i>model class</i> that implements this <code class="docutils literal notranslate"><span class="pre">ProducesOrbitalPosition</span></code> capability by inheritance.<a class="headerlink" href="#now-we-can-define-a-i-model-class-i-that-implements-this-producesorbitalposition-capability-by-inheritance" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="all-models-are-subclasses-of-sciunit-model-and-typically-one-or-more-subclasses-of-sciunit-capability">
-<h2><span class="section-number">12.8. </span>All models are subclasses of <code class="docutils literal notranslate"><span class="pre">sciunit.Model</span></code> and typically one or more subclasses of <code class="docutils literal notranslate"><span class="pre">sciunit.Capability</span></code>.<a class="headerlink" href="#all-models-are-subclasses-of-sciunit-model-and-typically-one-or-more-subclasses-of-sciunit-capability" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.8. </span>All models are subclasses of <code class="docutils literal notranslate"><span class="pre">sciunit.Model</span></code> and typically one or more subclasses of <code class="docutils literal notranslate"><span class="pre">sciunit.Capability</span></code>.<a class="headerlink" href="#all-models-are-subclasses-of-sciunit-model-and-typically-one-or-more-subclasses-of-sciunit-capability" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BaseKeplerModel</span><span class="p">(</span><span class="n">sciunit</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> 
@@ -836,7 +839,7 @@ font-size: 120%;
 </div>
 </div>
 <div class="section" id="now-we-can-instantiate-a-i-specific-model-i-from-this-class-e-g-one-representing-the-orbital-path-of-earth-according-to-kepler">
-<h2><span class="section-number">12.9. </span>Now we can instantiate a <i>specific model</i> from this class, e.g. one representing the orbital path of Earth (according to Kepler)<a class="headerlink" href="#now-we-can-instantiate-a-i-specific-model-i-from-this-class-e-g-one-representing-the-orbital-path-of-earth-according-to-kepler" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.9. </span>Now we can instantiate a <i>specific model</i> from this class, e.g. one representing the orbital path of Earth (according to Kepler)<a class="headerlink" href="#now-we-can-instantiate-a-i-specific-model-i-from-this-class-e-g-one-representing-the-orbital-path-of-earth-according-to-kepler" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The quantities module to put dimensional units on values</span>
@@ -855,7 +858,7 @@ font-size: 120%;
 </div>
 </div>
 <div class="section" id="we-can-use-this-model-to-make-specific-predictions-for-example-the-current-distance-between-earth-and-the-sun">
-<h2><span class="section-number">12.10. </span>We can use this model to make specific predictions, for example the current distance between Earth and the sun.<a class="headerlink" href="#we-can-use-this-model-to-make-specific-predictions-for-example-the-current-distance-between-earth-and-the-sun" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.10. </span>We can use this model to make specific predictions, for example the current distance between Earth and the sun.<a class="headerlink" href="#we-can-use-this-model-to-make-specific-predictions-for-example-the-current-distance-between-earth-and-the-sun" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The time right now</span>
@@ -867,17 +870,17 @@ font-size: 120%;
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Heliocentric distance of Earth right now is predicted to be 150879954.5 km
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Heliocentric distance of Earth right now is predicted to be 152035067.4 km
 </pre></div>
 </div>
 </div>
 </div>
 </div>
 <div class="section" id="now-let-s-build-a-test-class-that-we-might-use-to-validate-i-e-unit-test-to-produce-test-scores-with-this-and-hopefully-other-models">
-<h2><span class="section-number">12.11. </span>Now let’s build a test class that we might use to validate (i.e. unit test to produce test scores) with this (and hopefully other) models<a class="headerlink" href="#now-let-s-build-a-test-class-that-we-might-use-to-validate-i-e-unit-test-to-produce-test-scores-with-this-and-hopefully-other-models" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.11. </span>Now let’s build a test class that we might use to validate (i.e. unit test to produce test scores) with this (and hopefully other) models<a class="headerlink" href="#now-let-s-build-a-test-class-that-we-might-use-to-validate-i-e-unit-test-to-produce-test-scores-with-this-and-hopefully-other-models" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="first-what-kind-of-scores-do-we-want-our-test-to-return">
-<h2><span class="section-number">12.12. </span>First, what kind of scores do we want our test to return?<a class="headerlink" href="#first-what-kind-of-scores-do-we-want-our-test-to-return" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.12. </span>First, what kind of scores do we want our test to return?<a class="headerlink" href="#first-what-kind-of-scores-do-we-want-our-test-to-return" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Several score types available in SciUnit</span>
@@ -889,7 +892,7 @@ font-size: 120%;
 <p><a class="reference external" href="https://github.com/scidash/sciunit/tree/master/sciunit/scores">Code for <strong>sciunit.scores</strong> on GitHub</a></p>
 </div>
 <div class="section" id="here-s-a-first-shot-a-test-class-for-assessing-the-agreement-between-predicted-and-observed-positions-of-orbiting-objects-all-test-classes-are-subclasses-of-sciunit-test">
-<h2><span class="section-number">12.13. </span>Here’s a first shot a test class for assessing the agreement between predicted and observed positions of orbiting objects.  All test classes are subclasses of <code class="docutils literal notranslate"><span class="pre">sciunit.Test</span></code>.<a class="headerlink" href="#here-s-a-first-shot-a-test-class-for-assessing-the-agreement-between-predicted-and-observed-positions-of-orbiting-objects-all-test-classes-are-subclasses-of-sciunit-test" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.13. </span>Here’s a first shot a test class for assessing the agreement between predicted and observed positions of orbiting objects.  All test classes are subclasses of <code class="docutils literal notranslate"><span class="pre">sciunit.Test</span></code>.<a class="headerlink" href="#here-s-a-first-shot-a-test-class-for-assessing-the-agreement-between-predicted-and-observed-positions-of-orbiting-objects-all-test-classes-are-subclasses-of-sciunit-test" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PositionTest</span><span class="p">(</span><span class="n">sciunit</span><span class="o">.</span><span class="n">Test</span><span class="p">):</span>
@@ -926,7 +929,7 @@ font-size: 120%;
 </div>
 </div>
 <div class="section" id="we-might-want-to-include-extra-checks-and-constraints-on-observed-data-test-parameters-or-other-contingent-testing-logic">
-<h2><span class="section-number">12.14. </span>We might want to include extra checks and constraints on observed data, test parameters, or other contingent testing logic.<a class="headerlink" href="#we-might-want-to-include-extra-checks-and-constraints-on-observed-data-test-parameters-or-other-contingent-testing-logic" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.14. </span>We might want to include extra checks and constraints on observed data, test parameters, or other contingent testing logic.<a class="headerlink" href="#we-might-want-to-include-extra-checks-and-constraints-on-observed-data-test-parameters-or-other-contingent-testing-logic" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StricterPositionTest</span><span class="p">(</span><span class="n">PositionTest</span><span class="p">):</span>
@@ -965,7 +968,7 @@ font-size: 120%;
 </div>
 </div>
 <div class="section" id="now-we-can-instantiate-a-test-each-test-instance-is-a-combination-of-the-test-class-describing-the-testing-logic-and-required-capabilties-plus-some-i-observation-i-i-e-data">
-<h2><span class="section-number">12.15. </span>Now we can instantiate a test.  Each test instance is a combination of the test class, describing the testing logic and required capabilties, plus some <i>’observation’</i>, i.e. data.<a class="headerlink" href="#now-we-can-instantiate-a-test-each-test-instance-is-a-combination-of-the-test-class-describing-the-testing-logic-and-required-capabilties-plus-some-i-observation-i-i-e-data" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.15. </span>Now we can instantiate a test.  Each test instance is a combination of the test class, describing the testing logic and required capabilties, plus some <i>’observation’</i>, i.e. data.<a class="headerlink" href="#now-we-can-instantiate-a-test-each-test-instance-is-a-combination-of-the-test-class-describing-the-testing-logic-and-required-capabilties-plus-some-i-observation-i-i-e-data" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A single test instance, best on the test class `StricterPositionTest` combined with</span>
@@ -981,7 +984,7 @@ font-size: 120%;
 </div>
 </div>
 <div class="section" id="finally-we-can-execute-this-one-test-against-this-one-model">
-<h2><span class="section-number">12.16. </span>Finally, we can execute this one test against this one model<a class="headerlink" href="#finally-we-can-execute-this-one-test-against-this-one-model" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.16. </span>Finally, we can execute this one test against this one model<a class="headerlink" href="#finally-we-can-execute-this-one-test-against-this-one-model" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Execute `earth_position_test` against `earth_model` and return a score</span>
@@ -999,7 +1002,7 @@ font-size: 120%;
 </div>
 </div>
 <div class="section" id="and-we-can-get-additional-information-about-the-test-including-intermediate-objects-computed-in-order-to-generate-a-score">
-<h2><span class="section-number">12.17. </span>And we can get additional information about the test, including intermediate objects computed in order to generate a score.<a class="headerlink" href="#and-we-can-get-additional-information-about-the-test-including-intermediate-objects-computed-in-order-to-generate-a-score" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.17. </span>And we can get additional information about the test, including intermediate objects computed in order to generate a score.<a class="headerlink" href="#and-we-can-get-additional-information-about-the-test-including-intermediate-objects-computed-in-order-to-generate-a-score" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Describe the score in plain language</span>
@@ -1046,7 +1049,7 @@ font-size: 120%;
 </div>
 </div>
 <div class="section" id="we-may-want-to-bundle-many-such-tests-into-a-testsuite-this-suite-may-contain-test-from-multiple-classes-or-simply-tests-which-differ-only-in-the-observation-data-used-to-instantiate-them">
-<h2><span class="section-number">12.18. </span>We may want to bundle many such tests into a <code class="docutils literal notranslate"><span class="pre">TestSuite</span></code>.  This suite may contain test from multiple classes, or simply tests which differ only in the observation (data) used to instantiate them.<a class="headerlink" href="#we-may-want-to-bundle-many-such-tests-into-a-testsuite-this-suite-may-contain-test-from-multiple-classes-or-simply-tests-which-differ-only-in-the-observation-data-used-to-instantiate-them" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.18. </span>We may want to bundle many such tests into a <code class="docutils literal notranslate"><span class="pre">TestSuite</span></code>.  This suite may contain test from multiple classes, or simply tests which differ only in the observation (data) used to instantiate them.<a class="headerlink" href="#we-may-want-to-bundle-many-such-tests-into-a-testsuite-this-suite-may-contain-test-from-multiple-classes-or-simply-tests-which-differ-only-in-the-observation-data-used-to-instantiate-them" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A new test for a new month: same test class, new observation (data)</span>
@@ -1066,7 +1069,7 @@ font-size: 120%;
 </div>
 </div>
 <div class="section" id="we-can-then-test-our-model-against-this-whole-suite-of-tests">
-<h2><span class="section-number">12.19. </span>We can then test our model against this whole suite of tests<a class="headerlink" href="#we-can-then-test-our-model-against-this-whole-suite-of-tests" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.19. </span>We can then test our model against this whole suite of tests<a class="headerlink" href="#we-can-then-test-our-model-against-this-whole-suite-of-tests" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run the whole suite (two tests) against one model</span>
@@ -1083,7 +1086,7 @@ Score: Fail for Kepler&#39;s Earth Model on Earth Orbital Data on April 1st, 201
 </div>
 </div>
 <div class="section" id="rich-html-output-is-automatically-produced-when-this-score-output-is-summarized">
-<h2><span class="section-number">12.20. </span>Rich HTML output is automatically produced when this score output is summarized<a class="headerlink" href="#rich-html-output-is-automatically-produced-when-this-score-output-is-summarized" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.20. </span>Rich HTML output is automatically produced when this score output is summarized<a class="headerlink" href="#rich-html-output-is-automatically-produced-when-this-score-output-is-summarized" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Display the returned `scores` object</span>
@@ -1093,25 +1096,25 @@ Score: Fail for Kepler&#39;s Earth Model on Earth Orbital Data on April 1st, 201
 </div>
 <div class="cell_output docutils container">
 <div class="output text_html"><style  type="text/css" >
-#T_9527b09c_ace8_11eb_a043_ac1f6b647d9arow0_col0{
+#T_9fcda_row0_col0{
             background-color:  rgb(50, 50, 50);
              color:  rgb(60, 169, 88);
              text-align:  center;
-        }#T_9527b09c_ace8_11eb_a043_ac1f6b647d9arow0_col1{
+        }#T_9fcda_row0_col1{
             background-color:  rgb(50, 50, 50);
              color:  rgb(230, 78, 52);
              text-align:  center;
-        }</style><table id="T_9527b09c_ace8_11eb_a043_ac1f6b647d9a" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >Earth Orbital Data on March 1st, 2019</th>        <th class="col_heading level0 col1" >Earth Orbital Data on April 1st, 2019</th>    </tr></thead><tbody>
+        }</style><table id="T_9fcda_" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >Earth Orbital Data on March 1st, 2019</th>        <th class="col_heading level0 col1" >Earth Orbital Data on April 1st, 2019</th>    </tr></thead><tbody>
                 <tr>
-                        <th id="T_9527b09c_ace8_11eb_a043_ac1f6b647d9alevel0_row0" class="row_heading level0 row0" >Kepler's Earth Model</th>
-                        <td id="T_9527b09c_ace8_11eb_a043_ac1f6b647d9arow0_col0" class="data row0 col0" >Pass</td>
-                        <td id="T_9527b09c_ace8_11eb_a043_ac1f6b647d9arow0_col1" class="data row0 col1" >Fail</td>
+                        <th id="T_9fcda_level0_row0" class="row_heading level0 row0" >Kepler's Earth Model</th>
+                        <td id="T_9fcda_row0_col0" class="data row0 col0" >Pass</td>
+                        <td id="T_9fcda_row0_col1" class="data row0 col1" >Fail</td>
             </tr>
     </tbody></table></div></div>
 </div>
 </div>
 <div class="section" id="we-can-then-expand-this-to-multiple-models">
-<h2><span class="section-number">12.21. </span>We can then expand this to multiple models<a class="headerlink" href="#we-can-then-expand-this-to-multiple-models" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.21. </span>We can then expand this to multiple models<a class="headerlink" href="#we-can-then-expand-this-to-multiple-models" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Just like the Kepler model, but returning a random orbital angle</span>
@@ -1161,30 +1164,30 @@ Score: Fail for Random Earth Model on Earth Orbital Data on April 1st, 2019
 </div>
 <div class="cell_output docutils container">
 <div class="output text_html"><style  type="text/css" >
-#T_9f52b0da_ace8_11eb_a043_ac1f6b647d9arow0_col0{
+#T_c4171_row0_col0{
             background-color:  rgb(50, 50, 50);
              color:  rgb(60, 169, 88);
              text-align:  center;
-        }#T_9f52b0da_ace8_11eb_a043_ac1f6b647d9arow0_col1,#T_9f52b0da_ace8_11eb_a043_ac1f6b647d9arow1_col0,#T_9f52b0da_ace8_11eb_a043_ac1f6b647d9arow1_col1{
+        }#T_c4171_row0_col1,#T_c4171_row1_col0,#T_c4171_row1_col1{
             background-color:  rgb(50, 50, 50);
              color:  rgb(230, 78, 52);
              text-align:  center;
-        }</style><table id="T_9f52b0da_ace8_11eb_a043_ac1f6b647d9a" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >Earth Orbital Data on March 1st, 2019</th>        <th class="col_heading level0 col1" >Earth Orbital Data on April 1st, 2019</th>    </tr></thead><tbody>
+        }</style><table id="T_c4171_" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >Earth Orbital Data on March 1st, 2019</th>        <th class="col_heading level0 col1" >Earth Orbital Data on April 1st, 2019</th>    </tr></thead><tbody>
                 <tr>
-                        <th id="T_9f52b0da_ace8_11eb_a043_ac1f6b647d9alevel0_row0" class="row_heading level0 row0" >Kepler's Earth Model</th>
-                        <td id="T_9f52b0da_ace8_11eb_a043_ac1f6b647d9arow0_col0" class="data row0 col0" >Pass</td>
-                        <td id="T_9f52b0da_ace8_11eb_a043_ac1f6b647d9arow0_col1" class="data row0 col1" >Fail</td>
+                        <th id="T_c4171_level0_row0" class="row_heading level0 row0" >Kepler's Earth Model</th>
+                        <td id="T_c4171_row0_col0" class="data row0 col0" >Pass</td>
+                        <td id="T_c4171_row0_col1" class="data row0 col1" >Fail</td>
             </tr>
             <tr>
-                        <th id="T_9f52b0da_ace8_11eb_a043_ac1f6b647d9alevel0_row1" class="row_heading level0 row1" >Random Earth Model</th>
-                        <td id="T_9f52b0da_ace8_11eb_a043_ac1f6b647d9arow1_col0" class="data row1 col0" >Fail</td>
-                        <td id="T_9f52b0da_ace8_11eb_a043_ac1f6b647d9arow1_col1" class="data row1 col1" >Fail</td>
+                        <th id="T_c4171_level0_row1" class="row_heading level0 row1" >Random Earth Model</th>
+                        <td id="T_c4171_row1_col0" class="data row1 col0" >Fail</td>
+                        <td id="T_c4171_row1_col1" class="data row1 col1" >Fail</td>
             </tr>
     </tbody></table></div></div>
 </div>
 </div>
 <div class="section" id="or-extract-just-a-slice">
-<h2><span class="section-number">12.22. </span>Or extract just a slice:<a class="headerlink" href="#or-extract-just-a-slice" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.22. </span>Or extract just a slice:<a class="headerlink" href="#or-extract-just-a-slice" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># All the scores for just one model</span>
@@ -1217,7 +1220,7 @@ Name: Earth Orbital Data on March 1st, 2019, dtype: object
 </div>
 </div>
 <div class="section" id="what-about-models-that-i-can-t-i-take-a-certain-test-some-models-aren-t-capable-even-in-principle-of-doing-what-the-test-is-asking-of-them">
-<h2><span class="section-number">12.23. </span>What about models that <i>can’t</i> take a certain test?  Some models aren’t capable (even in principle) of doing what the test is asking of them.<a class="headerlink" href="#what-about-models-that-i-can-t-i-take-a-certain-test-some-models-aren-t-capable-even-in-principle-of-doing-what-the-test-is-asking-of-them" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.23. </span>What about models that <i>can’t</i> take a certain test?  Some models aren’t capable (even in principle) of doing what the test is asking of them.<a class="headerlink" href="#what-about-models-that-i-can-t-i-take-a-certain-test-some-models-aren-t-capable-even-in-principle-of-doing-what-the-test-is-asking-of-them" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A simple model which has some capabilities, </span>
@@ -1251,7 +1254,7 @@ Score: N/A for SimpleModel on Earth Orbital Data on April 1st, 2019
 </div>
 </div>
 <div class="section" id="incapable-models-don-t-fail-they-get-the-equivalent-of-incomplete-grades">
-<h2><span class="section-number">12.24. </span>Incapable models don’t fail, they get the equivalent of ‘incomplete’ grades<a class="headerlink" href="#incapable-models-don-t-fail-they-get-the-equivalent-of-incomplete-grades" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.24. </span>Incapable models don’t fail, they get the equivalent of ‘incomplete’ grades<a class="headerlink" href="#incapable-models-don-t-fail-they-get-the-equivalent-of-incomplete-grades" title="Permalink to this headline">¶</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Display the returned `scores` object</span>
@@ -1261,72 +1264,72 @@ Score: N/A for SimpleModel on Earth Orbital Data on April 1st, 2019
 </div>
 <div class="cell_output docutils container">
 <div class="output text_html"><style  type="text/css" >
-#T_b22f6e32_ace8_11eb_a043_ac1f6b647d9arow0_col0{
+#T_c11ef_row0_col0{
             background-color:  rgb(50, 50, 50);
              color:  rgb(60, 169, 88);
              text-align:  center;
-        }#T_b22f6e32_ace8_11eb_a043_ac1f6b647d9arow0_col1,#T_b22f6e32_ace8_11eb_a043_ac1f6b647d9arow1_col0,#T_b22f6e32_ace8_11eb_a043_ac1f6b647d9arow1_col1{
+        }#T_c11ef_row0_col1,#T_c11ef_row1_col0,#T_c11ef_row1_col1{
             background-color:  rgb(50, 50, 50);
              color:  rgb(230, 78, 52);
              text-align:  center;
-        }#T_b22f6e32_ace8_11eb_a043_ac1f6b647d9arow2_col0,#T_b22f6e32_ace8_11eb_a043_ac1f6b647d9arow2_col1{
+        }#T_c11ef_row2_col0,#T_c11ef_row2_col1{
             background-color:  rgb(50, 50, 50);
              color:  rgb(128, 128, 128);
              text-align:  center;
-        }</style><table id="T_b22f6e32_ace8_11eb_a043_ac1f6b647d9a" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >Earth Orbital Data on March 1st, 2019</th>        <th class="col_heading level0 col1" >Earth Orbital Data on April 1st, 2019</th>    </tr></thead><tbody>
+        }</style><table id="T_c11ef_" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >Earth Orbital Data on March 1st, 2019</th>        <th class="col_heading level0 col1" >Earth Orbital Data on April 1st, 2019</th>    </tr></thead><tbody>
                 <tr>
-                        <th id="T_b22f6e32_ace8_11eb_a043_ac1f6b647d9alevel0_row0" class="row_heading level0 row0" >Kepler's Earth Model</th>
-                        <td id="T_b22f6e32_ace8_11eb_a043_ac1f6b647d9arow0_col0" class="data row0 col0" >Pass</td>
-                        <td id="T_b22f6e32_ace8_11eb_a043_ac1f6b647d9arow0_col1" class="data row0 col1" >Fail</td>
+                        <th id="T_c11ef_level0_row0" class="row_heading level0 row0" >Kepler's Earth Model</th>
+                        <td id="T_c11ef_row0_col0" class="data row0 col0" >Pass</td>
+                        <td id="T_c11ef_row0_col1" class="data row0 col1" >Fail</td>
             </tr>
             <tr>
-                        <th id="T_b22f6e32_ace8_11eb_a043_ac1f6b647d9alevel0_row1" class="row_heading level0 row1" >Random Earth Model</th>
-                        <td id="T_b22f6e32_ace8_11eb_a043_ac1f6b647d9arow1_col0" class="data row1 col0" >Fail</td>
-                        <td id="T_b22f6e32_ace8_11eb_a043_ac1f6b647d9arow1_col1" class="data row1 col1" >Fail</td>
+                        <th id="T_c11ef_level0_row1" class="row_heading level0 row1" >Random Earth Model</th>
+                        <td id="T_c11ef_row1_col0" class="data row1 col0" >Fail</td>
+                        <td id="T_c11ef_row1_col1" class="data row1 col1" >Fail</td>
             </tr>
             <tr>
-                        <th id="T_b22f6e32_ace8_11eb_a043_ac1f6b647d9alevel0_row2" class="row_heading level0 row2" >SimpleModel</th>
-                        <td id="T_b22f6e32_ace8_11eb_a043_ac1f6b647d9arow2_col0" class="data row2 col0" >N/A</td>
-                        <td id="T_b22f6e32_ace8_11eb_a043_ac1f6b647d9arow2_col1" class="data row2 col1" >N/A</td>
+                        <th id="T_c11ef_level0_row2" class="row_heading level0 row2" >SimpleModel</th>
+                        <td id="T_c11ef_row2_col0" class="data row2 col0" >N/A</td>
+                        <td id="T_c11ef_row2_col1" class="data row2 col1" >N/A</td>
             </tr>
     </tbody></table></div></div>
 </div>
 </div>
 <div class="section" id="i-sciunit-i-is-in-use-in-several-multiscale-modeling-projects-including">
-<h2><span class="section-number">12.25. </span><i><a class="reference external" href="http://sciunit.scidash.org">SciUnit</a></i> is in use in several multiscale modeling projects including:<a class="headerlink" href="#i-sciunit-i-is-in-use-in-several-multiscale-modeling-projects-including" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.25. </span><i><a class="reference external" href="http://sciunit.scidash.org">SciUnit</a></i> is in use in several multiscale modeling projects including:<a class="headerlink" href="#i-sciunit-i-is-in-use-in-several-multiscale-modeling-projects-including" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="the-human-brain-project-neurophysiology-neuroanatomy-neuroimaging">
-<h3><span class="section-number">12.25.1. </span>- <a class="reference external" href="https://www.humanbrainproject.eu/en/">The Human Brain Project</a> (neurophysiology, neuroanatomy, neuroimaging)<a class="headerlink" href="#the-human-brain-project-neurophysiology-neuroanatomy-neuroimaging" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.25.1. </span>- <a class="reference external" href="https://www.humanbrainproject.eu/en/">The Human Brain Project</a> (neurophysiology, neuroanatomy, neuroimaging)<a class="headerlink" href="#the-human-brain-project-neurophysiology-neuroanatomy-neuroimaging" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="openworm-biophysics-network-dynamics-animal-behavior">
-<h3><span class="section-number">12.25.2. </span>- <a class="reference external" href="http://openworm.org/">OpenWorm</a> (biophysics, network dynamics, animal behavior)<a class="headerlink" href="#openworm-biophysics-network-dynamics-animal-behavior" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.25.2. </span>- <a class="reference external" href="http://openworm.org/">OpenWorm</a> (biophysics, network dynamics, animal behavior)<a class="headerlink" href="#openworm-biophysics-network-dynamics-animal-behavior" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
 <div class="section" id="i-neuronunit-i-is-a-reference-implementation-in-the-domain-of-neurophysiology-of">
-<h2><span class="section-number">12.26. </span><i><a class="reference external" href="http://neuronunit.scidash.org">NeuronUnit</a></i> is a reference implementation in the domain of neurophysiology of:<a class="headerlink" href="#i-neuronunit-i-is-a-reference-implementation-in-the-domain-of-neurophysiology-of" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.26. </span><i><a class="reference external" href="http://neuronunit.scidash.org">NeuronUnit</a></i> is a reference implementation in the domain of neurophysiology of:<a class="headerlink" href="#i-neuronunit-i-is-a-reference-implementation-in-the-domain-of-neurophysiology-of" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="model-classes">
-<h3><span class="section-number">12.26.1. </span>- model classes<a class="headerlink" href="#model-classes" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.26.1. </span>- model classes<a class="headerlink" href="#model-classes" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="test-classes">
-<h3><span class="section-number">12.26.2. </span>- test classes<a class="headerlink" href="#test-classes" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.26.2. </span>- test classes<a class="headerlink" href="#test-classes" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="capability-classes">
-<h3><span class="section-number">12.26.3. </span>- capability classes<a class="headerlink" href="#capability-classes" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.26.3. </span>- capability classes<a class="headerlink" href="#capability-classes" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="tools-for-constructing-tests-from-several-public-neurophysiology-databases">
-<h3><span class="section-number">12.26.4. </span>- tools for constructing tests from several public neurophysiology databases<a class="headerlink" href="#tools-for-constructing-tests-from-several-public-neurophysiology-databases" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.26.4. </span>- tools for constructing tests from several public neurophysiology databases<a class="headerlink" href="#tools-for-constructing-tests-from-several-public-neurophysiology-databases" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="tools-for-implementing-capabilities-from-standard-model-exchange-formats">
-<h3><span class="section-number">12.26.5. </span>- tools for implementing capabilities from standard model exchange formats<a class="headerlink" href="#tools-for-implementing-capabilities-from-standard-model-exchange-formats" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.26.5. </span>- tools for implementing capabilities from standard model exchange formats<a class="headerlink" href="#tools-for-implementing-capabilities-from-standard-model-exchange-formats" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="tools-for-executing-simulations-underlying-testing-using-popular-simulators">
-<h3><span class="section-number">12.26.6. </span>- tools for executing simulations underlying testing using popular simulators<a class="headerlink" href="#tools-for-executing-simulations-underlying-testing-using-popular-simulators" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.26.6. </span>- tools for executing simulations underlying testing using popular simulators<a class="headerlink" href="#tools-for-executing-simulations-underlying-testing-using-popular-simulators" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="test-driven-model-optimization">
-<h3><span class="section-number">12.26.7. </span>- test-driven model optimization<a class="headerlink" href="#test-driven-model-optimization" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.26.7. </span>- test-driven model optimization<a class="headerlink" href="#test-driven-model-optimization" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
 <div class="section" id="i-scidash-i-is-a-web-application-for-creating-scheduling-and-viewing-the-results-of-sciunit-tests-without-writing-a-single-line-of-code">
-<h2><span class="section-number">12.27. </span><i><a class="reference external" href="http://dash.scidash.org">SciDash</a></i> is a web application for creating, scheduling, and viewing the results of SciUnit tests without writing a single line of code.<a class="headerlink" href="#i-scidash-i-is-a-web-application-for-creating-scheduling-and-viewing-the-results-of-sciunit-tests-without-writing-a-single-line-of-code" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.27. </span><i><a class="reference external" href="http://dash.scidash.org">SciDash</a></i> is a web application for creating, scheduling, and viewing the results of SciUnit tests without writing a single line of code.<a class="headerlink" href="#i-scidash-i-is-a-web-application-for-creating-scheduling-and-viewing-the-results-of-sciunit-tests-without-writing-a-single-line-of-code" title="Permalink to this headline">¶</a></h2>
 <hr>
 <div align='center' style='font-size:300%; line-height:30px;'>
 Links:
@@ -1360,7 +1363,7 @@ Funded by:
 </table>
 </div>
 <div class="section" id="thanks-also-to-sharon-crook-justas-birgiolas-russell-jarvis-and-cyrus-omar">
-<h2><span class="section-number">12.28. </span>Thanks also to Sharon Crook, Justas Birgiolas, Russell Jarvis, and Cyrus Omar<a class="headerlink" href="#thanks-also-to-sharon-crook-justas-birgiolas-russell-jarvis-and-cyrus-omar" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.28. </span>Thanks also to Sharon Crook, Justas Birgiolas, Russell Jarvis, and Cyrus Omar<a class="headerlink" href="#thanks-also-to-sharon-crook-justas-birgiolas-russell-jarvis-and-cyrus-omar" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -1389,7 +1392,7 @@ Funded by:
         
         <div class='prev-next-bottom'>
             
-    <a class='left-prev' id="prev-link" href="chapter5.html" title="previous page"><span class="section-number">9. </span>SciUnit is a framework for validating scientific models by creating experimental-data-driven unit tests.</a>
+    <a class='left-prev' id="prev-link" href="chapter5.html" title="previous page"><span class="section-number">5. </span>Chapter 5. The Real Example of Using SciUnit To Test Cosmology Models</a>
 
         </div>
         
