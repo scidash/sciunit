@@ -1,0 +1,9 @@
+# in _config.yml
+title: "SciUnit: A python library for data-driven model validation testing"
+logo: sci-unit-tag.png
+execute:
+  execute_notebooks: "off"
+
+
+
+

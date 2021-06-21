@@ -1,0 +1,16 @@
+# In _toc.yml
+format: jb-book
+root: README
+parts:
+  - caption: Tutorial
+    numbered: True
+    chapters:
+      - file: chapter1
+      - file: chapter2
+      - file: chapter3
+      - file: chapter4
+      - file: chapter5
+      - file: chapter6
+  - caption: Full Docs
+    chapters:
+      - url: https://sciunit.rtfd.io
