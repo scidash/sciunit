@@ -34,8 +34,10 @@ class BaseCase(unittest.TestCase):
         from sciunit.base import Versioned
 
         ver = Versioned()
-        self.assertEqual("origin", str(ver.get_remote("I am not a remote")))
-        self.assertEqual("origin", str(ver.get_remote()))
+        # We check our sciunit .git repo here (and we do have a remote named "origin"!)
+        self.assertEqual("origin", ver.get_remote("I am not a remote").name)
+        self.assertEqual("origin", ver.get_remote().name)
+
         self.assertIsInstance(ver.get_repo(), Repo)
         self.assertIsInstance(ver.get_remote_url("I am not a remote"), str)
 
