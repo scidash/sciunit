@@ -211,11 +211,11 @@ class Versioned(object):
 
     version = property(get_version)
 
-    def get_remote(self, remoteName: str = "origin") -> Remote:
+    def get_remote(self, remote_name: str = "origin") -> Remote:
         """Get a git remote object for this instance.
 
         Args:
-            remoteName (str, optional): The remote Git repo. Defaults to 'origin'.
+            remote_name (str, optional): The remote Git repo. Defaults to 'origin'.
 
         Returns:
             Remote: The git remote object for this instance.
@@ -228,9 +228,9 @@ class Versioned(object):
         if len(repo.remotes) == 0:
             return None
 
-        matching = [r for r in repo.remotes if r.name == remoteName]
+        matching = [r for r in repo.remotes if r.name == remote_name]
         if (len(matching) > 0):
-            # => Remote with remoteName
+            # => Remote with remote_name
             return matching[0]
         else:
             # => just any first Remote
