@@ -211,23 +211,6 @@ class Versioned(object):
 
     version = property(get_version)
 
-    def old_get_remote(self, remote: str = "origin", **kwargs) -> Remote:
-        """Get a git remote object for this instance.
-
-        Args:
-            remote (str, optional): The remote Git repo. Defaults to 'origin'.
-
-        Returns:
-            Remote: The git remote object for this instance.
-        """
-        repo = kwargs["repo"] if "repo" in kwargs else self.get_repo()
-        if repo is not None:
-            remotes = {r.name: r for r in repo.remotes}
-            r = repo.remotes[0] if remote not in remotes else remotes[remote]
-        else:
-            r = None
-        return r
-
     def get_remote(self, remote_name: str = "origin", **kwargs) -> Remote:
         """Get a git remote object for this instance.
 

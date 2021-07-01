@@ -70,29 +70,5 @@ class BaseCase(unittest.TestCase):
         # Testing .get_remote_url()
         self.assertIsInstance(ver.get_remote_url("I am not a remote"), str)
 
-    def test_OldVersioned(self):
-        from git import Repo
-        from sciunit.base import Versioned
-
-        ver = Versioned()
-
-        # Testing .old_get_remote()
-        # 1. Checking our sciunit .git repo
-        # (to make sure .old_get_remote() works with real repos too!)
-        self.assertEqual("origin", ver.old_get_remote("I am not a remote").name)
-        self.assertEqual("origin", ver.old_get_remote().name)
-        # 2. Checking NO .git repo
-        self.assertEqual(None, ver.old_get_remote(repo=None))
-        # 3. Checking a .git repo without remotes
-        git_repo = Repo.init(tmp_folder_path / "git_repo_old")
-        # @Rick, this should pass!
-        self.assertRaises(IndexError, lambda: ver.old_get_remote(repo=git_repo))
-        # 4. Checking a .git repo with remotes
-        origin = git_repo.create_remote("origin", "https://origin.com")
-        beta = git_repo.create_remote('beta', "https://beta.com")
-        self.assertEqual(origin, ver.old_get_remote(repo=git_repo))
-        self.assertEqual(origin, ver.old_get_remote("not a remote", repo=git_repo))
-        self.assertEqual(beta, ver.old_get_remote("beta", repo=git_repo))
-
 if __name__ == "__main__":
     unittest.main()
