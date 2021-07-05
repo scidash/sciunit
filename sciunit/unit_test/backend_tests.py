@@ -27,6 +27,12 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         backend.init_backend(use_disk_cache=False, use_memory_cache=False)
         backend.init_cache()
 
+        # Manually set disk_cache location
+        # backend.init_backend(use_disk_cache=False, use_memory_cache="")
+
+        # Automatically set disk_cache location
+        # backend.init_backend(use_disk_cache=False, use_memory_cache=True)
+
     def test_backends_set_caches(self):
         myModel = Model()
         backend = Backend()
