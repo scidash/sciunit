@@ -1,21 +1,19 @@
 import unittest
 
-from pathlib import Path
+from sciunit.utils import TmpTestFolder
 
-tmp_folder_path = Path(__file__).parent / "delete_after_tests"
+tmp_folder = TmpTestFolder()
 
 class BaseCase(unittest.TestCase):
     """Unit tests for config files"""
 
     @classmethod
     def setUpClass(cls):
-        Path(tmp_folder_path).mkdir(parents=True, exist_ok=True)
+        tmp_folder.create()
 
     @classmethod
     def tearDownClass(cls):
-        import shutil
-        if tmp_folder_path.exists() and tmp_folder_path.is_dir():
-            shutil.rmtree(tmp_folder_path)
+        tmp_folder.delete()
 
     def test_deep_exclude(self):
         from sciunit.base import deep_exclude
@@ -55,7 +53,7 @@ class BaseCase(unittest.TestCase):
         # 2. Checking NO .git repo
         self.assertEqual(None, ver.get_remote(repo=None))
         # 3. Checking a .git repo without remotes
-        git_repo = Repo.init(tmp_folder_path / "git_repo")
+        git_repo = Repo.init(tmp_folder.path / "git_repo")
         self.assertEqual(None, ver.get_remote(repo=git_repo))
         # 4. Checking a .git repo with remotes
         origin = git_repo.create_remote("origin", "https://origin.com")

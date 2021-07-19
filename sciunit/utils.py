@@ -468,6 +468,22 @@ class MockDevice(TextIOWrapper):
         if s.startswith("[") and s.endswith("]"):
             super(MockDevice, self).write(s)
 
+class TmpTestFolder():
+    '''A class for creating and deleting a folder in "./unit_test/".
+    '''
+
+    path = Path(__file__).parent / "unit_test" / "delete_after_tests"
+
+    def __init__(self, location: Union[str, Path, None] = None) -> None:
+        if location: self.path = Path(location)
+
+    def create(self) -> None:
+        Path(self.path).mkdir(parents=True, exist_ok=True)
+
+    def delete(self) -> None:
+        import shutil
+        if self.path.exists() and self.path.is_dir():
+            shutil.rmtree(self.path)
 
 def import_all_modules(
     package, skip: list = None, verbose: bool = False, prefix: str = "", depth: int = 0
