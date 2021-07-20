@@ -5,7 +5,7 @@ import pickle
 import shelve
 import tempfile
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, Union, Literal
 
 from sciunit.base import SciUnit, config
 
@@ -69,22 +69,23 @@ class Backend(SciUnit):
         """Initialize the in-memory version of the cache."""
         self.memory_cache = {}
 
-    def init_disk_cache(self, **kwargs) -> None:
+    def init_disk_cache(self, location: Union[str, Path, Literal[True], None] = None) -> None:
         """Initialize the on-disk version of the cache."""
-        from_kwargs = kwargs.get("location")
-        if isinstance(from_kwargs, Path) or isinstance(from_kwargs, str):
-            location = str(from_kwargs)
+        if isinstance(location, (str, Path)):
+            location = str(location)
         else:
-            location = Path(tempfile.mkdtemp()) / "cache"
-            # This won't work atm, we'll need to add config.set_to_disk():
-            # from_config = config.get('disk_cache', False)
-            # if from_config:
-            #     location = from_config
-            # else:
-            #     location = Path(tempfile.mkdtemp()) / "cache"
-            #     config.set('disk_cache', location)
+            # => "~/.sciunit/cache"
+            location = str(config.path.parent / "cache")
 
         self.disk_cache_location = location
+
+    def clear_disk_cache(self) -> None:
+        """Removes the cache file from the disk if it exists.
+        """
+        path = Path(self.disk_cache_location)
+
+        if path.exists():
+            path.unlink()
 
     def get_memory_cache(self, key: str = None) -> dict:
         """Return result in memory cache for key 'key' or None if not found.

@@ -1,11 +1,11 @@
 """Unit tests for backends."""
 
 import unittest
+from pathlib import Path
 
 from sciunit import Model
 from sciunit.models.backends import Backend
 from sciunit.utils import NotebookTools
-
 
 class BackendsTestCase(unittest.TestCase, NotebookTools):
     """Unit tests for the sciunit module"""
@@ -27,16 +27,34 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         backend.init_backend(use_disk_cache=False, use_memory_cache=False)
         backend.init_cache()
 
-        # Manually set disk_cache location
-        # backend.init_backend(use_disk_cache=False, use_memory_cache="")
-
+    def test_backends_init_disk_caches(self):
         # Automatically set disk_cache location
-        # backend.init_backend(use_disk_cache=False, use_memory_cache=True)
+        myModel = Model()
+        backend = Backend()
+        backend.model = myModel
+        backend.init_backend(use_disk_cache=True, use_memory_cache=False)
+        self.assertTrue(backend.disk_cache_location.endswith(".sciunit/cache"))
+
+        # Manually set disk_cache location (a string)
+        myModel = Model()
+        backend = Backend()
+        backend.model = myModel
+        backend.init_backend(use_disk_cache="/some/good/path", use_memory_cache=False)
+        self.assertEqual(backend.disk_cache_location, "/some/good/path")
+
+        # Manually set disk_cache location (a Path)
+        myModel = Model()
+        backend = Backend()
+        backend.model = myModel
+        backend.init_backend(use_disk_cache=Path("/some/good/path"), use_memory_cache=False)
+        self.assertEqual(backend.disk_cache_location, "/some/good/path")
 
     def test_backends_set_caches(self):
         myModel = Model()
         backend = Backend()
         backend.model = myModel
+        backend.init_backend(use_disk_cache=True, use_memory_cache=True)
+        backend.clear_disk_cache()
         # backend.init_memory_cache()
         self.assertIsNone(backend.get_disk_cache("key1"))
         self.assertIsNone(backend.get_disk_cache("key2"))
