@@ -5,7 +5,7 @@ import pickle
 import shelve
 import tempfile
 from pathlib import Path
-from typing import Any, Union, Literal
+from typing import Any, Union
 
 from sciunit.base import SciUnit, config
 
@@ -69,7 +69,7 @@ class Backend(SciUnit):
         """Initialize the in-memory version of the cache."""
         self.memory_cache = {}
 
-    def init_disk_cache(self, location: Union[str, Path, Literal[True], None] = None) -> None:
+    def init_disk_cache(self, location: Union[str, Path, bool, None] = None) -> None:
         """Initialize the on-disk version of the cache."""
         if isinstance(location, (str, Path)):
             location = str(location)
