@@ -160,16 +160,15 @@ class Backend(SciUnit):
             return self.cache_to_results(self._results)
         if self.use_disk_cache and self.get_disk_cache(key):
             return self.cache_to_results(self._results)
-        results = self.results_to_cache(self._backend_run())
+        results = self._backend_run()
         if self.use_memory_cache:
-            self.set_memory_cache(results, key)
+            self.set_memory_cache(self.results_to_cache(results), key)
         if self.use_disk_cache:
-            self.set_disk_cache(results, key)
+            self.set_disk_cache(self.results_to_cache(results), key)
         return results
 
     def cache_to_results(self, cache: Any) -> Any:
-        """A method you should override if you have to make some adjustments
-        to the simulation results after they've been restored from the cache.
+        """A method to convert cache to some hypothetical Results object.
 
         Args:
             cache (Any): An object returned from .get_memory_cache() or .get_disk_cache().
@@ -181,15 +180,14 @@ class Backend(SciUnit):
         return cache
 
     def results_to_cache(self, results: Any) -> Any:
-        """A method you should override if you have to make some adjustments
-        to the way your simulation results are stored in cache.
+        """A method to convert the results from your model run
+        into storable cache object (usually a simple dictionary or an array).
 
         Args:
             results (Any): An object returned from your ._backend_run().
 
         Returns:
-            Any: The results in the format that's good for storing in cache
-            (usually a simple dictionary or an array).
+            Any: The results in the format that's good for storing in cache.
         """
         return results
 
