@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 from typing import Any, Union
 
-from sciunit.base import SciUnit
+from sciunit.base import SciUnit, config
 
 available_backends = {}
 
@@ -46,7 +46,7 @@ class Backend(SciUnit):
             self.init_memory_cache()
         self.use_disk_cache = kwargs.get("use_disk_cache", False)
         if self.use_disk_cache:
-            self.init_disk_cache()
+            self.init_disk_cache(location=self.use_disk_cache)
         self.load_model()
 
     #: Name of the backend
@@ -69,17 +69,23 @@ class Backend(SciUnit):
         """Initialize the in-memory version of the cache."""
         self.memory_cache = {}
 
-    def init_disk_cache(self) -> None:
+    def init_disk_cache(self, location: Union[str, Path, bool, None] = None) -> None:
         """Initialize the on-disk version of the cache."""
-        try:
-            # Cleanup old disk cache files
-            if self.disk_cache_location.is_dir():
-                self.disk_cache_location.rmdir()
-            else:
-                self.disk_cache_location.unlink()
-        except Exception:
-            pass
-        self.disk_cache_location = Path(tempfile.mkdtemp()) / "cache"
+        if isinstance(location, (str, Path)):
+            location = str(location)
+        else:
+            # => "~/.sciunit/cache"
+            location = str(config.path.parent / "cache")
+
+        self.disk_cache_location = location
+
+    def clear_disk_cache(self) -> None:
+        """Removes the cache file from the disk if it exists.
+        """
+        path = Path(self.disk_cache_location)
+
+        if path.exists():
+            path.unlink()
 
     def get_memory_cache(self, key: str = None) -> dict:
         """Return result in memory cache for key 'key' or None if not found.
