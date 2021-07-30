@@ -100,6 +100,26 @@ class BackendsTestCase(unittest.TestCase, NotebookTools):
         backend.set_memory_cache("value2")
         backend.backend_run()
 
+    def test_backend_cache_to_results(self):
+        myModel = Model()
+        class MyBackend(Backend):
+            def cache_to_results(self, cache):
+                return { "color": "red" }
+
+            def results_to_cache(self, results):
+                return { "color": "blue" }
+
+            def _backend_run(self):
+                return { "color": "white" }
+
+        backend = MyBackend()
+        backend.model = myModel
+        backend.init_backend(use_disk_cache=False, use_memory_cache=True)
+        # On first run we get the original object
+        self.assertEqual(backend.backend_run(), { "color": "white" })
+        # And on consequent runs we get the object recovered from the cache
+        self.assertEqual(backend.backend_run(), { "color": "red" })
+        self.assertEqual(backend.backend_run(), { "color": "red" })
 
 if __name__ == "__main__":
     unittest.main()

@@ -157,14 +157,38 @@ class Backend(SciUnit):
         if self.use_memory_cache or self.use_disk_cache:
             key = self.model.hash()
         if self.use_memory_cache and self.get_memory_cache(key):
-            return self._results
+            return self.cache_to_results(self._results)
         if self.use_disk_cache and self.get_disk_cache(key):
-            return self._results
+            return self.cache_to_results(self._results)
         results = self._backend_run()
         if self.use_memory_cache:
-            self.set_memory_cache(results, key)
+            self.set_memory_cache(self.results_to_cache(results), key)
         if self.use_disk_cache:
-            self.set_disk_cache(results, key)
+            self.set_disk_cache(self.results_to_cache(results), key)
+        return results
+
+    def cache_to_results(self, cache: Any) -> Any:
+        """A method to convert cache to some hypothetical Results object.
+
+        Args:
+            cache (Any): An object returned from .get_memory_cache() or .get_disk_cache().
+
+        Returns:
+            Any (optional): Either an object with the results of the simulation,
+            or None (e.g. if cache_to_results() simply injects the results into some global object).
+        """
+        return cache
+
+    def results_to_cache(self, results: Any) -> Any:
+        """A method to convert the results from your model run
+        into storable cache object (usually a simple dictionary or an array).
+
+        Args:
+            results (Any): An object returned from your ._backend_run().
+
+        Returns:
+            Any: The results in the format that's good for storing in cache.
+        """
         return results
 
     def _backend_run(self) -> Any:
