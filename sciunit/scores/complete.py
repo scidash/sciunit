@@ -36,7 +36,7 @@ class BooleanScore(Score):
         Returns:
             BooleanScore: Boolean score of the observation equals the prediction.
         """
-        return BooleanScore(observation == prediction)
+        return cls(observation == prediction)
 
     @property
     def norm_score(self) -> float:
@@ -127,7 +127,7 @@ class ZScore(Score):
         if np.isnan(value):
             error = "One of the input values was NaN"
             return InsufficientDataScore(error)
-        score = ZScore(value)
+        score = cls(value)
         return score
 
     @property
@@ -180,7 +180,7 @@ class CohenDScore(ZScore):
             s = (p_std ** 2 + o_std ** 2) ** 0.5
         value = (p_mean - o_mean) / s
         value = utils.assert_dimensionless(value)
-        return CohenDScore(value)
+        return cls(value)
 
     def __str__(self) -> str:
         return "D = %.2f" % self.score
@@ -227,7 +227,7 @@ class RatioScore(Score):
         obs, pred = cls.extract_means_or_values(observation, prediction, key=key)
         value = pred / obs
         value = utils.assert_dimensionless(value)
-        return RatioScore(value)
+        return cls(value)
 
     @property
     def norm_score(self) -> float:
@@ -313,7 +313,7 @@ class RelativeDifferenceScore(Score):
         )
         value = np.abs(pred - obs) / scale
         value = utils.assert_dimensionless(value)
-        return RelativeDifferenceScore(value)
+        return cls(value)
 
     @property
     def norm_score(self) -> float:
@@ -405,7 +405,7 @@ class FloatScore(Score):
         """
         # The sum of the squared differences.
         value = ((observation - prediction) ** 2).sum()
-        score = FloatScore(value)
+        score = cls(value)
         return score
 
     def __str__(self) -> str:
@@ -457,7 +457,7 @@ class CorrelationScore(Score):
     @classmethod
     def compute(cls, observation, prediction):
         """Compute whether the observation equals the prediction."""
-        return CorrelationScore(float(np.corrcoef(observation, prediction)[0, 1]))
+        return cls(float(np.corrcoef(observation, prediction)[0, 1]))
 
     def __str__(self):
         return "%.3g" % self.score
