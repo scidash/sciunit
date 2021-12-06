@@ -1030,7 +1030,7 @@ class_intern = intern.intern
 
 method_memoize = memoize
 
-def use_cache(original_function=None, cache_key_param=None):
+def use_backend_cache(original_function=None, cache_key_param=None):
     """
     Decorator for test functions (in particular `generate_prediction`) to cache
     the function output on the first execution and return the output from the
@@ -1053,14 +1053,14 @@ def use_cache(original_function=None, cache_key_param=None):
             if cache_key_param:
                 cache_key = self.params[cache_key_param]
 
-            function_output = self.get_cache(model=model,
-                                             key=cache_key)
+            function_output = self.get_backend_cache(model=model,
+                                                     key=cache_key)
 
             if function_output is None:
                 function_output = function(self, model=model, **kwargs)
-                self.set_cache(model=model,
-                               function_output=function_output,
-                               key=cache_key)
+                self.set_backend_cache(model=model,
+                                       function_output=function_output,
+                                       key=cache_key)
 
             return function_output
 
