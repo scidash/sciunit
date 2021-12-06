@@ -2,6 +2,7 @@
 
 import inspect
 import traceback
+from uuid import uuid4
 from copy import deepcopy
 from typing import Any, List, Optional, Tuple, Union
 
@@ -42,6 +43,8 @@ class Test(SciUnit):
 
         if self.description is None:
             self.description = self.__class__.__doc__
+
+        self.id = uuid4().hex
 
         # Use a combination of default_params and params, choosing the latter
         # if there is a conflict.
@@ -586,6 +589,53 @@ class Test(SciUnit):
                 result = "\n".join(s)
         return result
 
+    def get_cache(self, model: Model, key: Optional[str]=None): -> Any
+        """Get the cached results from the model's backend with the given key
+        (defaults to the id of the test instance).
+
+        Returns:
+            a cached function output, or None
+        """
+        if key is None:
+            if hasattr(self, id):
+                key = self.id
+            else:
+                return None
+
+        cached_output = None
+
+        if hasattr(model, 'backend') and not model.backend is None:
+            # memory cache has priority
+            if model._backend.use_memory_cache:
+                cached_output = model._backend.get_memory_cache(key=key)
+            elif model._backend.use_disk_cache:
+                cached_output = model._backend.get_disk_cache(key=key)
+        return cached_output
+
+    def set_cache(self, model: Model, function_output: Any,
+                  key: Optional[str]=None): -> bool
+        """Set the cache of the model's backend with the given key (defaults to
+        the id of the test instance)to calculated function output.
+
+        Returns:
+            bool: True if cache was successfully set, else False
+        """
+        if key is None:
+            if hasattr(self, id):
+                key = self.id
+            else:
+                return False
+
+        if hasattr(model, 'backend') and not model.backend is None:
+            # memory cache has priority
+            if model._backend.use_memory_cache:
+                model._backend.set_memory_cache(function_output, key=key)
+            if model._backend.use_disk_cache:
+                model._backend.set_disk_cache(function_output, key=key)
+            if model._backend.use_memory_cache or model._backend.use_disk_cache:
+                return True
+        return False
+
     @property
     def state(self) -> dict:
         """Get the frozen (pickled) model state.
@@ -937,6 +987,7 @@ class RangeTest(Test):
         assert len(observation) == 2
         assert observation[1] > observation[0]
 
+    @use_cache
     def generate_prediction(self, model: Model) -> float:
         """Using the model to generate a prediction.
 
