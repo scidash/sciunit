@@ -19,7 +19,7 @@ from .errors import (
 )
 from .models import Model
 from .scores import BooleanScore, ErrorScore, NAScore, NoneScore, Score, TBDScore
-from .utils import dict_combine
+from .utils import dict_combine, use_backend_cache
 from .validators import ObservationValidator, ParametersValidator
 
 
@@ -260,6 +260,7 @@ class Test(SciUnit):
             model (Model): A sciunit model instance.
         """
 
+    @use_backend_cache
     def generate_prediction(self, model: Model) -> None:
         """Generate a prediction from a model using the required capabilities.
 
@@ -979,7 +980,6 @@ class RangeTest(Test):
         assert len(observation) == 2
         assert observation[1] > observation[0]
 
-    @use_backend_cache
     def generate_prediction(self, model: Model) -> float:
         """Using the model to generate a prediction.
 
