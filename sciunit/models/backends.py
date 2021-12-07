@@ -164,7 +164,8 @@ class Backend(SciUnit):
         disk_cache.close()
 
     def set_cache(self, results: Any, key: str = None) -> bool:
-        """Store result in disk and/or memory cache for key 'key'.
+        """Store result in disk and/or memory cache for key 'key', depending
+        on whether `use_disk_cache` and `use_memory_cache` are True.
 
         Args:
             results (Any): [description]

@@ -596,6 +596,8 @@ class Test(SciUnit):
         Returns:
             Any: The cache for key 'key' or None if not found.
         """
+        if model is None:
+            return None
         if key is None:
             if hasattr(self, id):
                 key = self.id
@@ -614,6 +616,8 @@ class Test(SciUnit):
         Returns:
             bool: True if cache was successfully set, else False
         """
+        if model is None:
+            return False
         if key is None:
             if hasattr(self, id):
                 key = self.id

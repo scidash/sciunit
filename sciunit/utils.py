@@ -1048,7 +1048,19 @@ def use_backend_cache(original_function=None, cache_key_param=None):
     def _decorate(function):
 
         @functools.wraps(function)
-        def wrapper(self, model, **kwargs):
+        def wrapper(self, *args, **kwargs):
+            sig = inspect.signature(function)
+            if 'model' in kwargs:
+                model = kwargs['model']
+            elif 'model' in sig.parameters.keys():
+                model = args[list(sig.parameters.keys()).index('model')-1]
+                print(model)
+            else:
+                model = None
+                warnings.warn("The decorator `use_backend_cache` can only "
+                              "be used for test class functions that get "
+                              "'model' as an argument! Caching is skipped.")
+
             cache_key = None
             if cache_key_param:
                 cache_key = self.params[cache_key_param]
@@ -1057,7 +1069,7 @@ def use_backend_cache(original_function=None, cache_key_param=None):
                                                      key=cache_key)
 
             if function_output is None:
-                function_output = function(self, model=model, **kwargs)
+                function_output = function(self, *args, **kwargs)
                 self.set_backend_cache(model=model,
                                        function_output=function_output,
                                        key=cache_key)
