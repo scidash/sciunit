@@ -1071,7 +1071,6 @@ def use_backend_cache(original_function=None, cache_key_param=None):
                                   "cache_key_param value can not be found in "
                                   "self.params! Caching is skipped.")
 
-
             function_output = self.get_backend_cache(model=model,
                                                      key=cache_key)
 
