@@ -600,7 +600,7 @@ class Test(SciUnit):
         if model is None:
             return None
         if key is None:
-            if hasattr(self, id):
+            if hasattr(self, 'id'):
                 key = self.id
             else:
                 return None
