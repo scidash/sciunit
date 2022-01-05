@@ -590,7 +590,7 @@ class Test(SciUnit):
                 result = "\n".join(s)
         return result
 
-    def get_backend_cache(self, model: Model, key: Optional[str]=None): -> Any
+    def get_backend_cache(self, model: Model, key: Optional[str]=None) -> Any:
         """Get the cached results from the model's backend with the given key
         (defaults to the id of the test instance).
 
