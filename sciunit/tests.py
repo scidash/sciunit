@@ -610,7 +610,7 @@ class Test(SciUnit):
         return None
 
     def set_backend_cache(self, model: Model, function_output: Any,
-                  key: Optional[str]=None): -> bool
+                  key: Optional[str]=None) -> bool:
         """Set the cache of the model's backend with the given key (defaults to
         the id of the test instance)to calculated function output.
 
