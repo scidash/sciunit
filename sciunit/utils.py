@@ -1054,7 +1054,6 @@ def use_backend_cache(original_function=None, cache_key_param=None):
                 model = kwargs['model']
             elif 'model' in sig.parameters.keys():
                 model = args[list(sig.parameters.keys()).index('model')-1]
-                print(model)
             else:
                 model = None
                 warnings.warn("The decorator `use_backend_cache` can only "
