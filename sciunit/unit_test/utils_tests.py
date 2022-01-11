@@ -3,6 +3,100 @@
 import tempfile
 import unittest
 
+import sciunit
+from sciunit.utils import use_backend_cache
+import numpy as np
+
+
+class CacheTestCase(unittest.TestCase):
+
+    def test_basic_cache(self):
+        class dummy_test(sciunit.Test):
+
+            # The name of the cache key param determines the cache key location
+            @use_backend_cache(cache_key_param='dummy_cache_key')
+            def create_random_matrix(self, model):
+                # Generate a random matrix that will land in cache
+                return np.random.randint(0, 100, size=(5,5))
+
+        class dummy_avg_test(dummy_test):
+
+            default_params = {'dummy_cache_key': '1234'}
+
+            @use_backend_cache
+            def generate_prediction(self, model):
+                return np.mean(self.create_random_matrix(model))
+
+        class dummy_std_test(dummy_test):
+
+            default_params = {'dummy_cache_key': '1234'}
+
+            @use_backend_cache
+            def generate_prediction(self, model):
+                return np.std(self.create_random_matrix(model))
+
+            @use_backend_cache
+            def warning_function(self):
+                return 'I am supposed to fail, because I have no model'
+
+        class dummy_backend(sciunit.models.backends.Backend):
+            pass
+
+        class dummy_model(sciunit.models.RunnableModel):
+            pass
+
+
+        # Initialize dummy tests and models
+        avg_corr_test1 = dummy_avg_test([], dummy_cache_key='1234')
+        avg_corr_test2 = dummy_avg_test([], dummy_cache_key='5678')
+        std_corr_test = dummy_std_test([])
+        modelA = dummy_model(name='modelA', backend=dummy_backend)
+        modelB = dummy_model(name='modelB', backend=dummy_backend)
+
+        # Run predictions for the first time
+        avg_corrsA1 = avg_corr_test1.generate_prediction(model=modelA)
+        avg_corrsA2 = avg_corr_test2.generate_prediction(modelA)
+        cached_predictionA1_avg = avg_corr_test1.get_backend_cache(model=modelA)
+        cached_predictionA2_avg = avg_corr_test2.get_backend_cache(model=modelA)
+        dummy_matrixA1 = avg_corr_test1.get_backend_cache(model=modelA,
+                                                          key='1234')
+        dummy_matrixA2 = avg_corr_test2.get_backend_cache(model=modelA,
+                                                          key='5678')
+        # dummy matrix is already generated
+        # and cached specific for modelA with key '1234'
+        std_corrsA = std_corr_test.generate_prediction(modelA)
+        cached_predictionA_std = std_corr_test.get_backend_cache(model=modelA)
+        dummy_matrixA_std = std_corr_test.get_backend_cache(model=modelA,
+                                                         key='1234')
+
+        # Check if cached predictions are equal to original computations
+        self.assertTrue(avg_corrsA1 == cached_predictionA1_avg)
+        self.assertTrue(std_corrsA == cached_predictionA_std)
+
+        # Check that different tests yield different predictions
+        # These are floats, unlikely to ever be the same by chance
+        self.assertTrue(cached_predictionA1_avg != cached_predictionA2_avg)
+        self.assertTrue(cached_predictionA1_avg != cached_predictionA_std)
+
+        # Check cached matrices are the same
+        self.assertTrue(np.any(dummy_matrixA1 != dummy_matrixA2))
+        self.assertTrue(np.all(dummy_matrixA1 == dummy_matrixA_std))
+
+        """Check that a different model will have a different chache"""
+        avg_corrsB = avg_corr_test1.generate_prediction(modelB)
+        cached_predictionB1_avg = avg_corr_test1.get_backend_cache(model=modelB)
+        dummy_matrixB1 = avg_corr_test1.get_backend_cache(model=modelB,
+                                                         key='1234')
+        self.assertTrue(cached_predictionA1_avg != cached_predictionB1_avg)
+        self.assertTrue(np.any(dummy_matrixA1 != dummy_matrixB1))
+
+        """Test the failing cases of the decorator"""
+        with self.assertWarns(Warning):
+            std_corr_test.warning_function()
+
+        with self.assertWarns(Warning):
+            test = dummy_test([])
+            test.create_random_matrix(modelA)
 
 class UtilsTestCase(unittest.TestCase):
     """Unit tests for sciunit.utils"""
