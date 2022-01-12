@@ -2,6 +2,7 @@
 
 import inspect
 import traceback
+from uuid import uuid4
 from copy import deepcopy
 from typing import Any, List, Optional, Tuple, Union
 
@@ -18,7 +19,7 @@ from .errors import (
 )
 from .models import Model
 from .scores import BooleanScore, ErrorScore, NAScore, NoneScore, Score, TBDScore
-from .utils import dict_combine
+from .utils import dict_combine, use_backend_cache
 from .validators import ObservationValidator, ParametersValidator
 
 
@@ -42,6 +43,8 @@ class Test(SciUnit):
 
         if self.description is None:
             self.description = self.__class__.__doc__
+
+        self.id = uuid4().hex
 
         # Use a combination of default_params and params, choosing the latter
         # if there is a conflict.
@@ -257,6 +260,7 @@ class Test(SciUnit):
             model (Model): A sciunit model instance.
         """
 
+    @use_backend_cache
     def generate_prediction(self, model: Model) -> None:
         """Generate a prediction from a model using the required capabilities.
 
@@ -585,6 +589,45 @@ class Test(SciUnit):
                     s += [self.converter.description]
                 result = "\n".join(s)
         return result
+
+    def get_backend_cache(self, model: Model, key: Optional[str]=None) -> Any:
+        """Get the cached results from the model's backend with the given key
+        (defaults to the id of the test instance).
+
+        Returns:
+            Any: The cache for key 'key' or None if not found.
+        """
+        if model is None:
+            return None
+        if key is None:
+            if hasattr(self, 'id'):
+                key = self.id
+            else:
+                return None
+
+        if hasattr(model, 'backend') and not model.backend is None:
+            return model._backend.get_cache(key=key)
+        return None
+
+    def set_backend_cache(self, model: Model, function_output: Any,
+                  key: Optional[str]=None) -> bool:
+        """Set the cache of the model's backend with the given key (defaults to
+        the id of the test instance)to calculated function output.
+
+        Returns:
+            bool: True if cache was successfully set, else False
+        """
+        if model is None:
+            return False
+        if key is None:
+            if hasattr(self, 'id'):
+                key = self.id
+            else:
+                return False
+
+        if hasattr(model, 'backend') and model.backend is not None:
+            return model._backend.set_cache(function_output, key=key)
+        return False
 
     @property
     def state(self) -> dict:

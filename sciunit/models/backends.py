@@ -119,6 +119,24 @@ class Backend(SciUnit):
         disk_cache.close()
         return self._results
 
+    def get_cache(self, key: str = None) -> Any:
+        """Return result in disk or memory cache for key 'key' or None if not
+        found. If both `use_disk_cache` and `use_memory_cache` are True, the
+        memory cache is returned.
+
+        Returns:
+            Any: The cache for key 'key' or None if not found.
+        """
+        if self.use_memory_cache:
+            result = self.get_memory_cache(key=key)
+            if result is not None:
+                return result
+        if self.use_disk_cache:
+            result = self.get_disk_cache(key=key)
+            if result is not None:
+                return result
+        return None
+
     def set_memory_cache(self, results: Any, key: str = None) -> None:
         """Store result in memory cache with key matching model state.
 
@@ -144,6 +162,25 @@ class Backend(SciUnit):
         key = self.model.hash() if key is None else key
         disk_cache[key] = results
         disk_cache.close()
+
+    def set_cache(self, results: Any, key: str = None) -> bool:
+        """Store result in disk and/or memory cache for key 'key', depending
+        on whether `use_disk_cache` and `use_memory_cache` are True.
+
+        Args:
+            results (Any): [description]
+            key (str, optional): [description]. Defaults to None.
+
+        Returns:
+            bool: True if cache was successfully set, else False
+        """
+        if self.use_memory_cache:
+            self.set_memory_cache(results, key=key)
+        if self.use_disk_cache:
+            self.set_disk_cache(results, key=key)
+        if self.use_memory_cache or self.use_disk_cache:
+            return True
+        return False
 
     def load_model(self) -> None:
         """Load the model into memory."""
