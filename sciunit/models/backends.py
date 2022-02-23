@@ -85,7 +85,7 @@ class Backend(SciUnit):
         path = Path(self.disk_cache_location)
 
         if path.exists():
-            with shelve.open(path) as cache:
+            with shelve.open(str(path)) as cache:
                 cache.clear()
 
     def get_memory_cache(self, key: str = None) -> dict:
