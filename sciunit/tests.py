@@ -128,8 +128,6 @@ class Test(SciUnit):
                 schema = {"schema": self.observation_schema, "type": "dict"}
             schema = {"observation": schema}
             v = ObservationValidator(schema, test=self)
-            if float(observation['std']) == 0.0:
-                print('Observation standard deviation is 0')
             if not v.validate({"observation": observation}):
                 raise ObservationError(v.errors)
         return observation
