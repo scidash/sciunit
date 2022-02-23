@@ -40,6 +40,8 @@ class Model(SciUnit):
     _backend = None
     """Optional model backend for executing some methods, e.g. simulations."""
 
+    state_hide = ["results", "temp_dir", "_temp_dir", "stdout"]
+
     @classmethod
     def get_capabilities(cls) -> list:
         """List the model's capabilities."""
@@ -61,11 +63,12 @@ class Model(SciUnit):
     def failed_extra_capabilities(self) -> list:
         """Check to see if instance passes its `extra_capability_checks`."""
         failed = []
-        for capability, f_name in self.extra_capability_checks.items():
-            f = getattr(self, f_name)
-            instance_capable = f()
-            if isinstance(self, capability) and not instance_capable:
-                failed.append(capability)
+        if self.extra_capability_checks is not None:
+            for capability, f_name in self.extra_capability_checks.items():
+                f = getattr(self, f_name)
+                instance_capable = f()
+                if isinstance(self, capability) and not instance_capable:
+                    failed.append(capability)
         return failed
 
     def describe(self) -> str:
@@ -102,7 +105,6 @@ class Model(SciUnit):
         value was within an acceptable range.  This should be implemented
         as needed by specific model classes.
         """
-        pass
 
     def is_match(self, match: Union[str, "Model"]) -> bool:
         """Return whether this model is the same as `match`.
@@ -135,3 +137,7 @@ class Model(SciUnit):
     def __str__(self):
         """Return the model name."""
         return "%s" % self.name
+
+    def __repr__(self):
+        """Returns a representation of the model."""
+        return "%s (%s)" % (self.name, self.__class__.__name__)

@@ -2,12 +2,13 @@
 
 import inspect
 import traceback
-
-# from sciunit.models.examples import ConstModel, UniformModel
+from uuid import uuid4
+from copy import deepcopy
 from typing import Any, List, Optional, Tuple, Union
 
-from sciunit.base import SciUnit
+import quantities as pq
 
+from .base import SciUnit, config
 from .capabilities import ProducesNumber
 from .errors import (
     CapabilityError,
@@ -18,7 +19,7 @@ from .errors import (
 )
 from .models import Model
 from .scores import BooleanScore, ErrorScore, NAScore, NoneScore, Score, TBDScore
-from .utils import config_get, dict_combine
+from .utils import dict_combine, use_backend_cache
 from .validators import ObservationValidator, ParametersValidator
 
 
@@ -43,6 +44,8 @@ class Test(SciUnit):
         if self.description is None:
             self.description = self.__class__.__doc__
 
+        self.id = uuid4().hex
+
         # Use a combination of default_params and params, choosing the latter
         # if there is a conflict.
         self.params = dict_combine(self.default_params, params)
@@ -52,7 +55,11 @@ class Test(SciUnit):
         self.compute_params()
 
         self.observation = observation
-        if config_get("PREVALIDATE", False):
+
+        # Fall back to the score class's observation_schema if the test class doesn't have one
+        if self.observation_schema is None:
+            self.observation_schema = deepcopy(self.score_type.observation_schema)
+        if config.get("PREVALIDATE", False):
             self.validate_observation(self.observation)
 
         if self.score_type is None or not issubclass(self.score_type, Score):
@@ -87,9 +94,17 @@ class Test(SciUnit):
     If it is a list, each schema in the list can optionally be named by putting
     (name, schema) tuples in that list."""
 
+    observation_validator = ObservationValidator
+
     params_schema = None
     """A schema that the params must adhere to (validated by cerberus).
     Can also be a list of schemas, one of which the params must match."""
+
+    params_validator = ParametersValidator
+
+    units = pq.dimensionless
+
+    state_hide = ["last_model"]
 
     def compute_params(self) -> None:
         """Compute new params from existing `self.params`.
@@ -98,7 +113,6 @@ class Test(SciUnit):
         Example: `self.params['c'] = self.params['a'] + self.params['b']`
 
         """
-        pass
 
     def validate_observation(self, observation: dict) -> dict:
         """Validate the observation provided to the constructor.
@@ -112,12 +126,9 @@ class Test(SciUnit):
         Returns:
             dict: The observation that was validated.
         """
-        if not observation:
-            raise ObservationError("Observation is missing.")
+        observation = self.score_type.observation_preprocess(observation)
         if not isinstance(observation, dict):
             raise ObservationError("Observation is not a dictionary.")
-        if "mean" in observation and observation["mean"] is None:
-            raise ObservationError("Observation mean cannot be 'None'.")
         if self.observation_schema:
             if isinstance(self.observation_schema, list):
                 schemas = [
@@ -127,9 +138,10 @@ class Test(SciUnit):
             else:
                 schema = {"schema": self.observation_schema, "type": "dict"}
             schema = {"observation": schema}
-            v = ObservationValidator(schema, test=self)
+            v = self.observation_validator(schema, test=self)
             if not v.validate({"observation": observation}):
                 raise ObservationError(v.errors)
+        observation = self.score_type.observation_postprocess(observation)
         return observation
 
     @classmethod
@@ -170,7 +182,7 @@ class Test(SciUnit):
             else:
                 schema = {"schema": self.params_schema, "type": "dict"}
             schema = {"params": schema}
-            v = ParametersValidator(schema, test=self)
+            v = self.params_validator(schema, test=self)
             if not v.validate({"params": params}):
                 raise ParametersError(v.errors)
         return params
@@ -247,8 +259,8 @@ class Test(SciUnit):
         Args:
             model (Model): A sciunit model instance.
         """
-        pass
 
+    @use_backend_cache
     def generate_prediction(self, model: Model) -> None:
         """Generate a prediction from a model using the required capabilities.
 
@@ -272,7 +284,6 @@ class Test(SciUnit):
         Args:
             prediction (float): The predicted value.
         """
-        pass
 
     def compute_score(self, observation: dict, prediction: dict) -> Score:
         """Generates a score given the observations provided in the constructor
@@ -351,7 +362,6 @@ class Test(SciUnit):
             observation (Union[list, dict]): The observation data.
             prediction (Union[list, dict]): The prediction data.
         """
-        pass
 
     def check_score_type(self, score: Score) -> None:
         """Check that the score is the correct type for this test.
@@ -369,7 +379,9 @@ class Test(SciUnit):
             ) % (self.name, self.score_type.__name__, score.__class__.__name__)
             raise InvalidScoreError(msg)
 
-    def _judge(self, model: Model, skip_incapable: bool = True, cached_prediction=False) -> Score:
+    def _judge(
+        self, model: Model, skip_incapable: bool = True, cached_prediction=False
+    ) -> Score:
         """Generate a score for the model (internal API use only).
 
         Args:
@@ -423,6 +435,22 @@ class Test(SciUnit):
         return self.judge(model, skip_incapable=skip_incapable, stop_on_error=stop_on_error,
                           deep_error=deep_error, cached_prediction=True)
 
+
+    def feature_judge(
+        self,
+        model: Model,
+        skip_incapable: bool = False,
+        stop_on_error: bool = True,
+        deep_error: bool = False,
+    ) -> Score:
+        """For backwards compatibility"""
+        return self.judge(
+            model,
+            skip_incapable=skip_incapable,
+            stop_on_error=stop_on_error,
+            deep_error=deep_error,
+            cached_prediction=True,
+        )
 
     def judge(
         self,
@@ -482,12 +510,18 @@ class Test(SciUnit):
             )
 
         if deep_error:
-            score = self._judge(model, skip_incapable=skip_incapable,
-                                cached_prediction=cached_prediction)
+            score = self._judge(
+                model,
+                skip_incapable=skip_incapable,
+                cached_prediction=cached_prediction,
+            )
         else:
             try:
-                score = self._judge(model, skip_incapable=skip_incapable,
-                                    cached_prediction=cached_prediction)
+                score = self._judge(
+                    model,
+                    skip_incapable=skip_incapable,
+                    cached_prediction=cached_prediction,
+                )
             except CapabilityError as e:
                 score = NAScore(str(e))
                 score.model = model
@@ -569,6 +603,45 @@ class Test(SciUnit):
                 result = "\n".join(s)
         return result
 
+    def get_backend_cache(self, model: Model, key: Optional[str]=None) -> Any:
+        """Get the cached results from the model's backend with the given key
+        (defaults to the id of the test instance).
+
+        Returns:
+            Any: The cache for key 'key' or None if not found.
+        """
+        if model is None:
+            return None
+        if key is None:
+            if hasattr(self, 'id'):
+                key = self.id
+            else:
+                return None
+
+        if hasattr(model, 'backend') and not model.backend is None:
+            return model._backend.get_cache(key=key)
+        return None
+
+    def set_backend_cache(self, model: Model, function_output: Any,
+                  key: Optional[str]=None) -> bool:
+        """Set the cache of the model's backend with the given key (defaults to
+        the id of the test instance)to calculated function output.
+
+        Returns:
+            bool: True if cache was successfully set, else False
+        """
+        if model is None:
+            return False
+        if key is None:
+            if hasattr(self, 'id'):
+                key = self.id
+            else:
+                return False
+
+        if hasattr(model, 'backend') and model.backend is not None:
+            return model._backend.set_cache(function_output, key=key)
+        return False
+
     @property
     def state(self) -> dict:
         """Get the frozen (pickled) model state.
@@ -622,7 +695,6 @@ class TestM2M(Test):
         Args:
             observation (dict): The observation to be validated.
         """
-        pass
 
     def compute_score(self, prediction1: dict, prediction2: dict) -> Score:
         """Generate a score given the observations provided in the constructor
@@ -703,7 +775,6 @@ class TestM2M(Test):
             model1 (Model): The first model.
             model2 (Model): The second model.
         """
-        pass
 
     def _judge(
         self, prediction1, prediction2, model1: Model, model2: Model = None

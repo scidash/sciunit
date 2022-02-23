@@ -4,6 +4,7 @@ These include various representations of goodness-of-fit.
 """
 
 import math
+from typing import Union
 
 import numpy as np
 import quantities as pq
@@ -35,7 +36,7 @@ class BooleanScore(Score):
         Returns:
             BooleanScore: Boolean score of the observation equals the prediction.
         """
-        return BooleanScore(observation == prediction)
+        return cls(observation == prediction)
 
     @property
     def norm_score(self) -> float:
@@ -68,6 +69,30 @@ class ZScore(Score):
     _best = 0.0  # A Z-Score of 0.0 is best
 
     _worst = np.inf  # A Z-score of infinity (or negative infinity) is worst
+
+    observation_schema = [
+        (
+            "Mean, Standard Deviation, N",
+            {
+                "mean": {"units": True, "required": True},
+                "std": {"units": True, "min": 0, "required": True},
+                "n": {"type": "integer", "min": 1},
+            },
+        ),
+        (
+            "Mean, Standard Error, N",
+            {
+                "mean": {"units": True, "required": True},
+                "sem": {"units": True, "min": 0, "required": True},
+                "n": {"type": "integer", "min": 1, "required": True},
+            },
+        ),
+    ]
+
+    @classmethod
+    def observation_postprocess(cls, observation: dict) -> dict:
+        if "std" not in observation:
+            observation["std"] = observation["sem"] * np.sqrt(observation["n"])
 
     @classmethod
     def compute(cls, observation: dict, prediction: dict) -> "ZScore":
@@ -102,7 +127,7 @@ class ZScore(Score):
         if np.isnan(value):
             error = "One of the input values was NaN"
             return InsufficientDataScore(error)
-        score = ZScore(value)
+        score = cls(value)
         return score
 
     @property
@@ -155,7 +180,7 @@ class CohenDScore(ZScore):
             s = (p_std ** 2 + o_std ** 2) ** 0.5
         value = (p_mean - o_mean) / s
         value = utils.assert_dimensionless(value)
-        return CohenDScore(value)
+        return cls(value)
 
     def __str__(self) -> str:
         return "D = %.2f" % self.score
@@ -175,6 +200,8 @@ class RatioScore(Score):
     _best = 1.0  # A RatioScore of 1.0 is best
 
     _worst = np.inf
+
+    observation_schema = {"value": {"units": True, "required": True}}
 
     def _check_score(self, score):
         if score < 0.0:
@@ -200,7 +227,7 @@ class RatioScore(Score):
         obs, pred = cls.extract_means_or_values(observation, prediction, key=key)
         value = pred / obs
         value = utils.assert_dimensionless(value)
-        return RatioScore(value)
+        return cls(value)
 
     @property
     def norm_score(self) -> float:
@@ -292,6 +319,91 @@ class RelativeDifferenceScore(Score):
         return 'Relative Difference = %.2f' % self.score
       
 
+class RelativeDifferenceScore(Score):
+    """A relative difference between prediction and observation.
+
+    The absolute value of the difference between the prediction and the
+    observation is divided by a reference value with the same units. This
+    reference scale should be chosen for each test such that normalization
+    produces directly comparable scores across tests. For example, if 5 volts
+    represents a medium size difference for TestA, and 10 seconds represents a
+    medium size difference for TestB, then 5 volts and 10 seconds should be
+    used for this reference scale in TestA and TestB, respectively. The
+    attribute `scale` can be passed to the compute method or set for the whole
+    class in advance. Otherwise, a scale of 1 (in the units of the
+    observation and prediction) will be used.
+    """
+
+    _allowed_types = (float,)
+
+    _description = "The relative difference between the prediction and the observation"
+
+    _best = 0.0  # A RelativeDifferenceScore of 0.0 is best
+
+    _worst = np.inf
+
+    scale = None
+
+    def _check_score(self, score):
+        if score < 0.0:
+            raise errors.InvalidScoreError(
+                (
+                    "RelativeDifferenceScore was initialized with "
+                    "a score of %f, but a RelativeDifferenceScore "
+                    "must be non-negative."
+                )
+                % score
+            )
+
+    @classmethod
+    def compute(
+        cls,
+        observation: Union[dict, float, int, pq.Quantity],
+        prediction: Union[dict, float, int, pq.Quantity],
+        key=None,
+        scale: Union[float, int, pq.Quantity, None] = None,
+    ) -> "RelativeDifferenceScore":
+        """Compute the relative difference between the observation and a prediction.
+
+        Returns:
+            RelativeDifferenceScore: A relative difference between an observation and a prediction.
+        """
+        assert isinstance(observation, (dict, float, int, pq.Quantity))
+        assert isinstance(prediction, (dict, float, int, pq.Quantity))
+
+        obs, pred = cls.extract_means_or_values(observation, prediction, key=key)
+
+        scale = scale or cls.scale or (obs / float(obs))
+        assert type(obs) is type(scale)
+        assert type(obs) is type(pred)
+        if isinstance(obs, pq.Quantity):
+            assert (
+                obs.units == pred.units
+            ), "Prediction must have the same units as the observation"
+            assert (
+                obs.units == scale.units
+            ), "RelativeDifferenceScore.Scale must have the same units as the observation"
+        assert scale > 0, (
+            "RelativeDifferenceScore.scale must be positive (not %g)" % scale
+        )
+        value = np.abs(pred - obs) / scale
+        value = utils.assert_dimensionless(value)
+        return cls(value)
+
+    @property
+    def norm_score(self) -> float:
+        """Return 1.0 for a ratio of 0.0, falling to 0.0 for extremely large values.
+
+        Returns:
+            float: The value of the norm score.
+        """
+        x = self.score
+        return 1 / (1 + x)
+
+    def __str__(self):
+        return "Relative Difference = %.2f" % self.score
+
+
 class PercentScore(Score):
     """A percent score.
 
@@ -368,7 +480,7 @@ class FloatScore(Score):
         """
         # The sum of the squared differences.
         value = ((observation - prediction) ** 2).sum()
-        score = FloatScore(value)
+        score = cls(value)
         return score
 
     def __str__(self) -> str:
@@ -420,7 +532,7 @@ class CorrelationScore(Score):
     @classmethod
     def compute(cls, observation, prediction):
         """Compute whether the observation equals the prediction."""
-        return CorrelationScore(float(np.corrcoef(observation, prediction)[0, 1]))
+        return cls(float(np.corrcoef(observation, prediction)[0, 1]))
 
     def __str__(self):
         return "%.3g" % self.score

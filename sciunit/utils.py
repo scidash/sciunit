@@ -4,10 +4,9 @@ Utility functions for SciUnit.
 
 import contextlib
 import functools
+import hashlib
 import importlib
 import inspect
-import json
-import logging
 import os
 import pkgutil
 import re
@@ -16,18 +15,13 @@ import traceback
 import unittest.mock
 import warnings
 from datetime import datetime
-
-if sys.version_info[1] <= 7:
-    from importlib_metadata import version
-else:
-    from importlib.metadata import version
-
 from io import StringIO, TextIOWrapper
 from pathlib import Path
 from types import ModuleType
 from typing import Any, Callable, List, TextIO, Tuple, Type, Union
+from urllib.request import urlopen
 
-import bs4
+import jsonpickle
 import nbconvert
 import nbformat
 from IPython.display import HTML, display
@@ -37,21 +31,18 @@ from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 
 import sciunit
-from sciunit.errors import Error
 
-from .base import PLATFORM, PYTHON_MAJOR_VERSION, SciUnit, tkinter
+from .base import (  # noqa
+    PLATFORM,
+    PYTHON_MAJOR_VERSION,
+    SciUnit,
+    __version__,
+    config,
+    ipy,
+    tkinter,
+)
 
 mock = False  # mock is probably obviated by the unittest -b flag.
-
-RUNTIME_SETTINGS = {"KERNEL": ("ipykernel" in sys.modules)}
-
-DEFAULT_CONFIG = {
-    "cmap_high": 218,
-    "cmap_low": 38,
-    "LOGGING": logging.INFO,
-    "PREVALIDATE": False,
-    "CWD": str(Path(sciunit.__path__[0]).resolve()),
-}
 
 
 def warn_with_traceback(
@@ -293,6 +284,7 @@ class NotebookTools(object):
         """
         self.convert_notebook(name)
         code = self.read_code(name)
+        code = "from IPython import InteractiveShell as get_ipython\n" + code
         exec(code, globals())
 
     def gen_file_path(self, name: str) -> Path:
@@ -476,6 +468,22 @@ class MockDevice(TextIOWrapper):
         if s.startswith("[") and s.endswith("]"):
             super(MockDevice, self).write(s)
 
+class TmpTestFolder():
+    '''A class for creating and deleting a folder in "./unit_test/".
+    '''
+
+    path = Path(__file__).parent / "unit_test" / "delete_after_tests"
+
+    def __init__(self, location: Union[str, Path, None] = None) -> None:
+        if location: self.path = Path(location)
+
+    def create(self) -> None:
+        Path(self.path).mkdir(parents=True, exist_ok=True)
+
+    def delete(self) -> None:
+        import shutil
+        if self.path.exists() and self.path.is_dir():
+            shutil.rmtree(self.path)
 
 def import_all_modules(
     package, skip: list = None, verbose: bool = False, prefix: str = "", depth: int = 0
@@ -545,10 +553,6 @@ def import_module_from_path(module_path: Path, name=None) -> ModuleType:
     return module
 
 
-def dict_hash(d):
-    return SciUnit.dict_hash(d)
-
-
 def method_cache(by: str = "value", method: str = "run") -> Callable:
     """A decorator used on any model method which calls the model's 'method'
     method if that latter method has not been called using the current
@@ -582,11 +586,11 @@ def method_cache(by: str = "value", method: str = "run") -> Callable:
                     for key, value in list(model.__dict__.items())
                     if key[0] != "_"
                 }
-                method_signature = SciUnit.dict_hash(
+                method_signature = dict_hash(
                     {"attrs": model_dict, "args": method_args}
                 )  # Hash key.
             elif by == "instance":
-                method_signature = SciUnit.dict_hash(
+                method_signature = dict_hash(
                     {"id": id(model), "args": method_args}
                 )  # Hash key.
             else:
@@ -611,20 +615,6 @@ def method_cache(by: str = "value", method: str = "run") -> Callable:
     return decorate_
 
 
-def log(*args, **kwargs):
-    level = kwargs.get(
-        "level", config_get("LOGGING", default=logging.INFO, to_log=False)
-    )
-    kwargs = {k: v for k, v in kwargs.items()
-              if k in ['exc_info', 'stack_info', 'stacklevel', 'extra']}
-    for arg in args:
-        sciunit.logger.log(level, arg, **kwargs)
-
-
-def strip_html(html):
-    return html if isinstance(html, Exception) else bs4.BeautifulSoup(html, "lxml").text
-
-
 def html_log(*args, **kwargs) -> None:
     """[summary]"""
     with StringIO() as f:
@@ -633,127 +623,6 @@ def html_log(*args, **kwargs) -> None:
         print(*args, **kwargs)
         output = f.getvalue()
     display(HTML(output))
-
-
-def create_config(data: dict = None) -> bool:
-    """Create a config file that store any data from the user.
-
-    Args:
-        data (dict): The data that will be written to the new config file.
-
-    Returns:
-        bool: Config file creation is successful
-    """
-    if not data:
-        data = DEFAULT_CONFIG
-    success = True
-    try:
-        config_dir = Path.home() / ".sciunit"
-        config_path = config_dir / "config.json"
-        if not config_dir.is_file():
-            config_dir.mkdir(exist_ok=True, parents=True)
-
-        data["sciunit_version"] = version("sciunit")
-
-        if config_path.is_file():
-            warn_with_traceback("Config file already exists.", Warning, "utils.py", 668)
-            success = False
-        else:
-            with open(config_path, "w") as outfile:
-                json.dump(data, outfile)
-    except:
-        success = False
-
-    return success
-
-
-def config_get_from_path(config_path: Path, key: str) -> Any:
-    """Get a value from the user configuration file by the key.
-
-    Args:
-        config_path (Path): The path to the sciunit user configuration file.
-        key (str): Key of a value of the config file.
-
-    Raises:
-        FileNotFoundError: Config file not found.
-        JSONDecodeError: Config file JSON was invalid.
-        KeyError: Config file does not contain the key.
-
-    Returns:
-        Any: The value from the user configuration file.
-    """
-    try:
-        with open(config_path) as f:
-            config = json.load(f)
-            value = config[key]
-    except FileNotFoundError:
-        create_config()
-
-        return config_get_from_path(config_path, key)
-        # raise Error("Config file not found at '%s'" % config_path)
-    except json.JSONDecodeError:
-        log("Config file JSON at '%s' was invalid" % config_path)
-        raise Error("Config file not found at '%s'" % config_path)
-    except KeyError:
-        raise Error("Config file does not contain key '%s'" % key)
-    return value
-
-
-def config_get(key: str, default: Any = None, to_log=True) -> Any:
-    """Get a value by key from the user configuration file.
-
-    Args:
-        key (str): The key used to find the value in the user configuration file.
-        default (Any, optional): The value to be returned if the key is not
-                                 in the user configuration file.
-                                 Defaults to None.
-        to_log (bool, optional): Whether to log the exception or not.
-
-    Raises:
-        e: An exception raised during get config process.
-
-    Returns:
-        Any: The value found in the user configuration file by the key.
-    """
-    try:
-        assert isinstance(key, str), "Config key must be a string"
-        config_path = Path.home() / ".sciunit" / "config.json"
-        value = config_get_from_path(config_path, key)
-    except Exception as e:
-        if default is not None:
-            if to_log:
-                log(e)
-                log("Using default value of %s" % default)
-            value = default
-        else:
-            raise e
-    return value
-
-
-def config_set(key: str, value: Any) -> bool:
-    """Write a key and a value to the user configuration file.
-
-    Args:
-        key (str): The key of the value to be written to the the user configuration file.
-        value (Any): The value to be written to the the user configuration file.
-
-    Returns:
-        bool: Whether the action is successful.
-    """
-    success = True
-    try:
-        assert isinstance(key, str), "Config key must be a string"
-        config_path = Path.home() / ".sciunit" / "config.json"
-        with open(config_path, "r+") as f:
-            config = json.load(f)
-            config[key] = value
-            f.seek(0)
-            f.truncate()
-            json.dump(config, f)
-    except Exception as e:
-        log(e)
-        success = False
-    return success
 
 
 ############# The following code is from project cypy by Dr. Cyrus Omar ##################
@@ -1020,7 +889,7 @@ class intern(object):
         # define an override for __new__ which looks in the cache first
         def __new__(cls, *args, **kwargs):
             """Override used by sciunit.utils.intern to cache instances of this class."""
-
+            print(877987987)
             # check cache
             __init__ = cls.__init__
             try:
@@ -1157,7 +1026,101 @@ def memoize(fn=None):
 
     return decorated
 
-
 class_intern = intern.intern
 
 method_memoize = memoize
+
+def use_backend_cache(original_function=None, cache_key_param=None):
+    """
+    Decorator for test functions (in particular `generate_prediction`) to cache
+    the function output on the first execution and return the output from the
+    cache without recomputing on any subsequent execution.
+    The function needs to take a model as an argument, and the caching relies on
+    the model's backend. If it doesn't have a backend the caching step is
+    skipped.
+    Per default, a test instance specific hash is used to link the model to the
+    test's function output. However, optionally, a custom hash key name can be
+    passed to the decorator to use the hash stored in
+    `self.params[<hash key name>]` instead (e.g. for using a shared cache for
+    redundant calculations on the same model across tests).
+    """
+
+    def _decorate(function):
+
+        @functools.wraps(function)
+        def wrapper(self, *args, **kwargs):
+            sig = inspect.signature(function)
+            if 'model' in kwargs:
+                model = kwargs['model']
+            elif 'model' in sig.parameters.keys():
+                model = args[list(sig.parameters.keys()).index('model')-1]
+            else:
+                model = None
+                warnings.warn("The decorator `use_backend_cache` can only "
+                              "be used for test class functions that get "
+                              "'model' as an argument! Caching is skipped.")
+
+            cache_key = None
+            if cache_key_param:
+                if cache_key_param in self.params:
+                    cache_key = self.params[cache_key_param]
+                else:
+                    model = None
+                    warnings.warn("The value for the decorator arguement "
+                                  "cache_key_param value can not be found in "
+                                  "self.params! Caching is skipped.")
+
+            function_output = self.get_backend_cache(model=model,
+                                                     key=cache_key)
+
+            if function_output is None:
+                function_output = function(self, *args, **kwargs)
+                self.set_backend_cache(model=model,
+                                       function_output=function_output,
+                                       key=cache_key)
+
+            return function_output
+
+        return wrapper
+
+    if original_function:
+        return _decorate(original_function)
+    else:
+        return _decorate
+
+def style():
+    """Style a notebook with the current sciunit CSS file"""
+
+    # Try a custom one in the user's home directory
+    path = Path.home() / ".sciunit" / "style.css"
+
+    # Try the one in the currently cloned sciunit repo
+    if not path.is_file():
+        path = Path(__file__).parent / "style.css"
+
+    if path.is_file():  # Load from disk
+        with open(path, "rb") as f:
+            css_style = f.read().decode("utf-8")
+    else:  # Load from the sciunit github repo
+        url = (
+            "https://raw.githubusercontent.com/scidash/sciunit/master/sciunit/style.css"
+        )
+        response = urlopen(url)
+        css_style = response.read().decode("utf-8")
+
+    # Apply the style in the notebook
+    display(
+        HTML(
+            """
+                 <style>
+                 %s
+                 </style>
+                 """
+            % css_style
+        )
+    )
+
+
+def dict_hash(d):
+    s = jsonpickle.encode(d)
+    return hashlib.sha224(s.encode("latin1")).hexdigest()

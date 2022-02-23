@@ -22,7 +22,7 @@ capability, and it can be executed to simulate and output results.
 Backend
 
 After being registered by ``register_backends`` function, a ``Backend`` instance
-can be executed by a Ruunable Model at the back end. It usually does some background
+can be executed by a Runnable Model at the back end. It usually does some background
 computing for the runnable model.
 
 

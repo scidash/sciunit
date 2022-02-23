@@ -1,0 +1,20 @@
+td.red {
+        background-color: #FF0000;
+        border: 1px solid black;
+    }
+td.green {
+    background-color: #00FF00;
+    border: 1px solid black;
+}
+td.grey {
+    background-color: #AAAAAA;
+    border: 1px solid black;
+}
+th {
+    text-align: center;
+    border: 1px solid black;
+}
+table td, table th {
+border: 10px solid black;
+font-size: 250%;
+}

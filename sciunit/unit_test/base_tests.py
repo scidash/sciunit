@@ -1,11 +1,19 @@
 import unittest
 
-import numpy as np
-import pandas as pd
+from sciunit.utils import TmpTestFolder
 
+tmp_folder = TmpTestFolder()
 
 class BaseCase(unittest.TestCase):
     """Unit tests for config files"""
+
+    @classmethod
+    def setUpClass(cls):
+        tmp_folder.create()
+
+    @classmethod
+    def tearDownClass(cls):
+        tmp_folder.delete()
 
     def test_deep_exclude(self):
         from sciunit.base import deep_exclude
@@ -22,51 +30,43 @@ class BaseCase(unittest.TestCase):
         from sciunit.base import SciUnit
 
         sciunitObj = SciUnit()
-        self.assertIsInstance(sciunitObj.properties, dict)
-        self.assertIsInstance(sciunitObj.dict_hash({"1": 1, "2": 2}), str)
-        self.assertIsInstance(sciunitObj._id, int)
-        self.assertIsInstance(sciunitObj.id, str)
+        self.assertIsInstance(sciunitObj.properties(), dict)
+        self.assertIsInstance(sciunitObj.__getstate__(), dict)
+        self.assertIsInstance(sciunitObj.json(), str)
         sciunitObj.json(string=False)
         self.assertIsInstance(sciunitObj._class, dict)
         sciunitObj.testState = "testState"
-        print(sciunitObj._state(keys=["testState"]))
-        sciunitObj.unpicklable.append("testState")
-
+        SciUnit.state_hide.append("testState")
         self.assertFalse("testState" in sciunitObj.__getstate__())
 
     def test_Versioned(self):
-        from git import Remote, Repo
+        from git import Repo
         from sciunit.base import Versioned
 
         ver = Versioned()
-        self.assertEqual("origin", str(ver.get_remote("I am not a remote")))
-        self.assertEqual("origin", str(ver.get_remote()))
+
+        # Testing .get_remote()
+        # 1. Checking our sciunit .git repo
+        # (to make sure .get_remote() works with real repos too!)
+        self.assertEqual("origin", ver.get_remote("I am not a remote").name)
+        self.assertEqual("origin", ver.get_remote().name)
+        # 2. Checking NO .git repo
+        self.assertEqual(None, ver.get_remote(repo=None))
+        # 3. Checking a .git repo without remotes
+        git_repo = Repo.init(tmp_folder.path / "git_repo")
+        self.assertEqual(None, ver.get_remote(repo=git_repo))
+        # 4. Checking a .git repo with remotes
+        origin = git_repo.create_remote("origin", "https://origin.com")
+        beta = git_repo.create_remote('beta', "https://beta.com")
+        self.assertEqual(origin, ver.get_remote(repo=git_repo))
+        self.assertEqual(origin, ver.get_remote("not a remote", repo=git_repo))
+        self.assertEqual(beta, ver.get_remote("beta", repo=git_repo))
+
+        # Testing .get_repo()
         self.assertIsInstance(ver.get_repo(), Repo)
+
+        # Testing .get_remote_url()
         self.assertIsInstance(ver.get_remote_url("I am not a remote"), str)
-
-    def test_SciUnitEncoder(self):
-        from sciunit.base import SciUnit, SciUnitEncoder
-
-        encoderObj = SciUnitEncoder()
-
-        d = {"col1": [1, 2], "col2": [3, 4]}
-        df = pd.DataFrame(data=d)
-        self.assertIsInstance(encoderObj.default(df), dict)
-
-        npArr = np.ndarray(shape=(2, 2), dtype=int)
-        self.assertIsInstance(encoderObj.default(npArr), list)
-
-        sciunitObj = SciUnit()
-        sciunitObj.testState = "testState"
-        self.assertIsInstance(encoderObj.default(sciunitObj), dict)
-
-        self.assertRaises(TypeError, encoderObj.default, "This is a string")
-
-        class MyClass:
-            pass
-
-        self.assertIsInstance(encoderObj.default(MyClass()), str)
-
 
 if __name__ == "__main__":
     unittest.main()

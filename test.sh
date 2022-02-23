@@ -1,4 +1,4 @@
-pip install coveralls
+pip -q install coveralls
 if [ ! -d "../scidash" ]; then
   git clone -b cosmosuite http://github.com/scidash/scidash ../scidash
 fi

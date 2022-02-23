@@ -2,11 +2,13 @@
 
 import unittest
 
-from sciunit import Model, TestSuite, config_set
+import quantities as pq
+
+from sciunit import Model, TestSuite, config
 from sciunit.capabilities import ProducesNumber
 from sciunit.errors import Error, InvalidScoreError, ObservationError, ParametersError
 from sciunit.models.examples import ConstModel, UniformModel
-from sciunit.scores import BooleanScore, FloatScore
+from sciunit.scores import BooleanScore, FloatScore, ZScore
 from sciunit.scores.collections import ScoreMatrix
 from sciunit.tests import ProtocolToFeaturesTest, RangeTest, Test, TestM2M
 
@@ -28,8 +30,6 @@ class TestsTestCase(unittest.TestCase):
 
         class MyTest(self.T):
             """Lorem Ipsum"""
-
-            pass
 
         t = MyTest([2, 3])
         t.description = None
@@ -54,22 +54,32 @@ class TestsTestCase(unittest.TestCase):
         self.assertTrue(score.model is one_model)
 
     def test_Test(self):
-        config_set("PREVALIDATE", True)
+        pv = config["PREVALIDATE"]
+        config["PREVALIDATE"] = 1
         with self.assertRaises(ObservationError):
             t = Test(None)
-        config_set("PREVALIDATE", False)
 
-        t = Test(None)
-        self.assertRaises(ObservationError, t.validate_observation, None)
+        with self.assertRaises(ObservationError):
+
+            class Test2(Test):
+                observation_schema = None
+                score_type = ZScore
+                units = pq.pA
+
+                def generate_prediction(self):
+                    return 1
+
+            t = Test2({"mean": 5 * pq.pA})
+
+        t = Test({})
         self.assertRaises(
             ObservationError, t.validate_observation, "I am not an observation"
         )
-        self.assertRaises(ObservationError, t.validate_observation, {"mean": None})
-        t = Test([0, 1])
         t.observation_schema = {}
         t.validate_observation({0: 0, 1: 1})
         Test.observation_schema = [{}, {}]
         self.assertListEqual(t.observation_schema_names(), ["Schema 1", "Schema 2"])
+        config["PREVALIDATE"] = pv
 
         self.assertRaises(ParametersError, t.validate_params, None)
         self.assertRaises(ParametersError, t.validate_params, "I am not an observation")
@@ -88,7 +98,6 @@ class TestsTestCase(unittest.TestCase):
 
         t.score_type = BooleanScore
         self.assertRaises(InvalidScoreError, t.check_score_type, FloatScore(0.5))
-        self.assertRaises(ObservationError, t.judge, [Model(), Model()])
 
 
 class TestSuitesTestCase(SuiteBase, unittest.TestCase):

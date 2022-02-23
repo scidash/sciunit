@@ -12,9 +12,10 @@ import bs4
 import numpy as np
 import pandas as pd
 from IPython.display import Javascript, display
-from sciunit.base import SciUnit, TestWeighted
+
+from sciunit.base import SciUnit, TestWeighted, config
 from sciunit.models import Model
-from sciunit.scores import NoneScore, Score
+from sciunit.scores import FloatScore, NoneScore, Score
 from sciunit.tests import Test
 
 
@@ -35,17 +36,21 @@ class ScoreArray(pd.Series, SciUnit, TestWeighted):
     (score_1, ..., score_n)
     """
 
-    def __init__(self, tests_or_models, scores=None, weights=None):
+    def __init__(self, tests_or_models, scores=None, weights=None, name=None):
         if scores is None:
             scores = [NoneScore for tom in tests_or_models]
         tests_or_models = self.check_tests_and_models(tests_or_models)
         self.weights_ = [] if not weights else list(weights)
-        super(ScoreArray, self).__init__(data=scores, index=tests_or_models)
+        name = (name or self.__class__.__name__)
+        self._name = name  # Necessary for some reason even though
+                           # it is also passed to pd.Series constructor
+        super(ScoreArray, self).__init__(data=scores, index=tests_or_models,
+                                         name=name)
         self.index_type = "tests" if isinstance(tests_or_models[0], Test) else "models"
         setattr(self, self.index_type, tests_or_models)
 
-    direct_attrs = ["score", "norm_scores", "related_data"]
-
+    state_hide = ['related_data', 'scores', 'norm_scores', 'style', 'plot', 'iat', 'at', 'iloc', 'loc', 'T']
+    
     def check_tests_and_models(
         self, tests_or_models: Union[Test, Model]
     ) -> Union[Test, Model]:
@@ -78,18 +83,35 @@ class ScoreArray(pd.Series, SciUnit, TestWeighted):
             if test_or_model.name == name:
                 item = self.__getitem__(test_or_model)
         if item is None:
-            raise KeyError("No model or test with name '%s'" % item)
+            raise KeyError("No model or test with name '%s'" % name)
         return item
+    
+    def __setattr__(self, attr, value):
+        self.__dict__[attr] = value
 
-    def __getattr__(self, name):
-        if name in self.direct_attrs:
-            attr = self.apply(lambda x: getattr(x, name))
-        else:
-            attr = super(ScoreArray, self).__getattribute__(name)
-        return attr
+    #def __getattr__(self, name):
+    #    if name in self.direct_attrs:
+    #        attr = self.apply(lambda x: getattr(x, name))
+    #    else:
+    #        attr = super(ScoreArray, self).__getattribute__(name)
+    #    return attr
 
     @property
-    def norm_scores(self) -> float:
+    def related_data(self) -> pd.Series:
+        return self.map(lambda x: x.related_data)
+    
+    @property
+    def scores_flat(self) -> list:
+        return self.values.tolist()
+    
+    @property
+    def scores(self) -> pd.Series:
+        return self.map(lambda x: x.score)
+    
+    score = scores  # Backwards compatibility
+    
+    @property
+    def norm_scores(self) -> pd.Series:
         """Return the `norm_score` for each test.
 
         Returns:
@@ -120,6 +142,9 @@ class ScoreArray(pd.Series, SciUnit, TestWeighted):
             int: The rank of the model or test instance.
         """
         return self.norm_scores.rank(ascending=False)[test_or_model]
+    
+    def __getstate__(self):
+        return SciUnit.__getstate__(self)
 
 
 class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
@@ -167,8 +192,9 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
 
     show_mean = False
     sortable = False
-    direct_attrs = ["score", "norm_scores", "related_data"]
-
+    colorize = True
+    state_hide = ['related_data', 'scores', 'norm_scores', 'style', 'plot', 'iat', 'at', 'iloc', 'loc', 'T']
+    
     def check_tests_models_scores(
         self,
         tests: Union[Test, List[Test]],
@@ -217,6 +243,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             self.models,
             scores=super(ScoreMatrix, self).__getitem__(test),
             weights=self.weights,
+            name=test.name,
         )
 
     def get_model(self, model: Model) -> ScoreArray:
@@ -228,7 +255,10 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         Returns:
             ScoreArray: The generated ScoreArray instance.
         """
-        return ScoreArray(self.tests, scores=self.loc[model, :], weights=self.weights)
+        return ScoreArray(self.tests,
+                          scores=self.loc[model, :],
+                          weights=self.weights,
+                          name=model.name)
 
     def get_group(self, x: tuple) -> Union[Model, Test, Score]:
         """[summary]
@@ -247,10 +277,10 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             result = self.loc[x[1 - t], x[t]]
         elif isinstance(x[1], Test) and isinstance(x[0], Model):
             result = self.loc[x[t], x[1 - t]]
-        elif isinstance(x[0], str):
+        elif isinstance(x[0], str) or isinstance(x[1], str):
             result = self.__getitem__(x[t]).__getitem__(x[1 - t])
         else:
-            raise TypeError("Expected test, model or model, test")
+            raise TypeError("Expected (test, model) or (model, test)")
         return result
 
     def get_by_name(self, name: str) -> Union[Model, Test]:
@@ -272,13 +302,30 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             if test.name == name:
                 return self.__getitem__(test)
         raise KeyError("No model or test with name '%s'" % name)
+    
+    def __setattr__(self, attr, value):
+        self.__dict__[attr] = value
 
-    def __getattr__(self, name):
-        if name in self.direct_attrs:
-            attr = self.applymap(lambda x: getattr(x, name))
-        else:
-            attr = super(ScoreMatrix, self).__getattribute__(name)
-        return attr
+    #def __getattr__(self, name):
+    #    if name in self.direct_attrs:
+    #        attr = self.applymap(lambda x: getattr(x, name))
+    #    else:
+    #        attr = super(ScoreMatrix, self).__getattribute__(name)
+    #    return attr
+    
+    @property
+    def related_data(self) -> pd.DataFrame:
+        return self.applymap(lambda x: x.related_data)
+    
+    @property
+    def scores_flat(self) -> list:
+        return self.values.tolist()
+    
+    @property
+    def scores(self) -> pd.DataFrame:
+        return self.applymap(lambda x: x.score)
+    
+    score = scores  # Backwards compatibility
 
     @property
     def norm_scores(self) -> pd.DataFrame:
@@ -302,9 +349,8 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
 
         return self[test].stature(model)
 
-    @property
-    def T(self) -> "ScoreMatrix":
-        """Get transpose of this ScoreMatrix.
+    def copy(self, transpose=False) -> "ScoreMatrix":
+        """Get a copy of this ScoreMatrix.
 
         Returns:
             ScoreMatrix: The transpose of this ScoreMatrix.
@@ -312,42 +358,53 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
         return ScoreMatrix(
             self.tests,
             self.models,
-            scores=self.values,
+            scores=self.values.T if self.transposed else self.values,
             weights=self.weights,
-            transpose=True,
+            transpose=transpose,
         )
 
-    def to_html(
-        self,
-        show_mean: bool = None,
-        sortable: bool = None,
-        colorize: bool = True,
-        *args,
-        **kwargs
-    ) -> str:
-        """Extend Pandas built in `to_html` method for rendering a DataFrame and use it to render a ScoreMatrix.
-
-        Args:
-            show_mean (bool, optional): Whether to show the mean value. Defaults to None.
-            sortable (bool, optional): [description]. Defaults to None.
-            colorize (bool, optional): Whether to colorize the table. Defaults to True.
+    @property
+    def T(self) -> "ScoreMatrix":
+        """Get transpose of this ScoreMatrix.
 
         Returns:
-            str: [description]
+            ScoreMatrix: The transpose of this ScoreMatrix.
         """
-        if show_mean is None:
-            show_mean = self.show_mean
-        if sortable is None:
-            sortable = self.sortable
-        df = self.copy()
-        if show_mean:
-            df.insert(0, "Mean", None)
-            df.loc[:, "Mean"] = ["%.3f" % self[m].mean() for m in self.models]
-        html = df.to_html(*args, **kwargs)  # Pandas method
-        html, table_id = self.annotate(df, html, show_mean, colorize)
-        if sortable:
-            self.dynamify(table_id)
-        return html
+        return self.copy(transpose=not self.transposed)
+
+    def add_mean(self):
+        is_transposed = isinstance(self.index[0], Test)
+        if is_transposed:
+            sm = self.T
+        else:
+            sm = self
+        tests = [Test({}, name="Mean")] + sm.tests
+        mean_scores = [FloatScore(sm[model].mean()) for model in sm.models]
+        mean_scores = np.array(mean_scores).reshape(-1, 1)
+        scores = np.hstack([mean_scores, sm.values])
+        sm_mean = ScoreMatrix(tests=tests, models=sm.models, scores=scores)
+        if is_transposed:
+            sm_mean = sm_mean.T
+        return sm_mean
+
+    def _repr_html_(self):
+        sm = self
+        if self.show_mean:
+            sm = sm.add_mean()
+        if self.colorize:
+            obj = sm.style.applymap(sm.apply_score_color)
+        else:
+            obj = super(ScoreMatrix, sm)
+        return obj._repr_html_()
+
+    @classmethod
+    def apply_score_color(cls, val):
+        color = val.color()
+        bg_brightness = config.get("score_bg_brightness", 50)
+        bg_brightness = [bg_brightness] * 3
+        css = "background-color: rgb(%d, %d, %d); " % tuple(bg_brightness)
+        css += "color: rgb(%d, %d, %d); text-align: center;" % color
+        return css
 
     def annotate(
         self, df: pd.DataFrame, html: str, show_mean: bool, colorize: bool
@@ -487,3 +544,7 @@ class ScoreMatrix(pd.DataFrame, SciUnit, TestWeighted):
             css=["%s/css/jquery.dataTables.css" % prefix],
         )
         display(js)
+        
+    def __getstate__(self):
+        return SciUnit.__getstate__(self)
+

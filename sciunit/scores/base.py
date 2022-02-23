@@ -1,13 +1,26 @@
 """Base class for SciUnit scores."""
 
+import imp
+import logging
+import math
+import sys
 from copy import copy
 from typing import Tuple, Union
 
 import numpy as np
 from quantities import Quantity
-from sciunit.base import SciUnit
+
+from sciunit.base import SciUnit, config, ipy, log
 from sciunit.errors import InvalidScoreError
-from sciunit.utils import config_get, log
+
+# Set up score logger
+score_logger = logging.getLogger("sciunit_scores")
+if ipy:
+    imp.reload(logging)
+    sl_handler = logging.StreamHandler(sys.stdout)
+    score_logger.addHandler(sl_handler)
+score_log_level = config.get("score_log_level", 1)
+score_logger.setLevel(score_log_level)
 
 
 class Score(SciUnit):
@@ -71,6 +84,18 @@ class Score(SciUnit):
     model = None
     """The model judged. Set automatically by Test.judge."""
 
+    observation_schema = None
+
+    state_hide = ["related_data"]
+
+    @classmethod
+    def observation_preprocess(cls, observation: dict) -> dict:
+        return observation
+
+    @classmethod
+    def observation_postprocess(cls, observation: dict) -> dict:
+        return observation
+
     def check_score(self, score: "Score") -> None:
         """Check the score with imposed additional constraints in the subclass on the score, e.g. the range of the allowed score.
 
@@ -94,7 +119,6 @@ class Score(SciUnit):
         Args:
             score (Score): A sciunit score instance.
         """
-        pass
 
     @classmethod
     def compute(cls, observation: dict, prediction: dict):
@@ -121,37 +145,37 @@ class Score(SciUnit):
         return self.score
 
     @property
-    def log_norm_score(self) -> np.ndarray:
+    def log_norm_score(self) -> float:
         """The natural logarithm of the `norm_score`.
         This is useful for guaranteeing convexity in an error surface.
 
         Returns:
-            np.ndarray: The natural logarithm of the `norm_score`.
+            float: The natural logarithm of the `norm_score`.
         """
-        return np.log(self.norm_score) if self.norm_score is not None else None
+        return math.log(self.norm_score) if self.norm_score is not None else None
 
     @property
-    def log2_norm_score(self) -> np.ndarray:
+    def log2_norm_score(self) -> float:
         """The logarithm base 2 of the `norm_score`.
         This is useful for guaranteeing convexity in an error surface.
 
         Returns:
-            np.ndarray: The logarithm base 2 of the `norm_score`.
+            float: The logarithm base 2 of the `norm_score`.
         """
-        return np.log2(self.norm_score) if self.norm_score is not None else None
+        return math.log2(self.norm_score) if self.norm_score is not None else None
 
     @property
-    def log10_norm_score(self) -> np.ndarray:
+    def log10_norm_score(self) -> float:
         """The logarithm base 10 of the `norm_score`.
         This is useful for guaranteeing convexity in an error surface.
 
         Returns:
-            np.ndarray: The logarithm base 10 of the `norm_score`.
+            float: The logarithm base 10 of the `norm_score`.
         """
-        return np.log10(self.norm_score) if self.norm_score is not None else None
+        return math.log10(self.norm_score) if self.norm_score is not None else None
 
     def color(self, value: Union[float, "Score"] = None) -> tuple:
-        """Turn the score intp an RGB color tuple of three 8-bit integers.
+        """Turn the score into an RGB color tuple of three 8-bit integers.
 
         Args:
             value (Union[float,, optional): The score that will be turned to an RGB color. Defaults to None.
@@ -179,11 +203,11 @@ class Score(SciUnit):
         if value is None or np.isnan(value):
             rgb = (128, 128, 128)
         else:
-            cmap_low = config_get("cmap_low", 38)
-            cmap_high = config_get("cmap_high", 218)
+            cmap_low = config.get("cmap_low", 38)
+            cmap_high = config.get("cmap_high", 218)
             cmap_range = cmap_high - cmap_low
             cmap = cm.RdYlGn(int(cmap_range * value + cmap_low))[:3]
-            rgb = tuple([x * 256 for x in cmap])
+            rgb = tuple([int(x * 256) for x in cmap])
         return rgb
 
     @property
@@ -243,10 +267,7 @@ class Score(SciUnit):
                             Otherwise, `None`.
         """
         d = self._describe()
-        if quiet:
-            return d
-        else:
-            log(d)
+        return d
 
     @property
     def raw(self) -> str:
@@ -336,6 +357,30 @@ class Score(SciUnit):
         else:
             result = self.score <= other
         return result
+
+    def render_beautiful_msg(self, color: tuple, bg_brightness: int, msg: str):
+        result = ""
+        result += f"\x1b[38;2;{color[0]};{color[1]};{color[2]}m"
+        result += f"\x1b[48;2;{bg_brightness};{bg_brightness};{bg_brightness}m"
+        result += msg
+        result += "\x1b[0m"
+        return result
+
+    def log(self, **kwargs):
+        if self.norm_score is not None:
+            level = 100 - math.floor(self.norm_score * 99)
+        else:
+            level = 50
+        kwargs = {
+            k: v
+            for k, v in kwargs.items()
+            if k in ["exc_info", "stack_info", "stacklevel", "extra"]
+        }
+        msg = "Score: %s for %s on %s" % (self, self.model, self.test)
+        color = self.color()
+        bg_brightness = config.get("score_bg_brightness", 50)
+        msg = self.render_beautiful_msg(color, bg_brightness, msg)
+        score_logger.log(level, msg, **kwargs)
 
     @property
     def score_type(self):

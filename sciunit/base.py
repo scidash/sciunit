@@ -8,26 +8,150 @@ if PYTHON_MAJOR_VERSION < 3:  # Python 2
     raise Exception("Only Python 3 is supported")
 
 import hashlib
+import inspect
 import json
-import pickle
+import logging
 from pathlib import Path
-from typing import Any, List, Union
-
-import git
-import numpy as np
-import pandas as pd
-from git.cmd import Git
-from git.exc import GitCommandError, InvalidGitRepositoryError
-from git.remote import Remote
-from git.repo.base import Repo
+from typing import Any, List
 
 try:
     import tkinter
 except ImportError:
     tkinter = None
+try:
+    from importlib.metadata import version
 
-KERNEL = "ipykernel" in sys.modules
-HERE = Path(__file__).resolve().parent.name
+    __version__ = version("sciunit")
+except:
+    __version__ = None
+
+import bs4
+import git
+from deepdiff import DeepDiff
+from git.cmd import Git
+from git.exc import GitCommandError, InvalidGitRepositoryError
+from git.remote import Remote
+from git.repo.base import Repo
+import jsonpickle
+import jsonpickle.ext.numpy as jsonpickle_numpy
+from jsonpickle.handlers import BaseHandler
+import numpy as np
+import quantities as pq
+
+ipy = "ipykernel" in sys.modules
+here = Path(__file__).resolve().parent.name
+
+# Set up generic logger
+logger = logging.getLogger("sciunit")
+logger.setLevel(logging.WARNING)
+
+
+class Config(dict):
+    """Configuration class for sciunit"""
+
+    def __init__(self, *args, **kwargs):
+        self.load()
+        super().__init__(*args, **kwargs)
+
+    default = {
+        "cmap_high": 218,
+        "cmap_low": 38,
+        "score_log_level": 1,
+        "log_level": logging.INFO,
+        "prevalidate": False,
+        "cwd": here,
+    }
+
+    _path = Path.home() / ".sciunit" / "config.json"
+
+    @property
+    def path(self):
+        """Guarantees that the requested path will be Path object"""
+        return Path(self._path)
+
+    @path.setter
+    def path(self, val):
+        """Guarantees that any new paths will be Path object"""
+        self._path = Path(val)
+
+    def __getitem__(self, key):
+        return self.get(key)
+
+    def get(self, key, default=None, update_from_disk=True):
+        key = key.lower()
+        try:
+            val = super().__getitem__(key)
+        except KeyError:
+            c = self.get_from_disk()
+            if default is None:
+                val = c[key]
+            else:
+                val = c.get(key, default)
+            if update_from_disk:
+                self[key.lower()] = val
+        return val
+
+    def set(self, key, val):
+        self.__setitem__(key, val)
+
+    def __setitem__(self, key, val):
+        key = key.lower()
+        super().__setitem__(key, val)
+
+    def get_from_disk(self):
+        try:
+            with open(self.path, "r") as f:
+                c = json.load(f)
+        except FileNotFoundError:
+            logger.warning(
+                "Config file not found at '%s'; creating new one" % self.path
+            )
+            self.create()
+            return self.get_from_disk()
+        except json.JSONDecodeError:
+            logger.warning(
+                "Config file JSON at '%s' was invalid; creating new one" % self.path
+            )
+            self.create()
+            return self.get_from_disk()
+        return c
+
+    def create(self, data: dict = None) -> bool:
+        """Create a config file that store any data from the user.
+
+        Args:
+            data (dict): The data that will be written to the new config file.
+
+        Returns:
+            bool: Config file creation is successful
+        """
+        if not data:
+            data = self.default
+        success = False
+        try:
+            config_dir = self.path.parent
+            config_dir.mkdir(exist_ok=True, parents=True)
+            data["sciunit_version"] = __version__
+            with open(self.path, "w") as f:
+                f.seek(0)
+                f.truncate()
+                json.dump(data, f)
+            success = True
+        except Exception as e:
+            logger.warning("Could not create config file: %s" % e)
+        return success
+
+    def load(self):
+        c = self.get_from_disk()
+        for key, val in c.items():
+            key = key.lower()
+            self[key] = val
+
+    def save(self):
+        self.create(data=self)
+
+
+config = Config()
 
 
 class Versioned(object):
@@ -87,22 +211,30 @@ class Versioned(object):
 
     version = property(get_version)
 
-    def get_remote(self, remote: str = "origin") -> Remote:
+    def get_remote(self, remote_name: str = "origin", **kwargs) -> Remote:
         """Get a git remote object for this instance.
 
         Args:
-            remote (str, optional): The remote Git repo. Defaults to 'origin'.
+            remote_name (str, optional): The remote Git repo. Defaults to 'origin'.
 
         Returns:
             Remote: The git remote object for this instance.
         """
-        repo = self.get_repo()
-        if repo is not None:
-            remotes = {r.name: r for r in repo.remotes}
-            r = repo.remotes[0] if remote not in remotes else remotes[remote]
+        repo = kwargs["repo"] if "repo" in kwargs else self.get_repo()
+
+        if repo is None:
+            return None
+
+        if len(repo.remotes) == 0:
+            return None
+
+        matching = [r for r in repo.remotes if r.name == remote_name]
+        if (len(matching) > 0):
+            # => Remote with remote_name
+            return matching[0]
         else:
-            r = None
-        return r
+            # => just any first Remote
+            return repo.remotes[0]
 
     def get_remote_url(self, remote: str = "origin", cached: bool = True) -> str:
         """Get a git remote URL for this instance.
@@ -147,16 +279,19 @@ class SciUnit(Versioned):
 
     def __init__(self):
         """Instantiate a SciUnit object."""
-        self.unpicklable = []
-
+        pass
+    
     #: A list of attributes that cannot or should not be pickled.
-    unpicklable = []
-
     #: A URL where the code for this object can be found.
     _url = None
 
     #: A verbosity level for printing information.
     verbose = 1
+
+    #: A class attribute containing a list of other attributes to be hidden
+    # from state calculations
+    state_hide = ['hash', 'pickling', 'temp_dir']
+    
 
     def __getstate__(self) -> dict:
         """Copy the object's state from self.__dict__.
@@ -167,40 +302,17 @@ class SciUnit(Versioned):
         Returns:
             dict: The state of this instance.
         """
-        state = self.__dict__.copy()
-        # Remove the unpicklable entries.
-        if hasattr(self, "unpicklable"):
-            for key in set(self.unpicklable).intersection(state):
-                del state[key]
+        state = dict(inspect.getmembers(self))
+        
+        state_hide = list(self.get_list_attr_with_bases("state_hide"))
+        state_hide += ['state_hide']
+        state = {k: v for k, v in state.items()
+                 if k not in state_hide
+                 and not k.startswith("_")
+                 and not inspect.ismethod(v)}
         return state
 
-    def _state(
-        self, state: dict = None, keys: list = None, exclude: List[str] = None
-    ) -> dict:
-        """Get the state of the instance.
-
-        Args:
-            state (dict, optional): The dict instance that contains a part of state info of this instance.
-                                    Defaults to None.
-            keys (list, optional): Some keys of `state`. Values in `state` associated with these keys will be kept
-                                   and others will be discarded. Defaults to None.
-            exclude (List[str], optional): The list of keys. Values in `state` that associated with these keys
-                                           will be removed from `state`. Defaults to None.
-
-        Returns:
-            dict: The state of the current instance.
-        """
-
-        if state is None:
-            state = self.__getstate__()
-        if keys:
-            state = {key: state[key] for key in keys if key in state.keys()}
-        if exclude:
-            state = {key: state[key] for key in state.keys() if key not in exclude}
-            state = deep_exclude(state, exclude)
-        return state
-
-    def _properties(self, keys: list = None, exclude: list = None) -> dict:
+    def properties(self, keys: list = None, exclude: list = None) -> dict:
         """Get the properties of the instance.
 
         Args:
@@ -211,115 +323,88 @@ class SciUnit(Versioned):
         Returns:
             dict: The dict of properties of the instance.
         """
-        result = {}
-        props = self.raw_props()
         exclude = exclude if exclude else []
         exclude += ["state", "id"]
-        for prop in set(props).difference(exclude):
-            if prop == "properties":
-                pass  # Avoid infinite recursion
-            elif not keys or prop in keys:
-                result[prop] = getattr(self, prop)
+        props = set(self.property_names())
+        props -= set(exclude)
+        if keys:
+            props &= set(keys)
+        result = {prop: getattr(self, prop) for prop in props}
+        
         return result
 
-    def raw_props(self) -> list:
+    def property_names(self) -> list:
         """Get the raw properties of the instance.
 
         Returns:
             list: The list of raw properties.
         """
-        class_attrs = dir(self.__class__)
-        return [
-            p
-            for p in class_attrs
-            if isinstance(getattr(self.__class__, p, None), property)
-        ]
+        sciunit_props = set()
+        other_props = set()
+        bases = list(self.__class__.__bases__)
+        bases.append(self.__class__)
+        for base in bases:
+            class_attrs = dir(base)
+            class_props = set([p for p in class_attrs if isinstance(getattr(base, p, None), property)])
+            if issubclass(base, SciUnit):   
+                sciunit_props |= class_props
+            else:
+                other_props |= class_props
+        state_hide = set(self.get_list_attr_with_bases("state_hide"))
+        return list(sciunit_props - other_props - state_hide)
 
-    @property
-    def state(self) -> dict:
-        """Get the state of the instance.
-
-        Returns:
-            dict: The state of the instance.
-        """
-        return self._state()
-
-    @property
-    def properties(self) -> dict:
-        """Get the properties of the instance.
-
-        Returns:
-            dict: The properties of the instance.
-        """
-        return self._properties()
-
-    @classmethod
-    def dict_hash(cls, d: dict) -> str:
-        """SHA224 encoded value of `d`.
-
-        Args:
-            d (dict): The dict instance to be SHA224 encoded.
-
-        Returns:
-            str: SHA224 encoded value of `d`.
-        """
-        od = [(key, d[key]) for key in sorted(d)]
-        try:
-            s = pickle.dumps(od)
-        except AttributeError:
-            s = json.dumps(od, cls=SciUnitEncoder).encode("utf-8")
-
-        return hashlib.sha224(s).hexdigest()
-
-    @property
-    def hash(self) -> str:
-        """A unique numeric identifier of the current model state.
-
-        Returns:
-            str: The unique numeric identifier of the current model state.
-        """
-        return self.dict_hash(self.state)
+    # @property
+    # def state(self) -> dict:
+    #    """Get the state of the instance.
+    #
+    #    Returns:
+    #        dict: The state of the instance.
+    #    """
+    #    return self._state()
 
     def json(
-        self,
-        add_props: bool = False,
-        keys: list = None,
-        exclude: list = None,
-        string: bool = True,
-        indent: None = None,
-    ) -> str:
+        self, add_props: bool = True, string: bool = True, unpicklable: bool = False, make_refs: bool = False) -> str:
         """Generate a Json format encoded sciunit instance.
 
         Args:
             add_props (bool, optional): Whether to add additional properties of the object to the serialization. Defaults to False.
-            keys (list, optional): Only the keys in `keys` will be included in the json content. Defaults to None.
-            exclude (list, optional): The keys in `exclude` will be excluded from the json content. Defaults to None.
             string (bool, optional): The json content will be `str` type if True, `dict` type otherwise. Defaults to True.
-            indent (None, optional): If indent is a non-negative integer or string, then JSON array elements and object members
-                                    will be pretty-printed with that indent level. An indent level of 0, negative, or "" will only
-                                    insert newlines. None (the default) selects the most compact representation. Using a positive integer
-                                    indent indents that many spaces per level. If indent is a string (such as "\t"), that string is
-                                    used to indent each level (source: https://docs.python.org/3/library/json.html#json.dump).
-                                    Defaults to None.
 
         Returns:
             str: The Json format encoded sciunit instance.
         """
-        result = json.dumps(
-            self,
-            cls=SciUnitEncoder,
-            add_props=add_props,
-            keys=keys,
-            exclude=exclude,
-            indent=indent,
-        )
+        
+        # Possible set jsonpickle handler options
+        # This will also apply recursively to all nested objects
+        for k, v in locals().items():
+            if k != 'self':
+                if v is not None:
+                    setattr(SciUnitHandler, k, v)
+        
+        # Do the encoding
+        result = jsonpickle.encode(self)
+
+        # Possibly convert back to dict
         if not string:
             result = json.loads(result)
+        
         return result
 
-    @property
-    def _id(self) -> Any:
-        return id(self)
+    def diff(self, other, add_props=False):
+        s = self.json(add_props=add_props, string=False)
+        o = other.json(add_props=add_props, string=False)
+        return DeepDiff(s, o)
+
+    def hash(self, serialization: str = None) -> str:
+        """A unique numeric identifier of the current state
+        of a SciUnit object.
+
+        Returns:
+            str: The unique numeric identifier of the current model state.
+        """
+        if serialization is None:
+            serialization = json.dumps(self.json())
+        return hashlib.sha224(serialization.encode("latin1")).hexdigest()
 
     @property
     def _class(self) -> dict:
@@ -330,64 +415,16 @@ class SciUnit(Versioned):
         return {"name": self.__class__.__name__, "import_path": import_path, "url": url}
 
     @property
-    def id(self) -> str:
-        return str(self.json)
-
-    @property
     def url(self) -> str:
         return self._url if self._url else self.remote_url
 
-
-class SciUnitEncoder(json.JSONEncoder):
-    """Custom JSON encoder for SciUnit objects."""
-
-    def __init__(self, *args, **kwargs):
-        for key in ["add_props", "keys", "exclude"]:
-            if key in kwargs:
-                setattr(self.__class__, key, kwargs[key])
-                kwargs.pop(key)
-        super(SciUnitEncoder, self).__init__(*args, **kwargs)
-
-    def default(self, obj: Any) -> Union[str, dict, list]:
-        """Try to encode the object.
-
-        Args:
-            obj (Any): Any object to be encoded
-
-        Raises:
-            e: Could not JSON serialize the object.
-
-        Returns:
-            Union[str, dict, list]: Encoded object.
-        """
-        try:
-            if isinstance(obj, pd.DataFrame):
-                o = obj.to_dict(orient="split")
-                if isinstance(obj, SciUnit):
-                    for old, new in [
-                        ("data", "scores"),
-                        ("columns", "tests"),
-                        ("index", "models"),
-                    ]:
-                        o[new] = o.pop(old)
-            elif isinstance(obj, np.ndarray) and len(obj.shape):
-                o = obj.tolist()
-            elif isinstance(obj, SciUnit):
-                state = obj.state
-                if self.add_props:
-                    state.update(obj.properties)
-                o = obj._state(state=state, keys=self.keys, exclude=self.exclude)
-            elif isinstance(
-                obj, (dict, list, tuple, str, type(None), bool, float, int)
-            ):
-                o = json.JSONEncoder.default(self, obj)
-            else:  # Something we don't know how to serialize;
-                # just represent it as truncated string
-                o = "%.20s..." % obj
-        except Exception as e:
-            print("Could not JSON encode object %s" % obj)
-            raise e
-        return o
+    def get_list_attr_with_bases(self, attr: str) -> list:
+        """Gets a concatenated list of values for an attribute across all parent classes.
+        The attribute must be a list."""
+        val = set()
+        for cls in self.__class__.__mro__:
+            val |= set(getattr(cls, attr, []))
+        return list(val)
 
 
 class TestWeighted(object):
@@ -436,3 +473,116 @@ def deep_exclude(state: dict, exclude: list) -> dict:
                 else:
                     s = s[key]
     return state
+
+
+def log(*args, **kwargs):
+    level = kwargs.get("level", config.get("LOGGING", default=logging.INFO))
+    kwargs = {
+        k: v
+        for k, v in kwargs.items()
+        if k in ["exc_info", "stack_info", "stacklevel", "extra"]
+    }
+    for arg in args:
+        arg = strip_html(arg)
+        logger.log(level, arg, **kwargs)
+
+
+def strip_html(html):
+    return html if isinstance(html, Exception) else bs4.BeautifulSoup(html, "lxml").text
+
+
+class SciUnitHandler(BaseHandler):
+    """jsonpickle handler for SciUnit objects"""
+
+    add_props = True
+    make_refs = False
+    unpicklable = False
+    string = True
+    
+    def flatten(self, obj, data):
+        """Flatten SciUnit objects"""
+        state = obj.__getstate__()
+        if self.add_props:
+            state.update(obj.properties())
+        result = self.context.flatten(state)
+        
+        if self.unpicklable:
+            data['py/object'] = obj.__class__.__name__
+            data['py/state'] = result
+        else:
+            data = self.simplify(result)    
+        data['hash'] = obj.hash(serialization=json.dumps(data))
+        return data
+
+    def restore(self, data):
+        return NotImplemented
+    
+    def simplify(self, d):
+        """Set all 'py/' key:value pairs to their value"""
+
+        if isinstance(d, dict):
+            try:
+                del d['py/object']
+            except:
+                pass
+            for key in d:
+                if key == 'py/object':
+                    del d[key]
+                elif 'py/' in key:
+                    d = d[key]
+                    break        
+        if isinstance(d, dict):
+            for k, v in d.items():
+                d[k] = self.simplify(v)
+        elif isinstance(d, list):
+            for i, x in enumerate(d):
+                d[i] = self.simplify(x)
+        return d
+
+
+class QuantitiesHandler(BaseHandler):
+    def flatten(self, obj, data):
+        """This methods flattens all quantities into a base and units"""
+        result = {'base': str(obj.base.tolist()),
+                  'units': str(obj._dimensionality)}
+        if self.context.unpicklable:
+            data['py/state'] = result
+        else:
+            data = result
+        return data
+    
+    def restore(self, data):
+        """If jsonpickle.encode() is called with unpicklable=True then
+        this method is used by jsonpickle.decode() to unserialize."""
+        try:
+            obj = data['py/state']
+        except KeyError:
+            obj = data
+        base = np.array(obj['base'], dtype=np.float64)
+        units = obj['units']
+        return pq.Quantity(base, units)
+
+
+class UnitQuantitiesHandler(BaseHandler):
+    """Same as above but for unit quantities e.g. Test.units"""
+    def flatten(self, obj, data):
+        result = str(obj._dimensionality)
+        if self.context.unpicklable:
+            data['py/state'] = result
+        else:
+            data = result
+        return data
+    
+    def restore(self, data):
+        try:
+            units = data['py/state']
+        except KeyError:
+            units = data
+        return pq.unit_registry[units]
+
+
+# Register serialization handlers
+jsonpickle.handlers.register(SciUnit, handler=SciUnitHandler, base=True)
+jsonpickle.handlers.register(pq.Quantity, handler=QuantitiesHandler)
+jsonpickle.handlers.register(pq.UnitQuantity, handler=UnitQuantitiesHandler)
+jsonpickle_numpy.register_handlers()
