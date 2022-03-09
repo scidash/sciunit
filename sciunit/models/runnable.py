@@ -18,8 +18,9 @@ class RunnableModel(Model, cap.Runnable):
         name,  # Name of the model
         backend=None,  # Backend to run the models
         attrs=None,  # Optional dictionary of model attributes
+        **params,
     ):
-        super(RunnableModel, self).__init__(name=name)
+        super(RunnableModel, self).__init__(name=name, **params)
         self.skip_run = False  # Backend can use this to skip simulation
         self.run_params = {}  # Should be reset between tests
         self.print_run_params = False  # Print the run parameters with each run
