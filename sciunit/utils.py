@@ -1026,11 +1026,67 @@ def memoize(fn=None):
 
     return decorated
 
-
 class_intern = intern.intern
 
 method_memoize = memoize
 
+def use_backend_cache(original_function=None, cache_key_param=None):
+    """
+    Decorator for test functions (in particular `generate_prediction`) to cache
+    the function output on the first execution and return the output from the
+    cache without recomputing on any subsequent execution.
+    The function needs to take a model as an argument, and the caching relies on
+    the model's backend. If it doesn't have a backend the caching step is
+    skipped.
+    Per default, a test instance specific hash is used to link the model to the
+    test's function output. However, optionally, a custom hash key name can be
+    passed to the decorator to use the hash stored in
+    `self.params[<hash key name>]` instead (e.g. for using a shared cache for
+    redundant calculations on the same model across tests).
+    """
+
+    def _decorate(function):
+
+        @functools.wraps(function)
+        def wrapper(self, *args, **kwargs):
+            sig = inspect.signature(function)
+            if 'model' in kwargs:
+                model = kwargs['model']
+            elif 'model' in sig.parameters.keys():
+                model = args[list(sig.parameters.keys()).index('model')-1]
+            else:
+                model = None
+                warnings.warn("The decorator `use_backend_cache` can only "
+                              "be used for test class functions that get "
+                              "'model' as an argument! Caching is skipped.")
+
+            cache_key = None
+            if cache_key_param:
+                if cache_key_param in self.params:
+                    cache_key = self.params[cache_key_param]
+                else:
+                    model = None
+                    warnings.warn("The value for the decorator arguement "
+                                  "cache_key_param value can not be found in "
+                                  "self.params! Caching is skipped.")
+
+            function_output = self.get_backend_cache(model=model,
+                                                     key=cache_key)
+
+            if function_output is None:
+                function_output = function(self, *args, **kwargs)
+                self.set_backend_cache(model=model,
+                                       function_output=function_output,
+                                       key=cache_key)
+
+            return function_output
+
+        return wrapper
+
+    if original_function:
+        return _decorate(original_function)
+    else:
+        return _decorate
 
 def style():
     """Style a notebook with the current sciunit CSS file"""
@@ -1056,7 +1112,7 @@ def style():
     display(
         HTML(
             """
-                 <style>  
+                 <style>
                  %s
                  </style>
                  """

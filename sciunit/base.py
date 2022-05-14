@@ -312,6 +312,9 @@ class SciUnit(Versioned):
         
         state_hide = list(self.get_list_attr_with_bases("state_hide"))
         state_hide += ['state_hide']
+        if hasattr(self, 'dont_hide'):
+            state_hide = [x for x in state_hide if x not in self.dont_hide]
+        
         state = {k: v for k, v in state.items()
                  if k not in state_hide
                  and not k.startswith("_")

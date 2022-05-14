@@ -1,9 +1,7 @@
-[![Travis](https://travis-ci.com/scidash/sciunit.svg?branch=master)](https://travis-ci.com/scidash/sciunit)
+[![Python package](https://github.com/scidash/sciunit/actions/workflows/python-package.yml/badge.svg)](https://github.com/scidash/sciunit/actions/workflows/python-package.yml)
 [![RTFD](https://readthedocs.org/projects/sciunit/badge/?version=master&x=1)](http://sciunit.readthedocs.io/en/latest/?badge=master)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/scidash/sciunit/master?filepath=docs%2Fchapter1.ipynb)
 [![Coveralls](https://coveralls.io/repos/github/scidash/sciunit/badge.svg?branch=master&x=1)](https://coveralls.io/github/scidash/sciunit?branch=master)
-[![Requirements](https://requires.io/github/scidash/sciunit/requirements.svg?branch=master)](https://requires.io/github/scidash/sciunit/requirements/?branch=master)
-[![Docker Build Status](https://img.shields.io/docker/cloud/automated/scidash/sciunit.svg)](https://hub.docker.com/r/scidash/sciunit/builds/)
 [![Repos using Sciunit](https://img.shields.io/librariesio/dependent-repos/pypi/sciunit.svg?x=3)](https://github.com/scidash/sciunit/network/dependents?dependent_type=REPOSITORY)
 ![Downloads from PyPI](https://img.shields.io/pypi/dm/sciunit?x=1)
 
