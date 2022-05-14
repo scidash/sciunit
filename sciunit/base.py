@@ -42,7 +42,13 @@ ipy = "ipykernel" in sys.modules
 here = Path(__file__).resolve().parent.name
 
 # Set up generic logger
+logging.debug(' ')  # <-- magic (https://stackoverflow.com/questions/43109355/logging-setlevel-is-being-ignored)
+#logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger("sciunit")
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 logger.setLevel(logging.WARNING)
 
 
