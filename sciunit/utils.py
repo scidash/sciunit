@@ -730,7 +730,7 @@ def fn_kwargs(callable):
 
     """
     fn = get_fn(callable)
-    (args, _, _, defaults) = inspect.getargspec(fn)
+    (args, _, _, defaults, _, _, _) = inspect.getfullargspec(fn)
     if defaults is None:
         return {}
     return dict(list(zip(reversed(args), reversed(defaults))))
