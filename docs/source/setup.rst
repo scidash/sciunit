@@ -12,13 +12,13 @@ Installation
 Note: SciUnit no longer supports Python 2. Please use Python 3.
 
 SciUnit can be installed in virtual environments using the :code:`pip` Python package installer.
-A virtual environment can be set up using the in-built Python :code:`venv` module, as explained `here <https://docs.python.org/3/tutorial/venv.html>`__, or using other tools such as Miniconda_.
+A virtual environment can be set up using the in-built Python :code:`venv` module, as explained `here <https://docs.python.org/3/tutorial/venv.html>`__, or using other tools such as `Miniconda <https://docs.conda.io/en/latest/miniconda.html>`__.
 
-.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 
 In the virtual environment, run the following command to install SciUnit as a Python package using :code:`pip`.
 
 .. code-block:: bash
+
     pip install sciunit
 
 
@@ -26,4 +26,5 @@ On `Fedora Linux <https://getfedora.org>`__ installations, the `NeuroFedora spec
 SciUnit can, therefore, be installed using the system package manager, :code:`dnf` :
 
 .. code-block:: bash
+
     sudo dnf install python3-sciunit
