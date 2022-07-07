@@ -8,12 +8,23 @@ SciUnit is a framework for validating scientific models by creating experimental
 
 Installation
 ----------------
-Setting up Miniconda_ before the installation of SciUnit. 
 
-.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
+Note: SciUnit no longer supports Python 2. Please use Python 3.
 
-Then, in the Conda environment, using pip to install SciUnit as a Python package. 
+SciUnit can be installed in virtual environments using the :code:`pip` Python package installer.
+A virtual environment can be set up using the in-built Python :code:`venv` module, as explained `here <https://docs.python.org/3/tutorial/venv.html>`__, or using other tools such as `Miniconda <https://docs.conda.io/en/latest/miniconda.html>`__.
+
+
+In the virtual environment, run the following command to install SciUnit as a Python package using :code:`pip`.
 
 .. code-block:: bash
+
     pip install sciunit
-Note: SciUnit is no longer support Python 2.
+
+
+On `Fedora Linux <https://getfedora.org>`__ installations, the `NeuroFedora special interest group <https://neuro.fedoraproject.org>`__ also provides SciUnit as a curated package in the Fedora community repositories.
+SciUnit can, therefore, be installed using the system package manager, :code:`dnf` :
+
+.. code-block:: bash
+
+    sudo dnf install python3-sciunit
