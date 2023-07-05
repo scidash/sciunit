@@ -889,7 +889,6 @@ class intern(object):
         # define an override for __new__ which looks in the cache first
         def __new__(cls, *args, **kwargs):
             """Override used by sciunit.utils.intern to cache instances of this class."""
-            print(877987987)
             # check cache
             __init__ = cls.__init__
             try:
