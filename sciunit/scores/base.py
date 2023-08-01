@@ -1,6 +1,6 @@
 """Base class for SciUnit scores."""
 
-import imp
+import importlib
 import logging
 import math
 import sys
@@ -16,7 +16,7 @@ from sciunit.errors import InvalidScoreError
 # Set up score logger
 score_logger = logging.getLogger("sciunit_scores")
 if ipy:
-    imp.reload(logging)
+    importlib.reload(logging)
     sl_handler = logging.StreamHandler(sys.stdout)
     score_logger.addHandler(sl_handler)
 score_log_level = config.get("score_log_level", 1)
