@@ -26,7 +26,7 @@ import nbconvert
 import nbformat
 from IPython.display import HTML, display
 from nbconvert.preprocessors import ExecutePreprocessor
-from nbconvert.preprocessors.execute import CellExecutionError
+from nbclient.exceptions import CellExecutionError
 from quantities.dimensionality import Dimensionality
 from quantities.quantity import Quantity
 
